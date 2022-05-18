@@ -3,13 +3,13 @@
 package externalversions
 
 import (
-	cluster "pkg/generated/informers/externalversions/cluster"
-	internalinterfaces "pkg/generated/informers/externalversions/internalinterfaces"
 	reflect "reflect"
 	sync "sync"
 	time "time"
 
-	versioned "./pkg/generated/clientset/versioned"
+	versioned "github.com/daocloud/kubean/pkg/generated/clientset/versioned"
+	cluster "github.com/daocloud/kubean/pkg/generated/informers/externalversions/cluster"
+	internalinterfaces "github.com/daocloud/kubean/pkg/generated/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

@@ -1,4 +1,4 @@
-module github.com/daocloud/kubespray-operator
+module github.com/daocloud/kubean
 
 go 1.17
 
