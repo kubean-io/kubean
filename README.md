@@ -1,2 +1,0 @@
-# kubespray-operator
-
