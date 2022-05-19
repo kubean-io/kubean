@@ -12,8 +12,8 @@ type FakeClusterV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeClusterV1alpha1) Clusters() v1alpha1.ClusterInterface {
-	return &FakeClusters{c}
+func (c *FakeClusterV1alpha1) KuBeanClusters() v1alpha1.KuBeanClusterInterface {
+	return &FakeKuBeanClusters{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
