@@ -42,10 +42,40 @@ spec:
             description: Spec represents the specification of the desired behavior
               of member cluster.
             properties:
-              test:
-                type: string
+              hostsConfRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
+              sshAuthRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
+              varsConfRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
             required:
-            - test
+            - hostsConfRef
+            - sshAuthRef
+            - varsConfRef
             type: object
           status:
             description: Status represents the status of member cluster.

@@ -24,9 +24,21 @@ type KuBeanCluster struct {
 	Status ClusterStatus `json:"status,omitempty"`
 }
 
+type ConfigMapRef struct {
+	NameSpace string `json:"nameSpace"`
+	Name      string `json:"name"`
+}
+
+type SecretRef struct {
+	NameSpace string `json:"nameSpace"`
+	Name      string `json:"name"`
+}
+
 // ClusterSpec defines the desired state of a member cluster.
 type ClusterSpec struct {
-	test string `json:"test"`
+	HostsConfRef *ConfigMapRef `json:"hostsConfRef"`
+	VarsConfRef  *ConfigMapRef `json:"varsConfRef"`
+	SSHAuthRef   *SecretRef    `json:"sshAuthRef"`
 }
 
 // ClusterStatus contains information about the current status of a
