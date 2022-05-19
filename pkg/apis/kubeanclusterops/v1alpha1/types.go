@@ -39,7 +39,7 @@ type ClusterSpec struct {
 	// +required
 	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
 	// +required
-	SShAuthRef *apis.SecretRef `json:"sshAuthRef"`
+	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
 	// +required
 	ActionType ActionType `json:"actionType"`
 	// +required
@@ -84,8 +84,8 @@ type ClusterStatus struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// KuBeanClusterListOps contains a list of member cluster.
-type KuBeanClusterListOps struct {
+// KuBeanClusterOpsList contains a list of member cluster.
+type KuBeanClusterOpsList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 

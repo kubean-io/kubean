@@ -1,4 +1,4 @@
-package tests
+package keepimport
 
 import _ "k8s.io/code-generator/cmd/deepcopy-gen"
 import _ "k8s.io/code-generator/cmd/client-gen"
