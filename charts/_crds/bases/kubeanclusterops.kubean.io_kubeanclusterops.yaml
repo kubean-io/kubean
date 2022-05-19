@@ -39,21 +39,110 @@ spec:
           metadata:
             type: object
           spec:
-            description: Spec represents the specification of the desired behavior
-              of member cluster.
+            description: ClusterSpec defines the desired state of a member cluster.
             properties:
-              test:
+              action:
                 type: string
+              actionType:
+                type: string
+              backoffLimit:
+                type: integer
+              hostsConfRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
+              image:
+                type: string
+              kuBeanCluster:
+                type: string
+              postHook:
+                items:
+                  properties:
+                    ActionType:
+                      type: string
+                    action:
+                      type: string
+                  required:
+                  - ActionType
+                  - action
+                  type: object
+                type: array
+              preHook:
+                items:
+                  properties:
+                    ActionType:
+                      type: string
+                    action:
+                      type: string
+                  required:
+                  - ActionType
+                  - action
+                  type: object
+                type: array
+              sshAuthRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
+              varsConfRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
             required:
-            - test
+            - action
+            - actionType
+            - backoffLimit
+            - hostsConfRef
+            - image
+            - kuBeanCluster
+            - sshAuthRef
+            - varsConfRef
             type: object
           status:
-            description: Status represents the status of member cluster.
+            description: ClusterStatus contains information about the current status
+              of a cluster updated periodically by cluster controller.
             properties:
-              testResult:
+              action:
+                type: string
+              endTime:
+                format: date-time
+                type: string
+              podRef:
+                properties:
+                  name:
+                    type: string
+                  nameSpace:
+                    type: string
+                required:
+                - name
+                - nameSpace
+                type: object
+              startTime:
+                format: date-time
+                type: string
+              status:
                 type: string
             required:
-            - testResult
+            - action
+            - podRef
+            - status
             type: object
         required:
         - spec

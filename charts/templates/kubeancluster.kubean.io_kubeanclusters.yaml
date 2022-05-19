@@ -39,8 +39,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: Spec represents the specification of the desired behavior
-              of member cluster.
+            description: ClusterSpec defines the desired state of a member cluster.
             properties:
               hostsConfRef:
                 properties:
@@ -78,12 +77,29 @@ spec:
             - varsConfRef
             type: object
           status:
-            description: Status represents the status of member cluster.
+            description: ClusterStatus contains information about the current status
+              of a cluster updated periodically by cluster controller.
             properties:
-              testResult:
-                type: string
+              conditions:
+                items:
+                  properties:
+                    clusterOps:
+                      type: string
+                    endTime:
+                      format: date-time
+                      type: string
+                    startTime:
+                      format: date-time
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - clusterOps
+                  - status
+                  type: object
+                type: array
             required:
-            - testResult
+            - conditions
             type: object
         required:
         - spec
