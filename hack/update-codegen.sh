@@ -22,7 +22,7 @@ deepcopy-gen \
   
 echo "Generating with register-gen"
 GO111MODULE=on go install k8s.io/code-generator/cmd/register-gen
-register-gen -v 10 \
+register-gen \
   --go-header-file hack/boilerplate/boilerplate.go.txt \
   --input-dirs=github.com/daocloud/kubean/pkg/apis/cluster/v1alpha1 \
   --output-package=github.com/daocloud/kubean/pkg/apis/cluster/v1alpha1 \

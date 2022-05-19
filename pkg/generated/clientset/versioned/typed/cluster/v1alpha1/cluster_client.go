@@ -12,16 +12,16 @@ import (
 
 type ClusterV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	ClustersGetter
+	KuBeanClustersGetter
 }
 
-// ClusterV1alpha1Client is used to interact with features provided by the cluster.kpanda.io group.
+// ClusterV1alpha1Client is used to interact with features provided by the cluster.kubean.io group.
 type ClusterV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ClusterV1alpha1Client) Clusters() ClusterInterface {
-	return newClusters(c)
+func (c *ClusterV1alpha1Client) KuBeanClusters() KuBeanClusterInterface {
+	return newKuBeanClusters(c)
 }
 
 // NewForConfig creates a new ClusterV1alpha1Client for the given config.
