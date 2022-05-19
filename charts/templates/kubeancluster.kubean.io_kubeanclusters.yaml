@@ -14,7 +14,7 @@ spec:
     listKind: KuBeanClusterList
     plural: kubeanclusters
     singular: kubeancluster
-  scope: KuBeanCluster
+  scope: Cluster
   versions:
   - additionalPrinterColumns:
     - jsonPath: .metadata.creationTimestamp
