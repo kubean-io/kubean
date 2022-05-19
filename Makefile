@@ -89,7 +89,6 @@ push-chart:
 	helm package ./charts/ -d dist --version $(KUBEAN_CHART_VERSION)
 	helm cm-push ./dist/kubean-$(KUBEAN_CHART_VERSION).tgz  kubean-release -a $(KUBEAN_CHART_VERSION) -v $(KUBEAN_CHART_VERSION) -u $(REGISTRY_USER_NAME)  -p $(REGISTRY_PASSWORD)
 
-
 .PHONY: upload-image
 upload-image: kubean-imgs
 	@echo "push images to $(REGISTRY_REPO)"
@@ -97,22 +96,22 @@ upload-image: kubean-imgs
 
 	@docker push $(REGISTRY_REPO)/kubean-demo:$(KUBEAN_IMAGE_VERSION)
 
-.PHONY: test-staticcheck
-test-staticcheck:
-	hack/verify-staticcheck.sh
-
 .PHONY: test
 test:
 	bash hack/unit-test.sh
 
 .PHONY: e2e-test
 e2e-test:
-	./hack/e2e.sh "$(KUBEAN_VERSION)" "${KUBEAN_IMAGE_VERSION}" "${HELM_REPO}" "${REGISTRY_REPO}"
+	bash hack/e2e.sh "$(KUBEAN_VERSION)" "${KUBEAN_IMAGE_VERSION}" "${HELM_REPO}" "${REGISTRY_REPO}"
 
 .PHONY: clear-kind
 clear-kind:
-	./hack/delete-kind-cluster.sh
+	bash hack/delete-kind-cluster.sh
+
+.PHONY: verify-import-alias
+ verify-import-alias:
+	bash hack/verify-import-alias.sh
 
 .PHONY: update
 update:
-	hack/update-all.sh
+	bash hack/update-all.sh
