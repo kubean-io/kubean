@@ -8,7 +8,7 @@ import (
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +kubebuilder:resource:scope="KuBeanClusterOps"
+// +kubebuilder:resource:scope="Cluster"
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:JSONPath=`.metadata.creationTimestamp`,name="Age",type=date
 
