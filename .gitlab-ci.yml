@@ -27,7 +27,7 @@ stages:
   - gitpages
   - build
   - post-merge-cd
- 
+
 static_check:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
