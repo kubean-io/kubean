@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/daocloud/kubean/pkg/apis"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -16,23 +17,69 @@ type KuBeanClusterOps struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec represents the specification of the desired behavior of member cluster.
 	Spec ClusterSpec `json:"spec"`
 
-	// Status represents the status of member cluster.
 	// +optional
 	Status ClusterStatus `json:"status,omitempty"`
 }
 
+type ActionType string
+
+const (
+	AnsiblePlaybookActionType ActionType = "ansible-playbook"
+	ShellActionType           ActionType = "shell"
+)
+
 // ClusterSpec defines the desired state of a member cluster.
 type ClusterSpec struct {
-	test string `json:"test"`
+	// +required
+	KuBeanCluster string `json:"kuBeanCluster"`
+	// +required
+	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
+	// +required
+	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
+	// +required
+	SShAuthRef *apis.SecretRef `json:"sshAuthRef"`
+	// +required
+	ActionType ActionType `json:"actionType"`
+	// +required
+	Action string `json:"action"`
+	// +required
+	BackoffLimit int `json:"backoffLimit"`
+	// +required
+	Image string `json:"image"`
+	// +optional
+	PreHook []HookAction `json:"preHook"`
+	// +optional
+	PostHook []HookAction `json:"postHook"`
 }
+
+type HookAction struct {
+	ActionType ActionType `json:"ActionType"`
+	Action     string     `json:"action"`
+}
+
+type ClusterOpsStatus string
+
+const (
+	RunningStatus   ClusterOpsStatus = "Running"
+	SucceededStatus ClusterOpsStatus = "Succeeded"
+	FailedStatus    ClusterOpsStatus = "Failed"
+)
 
 // ClusterStatus contains information about the current status of a
 // cluster updated periodically by cluster controller.
 type ClusterStatus struct {
-	testResult string `json:"testResult"`
+	// +required
+	Action string `json:"action"`
+	// +required
+	PodRef *apis.PodRef `json:"podRef"`
+	// +required
+	Status ClusterOpsStatus `json:"status"`
+	// +optional
+	StartTime *metav1.Time `json:"startTime"`
+	// +optional
+	EndTime *metav1.Time `json:"endTime"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

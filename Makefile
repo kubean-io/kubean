@@ -41,3 +41,18 @@ endif
 .PHONY: update
 update:
 	hack/update-all.sh
+
+
+.PHONY: test
+test:
+
+
+.PHONY: images
+images:
+ ## build all images
+
+
+.PHONY: upload-image
+upload-image:
+ ## push images
+

@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/daocloud/kubean/pkg/apis"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -16,35 +17,47 @@ type KuBeanCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec represents the specification of the desired behavior of member cluster.
 	Spec ClusterSpec `json:"spec"`
 
-	// Status represents the status of member cluster.
 	// +optional
 	Status ClusterStatus `json:"status,omitempty"`
 }
 
-type ConfigMapRef struct {
-	NameSpace string `json:"nameSpace"`
-	Name      string `json:"name"`
-}
-
-type SecretRef struct {
-	NameSpace string `json:"nameSpace"`
-	Name      string `json:"name"`
-}
-
 // ClusterSpec defines the desired state of a member cluster.
 type ClusterSpec struct {
-	HostsConfRef *ConfigMapRef `json:"hostsConfRef"`
-	VarsConfRef  *ConfigMapRef `json:"varsConfRef"`
-	SSHAuthRef   *SecretRef    `json:"sshAuthRef"`
+	// +required
+	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
+	// +required
+	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
+	// +required
+	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
+}
+
+type ClusterConditionType string
+
+const (
+	ClusterConditionCreating ClusterConditionType = "Running"
+
+	ClusterConditionRunning ClusterConditionType = "Succeeded"
+
+	ClusterConditionUpdating ClusterConditionType = "Failed"
+)
+
+type ClusterCondition struct {
+	// +required
+	ClusterOps string `json:"clusterOps"`
+	// +required
+	Status ClusterConditionType `json:"status"`
+	// +optional
+	StartTime *metav1.Time `json:"startTime"`
+	// +optional
+	EndTime *metav1.Time `json:"endTime"`
 }
 
 // ClusterStatus contains information about the current status of a
 // cluster updated periodically by cluster controller.
 type ClusterStatus struct {
-	testResult string `json:"testResult"`
+	Conditions []ClusterCondition `json:"conditions"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
