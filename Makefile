@@ -56,3 +56,17 @@ images:
 upload-image:
  ## push images
 
+.PHONY: test-staticcheck
+test-staticcheck:
+	hack/verify-staticcheck.sh
+
+
+.PHONY: verify-code-gen
+verify-code-gen:
+	#hack/verify-codegen.sh
+	#hack/verify-crdgen.sh
+
+
+.PHONY: verify-vendor
+verify-vendor:
+	#hack/verify-vendor.sh

@@ -25,10 +25,13 @@ type KuBeanCluster struct {
 
 // ClusterSpec defines the desired state of a member cluster.
 type ClusterSpec struct {
+	// HostsConfRef stores hosts.yml.
 	// +required
 	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
+	// VarsConfRef stores group_vars.yml.
 	// +required
 	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
+	// SSHAuthRef stores ssh key.
 	// +required
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
 }
@@ -44,6 +47,7 @@ const (
 )
 
 type ClusterCondition struct {
+	// ClusterOps refers to the name of KuBeanClusterOps.
 	// +required
 	ClusterOps string `json:"clusterOps"`
 	// +required

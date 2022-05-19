@@ -42,6 +42,7 @@ spec:
             description: ClusterSpec defines the desired state of a member cluster.
             properties:
               hostsConfRef:
+                description: HostsConfRef stores hosts.yml.
                 properties:
                   name:
                     type: string
@@ -52,6 +53,7 @@ spec:
                 - nameSpace
                 type: object
               sshAuthRef:
+                description: SSHAuthRef stores ssh key.
                 properties:
                   name:
                     type: string
@@ -62,6 +64,7 @@ spec:
                 - nameSpace
                 type: object
               varsConfRef:
+                description: VarsConfRef stores group_vars.yml.
                 properties:
                   name:
                     type: string
@@ -84,6 +87,7 @@ spec:
                 items:
                   properties:
                     clusterOps:
+                      description: ClusterOps refers to the name of KuBeanClusterOps.
                       type: string
                     endTime:
                       format: date-time
