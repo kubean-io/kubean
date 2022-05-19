@@ -4,8 +4,8 @@ package fake
 
 import (
 	clientset "github.com/daocloud/kubean/pkg/generated/clientset/versioned"
-	dkgclusterv1alpha1 "github.com/daocloud/kubean/pkg/generated/clientset/versioned/typed/cluster/v1alpha1"
-	fakedkgclusterv1alpha1 "github.com/daocloud/kubean/pkg/generated/clientset/versioned/typed/cluster/v1alpha1/fake"
+	clusterv1alpha1 "github.com/daocloud/kubean/pkg/generated/clientset/versioned/typed/cluster/v1alpha1"
+	fakeclusterv1alpha1 "github.com/daocloud/kubean/pkg/generated/clientset/versioned/typed/cluster/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -63,7 +63,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// DkgclusterV1alpha1 retrieves the DkgclusterV1alpha1Client
-func (c *Clientset) DkgclusterV1alpha1() dkgclusterv1alpha1.DkgclusterV1alpha1Interface {
-	return &fakedkgclusterv1alpha1.FakeDkgclusterV1alpha1{Fake: &c.Fake}
+// ClusterV1alpha1 retrieves the ClusterV1alpha1Client
+func (c *Clientset) ClusterV1alpha1() clusterv1alpha1.ClusterV1alpha1Interface {
+	return &fakeclusterv1alpha1.FakeClusterV1alpha1{Fake: &c.Fake}
 }

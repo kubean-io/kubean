@@ -40,7 +40,7 @@ type clusters struct {
 }
 
 // newClusters returns a Clusters
-func newClusters(c *DkgclusterV1alpha1Client) *clusters {
+func newClusters(c *ClusterV1alpha1Client) *clusters {
 	return &clusters{
 		client: c.RESTClient(),
 	}

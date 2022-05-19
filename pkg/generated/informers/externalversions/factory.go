@@ -156,9 +156,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Dkgcluster() cluster.Interface
+	Cluster() cluster.Interface
 }
 
-func (f *sharedInformerFactory) Dkgcluster() cluster.Interface {
+func (f *sharedInformerFactory) Cluster() cluster.Interface {
 	return cluster.New(f, f.namespace, f.tweakListOptions)
 }
