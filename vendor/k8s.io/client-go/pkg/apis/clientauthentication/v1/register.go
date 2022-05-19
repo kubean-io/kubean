@@ -22,8 +22,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+<<<<<<<< HEAD:vendor/k8s.io/client-go/pkg/apis/clientauthentication/v1/register.go
 // GroupName is the group name use in this package
 const GroupName = "client.authentication.k8s.io"
+========
+// GroupName specifies the group name used to register the objects.
+const GroupName = "cluster.kpanda.io"
+
+// GroupVersion specifies the group and the version used to register the objects.
+var GroupVersion = v1.GroupVersion{Group: GroupName, Version: "v1alpha1"}
+>>>>>>>> f013bae6b043f938330025308411ff0da0219865:pkg/apis/cluster/v1alpha1/zz_generated.register.go
 
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1"}
