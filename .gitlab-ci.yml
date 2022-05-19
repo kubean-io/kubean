@@ -37,7 +37,7 @@ static_check:
   script:
     - golangci-lint run --timeout=10m && echo "pass" || exit 1
   interruptible: true
-
+ 
 verify_import_alias:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
