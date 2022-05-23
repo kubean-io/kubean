@@ -12,6 +12,12 @@ GIT_DIFF = $(shell git diff --quiet >/dev/null 2>&1; if [ $$? -eq 1 ]; then echo
 ifeq ($(GIT_DIFF), 1)
     GIT_TREESTATE = "dirty"
 endif
+BUILDDATE = $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+LDFLAGS := "-X github.com/daocloud/kubean/pkg/version.gitVersion=$(GIT_VERSION) \
+            -X github.com/daocloud/kubean/pkg/version.gitCommit=$(GIT_COMMIT_HASH) \
+            -X github.com/daocloud/kubean/pkg/version.gitTreeState=$(GIT_TREESTATE) \
+            -X github.com/daocloud/kubean/pkg/version.buildDate=$(BUILDDATE)"
 
 GOBIN         = $(shell go env GOBIN)
 ifeq ($(GOBIN),)
@@ -115,3 +121,30 @@ clear-kind:
 .PHONY: update
 update:
 	bash hack/update-all.sh
+.PHONY: test
+test:
+
+
+.PHONY: images
+images:
+ ## build all images
+
+
+.PHONY: upload-image
+upload-image:
+ ## push images
+
+.PHONY: test-staticcheck
+test-staticcheck:
+	hack/verify-staticcheck.sh
+
+
+.PHONY: verify-code-gen
+verify-code-gen:
+	#hack/verify-codegen.sh
+	#hack/verify-crdgen.sh
+
+
+.PHONY: verify-vendor
+verify-vendor:
+	#hack/verify-vendor.sh
