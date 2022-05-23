@@ -70,21 +70,21 @@ deploy:
 release: kubean-imgs upload-image push-chart
 
 .PHONY: kubean-imgs
-kubean-imgs: kubean-demo
+kubean-imgs: kubean-operator
 
-.PHONY: kubean-demo
-kubean-demo: $(SOURCES)
-	echo "Building kubean-demo for arch = $(BUILD_ARCH)"
+.PHONY: kubean-operator
+kubean-operator: $(SOURCES)
+	echo "Building kubean-operator for arch = $(BUILD_ARCH)"
 	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
-	! ( docker buildx ls | grep kubean-demo-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-demo-multi-platform-builder ;\
+	! ( docker buildx ls | grep kubean-operator-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-operator-multi-platform-builder ;\
 	docker buildx build \
 			--build-arg kubean_version=$(KUBEAN_VERSION) \
 			--build-arg UBUNTU_MIRROR=$(UBUNTU_MIRROR) \
-			--builder kubean-demo-multi-platform-builder \
+			--builder kubean-operator-multi-platform-builder \
 			--platform $(BUILD_ARCH) \
-			--tag $(REGISTRY_REPO)/kubean-demo:$(KUBEAN_IMAGE_VERSION)  \
-			--tag $(REGISTRY_REPO)/kubean-demo:latest  \
-			-f ./build/images/kubean-demo/Dockerfile \
+			--tag $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)  \
+			--tag $(REGISTRY_REPO)/kubean-operator:latest  \
+			-f ./build/images/kubean-operator/Dockerfile \
 			--load \
 			.
 
@@ -100,7 +100,7 @@ upload-image: kubean-imgs
 	@echo "push images to $(REGISTRY_REPO)"
 	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
 
-	@docker push $(REGISTRY_REPO)/kubean-demo:$(KUBEAN_IMAGE_VERSION)
+	@docker push $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
 
 .PHONY: test
 test:
