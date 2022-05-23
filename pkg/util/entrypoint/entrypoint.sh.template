@@ -1,0 +1,10 @@
+ #!/bin/bash
+
+# preinstall
+{{ .PreHookRun }}
+
+# run kubespray
+{{ .SprayRun }}
+
+# postinstall
+{{ .PostHookRun }}
