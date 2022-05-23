@@ -1,0 +1,57 @@
+{
+  "root": "./",
+  "title" : "容器管理文档站",
+  "author" : "Michael",
+  "description" : "囊括所有面向用户的文档",
+  "plugins": [
+    "tbfed-pagefooter",
+    "hide-element",
+    "expandable-chapters-small",
+    "anchors",
+    "anchor-navigation-ex",
+    "flexible-alerts",
+    "code",
+    "todo",
+    "donate",
+    "highlight"
+ ],
+ "pluginsConfig": {
+    "tbfed-pagefooter": {
+      "copyright":"Copyright &copy daocloud.io 2022",
+      "modify_label": "该文件修订时间：",
+      "modify_format": "YYYY-MM-DD HH:mm:ss"
+    },
+    "hide-element": {
+      "elements": [".gitbook-link"]
+    },
+    "donate": {
+      "wechat": "https://i.postimg.cc/tCPTP7gC/QRCode.png",
+      "button": "反馈",
+      "wechatText": "微信扫码"
+    },
+    "code": {
+      "copyButtons": true
+    },
+    "anchor-navigation-ex": {
+      "showLevel": false,
+      "associatedWithSummary": false,
+      "printLog": false,
+      "multipleH1": false,
+      "mode": "float",
+      "showGoTop":true,
+      "float": {
+          "floatIcon": "fa fa-navicon",
+          "showLevelIcon": false,
+          "level1Icon": "fa fa-hand-o-right",
+          "level2Icon": "fa fa-hand-o-right",
+          "level3Icon": "fa fa-hand-o-right"
+      },
+      "pageTop": {
+          "showLevelIcon": false,
+          "level1Icon": "fa fa-hand-o-right",
+          "level2Icon": "fa fa-hand-o-right",
+          "level3Icon": "fa fa-hand-o-right"
+      }
+    }
+  }
+}

@@ -25,6 +25,19 @@ GOBIN         = $(shell go env GOPATH)/bin
 endif
 GOIMPORTS     = $(GOBIN)/goimports
 
+# Images management
+REGISTRY_SERVER_ADDRESS?="release-ci.daocloud.io"
+REGISTRY_REPO?="$(REGISTRY_SERVER_ADDRESS)/kubean-ci"
+HELM_REPO?="https://$(REGISTRY_SERVER_ADDRESS)/chartrepo/kubean-ci"
+API_PKG    := ./api
+
+# Parameter
+KUBEAN_NAMESPACE="kubean-system"
+RETAIN_UI_IMAGE_WHEN_DEPLOY?="false" # on dev site, ui image in the helm chart maybe old( UI image tag will not get updated until sprint ends), so we should left ui as it was, then UI repo pipeline will CD ui image alone
+
+# CICD
+DEPLOY_ENV?="PROD"
+
 # Set your version by env or using latest tags from git
 VERSION?=""
 ifeq ($(VERSION), "")
@@ -37,12 +50,77 @@ ifeq ($(VERSION), "")
     endif
 endif
 
+# convert to git version to semver version v0.1.1-14-gb943a40 --> v0.1.1+14-gb943a40
+KUBEAN_VERSION := $(shell echo $(VERSION) | sed 's/-/+/1')
+
+# convert to git version to semver version v0.1.1+14-gb943a40 --> v0.1.1-14-gb943a40
+KUBEAN_IMAGE_VERSION := $(shell echo $(KUBEAN_VERSION) | sed 's/+/-/1')
+
+#v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
+KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
+
+
+
+## Deploy current version of helm package to target cluster of $(YOUR_KUBE_CONF) [not defined]
+.PHONY: deploy
+deploy:
+	bash hack/deploy.sh  "$(KUBEAN_CHART_VERSION)" "$(KUBEAN_IMAGE_VERSION)"  "$(YOUR_KUBE_CONF)" "$(KUBEAN_NAMESPACE)" "$(HELM_REPO)" "$(REGISTRY_REPO)" "$(RETAIN_UI_IMAGE_WHEN_DEPLOY)" "$(INSTALL_GLOBAL)" "$(DEPLOY_ENV)"
+
+.PHONY: release
+release: kubean-imgs upload-image push-chart
+
+.PHONY: kubean-imgs
+kubean-imgs: kubean-demo
+
+.PHONY: kubean-demo
+kubean-demo: $(SOURCES)
+	echo "Building kubean-demo for arch = $(BUILD_ARCH)"
+	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
+	! ( docker buildx ls | grep kubean-demo-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-demo-multi-platform-builder ;\
+	docker buildx build \
+			--build-arg kubean_version=$(KUBEAN_VERSION) \
+			--build-arg UBUNTU_MIRROR=$(UBUNTU_MIRROR) \
+			--builder kubean-demo-multi-platform-builder \
+			--platform $(BUILD_ARCH) \
+			--tag $(REGISTRY_REPO)/kubean-demo:$(KUBEAN_IMAGE_VERSION)  \
+			--tag $(REGISTRY_REPO)/kubean-demo:latest  \
+			-f ./build/images/kubean-demo/Dockerfile \
+			--load \
+			.
+
+.PHONY: push-chart
+push-chart:
+	#helm package -u ./charts/ -d ./dist/
+	helm repo add kubean-release $(HELM_REPO)
+	helm package ./charts/ -d dist --version $(KUBEAN_CHART_VERSION)
+	helm cm-push ./dist/kubean-$(KUBEAN_CHART_VERSION).tgz  kubean-release -a $(KUBEAN_CHART_VERSION) -v $(KUBEAN_CHART_VERSION) -u $(REGISTRY_USER_NAME)  -p $(REGISTRY_PASSWORD)
+
+.PHONY: upload-image
+upload-image: kubean-imgs
+	@echo "push images to $(REGISTRY_REPO)"
+	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
+
+	@docker push $(REGISTRY_REPO)/kubean-demo:$(KUBEAN_IMAGE_VERSION)
+
+.PHONY: test
+test:
+	bash hack/unit-test.sh
+
+.PHONY: e2e-test
+e2e-test:
+	bash hack/e2e.sh "$(KUBEAN_VERSION)" "${KUBEAN_IMAGE_VERSION}" "${HELM_REPO}" "${REGISTRY_REPO}"
+
+.PHONY: clear-kind
+clear-kind:
+	bash hack/delete-kind-cluster.sh
+
+.PHONY: verify-import-alias
+ verify-import-alias:
+	bash hack/verify-import-alias.sh
 
 .PHONY: update
 update:
-	hack/update-all.sh
-
-
+	bash hack/update-all.sh
 .PHONY: test
 test:
 

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kubean
+  name: kubean
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubean
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: kubean
+    spec:
+      containers:
+      - image: release-ci.daocloud.io/kubean-ci/kubean-demo:latest
+        name: nginx
+        resources: {}
+status: {}
