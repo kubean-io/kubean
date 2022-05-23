@@ -1,16 +1,21 @@
 package apis
 
-type ConfigMapRef struct {
+type DataRef struct {
 	NameSpace string `json:"nameSpace"`
 	Name      string `json:"name"`
 }
 
-type SecretRef struct {
-	NameSpace string `json:"nameSpace"`
-	Name      string `json:"name"`
+func (data *DataRef) IsEmpty() bool {
+	if data == nil || len(data.Name) == 0 {
+		return true
+	}
+	return false
 }
 
-type PodRef struct {
-	NameSpace string `json:"nameSpace"`
-	Name      string `json:"name"`
-}
+type ConfigMapRef = DataRef
+
+type SecretRef = DataRef
+
+type PodRef = DataRef
+
+type JobRef = DataRef

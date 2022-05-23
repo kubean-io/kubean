@@ -8,10 +8,14 @@ import (
 
 	"github.com/daocloud/kubean/pkg/controllers/cluster"
 	"github.com/daocloud/kubean/pkg/controllers/clusterops"
+	kubeanClusterClientSet "github.com/daocloud/kubean/pkg/generated/kubeancluster/clientset/versioned"
+	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
 	"github.com/daocloud/kubean/pkg/util"
 	"github.com/daocloud/kubean/pkg/version"
 
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -75,6 +79,7 @@ func StartManager(ctx context.Context, opt *Options) error {
 		return err
 	}
 	if err := setupManager(controllerManager, opt, ctx.Done()); err != nil {
+		klog.Errorf("setupManager %s", err)
 		return err
 	}
 	if err := controllerManager.Start(ctx); err != nil {
@@ -85,8 +90,27 @@ func StartManager(ctx context.Context, opt *Options) error {
 }
 
 func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan struct{}) error {
+	resetConfig, err := restclient.InClusterConfig()
+	if err != nil {
+		return err
+	}
+	ClientSet, err := kubernetes.NewForConfig(resetConfig)
+	if err != nil {
+		return err
+	}
+	clusterClientSet, err := kubeanClusterClientSet.NewForConfig(resetConfig)
+	if err != nil {
+		return err
+	}
+	clusterClientOpsSet, err := kubeanClusterOpsClientSet.NewForConfig(resetConfig)
+	if err != nil {
+		return err
+	}
 	clusterController := &cluster.Controller{
-		Client: mgr.GetClient(),
+		Client:              mgr.GetClient(),
+		ClientSet:           ClientSet,
+		KubeanClusterSet:    clusterClientSet,
+		KubeanClusterOpsSet: clusterClientOpsSet,
 	}
 	// the message type
 	if err := clusterController.SetupWithManager(mgr); err != nil {
@@ -94,7 +118,10 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		return err
 	}
 	clusterOpsController := &clusterops.Controller{
-		Client: mgr.GetClient(),
+		Client:              mgr.GetClient(),
+		ClientSet:           ClientSet,
+		KubeanClusterSet:    clusterClientSet,
+		KubeanClusterOpsSet: clusterClientOpsSet,
 	}
 	if err := clusterOpsController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager ClusterOps but %s", err)

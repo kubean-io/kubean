@@ -39,17 +39,17 @@ func (in *ClusterSpec) DeepCopyInto(out *ClusterSpec) {
 	*out = *in
 	if in.HostsConfRef != nil {
 		in, out := &in.HostsConfRef, &out.HostsConfRef
-		*out = new(apis.ConfigMapRef)
+		*out = new(apis.DataRef)
 		**out = **in
 	}
 	if in.VarsConfRef != nil {
 		in, out := &in.VarsConfRef, &out.VarsConfRef
-		*out = new(apis.ConfigMapRef)
+		*out = new(apis.DataRef)
 		**out = **in
 	}
 	if in.SSHAuthRef != nil {
 		in, out := &in.SSHAuthRef, &out.SSHAuthRef
-		*out = new(apis.SecretRef)
+		*out = new(apis.DataRef)
 		**out = **in
 	}
 	return

@@ -5,8 +5,12 @@ import (
 	"time"
 
 	kubeanclusterv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeancluster/v1alpha1"
+	kubeanClusterClientSet "github.com/daocloud/kubean/pkg/generated/kubeancluster/clientset/versioned"
+	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -14,6 +18,9 @@ import (
 
 type Controller struct {
 	client.Client
+	ClientSet           *kubernetes.Clientset
+	KubeanClusterSet    *kubeanClusterClientSet.Clientset
+	KubeanClusterOpsSet *kubeanClusterOpsClientSet.Clientset
 }
 
 func (c *Controller) Start(ctx context.Context) error {
