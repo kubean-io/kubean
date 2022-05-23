@@ -17,6 +17,7 @@ type KuBeanClusterOps struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +required
 	Spec ClusterSpec `json:"spec"`
 
 	// +optional
@@ -32,13 +33,17 @@ const (
 
 // ClusterSpec defines the desired state of a member cluster.
 type ClusterSpec struct {
+	// KuBeanCluster the name of KuBeanCluster.
 	// +required
 	KuBeanCluster string `json:"kuBeanCluster"`
-	// +required
+	// HostsConfRef will be filled by operator when it performs backup.
+	// +optional
 	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
-	// +required
+	// VarsConfRef will be filled by operator when it performs backup.
+	// +optional
 	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
-	// +required
+	// SSHAuthRef will be filled by operator when it performs backup.
+	// +optional
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
 	// +required
 	ActionType ActionType `json:"actionType"`
@@ -70,11 +75,13 @@ const (
 // ClusterStatus contains information about the current status of a
 // cluster updated periodically by cluster controller.
 type ClusterStatus struct {
-	// +required
+	// +optional
 	Action string `json:"action"`
-	// +required
+	// +optional
+	JobRef *apis.JobRef `json:"jobRef"`
+	// +optional
 	PodRef *apis.PodRef `json:"podRef"`
-	// +required
+	// +optional
 	Status ClusterOpsStatus `json:"status"`
 	// +optional
 	StartTime *metav1.Time `json:"startTime"`

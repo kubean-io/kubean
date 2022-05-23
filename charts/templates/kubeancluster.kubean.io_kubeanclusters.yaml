@@ -99,7 +99,6 @@ spec:
                       type: string
                   required:
                   - clusterOps
-                  - status
                   type: object
                 type: array
             required:

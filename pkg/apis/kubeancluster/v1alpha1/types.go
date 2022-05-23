@@ -50,7 +50,7 @@ type ClusterCondition struct {
 	// ClusterOps refers to the name of KuBeanClusterOps.
 	// +required
 	ClusterOps string `json:"clusterOps"`
-	// +required
+	// +optional
 	Status ClusterConditionType `json:"status"`
 	// +optional
 	StartTime *metav1.Time `json:"startTime"`
