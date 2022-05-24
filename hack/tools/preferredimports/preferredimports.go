@@ -44,7 +44,8 @@ import (
 var (
 	importAliases = flag.String("import-aliases", "hack/.import-aliases", "json file with import aliases")
 	confirm       = flag.Bool("confirm", false, "update file with the preferred aliases for imports")
-	regex         = flag.String("include-path", "(test/e2e/|test/e2e_node)", "only files with paths matching this regex is touched")
+	inRegex       = flag.String("include-path", "(test/e2e/|test/e2e_node)", "only files with paths matching this inRegex is touched")
+	exRegex       = flag.String("exclude-path", "(test/e2e/|test/e2e_node)", "only files with paths matching this exRegex is touched")
 	isTerminal    = term.IsTerminal(int(os.Stdout.Fd()))
 	logPrefix     = ""
 	aliases       map[string]string
@@ -178,8 +179,9 @@ func (a *analyzer) filterFiles(fs map[string]*ast.File) []*ast.File {
 }
 
 type collector struct {
-	dirs  []string
-	regex *regexp.Regexp
+	dirs    []string
+	inRegex *regexp.Regexp
+	exRegex *regexp.Regexp
 }
 
 // handlePath walks the filesystem recursively, collecting directories,
@@ -208,7 +210,10 @@ func (c *collector) handlePath(path string, info os.FileInfo, err error) error {
 			path == "pkg/kubectl/cmd/testdata/edit" {
 			return filepath.SkipDir
 		}
-		if c.regex.MatchString(path) {
+		if c.exRegex.MatchString(path) {
+			return filepath.SkipDir
+		}
+		if c.inRegex.MatchString(path) {
 			c.dirs = append(c.dirs, path)
 		}
 	}
@@ -223,11 +228,18 @@ func main() {
 		args = append(args, ".")
 	}
 
-	regex, err := regexp.Compile(*regex)
+	inregex, err := regexp.Compile(*inRegex)
 	if err != nil {
-		log.Fatalf("Error compiling regex: %v", err)
+		log.Fatalf("Error compiling include regex: %v", err)
 	}
-	c := collector{regex: regex}
+	exregex, err := regexp.Compile(*exRegex)
+	if err != nil {
+		log.Fatalf("Error compiling exclude regex: %v", err)
+	}
+	c := collector{
+		inRegex: inregex,
+		exRegex: exregex,
+	}
 	for _, arg := range args {
 		err := filepath.Walk(arg, c.handlePath)
 		if err != nil {
