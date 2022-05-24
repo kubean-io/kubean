@@ -23,10 +23,10 @@ variables:
 stages:
   - verify
   - test
+  - build
   - e2e-test
   - gitpages
-  - build
-  - post-merge-cd
+  - cd
 
 static_check:
   rules:
@@ -57,7 +57,7 @@ unit_test:
   interruptible: true
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
-build_for_e2e:
+build_to_e2e:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
@@ -66,7 +66,7 @@ build_for_e2e:
     - docker
   before_script:
     - docker -v #override the global before_script
-  stage: test
+  stage: build
   script:
     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
@@ -144,7 +144,7 @@ cd_to_dev_site:
     - docker
   before_script:
     - helm version #override the global before_script
-  stage: post-merge-cd
+  stage: cd
   script:
     - |
       export RETAIN_UI_IMAGE_WHEN_DEPLOY=true; # on dev site, helm upgrade will retain the ui unchanged.
@@ -165,7 +165,7 @@ cd_to_prod_site:
     - docker
   before_script:
     - helm version #override the global before_script
-  stage: post-merge-cd
+  stage: cd
   script:
     - |
       env;
