@@ -99,7 +99,7 @@ push-chart:
 upload-image: kubean-imgs
 	@echo "push images to $(REGISTRY_REPO)"
 	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
-
+	@docker push $(REGISTRY_REPO)/kubean-operator:latest 
 	@docker push $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
 
 .PHONY: test
@@ -121,18 +121,6 @@ clear-kind:
 .PHONY: update
 update:
 	bash hack/update-all.sh
-.PHONY: test
-test:
-
-
-.PHONY: images
-images:
- ## build all images
-
-
-.PHONY: upload-image
-upload-image:
- ## push images
 
 .PHONY: test-staticcheck
 test-staticcheck:

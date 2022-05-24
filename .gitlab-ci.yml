@@ -58,8 +58,8 @@ unit_test:
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
 build_for_e2e:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
     max: 2
   tags:
@@ -70,26 +70,26 @@ build_for_e2e:
   script:
     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
     - make -j2 release
   interruptible: true
 
 e2e_test:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
-  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.6
+  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
   tags:
     - docker
   before_script:
     # double-check the kind cluster was deleted
     - make clear-kind
   script:
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
     - make e2e-test
   interruptible: true
 
