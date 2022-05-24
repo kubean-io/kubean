@@ -58,8 +58,8 @@ unit_test:
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
 build_for_e2e:
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
     max: 2
   tags:
@@ -77,8 +77,8 @@ build_for_e2e:
   interruptible: true
 
 e2e_test:
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
   tags:
