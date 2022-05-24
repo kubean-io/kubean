@@ -23,9 +23,9 @@ variables:
 stages:
   - verify
   - test
+  - gitpages
   - build
   - e2e-test
-  - gitpages
   - cd
 
 static_check:
