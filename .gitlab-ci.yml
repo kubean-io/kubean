@@ -1,4 +1,4 @@
-default:
+kubeandefault:
   image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.8
   tags:
     - k8s
@@ -37,7 +37,7 @@ static_check:
   script:
     - golangci-lint run --timeout=10m && echo "pass" || exit 1
   interruptible: true
- 
+
 verify_import_alias:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -57,7 +57,7 @@ unit_test:
   interruptible: true
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
-build_to_e2e:
+build_for_e2e_and_cddev:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
@@ -70,9 +70,9 @@ build_to_e2e:
   script:
     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make -j2 release
   interruptible: true
 
@@ -87,9 +87,9 @@ e2e_test:
     # double-check the kind cluster was deleted
     - make clear-kind
   script:
-    - export REGISTRY_REPO="release-ci.daocloud.io/kpanda-ci"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kpanda-ci"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make e2e-test
   interruptible: true
 
@@ -150,9 +150,9 @@ cd_to_dev_site:
       export RETAIN_UI_IMAGE_WHEN_DEPLOY=true; # on dev site, helm upgrade will retain the ui unchanged.
       export YOUR_KUBE_CONF=${DEV_KUBECONF}; #dev_kubeconf has been configured as Gitlab Variable
       export DEPLOY_ENV=DEV;
-      export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+      export REGISTRY_REPO="release-ci.daocloud.io/kubean"
       export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-      export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+      export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
       make deploy
 
 cd_to_prod_site:
