@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
+
 	"gopkg.in/yaml.v2"
 )
 
@@ -160,5 +162,14 @@ func TestEntrypoint(t *testing.T) {
 
 			t.Logf("entrypoint.sh: | \n%s\n", epScript)
 		})
+	}
+}
+
+func TestPBActionValue(t *testing.T) {
+	if kubeanclusteropsv1alpha1.PlaybookActionType != PBAction {
+		t.Fatal()
+	}
+	if kubeanclusteropsv1alpha1.ShellActionType != SHAction {
+		t.Fatal()
 	}
 }
