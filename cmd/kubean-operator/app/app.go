@@ -24,8 +24,8 @@ import (
 func NewCommand(ctx context.Context) *cobra.Command {
 	opts := NewOptions()
 	cmd := &cobra.Command{
-		Use:  "kubean-controller-manager", // todo docker build 的二进制名称
-		Long: "run controller manager for KuBeanCluster and KuBeanClusterOps",
+		Use:  "kubean-operator", // todo docker build 的二进制名称
+		Long: "run operator for KuBeanCluster and KuBeanClusterOps",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if errs := opts.Validate(); len(errs) != 0 {
 				return errs.ToAggregate()

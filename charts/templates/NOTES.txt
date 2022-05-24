@@ -1,0 +1,15 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Chart Information:
+    Chart Version: v{{ .Chart.AppVersion}}
+    Chart Name: {{ .Chart.Name }}
+    Chart Description: {{ .Chart.Description }}
+
+Release Information:
+    Release Name: {{ .Release.Name }}
+    Release Namespace: {{ .Release.Namespace }}
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
