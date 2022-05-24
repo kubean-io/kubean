@@ -15,7 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
-	restclient "k8s.io/client-go/rest"
+	rest "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -90,7 +90,7 @@ func StartManager(ctx context.Context, opt *Options) error {
 }
 
 func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan struct{}) error {
-	resetConfig, err := restclient.InClusterConfig()
+	resetConfig, err := rest.InClusterConfig()
 	if err != nil {
 		return err
 	}
