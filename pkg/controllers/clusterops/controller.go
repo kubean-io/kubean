@@ -12,6 +12,7 @@ import (
 	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
 	"github.com/daocloud/kubean/pkg/util/entrypoint"
 
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,6 +52,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
+
 	needRequeue, err := c.BackUpDataRef(clusterOps, cluster)
 	if err != nil {
 		klog.Error(err)
@@ -60,6 +62,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		// something(spec) updated ,so continue the next loop.
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
+
 	needRequeue, err = c.CreateEntryPointShellConfigMap(clusterOps)
 	if err != nil {
 		klog.Error(err)
@@ -70,7 +73,147 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
+	needRequeue, err = c.CreateKubeSprayJob(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+
+	needRequeue, err = c.UpdatePodInfo(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+
 	return controllerruntime.Result{Requeue: false}, nil
+}
+
+func (c *Controller) UpdatePodInfo(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	// todo
+	return false, nil
+}
+
+func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if !clusterOps.Status.JobRef.IsEmpty() {
+		return false, nil
+	}
+	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
+	DefaultMode := int32(0o0700)
+	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
+	nameSpace := clusterOps.Spec.HostsConfRef.NameSpace
+	job, err := c.ClientSet.BatchV1().Jobs(nameSpace).Get(context.Background(), jobName, metav1.GetOptions{})
+	if err != nil { // todo 精准判断 NotFound
+		klog.Warningf("try to find job %s %s", jobName, err)
+		// todo ownreferences
+		job = &batchv1.Job{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "batch/v1",
+				Kind:       "Job",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: nameSpace,
+				Name:      jobName,
+			},
+			Spec: batchv1.JobSpec{
+				BackoffLimit: &BackoffLimit,
+				Template: corev1.PodTemplateSpec{
+					Spec: corev1.PodSpec{
+						RestartPolicy: corev1.RestartPolicyNever,
+						Containers: []corev1.Container{
+							{
+								Name:    "kubespray",
+								Image:   clusterOps.Spec.Image,
+								Command: []string{"/bin/entrypoint.sh"},
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "entrypoint",
+										MountPath: "/bin/entrypoint.sh",
+										SubPath:   "entrypoint.sh",
+										ReadOnly:  true,
+									},
+									{
+										Name:      "hosts-conf",
+										MountPath: "/conf/hosts.yml",
+										SubPath:   "hosts.yml",
+									},
+									{
+										Name:      "vars-conf",
+										MountPath: "/conf/group_vars.yml",
+										SubPath:   "group_vars.yml",
+									},
+									{
+										Name:      "ssh-auth",
+										MountPath: "/auth/ssh-privatekey",
+										SubPath:   "ssh-privatekey",
+										ReadOnly:  true,
+									},
+								},
+							},
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "entrypoint",
+								VolumeSource: corev1.VolumeSource{
+									ConfigMap: &corev1.ConfigMapVolumeSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: clusterOps.Spec.EntrypointSHRef.Name,
+										},
+										DefaultMode: &DefaultMode,
+									},
+								},
+							},
+							{
+								Name: "hosts-conf",
+								VolumeSource: corev1.VolumeSource{
+									ConfigMap: &corev1.ConfigMapVolumeSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: clusterOps.Spec.HostsConfRef.Name,
+										},
+									},
+								},
+							},
+							{
+								Name: "vars-conf",
+								VolumeSource: corev1.VolumeSource{
+									ConfigMap: &corev1.ConfigMapVolumeSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: clusterOps.Spec.VarsConfRef.Name,
+										},
+									},
+								},
+							},
+							{
+								Name: "ssh-auth",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: clusterOps.Spec.SSHAuthRef.Name,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
+		if err != nil {
+			return false, err
+		}
+	}
+	clusterOps.Status.JobRef = &apis.JobRef{
+		NameSpace: job.Namespace,
+		Name:      job.Name,
+	}
+	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // GetKuBeanCluster fetch the cluster which clusterOps belongs to.
@@ -79,7 +222,7 @@ func (c *Controller) GetKuBeanCluster(clusterOps *kubeanclusteropsv1alpha1.KuBea
 	return c.KubeanClusterSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), clusterOps.Spec.KuBeanCluster, metav1.GetOptions{})
 }
 
-// CreateEntryPointShell create configMap to store entrypoint.sh.
+// CreateEntryPointShellConfigMap create configMap to store entrypoint.sh.
 func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
@@ -109,7 +252,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-entrypoint-%d", clusterOps.Name, time.Now().UnixMilli()),
+			Name:      fmt.Sprintf("%s-entrypoint", clusterOps.Name),
 			Namespace: clusterOps.Spec.HostsConfRef.NameSpace,
 		},
 		Data: map[string]string{"entrypoint.sh": configMapData},
