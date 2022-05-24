@@ -16,6 +16,10 @@ EXIT_CODE=0
 
 CLUSTER_PREFIX=kubean-"${IMAGE_VERSION}"-$RANDOM
 
+chmod +x ./hack/delete-cluster.sh
+chmod +x ./hack/local-up-kindcluster.sh
+chmod +x ./hack/run-e2e.sh
+
 ###### Clean Up #######
 clean_up(){
     local auto_cleanup="true"
@@ -31,7 +35,7 @@ clean_up(){
 ###### e2e logic ########
 
 trap clean_up EXIT
-./hack/local-up-kubean.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "" "v0.1.0" "${CLUSTER_PREFIX}"-host "${CLUSTER_PREFIX}"-member1 "${CLUSTER_PREFIX}"-member2
+./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "" "v0.1.0" "${CLUSTER_PREFIX}"-host "${CLUSTER_PREFIX}"-member1 "${CLUSTER_PREFIX}"-member2
 
 ./hack/run-e2e.sh "${CLUSTER_PREFIX}"-host "${CLUSTER_PREFIX}"-member1 "${CLUSTER_PREFIX}"-member2
 ret=$?
