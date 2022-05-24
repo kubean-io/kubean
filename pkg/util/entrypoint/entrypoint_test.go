@@ -14,13 +14,19 @@ var testData = `
     action: cluster.yml
     isPrivateKey: true
     prehook:
-      actionType: shell
-      action: |
-        ansible -i host.yml -m shell -a "echo 'hello'|base64"
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m shell -a "echo 'hello'|base64"
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m shell -a "docker info"
     posthook:
-      actionType: shell
-      action: |
-        systemctl status kubelet
+      - actionType: shell
+        action: |
+          ansible -i host.yml node1 -m shell -a "kubectl get node -o wide"
+      - actionType: shell
+        action: |
+          ansible -i host.yml node1 -m shell -a "systemctl status kubelet"
   matchString: "--private-key"
   output: true
 
@@ -30,13 +36,13 @@ var testData = `
     action: cluster.yml
     isPrivateKey: false
     prehook:
-      actionType: shell
-      action: |
-        ansible -i host.yml -m shell -a "echo 'hello'|base64"
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m shell -a "echo 'hello'|base64"
     posthook:
-      actionType: shell
-      action: |
-        systemctl status kubelet
+      - actionType: shell
+        action: |
+          systemctl status kubelet
   matchString: "--private-key"
   output: false
 
@@ -46,13 +52,13 @@ var testData = `
     action: reset.yml
     isPrivateKey: false
     prehook:
-      actionType: shell
-      action: |
-        ansible -i host.yml -m shell -a "echo 'hello'|base64"
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m shell -a "echo 'hello'|base64"
     posthook:
-      actionType: shell
-      action: |
-        systemctl status kubelet
+      - actionType: shell
+        action: |
+          systemctl status kubelet
   matchString: "reset_confirmation=yes"
   output: true
 
@@ -61,14 +67,16 @@ var testData = `
     actionType: playbook
     action: cluster.yml
     prehook:
-      actionType: shell
-      action: |
-        ansible -i host.yml -m ping
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m ping
     posthook:
-      actionType: shell
-      action: |
-        systemctl status docker
-        systemctl status kubelet
+      - actionType: shell
+        action: |
+          systemctl status docker
+      - actionType: shell
+        action: |
+          systemctl status kubelet
   matchString: "ansible -i host.yml -m ping"
   output: true
 
@@ -77,14 +85,16 @@ var testData = `
     actionType: playbook
     action: cluster.yml
     prehook:
-      actionType: shell
-      action: |
-        ansible -i host.yml -m shell -a "echo 'hello'|base64"
-        systemctl status docker
+      - actionType: shell
+        action: |
+          ansible -i host.yml -m shell -a "echo 'hello'|base64"
+      - actionType: shell
+        action: |
+          systemctl status docker
     posthook:
-      actionType: shell
-      action: |
-        kubectl get cs
+      - actionType: shell
+        action: |
+          kubectl get cs
   matchString: "kubectl get cs"
   output: true
 `
@@ -95,11 +105,11 @@ type SubAction struct {
 }
 
 type ActionData struct {
-	ActionType   string    `yaml:"actionType"`
-	Action       string    `yaml:"action"`
-	PreHook      SubAction `yaml:"prehook"`
-	PostHook     SubAction `yaml:"posthook"`
-	IsPrivateKey bool      `yaml:"isPrivateKey"`
+	ActionType   string       `yaml:"actionType"`
+	Action       string       `yaml:"action"`
+	PreHooks     []*SubAction `yaml:"prehook"`
+	PostHooks    []*SubAction `yaml:"posthook"`
+	IsPrivateKey bool         `yaml:"isPrivateKey"`
 }
 
 type UnitTestData struct {
@@ -120,18 +130,26 @@ func TestEntrypoint(t *testing.T) {
 	for _, item := range ad {
 		t.Run(item.Message, func(t *testing.T) {
 			ep := &EntryPoint{}
-			err = ep.PreHookRunPart(item.Input.PreHook.ActionType, item.Input.PreHook.Action)
-			if err != nil {
-				t.Fatalf("error: %v", err)
+			// Prehook 命令处理
+			for _, prehook := range item.Input.PreHooks {
+				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action)
+				if err != nil {
+					t.Fatalf("error: %v", err)
+				}
 			}
+			// Kubespray 命令处理
 			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.IsPrivateKey)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}
-			err = ep.PostHookRunPart(item.Input.PostHook.ActionType, item.Input.PostHook.Action)
-			if err != nil {
-				t.Fatalf("error: %v", err)
+			// Posthook 命令处理
+			for _, posthook := range item.Input.PostHooks {
+				err = ep.PostHookRunPart(posthook.ActionType, posthook.Action)
+				if err != nil {
+					t.Fatalf("error: %v", err)
+				}
 			}
+			// 渲染 Entrypoint 脚本
 			epScript, err := ep.Render()
 			if err != nil {
 				t.Fatalf("error: %v", err)

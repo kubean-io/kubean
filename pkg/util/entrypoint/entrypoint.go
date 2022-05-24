@@ -6,6 +6,8 @@ import (
 	"text/template"
 )
 
+// Generate kubespray job entrypoint script
+
 const (
 	PBAction = "playbook"
 	SHAction = "shell"
@@ -17,12 +19,28 @@ const (
 	UpgradeClusterPB = "upgrade-cluster.yml"
 )
 
-// Generate kubespray job entrypoint script
+const EntrypointTemplate = `
+ #!/bin/bash
+
+# preinstall
+{{ range $preCMD := .PreHookCMDs }}
+{{- $preCMD -}}
+{{ end }}
+
+# run kubespray
+{{ .SprayCMD }}
+
+# postinstall
+{{ range $postCMD := .PostHookCMDs }}
+{{- $postCMD -}}
+{{ end }}
+
+`
 
 type EntryPoint struct {
-	PreHookRun  string
-	SprayRun    string
-	PostHookRun string
+	PreHookCMDs  []string
+	SprayCMD     string
+	PostHookCMDs []string
 }
 
 func (ep *EntryPoint) hookRunPart(actionType, action string) (string, error) {
@@ -43,7 +61,7 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action string) error {
 	if err != nil {
 		return fmt.Errorf("prehook: %w", err)
 	}
-	ep.PreHookRun = prehook
+	ep.PreHookCMDs = append(ep.PreHookCMDs, prehook)
 	return nil
 }
 
@@ -52,7 +70,7 @@ func (ep *EntryPoint) PostHookRunPart(actionType, action string) error {
 	if err != nil {
 		return fmt.Errorf("posthook: %w", err)
 	}
-	ep.PostHookRun = posthook
+	ep.PostHookCMDs = append(ep.PostHookCMDs, posthook)
 	return nil
 }
 
@@ -75,13 +93,13 @@ func (ep *EntryPoint) SprayRunPart(actionType, action string, isPrivateKey bool)
 	} else {
 		return fmt.Errorf("unknown action type: %s", actionType)
 	}
-	ep.SprayRun = sprayRunCmd
+	ep.SprayCMD = sprayRunCmd
 	return nil
 }
 
 func (ep *EntryPoint) Render() (string, error) {
 	b := &strings.Builder{}
-	tmpl := template.Must(template.ParseFiles("entrypoint.sh.template"))
+	tmpl := template.Must(template.New("entrypoint").Parse(EntrypointTemplate))
 	if err := tmpl.Execute(b, ep); err != nil {
 		return "", err
 	}
