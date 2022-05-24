@@ -140,8 +140,6 @@ build_to_release:
     - docker
   before_script:
     - docker -v #override the global before_script
-    - make genall
-    - go mod vendor
   stage: build
   script:
     - |
