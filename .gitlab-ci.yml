@@ -57,7 +57,7 @@ unit_test:
   interruptible: true
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
-build_for_e2e_and_cddev:
+build_for_e2e:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
@@ -111,6 +111,25 @@ pages:
     paths:
       - public
     expire_in: 1 week
+
+build_to_release_ci:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  retry:
+    max: 2
+  tags:
+    - docker
+  before_script:
+    - docker -v #override the global before_script
+  stage: build
+  script:
+    - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
+    - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+    - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+    - make -j2 release
+  interruptible: true
 
 build_to_release:
   rules:
