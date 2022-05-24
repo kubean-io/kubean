@@ -27,8 +27,8 @@ type KuBeanClusterOps struct {
 type ActionType string
 
 const (
-	AnsiblePlaybookActionType ActionType = "ansible-playbook"
-	ShellActionType           ActionType = "shell"
+	PlaybookActionType ActionType = "playbook"
+	ShellActionType    ActionType = "shell"
 )
 
 // ClusterSpec defines the desired state of a member cluster.
@@ -45,6 +45,9 @@ type ClusterSpec struct {
 	// SSHAuthRef will be filled by operator when it performs backup.
 	// +optional
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
+	// +optional
+	// EntrypointSHRef will be filled by operator when it renders entrypoint.sh.
+	EntrypointSHRef *apis.ConfigMapRef `json:"entrypointSHRef"`
 	// +required
 	ActionType ActionType `json:"actionType"`
 	// +required

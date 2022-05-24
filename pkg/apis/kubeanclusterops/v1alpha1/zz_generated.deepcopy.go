@@ -28,6 +28,11 @@ func (in *ClusterSpec) DeepCopyInto(out *ClusterSpec) {
 		*out = new(apis.DataRef)
 		**out = **in
 	}
+	if in.EntrypointSHRef != nil {
+		in, out := &in.EntrypointSHRef, &out.EntrypointSHRef
+		*out = new(apis.DataRef)
+		**out = **in
+	}
 	if in.PreHook != nil {
 		in, out := &in.PreHook, &out.PreHook
 		*out = make([]HookAction, len(*in))
