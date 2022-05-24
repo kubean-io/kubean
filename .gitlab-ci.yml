@@ -1,4 +1,4 @@
-kubeandefault:
+default:
   image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.8
   tags:
     - k8s
