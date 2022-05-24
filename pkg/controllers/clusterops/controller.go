@@ -10,6 +10,7 @@ import (
 	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
 	kubeanClusterClientSet "github.com/daocloud/kubean/pkg/generated/kubeancluster/clientset/versioned"
 	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
+	"github.com/daocloud/kubean/pkg/util/entrypoint"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -21,7 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const RequeueAfter = time.Second * 1
+const RequeueAfter = time.Millisecond * 500
 
 type Controller struct {
 	client.Client
@@ -59,6 +60,16 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		// something(spec) updated ,so continue the next loop.
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
+	needRequeue, err = c.CreateEntryPointShellConfigMap(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		// something updated.
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
@@ -66,6 +77,54 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 func (c *Controller) GetKuBeanCluster(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (*kubeanclusterv1alpha1.KuBeanCluster, error) {
 	// cluster has many clusterOps.
 	return c.KubeanClusterSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), clusterOps.Spec.KuBeanCluster, metav1.GetOptions{})
+}
+
+// CreateEntryPointShell create configMap to store entrypoint.sh.
+func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
+		return false, nil
+	}
+	entryPointData := entrypoint.EntryPoint{}
+	for _, action := range clusterOps.Spec.PreHook {
+		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action); err != nil {
+			return false, err
+		}
+	}
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, true); err != nil {
+		return false, err
+	}
+	for _, action := range clusterOps.Spec.PostHook {
+		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action); err != nil {
+			return false, err
+		}
+	}
+	configMapData, err := entryPointData.Render()
+	if err != nil {
+		return false, err
+	}
+	// todo ownreferences
+	newConfigMap := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-entrypoint-%d", clusterOps.Name, time.Now().UnixMilli()),
+			Namespace: clusterOps.Spec.HostsConfRef.NameSpace,
+		},
+		Data: map[string]string{"entrypoint.sh": configMapData},
+	}
+	if newConfigMap, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{}); err != nil {
+		return false, err
+	}
+	clusterOps.Spec.EntrypointSHRef = &apis.ConfigMapRef{
+		NameSpace: newConfigMap.Namespace,
+		Name:      newConfigMap.Name,
+	}
+	if err := c.Client.Update(context.Background(), clusterOps); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (c *Controller) CopyConfigMap(oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
