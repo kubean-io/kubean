@@ -32,6 +32,17 @@ spec:
   action: cluster.yml
   backoffLimit: 1
   image: quay.m.daocloud.io/kubespray/kubespray:v2.17.1
+  preHook:
+    - ActionType: shell
+      action: |
+        ansible -i /conf/hosts.yml all -m ping;
+        ansible -i /conf/hosts.yml all -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'
+        ansible -i /conf/hosts.yml all -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org'
+        ansible-playbook -i /conf/hosts.yml -b --become-user root -e "reset_confirmation=yes" -e "@/conf/group_vars.yml" /kubespray/reset.yml
+  postHook:
+    - ActionType: shell
+      action: |
+        ansible -i job/hosts.yml node1 -m shell -a 'kubectl get cs'
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
