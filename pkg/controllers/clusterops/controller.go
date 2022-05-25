@@ -3,6 +3,7 @@ package clusterops
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/daocloud/kubean/pkg/apis"
@@ -96,6 +97,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) UpdatePodInfo(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
 	// todo
+	// todo PodRef 是
 	return false, nil
 }
 
@@ -255,7 +257,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 			Name:      fmt.Sprintf("%s-entrypoint", clusterOps.Name),
 			Namespace: clusterOps.Spec.HostsConfRef.NameSpace,
 		},
-		Data: map[string]string{"entrypoint.sh": configMapData},
+		Data: map[string]string{"entrypoint.sh": strings.TrimSpace(configMapData)}, // |2+
 	}
 	if newConfigMap, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{}); err != nil {
 		return false, err
