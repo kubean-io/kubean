@@ -36,13 +36,15 @@ spec:
     - actionType: shell
       action: |
         ansible -i /conf/hosts.yml all -m ping;
-        ansible -i /conf/hosts.yml all -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'
-        ansible -i /conf/hosts.yml all -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org'
-        ansible-playbook -i /conf/hosts.yml -b --become-user root -e "reset_confirmation=yes" -e "@/conf/group_vars.yml" /kubespray/reset.yml
+        ansible -i /conf/hosts.yml all -b --become-user root -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'  --private-key /auth/ssh-privatekey
+        echo 'Kubean Stop firewalld'
+        ansible -i /conf/hosts.yml all -b --become-user root -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org' --private-key /auth/ssh-privatekey
+        ansible-playbook -i /conf/hosts.yml -b --become-user root -e "reset_confirmation=yes" -e "@/conf/group_vars.yml" /kubespray/reset.yml --private-key /auth/ssh-privatekey
+        echo 'Kubean Reset Cluster'
   postHook:
     - actionType: shell
       action: |
-        ansible -i /conf/hosts.yml node1 -m shell -a 'kubectl get cs'
+        ansible -i /conf/hosts.yml node1 -b --become-user root -m shell -a 'kubectl get cs' --private-key /auth/ssh-privatekey
         echo 'Kubean Success'
 ---
 
@@ -91,6 +93,6 @@ spec:
   serviceAccountName: kubean
   containers:
     - name: kubean-operator
-      image: release-ci.daocloud.io/kubean-ci/kubean-operator:j4
+      image: release-ci.daocloud.io/kubean-ci/kubean-operator:j5
       command: [ "/bin/kubean-operator" ]
   restartPolicy: Never

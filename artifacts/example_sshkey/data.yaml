@@ -54,22 +54,16 @@ data:
           access_ip: 10.6.170.21
           ansible_host: 10.6.170.21
           ansible_connection: ssh
-          ansible_user: root
-          ansible_ssh_pass: daocloud
         node2:
           ip: 10.6.170.23
           access_ip: 10.6.170.23
           ansible_host: 10.6.170.23
           ansible_connection: ssh
-          ansible_user: root
-          ansible_ssh_pass: daocloud
         node3:
           ip: 10.6.170.25
           access_ip: 10.6.170.25
           ansible_host: 10.6.170.25
           ansible_connection: ssh
-          ansible_user: root
-          ansible_ssh_pass: daocloud
       children:
         kube_control_plane:
           hosts:

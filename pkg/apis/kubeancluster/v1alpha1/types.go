@@ -31,8 +31,8 @@ type ClusterSpec struct {
 	// VarsConfRef stores group_vars.yml.
 	// +required
 	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
-	// SSHAuthRef stores ssh key.
-	// +required
+	// SSHAuthRef stores ssh key and if it is empty ,then use sshpass.
+	// +optional
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
 }
 

@@ -107,6 +107,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 	}
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o0700)
+	PrivatekeyMode := int32(0o400)
 	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job, err := c.ClientSet.BatchV1().Jobs(namespace).Get(context.Background(), jobName, metav1.GetOptions{})
@@ -194,7 +195,8 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 								Name: "ssh-auth",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: clusterOps.Spec.SSHAuthRef.Name,
+										SecretName:  clusterOps.Spec.SSHAuthRef.Name,
+										DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
 									},
 								},
 							},

@@ -91,6 +91,6 @@ spec:
   serviceAccountName: kubean
   containers:
     - name: kubean-operator
-      image: release-ci.daocloud.io/kubean-ci/kubean-operator:j4
+      image: release-ci.daocloud.io/kubean-ci/kubean-operator:j5
       command: [ "/bin/kubean-operator" ]
   restartPolicy: Never
