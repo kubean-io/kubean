@@ -70,9 +70,9 @@ build_for_e2e:
   script:
     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make -j2 release
   interruptible: true
 
@@ -87,9 +87,9 @@ e2e_test:
     # double-check the kind cluster was deleted
     - make clear-kind
   script:
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make e2e-test
   interruptible: true
 
