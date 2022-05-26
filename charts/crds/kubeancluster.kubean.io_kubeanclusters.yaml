@@ -46,33 +46,33 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               sshAuthRef:
                 description: SSHAuthRef stores ssh key.
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               varsConfRef:
                 description: VarsConfRef stores group_vars.yml.
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
             required:
             - hostsConfRef

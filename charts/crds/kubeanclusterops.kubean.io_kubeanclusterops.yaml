@@ -53,11 +53,11 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               hostsConfRef:
                 description: HostsConfRef will be filled by operator when it performs
@@ -65,11 +65,11 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               image:
                 type: string
@@ -79,25 +79,25 @@ spec:
               postHook:
                 items:
                   properties:
-                    ActionType:
-                      type: string
                     action:
                       type: string
+                    actionType:
+                      type: string
                   required:
-                  - ActionType
                   - action
+                  - actionType
                   type: object
                 type: array
               preHook:
                 items:
                   properties:
-                    ActionType:
-                      type: string
                     action:
                       type: string
+                    actionType:
+                      type: string
                   required:
-                  - ActionType
                   - action
+                  - actionType
                   type: object
                 type: array
               sshAuthRef:
@@ -106,11 +106,11 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               varsConfRef:
                 description: VarsConfRef will be filled by operator when it performs
@@ -118,11 +118,11 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
             required:
             - action
@@ -144,21 +144,21 @@ spec:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               podRef:
                 properties:
                   name:
                     type: string
-                  nameSpace:
+                  namespace:
                     type: string
                 required:
                 - name
-                - nameSpace
+                - namespace
                 type: object
               startTime:
                 format: date-time

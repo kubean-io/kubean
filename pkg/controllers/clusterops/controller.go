@@ -108,8 +108,8 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o0700)
 	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
-	nameSpace := clusterOps.Spec.HostsConfRef.NameSpace
-	job, err := c.ClientSet.BatchV1().Jobs(nameSpace).Get(context.Background(), jobName, metav1.GetOptions{})
+	namespace := clusterOps.Spec.HostsConfRef.NameSpace
+	job, err := c.ClientSet.BatchV1().Jobs(namespace).Get(context.Background(), jobName, metav1.GetOptions{})
 	if err != nil { // todo 精准判断 NotFound
 		klog.Warningf("try to find job %s %s", jobName, err)
 		// todo ownreferences
@@ -119,7 +119,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 				Kind:       "Job",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Namespace: nameSpace,
+				Namespace: namespace,
 				Name:      jobName,
 			},
 			Spec: batchv1.JobSpec{

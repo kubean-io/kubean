@@ -63,7 +63,7 @@ type ClusterSpec struct {
 }
 
 type HookAction struct {
-	ActionType ActionType `json:"ActionType"` // todo 小写 修改example里的yaml
+	ActionType ActionType `json:"actionType"` // todo 小写 修改example里的yaml
 	Action     string     `json:"action"`
 }
 
