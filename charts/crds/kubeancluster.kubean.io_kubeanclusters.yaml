@@ -53,7 +53,8 @@ spec:
                 - namespace
                 type: object
               sshAuthRef:
-                description: SSHAuthRef stores ssh key.
+                description: SSHAuthRef stores ssh key and if it is empty ,then use
+                  sshpass.
                 properties:
                   name:
                     type: string
@@ -76,7 +77,6 @@ spec:
                 type: object
             required:
             - hostsConfRef
-            - sshAuthRef
             - varsConfRef
             type: object
           status:
