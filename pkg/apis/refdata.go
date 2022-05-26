@@ -1,7 +1,7 @@
 package apis
 
 type DataRef struct {
-	NameSpace string `json:"nameSpace"` // todo 小写
+	NameSpace string `json:"namespace"` // todo 小写
 	Name      string `json:"name"`
 }
 
