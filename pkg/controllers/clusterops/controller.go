@@ -130,7 +130,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 						RestartPolicy: corev1.RestartPolicyNever,
 						Containers: []corev1.Container{
 							{
-								Name:    "kubespray",
+								Name:    "kubespray", // do not change this name
 								Image:   clusterOps.Spec.Image,
 								Command: []string{"/bin/entrypoint.sh"},
 								VolumeMounts: []corev1.VolumeMount{
@@ -149,12 +149,6 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 										Name:      "vars-conf",
 										MountPath: "/conf/group_vars.yml",
 										SubPath:   "group_vars.yml",
-									},
-									{
-										Name:      "ssh-auth",
-										MountPath: "/auth/ssh-privatekey",
-										SubPath:   "ssh-privatekey",
-										ReadOnly:  true,
 									},
 								},
 							},
@@ -191,19 +185,32 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 									},
 								},
 							},
-							{
-								Name: "ssh-auth",
-								VolumeSource: corev1.VolumeSource{
-									Secret: &corev1.SecretVolumeSource{
-										SecretName:  clusterOps.Spec.SSHAuthRef.Name,
-										DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
-									},
-								},
-							},
 						},
 					},
 				},
 			},
+		}
+		if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
+			// mount ssh data
+			if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+				job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
+					corev1.VolumeMount{
+						Name:      "ssh-auth",
+						MountPath: "/auth/ssh-privatekey",
+						SubPath:   "ssh-privatekey",
+						ReadOnly:  true,
+					})
+			}
+			job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
+				corev1.Volume{
+					Name: "ssh-auth",
+					VolumeSource: corev1.VolumeSource{
+						Secret: &corev1.SecretVolumeSource{
+							SecretName:  clusterOps.Spec.SSHAuthRef.Name,
+							DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
+						},
+					},
+				})
 		}
 		job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
 		if err != nil {
@@ -232,12 +239,13 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 		return false, nil
 	}
 	entryPointData := entrypoint.EntryPoint{}
+	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	for _, action := range clusterOps.Spec.PreHook {
 		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action); err != nil {
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, true); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, isPrivateKey); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
@@ -325,7 +333,8 @@ func (c *Controller) CopySecret(oldSecretRef *apis.SecretRef, newName string) (*
 // BackUpDataRef perform the backup of configRef and secretRef and return (needRequeue,error).
 func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
 	timestamp := fmt.Sprintf("-%d", time.Now().UnixMilli())
-	if cluster.Spec.HostsConfRef.IsEmpty() || cluster.Spec.VarsConfRef.IsEmpty() || cluster.Spec.SSHAuthRef.IsEmpty() {
+	if cluster.Spec.HostsConfRef.IsEmpty() || cluster.Spec.VarsConfRef.IsEmpty() {
+		// cluster.Spec.SSHAuthRef.IsEmpty()
 		return false, fmt.Errorf("cluster %s DataRef has empty value", cluster.Name)
 	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
@@ -356,7 +365,8 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		}
 		return true, nil
 	}
-	if clusterOps.Spec.SSHAuthRef.IsEmpty() {
+	if clusterOps.Spec.SSHAuthRef.IsEmpty() && !cluster.Spec.SSHAuthRef.IsEmpty() {
+		// clusterOps backups ssh data when cluster has ssh data.
 		newSecret, err := c.CopySecret(cluster.Spec.SSHAuthRef, cluster.Spec.SSHAuthRef.Name+timestamp)
 		if err != nil {
 			return false, err

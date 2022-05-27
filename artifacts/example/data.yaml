@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: snap-vars-conf
+  name: snap-vars-conf-1
   namespace: kubean-system
 data:
   group_vars.yml: |
@@ -43,7 +43,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: snap-hosts-conf
+  name: snap-hosts-conf-1
   namespace: kubean-system
 data:
   hosts.yml: |
@@ -94,7 +94,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: snap-ssh-auth
+  name: snap-ssh-auth-1
   namespace: kubean-system
 type: kubernetes.io/ssh-auth
 data:
