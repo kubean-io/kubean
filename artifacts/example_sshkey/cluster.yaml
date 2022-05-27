@@ -1,33 +1,28 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: kubean-system
 
----
 
 apiVersion: kubeancluster.kubean.io/v1alpha1
 kind: KuBeanCluster
 metadata:
-  name: cluster1
+  name: cluster1-2
 spec:
   hostsConfRef:
     namespace: kubean-system
-    name: snap-hosts-conf
+    name: snap-hosts-conf-2
   varsConfRef:
     namespace: kubean-system
-    name: snap-vars-conf
+    name: snap-vars-conf-2
   sshAuthRef:
     namespace: kubean-system
-    name: snap-ssh-auth
+    name: snap-ssh-auth-2
 
 ---
 
 apiVersion: kubeanclusterops.kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
-  name: clusterops1
+  name: clusterops1-2
 spec:
-  kuBeanCluster: cluster1
+  kuBeanCluster: cluster1-2
   actionType: playbook
   action: cluster.yml
   backoffLimit: 1
@@ -46,53 +41,3 @@ spec:
       action: |
         ansible -i /conf/hosts.yml node1 -b --become-user root -m shell -a 'kubectl get cs' --private-key /auth/ssh-privatekey
         echo 'Kubean Success'
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: kubean
-rules:
-  - apiGroups: [ '*' ]
-    resources: [ '*' ]
-    verbs: [ "get", "watch", "list", "create", "patch", "update", "delete" ]
-  - nonResourceURLs: [ '*' ]
-    verbs: [ "get" ]
-
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: kubean
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: kubean
-subjects:
-  - kind: ServiceAccount
-    name: kubean
-    namespace: kubean-system
-
----
-
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: kubean
-  namespace: kubean-system
-
----
-
-apiVersion: v1
-kind: Pod
-metadata:
-  name: kubean-operator
-  namespace: kubean-system
-spec:
-  serviceAccountName: kubean
-  containers:
-    - name: kubean-operator
-      image: release-ci.daocloud.io/kubean-ci/kubean-operator:j5
-      command: [ "/bin/kubean-operator" ]
-  restartPolicy: Never
