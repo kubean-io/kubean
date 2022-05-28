@@ -84,7 +84,7 @@ kubean-operator: $(SOURCES)
 			--platform $(BUILD_ARCH) \
 			--tag $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)  \
 			--tag $(REGISTRY_REPO)/kubean-operator:latest  \
-			-f ./build/images/kubean-operator/Dockerfile \
+			-f ./build/images/kubean-operator/Dockerfile.multi-arch \
 			--load \
 			.
 
