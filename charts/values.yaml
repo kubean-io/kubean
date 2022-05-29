@@ -10,7 +10,7 @@ image:
   repository: release-ci.daocloud.io/kubean-ci/kubean-operator
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "j7"
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""

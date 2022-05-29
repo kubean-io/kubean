@@ -66,9 +66,6 @@ KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
 deploy:
 	bash hack/deploy.sh  "$(KUBEAN_CHART_VERSION)" "$(KUBEAN_IMAGE_VERSION)"  "$(YOUR_KUBE_CONF)" "$(KUBEAN_NAMESPACE)" "$(HELM_REPO)" "$(REGISTRY_REPO)" "$(RETAIN_UI_IMAGE_WHEN_DEPLOY)" "$(INSTALL_GLOBAL)" "$(DEPLOY_ENV)"
 
-.PHONY: release
-release: kubean-imgs upload-image push-chart
-
 .PHONY: kubean-imgs
 kubean-imgs: kubean-operator
 
@@ -88,6 +85,13 @@ kubean-operator: $(SOURCES)
 			--load \
 			.
 
+.PHONY: upload-image
+upload-image: kubean-imgs
+	@echo "push images to $(REGISTRY_REPO)"
+	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
+	@docker push $(REGISTRY_REPO)/kubean-operator:latest
+	@docker push $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
+
 .PHONY: push-chart
 push-chart:
 	#helm package -u ./charts/ -d ./dist/
@@ -95,12 +99,8 @@ push-chart:
 	helm package ./charts/ -d dist --version $(KUBEAN_CHART_VERSION)
 	helm cm-push ./dist/kubean-$(KUBEAN_CHART_VERSION).tgz  kubean-release -a $(KUBEAN_CHART_VERSION) -v $(KUBEAN_CHART_VERSION) -u $(REGISTRY_USER_NAME)  -p $(REGISTRY_PASSWORD)
 
-.PHONY: upload-image
-upload-image: kubean-imgs
-	@echo "push images to $(REGISTRY_REPO)"
-	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
-	@docker push $(REGISTRY_REPO)/kubean-operator:latest 
-	@docker push $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
+.PHONY: release
+release: kubean-imgs upload-image push-chart
 
 .PHONY: test
 test:

@@ -4,7 +4,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-DEFAULT_CLUSTERPEDIA_IMAGEVERSION="v0.1.0"
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 IMAGE_MANIFEST_PATH="${REPO_ROOT}/hack/images.manifest"
 DEFAULT_REGISTRY="release.daocloud.io/kubean"
