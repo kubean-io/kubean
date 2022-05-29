@@ -1,0 +1,17 @@
+apiVersion: kubeancluster.kubean.io/v1alpha1
+kind: KuBeanCluster
+metadata:
+  name: sample
+  namespace: kubean-system
+  labels:
+    clusterName: sample
+spec:
+  hostsConfRef:
+    namespace: kubean-system
+    name: sample-hosts-conf
+  varsConfRef:
+    namespace: kubean-system
+    name: sample-vars-conf
+  sshAuthRef:
+    namespace: kubean-system
+    name: sample-ssh-auth
