@@ -7,7 +7,7 @@ metadata:
     clusterName: sample
 spec:
   kuBeanCluster: sample
-  image: jiangink/kubespray:arm-f9ba272
+  image: quay.m.daocloud.io/kubespray/kubespray:v2.17.1
   backoffLimit: 1
   actionType: playbook
   action: cluster.yml

@@ -1,3 +1,2 @@
 image:
-  registry: release.daocloud.io/kubean
-  repository: kubean-operator
+  repository: release.daocloud.io/kubean/kubean-operator

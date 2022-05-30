@@ -21,9 +21,7 @@ KUBE_CONF=${3:-"/root/.kube/config"}
 TARGET_NS=${4:-"kubean-system"}
 HELM_REPO=${5:-"https://release.daocloud.io/chartrepo/kubean"}
 IMG_REPO=${6:-} #default using what inside helm chart
-RETAIN_UI_IMG=${7:-false} #in local dev case, we may need to retain the UI image version
-INSTALL_GLOBAL_CRD=${8:-false}
-DEPLOY_ENV=${9:-}   # E2E/DEV/PROD
+DEPLOY_ENV=${7:-}   # E2E/DEV/PROD
 
 LOCAL_REPO_ALIAS=kubean_release
 LOCAL_RELEASE_NAME=kubean
@@ -47,7 +45,7 @@ if [ "${IMG_REPO}" != "" ]; then
     value_override=" $value_override --set global.imageRegistry=${IMG_REPO} "
 fi
 if [ "${IMG_VER}" != "" ]; then
-    value_override=" $value_override --set global.kubean.imageTag=${IMG_VER} "
+    value_override=" $value_override --set image.tag=${IMG_VER} "
 fi
 
 #v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
