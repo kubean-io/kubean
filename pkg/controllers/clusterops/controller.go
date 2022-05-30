@@ -106,81 +106,83 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 		return false, nil
 	}
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
-	DefaultMode := int32(0o0700)
+	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
 	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job, err := c.ClientSet.BatchV1().Jobs(namespace).Get(context.Background(), jobName, metav1.GetOptions{})
-	if err != nil { // todo 精准判断 NotFound
-		klog.Warningf("try to find job %s %s", jobName, err)
-		// todo ownreferences
-		job = &batchv1.Job{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "batch/v1",
-				Kind:       "Job",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Namespace: namespace,
-				Name:      jobName,
-			},
-			Spec: batchv1.JobSpec{
-				BackoffLimit: &BackoffLimit,
-				Template: corev1.PodTemplateSpec{
-					Spec: corev1.PodSpec{
-						RestartPolicy: corev1.RestartPolicyNever,
-						Containers: []corev1.Container{
-							{
-								Name:    "kubespray", // do not change this name
-								Image:   clusterOps.Spec.Image,
-								Command: []string{"/bin/entrypoint.sh"},
-								VolumeMounts: []corev1.VolumeMount{
-									{
-										Name:      "entrypoint",
-										MountPath: "/bin/entrypoint.sh",
-										SubPath:   "entrypoint.sh",
-										ReadOnly:  true,
-									},
-									{
-										Name:      "hosts-conf",
-										MountPath: "/conf/hosts.yml",
-										SubPath:   "hosts.yml",
-									},
-									{
-										Name:      "vars-conf",
-										MountPath: "/conf/group_vars.yml",
-										SubPath:   "group_vars.yml",
-									},
-								},
-							},
-						},
-						Volumes: []corev1.Volume{
-							{
-								Name: "entrypoint",
-								VolumeSource: corev1.VolumeSource{
-									ConfigMap: &corev1.ConfigMapVolumeSource{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: clusterOps.Spec.EntrypointSHRef.Name,
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			// the job doest not exist , and will create the job.
+			klog.Warningf("create job %s for kubeanClusterOp %s", jobName, clusterOps.Name)
+			job = &batchv1.Job{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "batch/v1",
+					Kind:       "Job",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: namespace,
+					Name:      jobName,
+				},
+				Spec: batchv1.JobSpec{
+					BackoffLimit: &BackoffLimit,
+					Template: corev1.PodTemplateSpec{
+						Spec: corev1.PodSpec{
+							RestartPolicy: corev1.RestartPolicyNever,
+							Containers: []corev1.Container{
+								{
+									Name:    "kubespray", // do not change this name
+									Image:   clusterOps.Spec.Image,
+									Command: []string{"/bin/entrypoint.sh"},
+									VolumeMounts: []corev1.VolumeMount{
+										{
+											Name:      "entrypoint",
+											MountPath: "/bin/entrypoint.sh",
+											SubPath:   "entrypoint.sh",
+											ReadOnly:  true,
 										},
-										DefaultMode: &DefaultMode,
-									},
-								},
-							},
-							{
-								Name: "hosts-conf",
-								VolumeSource: corev1.VolumeSource{
-									ConfigMap: &corev1.ConfigMapVolumeSource{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: clusterOps.Spec.HostsConfRef.Name,
+										{
+											Name:      "hosts-conf",
+											MountPath: "/conf/hosts.yml",
+											SubPath:   "hosts.yml",
+										},
+										{
+											Name:      "vars-conf",
+											MountPath: "/conf/group_vars.yml",
+											SubPath:   "group_vars.yml",
 										},
 									},
 								},
 							},
-							{
-								Name: "vars-conf",
-								VolumeSource: corev1.VolumeSource{
-									ConfigMap: &corev1.ConfigMapVolumeSource{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: clusterOps.Spec.VarsConfRef.Name,
+							Volumes: []corev1.Volume{
+								{
+									Name: "entrypoint",
+									VolumeSource: corev1.VolumeSource{
+										ConfigMap: &corev1.ConfigMapVolumeSource{
+											LocalObjectReference: corev1.LocalObjectReference{
+												Name: clusterOps.Spec.EntrypointSHRef.Name,
+											},
+											DefaultMode: &DefaultMode,
+										},
+									},
+								},
+								{
+									Name: "hosts-conf",
+									VolumeSource: corev1.VolumeSource{
+										ConfigMap: &corev1.ConfigMapVolumeSource{
+											LocalObjectReference: corev1.LocalObjectReference{
+												Name: clusterOps.Spec.HostsConfRef.Name,
+											},
+										},
+									},
+								},
+								{
+									Name: "vars-conf",
+									VolumeSource: corev1.VolumeSource{
+										ConfigMap: &corev1.ConfigMapVolumeSource{
+											LocalObjectReference: corev1.LocalObjectReference{
+												Name: clusterOps.Spec.VarsConfRef.Name,
+											},
 										},
 									},
 								},
@@ -188,32 +190,37 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 						},
 					},
 				},
-			},
-		}
-		if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
-			// mount ssh data
-			if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
-				job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
-					corev1.VolumeMount{
-						Name:      "ssh-auth",
-						MountPath: "/auth/ssh-privatekey",
-						SubPath:   "ssh-privatekey",
-						ReadOnly:  true,
+			}
+			if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
+				// mount ssh data
+				if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+					job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
+						corev1.VolumeMount{
+							Name:      "ssh-auth",
+							MountPath: "/auth/ssh-privatekey",
+							SubPath:   "ssh-privatekey",
+							ReadOnly:  true,
+						})
+				}
+				job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
+					corev1.Volume{
+						Name: "ssh-auth",
+						VolumeSource: corev1.VolumeSource{
+							Secret: &corev1.SecretVolumeSource{
+								SecretName:  clusterOps.Spec.SSHAuthRef.Name,
+								DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
+							},
+						},
 					})
 			}
-			job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
-				corev1.Volume{
-					Name: "ssh-auth",
-					VolumeSource: corev1.VolumeSource{
-						Secret: &corev1.SecretVolumeSource{
-							SecretName:  clusterOps.Spec.SSHAuthRef.Name,
-							DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
-						},
-					},
-				})
-		}
-		job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
-		if err != nil {
+			c.SetOwnerReferences(&job.ObjectMeta, clusterOps)
+			job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
+			if err != nil {
+				return false, err
+			}
+		} else {
+			// other error.
+			klog.Error(err)
 			return false, err
 		}
 	}
@@ -257,7 +264,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	if err != nil {
 		return false, err
 	}
-	// todo ownreferences
+
 	newConfigMap := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
@@ -269,6 +276,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 		},
 		Data: map[string]string{"entrypoint.sh": strings.TrimSpace(configMapData)}, // |2+
 	}
+	c.SetOwnerReferences(&newConfigMap.ObjectMeta, clusterOps)
 	if newConfigMap, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{}); err != nil {
 		return false, err
 	}
@@ -282,8 +290,11 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	return true, nil
 }
 
-func (c *Controller) CopyConfigMap(oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
-	// todo ownreferences
+func (c *Controller) SetOwnerReferences(objectMetaData *metav1.ObjectMeta, clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) {
+	objectMetaData.OwnerReferences = []metav1.OwnerReference{*metav1.NewControllerRef(clusterOps, kubeanclusteropsv1alpha1.SchemeGroupVersion.WithKind("KuBeanClusterOps"))}
+}
+
+func (c *Controller) CopyConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
 	oldConfigMap, err := c.ClientSet.CoreV1().ConfigMaps(oldConfigMapRef.NameSpace).Get(context.Background(), oldConfigMapRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -299,6 +310,7 @@ func (c *Controller) CopyConfigMap(oldConfigMapRef *apis.ConfigMapRef, newName s
 		},
 		Data: oldConfigMap.Data,
 	}
+	c.SetOwnerReferences(&newConfigMap.ObjectMeta, clusterOps)
 	newConfigMap, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
@@ -306,8 +318,7 @@ func (c *Controller) CopyConfigMap(oldConfigMapRef *apis.ConfigMapRef, newName s
 	return newConfigMap, nil
 }
 
-func (c *Controller) CopySecret(oldSecretRef *apis.SecretRef, newName string) (*corev1.Secret, error) {
-	// todo ownreferences
+func (c *Controller) CopySecret(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, oldSecretRef *apis.SecretRef, newName string) (*corev1.Secret, error) {
 	oldSecret, err := c.ClientSet.CoreV1().Secrets(oldSecretRef.NameSpace).Get(context.Background(), oldSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -323,6 +334,7 @@ func (c *Controller) CopySecret(oldSecretRef *apis.SecretRef, newName string) (*
 		},
 		Data: oldSecret.Data,
 	}
+	c.SetOwnerReferences(&newSecret.ObjectMeta, clusterOps)
 	newSecret, err = c.ClientSet.CoreV1().Secrets(newSecret.Namespace).Create(context.Background(), newSecret, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
@@ -338,7 +350,7 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return false, fmt.Errorf("cluster %s DataRef has empty value", cluster.Name)
 	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
-		newConfigMap, err := c.CopyConfigMap(cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)
+		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)
 		if err != nil {
 			return false, err
 		}
@@ -352,7 +364,7 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return true, nil
 	}
 	if clusterOps.Spec.VarsConfRef.IsEmpty() {
-		newConfigMap, err := c.CopyConfigMap(cluster.Spec.VarsConfRef, cluster.Spec.VarsConfRef.Name+timestamp)
+		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.VarsConfRef, cluster.Spec.VarsConfRef.Name+timestamp)
 		if err != nil {
 			return false, err
 		}
@@ -367,7 +379,7 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 	}
 	if clusterOps.Spec.SSHAuthRef.IsEmpty() && !cluster.Spec.SSHAuthRef.IsEmpty() {
 		// clusterOps backups ssh data when cluster has ssh data.
-		newSecret, err := c.CopySecret(cluster.Spec.SSHAuthRef, cluster.Spec.SSHAuthRef.Name+timestamp)
+		newSecret, err := c.CopySecret(clusterOps, cluster.Spec.SSHAuthRef, cluster.Spec.SSHAuthRef.Name+timestamp)
 		if err != nil {
 			return false, err
 		}
