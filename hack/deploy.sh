@@ -42,7 +42,7 @@ fi
 # replace the default values.yaml, the image repo or image revision
 value_override=""
 if [ "${IMG_REPO}" != "" ]; then
-    value_override=" $value_override --set global.imageRegistry=${IMG_REPO} "
+    value_override=" $value_override --set image.repository=${IMG_REPO}/kubean-operator "
 fi
 if [ "${IMG_VER}" != "" ]; then
     value_override=" $value_override --set image.tag=${IMG_VER} "
