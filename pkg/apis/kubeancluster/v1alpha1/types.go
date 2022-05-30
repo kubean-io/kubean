@@ -1,8 +1,9 @@
 package v1alpha1
 
 import (
-	"github.com/daocloud/kubean/pkg/apis"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/daocloud/kubean/pkg/apis"
 )
 
 // +genclient

@@ -69,7 +69,7 @@ linters-settings:
   gofumpt:
     extra-rules: true
   goimports:
-    local-prefixes: github.com/daocloud/kpanda
+    local-prefixes: github.com/daocloud/kubean
   gocyclo:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
     min-complexity: 20

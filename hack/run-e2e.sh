@@ -23,7 +23,7 @@ GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 
 # Run e2e
-# kubean-apiserver's svc is kubean
+# kubean-operator's svc is kubean
 kubectl --kubeconfig="${MAIN_KUBECONFIG}" patch svc kubean -n kubean-system -p '{"spec": {"type": "NodePort"}}'
 
 # Note: After ginkgo 2.1.4, to pass additional arguments or custom flags down to your suite

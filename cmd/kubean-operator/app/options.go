@@ -1,11 +1,12 @@
 package app
 
 import (
-	"github.com/daocloud/kubean/pkg/util"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	componentbaseconfig "k8s.io/component-base/config"
+
+	"github.com/daocloud/kubean/pkg/util"
 )
 
 const (

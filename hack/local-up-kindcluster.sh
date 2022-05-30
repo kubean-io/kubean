@@ -31,7 +31,7 @@ source "${REPO_ROOT}"/hack/images.sh
 KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
 MAIN_KUBECONFIG=${MAIN_KUBECONFIG:-"${KUBECONFIG_PATH}/${HOST_CLUSTER_NAME}.config"}
 KUBEAN_SYSTEM_NAMESPACE="kubean-system"
-APISERVER_POD_LABEL="kubean-apiserver"
+KUBEAN_POD_LABEL="kubean"
 
 #step0. prepare
 # proxy setting in China mainland
@@ -97,7 +97,7 @@ export KUBECONFIG="${MAIN_KUBECONFIG}" # kube.conf for helm and kubectl
 bash "${REPO_ROOT}"/hack/deploy.sh "${KUBEAN_VERSION}" "${KUBEAN_IMAGE_VERSION}"  "${MAIN_KUBECONFIG}"  "${KUBEAN_SYSTEM_NAMESPACE}"  "${HELM_REPO}" "${IMG_REPO}" "false" "E2E"
 
 # Wait and check kubean ready
-util::wait_pod_ready "${APISERVER_POD_LABEL}" "${KUBEAN_SYSTEM_NAMESPACE}" 300s
+util::wait_pod_ready "${KUBEAN_POD_LABEL}" "${KUBEAN_SYSTEM_NAMESPACE}" 300s
 
 #https://textkool.com/en/ascii-art-generator?hl=default&vl=default&font=DOS%20Rebel&text=KUBEAN
 KUBEAN_GREETING='
