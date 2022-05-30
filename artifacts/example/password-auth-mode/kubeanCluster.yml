@@ -12,6 +12,3 @@ spec:
   varsConfRef:
     namespace: kubean-system
     name: sample-vars-conf
-  sshAuthRef:
-    namespace: kubean-system
-    name: sample-ssh-auth
