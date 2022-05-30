@@ -174,8 +174,8 @@ function util::wait_file_exist() {
 
 # util::wait_pod_ready waits for pod state becomes ready until timeout.
 # Parmeters:
-#  - $1: pod label, such as "app=etcd"
-#  - $2: pod namespace, such as "kpanda-system"
+#  - $1: pod label, such as "app.kubernetes.io/name=kubean"
+#  - $2: pod namespace, such as "kubean-system"
 #  - $3: time out, such as "200s"
 function util::wait_pod_ready() {
     local pod_label=$1
@@ -184,11 +184,11 @@ function util::wait_pod_ready() {
 
     echo "wait the $pod_label ready..."
     set +e
-    util::kubectl_with_retry wait --for=condition=Ready --timeout=${timeout} pods -l app=${pod_label} -n ${pod_namespace}
+    util::kubectl_with_retry wait --for=condition=Ready --timeout=${timeout} pods -l app.kubernetes.io/name=${pod_label} -n ${pod_namespace}
     ret=$?
     set -e
     if [ $ret -ne 0 ];then
-      echo "kubectl describe info: $(kubectl describe pod -l app=${pod_label} -n ${pod_namespace})"
+      echo "kubectl describe info: $(kubectl describe pod -l app.kubernetes.io/name=${pod_label} -n ${pod_namespace})"
     fi
     return ${ret}
 }
