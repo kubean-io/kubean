@@ -13,10 +13,6 @@ KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
 
 HOST_CLUSTER_NAME=${1:-"kubean-host"}
 MAIN_KUBECONFIG=${MAIN_KUBECONFIG:-"${KUBECONFIG_PATH}/${HOST_CLUSTER_NAME}.config"}
-MEMBER_CLUSTER_1_NAME=${2:-"member1"}
-MEMBER_CLUSTER_1_KUBECONFIG=${MEMBER_CLUSTER_1_KUBECONFIG:-"${KUBECONFIG_PATH}/${MEMBER_CLUSTER_1_NAME}.config"}
-MEMBER_CLUSTER_2_NAME=${3:-"member2"}
-MEMBER_CLUSTER_2_KUBECONFIG=${MEMBER_CLUSTER_2_KUBECONFIG:-"${KUBECONFIG_PATH}/${MEMBER_CLUSTER_2_NAME}.config"}
 
 # Install ginkgo
 GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
@@ -28,4 +24,4 @@ kubectl --kubeconfig="${MAIN_KUBECONFIG}" patch svc kubean -n kubean-system -p '
 
 # Note: After ginkgo 2.1.4, to pass additional arguments or custom flags down to your suite
 # no need to use -- to separate your arguments from arguments intended for ginkgo
-ginkgo run -v -race --fail-fast ./test/e2e/ --kubeconfig="${MAIN_KUBECONFIG}" --member1="${MEMBER_CLUSTER_1_KUBECONFIG}" --member2="${MEMBER_CLUSTER_2_KUBECONFIG}" --controlplane="${HOST_CLUSTER_NAME}"-control-plane
+ginkgo run -v -race --fail-fast ./test/e2e/ --kubeconfig="${MAIN_KUBECONFIG}" --controlplane="${HOST_CLUSTER_NAME}"-control-plane
