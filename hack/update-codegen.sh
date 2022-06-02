@@ -38,6 +38,7 @@ client-gen \
   --input=github.com/daocloud/kubean/pkg/apis/$SubDirName/v1alpha1 \
   --output-package=github.com/daocloud/kubean/pkg/generated/$SubDirName/clientset \
   --clientset-name=versioned \
+  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps" \
 
 echo "Generating with lister-gen"
 GO111MODULE=on go install k8s.io/code-generator/cmd/lister-gen
@@ -45,6 +46,7 @@ lister-gen \
   --go-header-file hack/boilerplate/boilerplate.go.txt \
   --input-dirs=github.com/daocloud/kubean/pkg/apis/$SubDirName/v1alpha1 \
   --output-package=github.com/daocloud/kubean/pkg/generated/$SubDirName/listers \
+  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps" \
 
 echo "Generating with informer-gen"
 GO111MODULE=on go install k8s.io/code-generator/cmd/informer-gen
@@ -54,4 +56,5 @@ informer-gen \
   --versioned-clientset-package=github.com/daocloud/kubean/pkg/generated/$SubDirName/clientset/versioned \
   --listers-package=github.com/daocloud/kubean/pkg/generated/$SubDirName/listers \
   --output-package=github.com/daocloud/kubean/pkg/generated/$SubDirName/informers \
+  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps" \
 

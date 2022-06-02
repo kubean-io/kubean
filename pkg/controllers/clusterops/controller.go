@@ -3,6 +3,7 @@ package clusterops
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -24,7 +25,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const RequeueAfter = time.Millisecond * 500
+const (
+	RequeueAfter = time.Millisecond * 500
+	OpsBackupNum = 5
+)
 
 type Controller struct {
 	client.Client
@@ -84,6 +88,15 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 
 	needRequeue, err = c.UpdatePodInfo(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+
+	needRequeue, err = c.CleanExcessClusterOps(cluster)
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
@@ -349,6 +362,12 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		// cluster.Spec.SSHAuthRef.IsEmpty()
 		return false, fmt.Errorf("cluster %s DataRef has empty value", cluster.Name)
 	}
+	if clusterOps.Labels == nil {
+		clusterOps.Labels = map[string]string{"clusterName": cluster.Name}
+	}
+	if _, ok := clusterOps.Labels["clusterName"]; !ok {
+		clusterOps.Labels["clusterName"] = cluster.Name
+	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
 		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)
 		if err != nil {
@@ -393,6 +412,29 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return true, nil
 	}
 	return false, nil // needRequeue,err
+}
+
+// CleanExcessClusterOps clean up excess KuBeanClusterOps.
+func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
+	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	if err != nil {
+		return false, err
+	}
+	if len(clusterOpsList.Items) <= OpsBackupNum {
+		return true, nil
+	}
+
+	// clusterOps list sort by creation timestamp
+	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
+		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
+	})
+	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
+	for _, item := range excessClusterOpsList {
+		klog.Infof("Delete KuBeanClusterOps: name: %s, createTime: %s\n", item.Name, item.CreationTimestamp.String())
+		c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
+	}
+	return true, nil
 }
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {

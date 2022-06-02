@@ -8,8 +8,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// KuBeanClusterOpses returns a KuBeanClusterOpsInformer.
-	KuBeanClusterOpses() KuBeanClusterOpsInformer
+	// KuBeanClusterOps returns a KuBeanClusterOpsInformer.
+	KuBeanClusterOps() KuBeanClusterOpsInformer
 }
 
 type version struct {
@@ -23,7 +23,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// KuBeanClusterOpses returns a KuBeanClusterOpsInformer.
-func (v *version) KuBeanClusterOpses() KuBeanClusterOpsInformer {
+// KuBeanClusterOps returns a KuBeanClusterOpsInformer.
+func (v *version) KuBeanClusterOps() KuBeanClusterOpsInformer {
 	return &kuBeanClusterOpsInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }

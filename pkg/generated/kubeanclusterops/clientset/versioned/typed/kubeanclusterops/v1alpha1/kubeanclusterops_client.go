@@ -12,7 +12,7 @@ import (
 
 type KubeanclusteropsV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	KuBeanClusterOpsesGetter
+	KuBeanClusterOpsGetter
 }
 
 // KubeanclusteropsV1alpha1Client is used to interact with features provided by the kubeanclusterops.kubean.io group.
@@ -20,8 +20,8 @@ type KubeanclusteropsV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *KubeanclusteropsV1alpha1Client) KuBeanClusterOpses() KuBeanClusterOpsInterface {
-	return newKuBeanClusterOpses(c)
+func (c *KubeanclusteropsV1alpha1Client) KuBeanClusterOps() KuBeanClusterOpsInterface {
+	return newKuBeanClusterOps(c)
 }
 
 // NewForConfig creates a new KubeanclusteropsV1alpha1Client for the given config.

@@ -9,10 +9,10 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// KuBeanClusterOpsLister helps list KuBeanClusterOpses.
+// KuBeanClusterOpsLister helps list KuBeanClusterOps.
 // All objects returned here must be treated as read-only.
 type KuBeanClusterOpsLister interface {
-	// List lists all KuBeanClusterOpses in the indexer.
+	// List lists all KuBeanClusterOps in the indexer.
 	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.KuBeanClusterOps, err error)
 	// Get retrieves the KuBeanClusterOps from the index for a given name.
@@ -31,7 +31,7 @@ func NewKuBeanClusterOpsLister(indexer cache.Indexer) KuBeanClusterOpsLister {
 	return &kuBeanClusterOpsLister{indexer: indexer}
 }
 
-// List lists all KuBeanClusterOpses in the indexer.
+// List lists all KuBeanClusterOps in the indexer.
 func (s *kuBeanClusterOpsLister) List(selector labels.Selector) (ret []*v1alpha1.KuBeanClusterOps, err error) {
 	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
 		ret = append(ret, m.(*v1alpha1.KuBeanClusterOps))
