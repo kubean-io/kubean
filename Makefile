@@ -66,6 +66,10 @@ KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
 deploy:
 	bash hack/deploy.sh "$(KUBEAN_CHART_VERSION)" "$(KUBEAN_IMAGE_VERSION)" "$(YOUR_KUBE_CONF)" "$(KUBEAN_NAMESPACE)" "$(HELM_REPO)" "$(REGISTRY_REPO)" "$(DEPLOY_ENV)" "$(CD_TO_ENVIRONMENT)"
 
+.PHONY: argocd
+argocd:
+	bash hack/argocd.sh "$(KUBEAN_CHART_VERSION)" "$(KUBEAN_IMAGE_VERSION)" "$(YOUR_KUBE_CONF)" "$(KUBEAN_NAMESPACE)" "$(HELM_REPO)" "$(REGISTRY_REPO)" "$(DEPLOY_ENV)" "$(CD_TO_ENVIRONMENT)"
+
 .PHONY: kubean-imgs
 kubean-imgs: kubean-operator
 

@@ -171,7 +171,7 @@ cd_to_dev_site:
       export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
       export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
       export CD_TO_ENVIRONMENT="cd-to-demo-dev" # argocd存放yaml的repo目录，填cd-to-demo-dev或者cd-to-demo-alpha
-      make deploy
+      make argocd
 
 cd_to_prod_site:
   rules:
@@ -193,4 +193,4 @@ cd_to_prod_site:
       export REGISTRY_SERVER_ADDRESS="release.daocloud.io"
       export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
       export CD_TO_ENVIRONMENT="cd-to-demo-alpha" # argocd存放yaml的repo目录，填cd-to-demo-dev或者cd-to-demo-alpha
-      make deploy
+      make argocd
