@@ -19,7 +19,7 @@ for (( i=0; i<${#PATH2TEST[@]}; i++)) do
     # the script will abort and exit. we haven't found a good solution and therefore
     # disable the `set -o errexit` to wraping the statement
     set +o errexit
-    bash -c "cat $cov_file | grep -v mode: | grep -v zz_generated  >> ${mergeF}"
+    bash -c "cat $cov_file | grep -v mode: | grep -v generated | grep -v zz_generated  >> ${mergeF}"
     set -o errexit
 done
 #merge them

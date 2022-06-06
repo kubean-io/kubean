@@ -110,17 +110,121 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) UpdatePodInfo(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
 	// todo
-	// todo PodRef 是
+	// todo PodRef 是 通过label来选择
 	return false, nil
+}
+
+func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) *batchv1.Job {
+	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
+	DefaultMode := int32(0o700)
+	PrivatekeyMode := int32(0o400)
+	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
+	namespace := clusterOps.Spec.HostsConfRef.NameSpace
+	job := &batchv1.Job{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "batch/v1",
+			Kind:       "Job",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      jobName,
+		},
+		Spec: batchv1.JobSpec{
+			BackoffLimit: &BackoffLimit,
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					RestartPolicy: corev1.RestartPolicyNever,
+					Containers: []corev1.Container{
+						{
+							Name:    "kubespray", // do not change this name
+							Image:   clusterOps.Spec.Image,
+							Command: []string{"/bin/entrypoint.sh"},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "entrypoint",
+									MountPath: "/bin/entrypoint.sh",
+									SubPath:   "entrypoint.sh",
+									ReadOnly:  true,
+								},
+								{
+									Name:      "hosts-conf",
+									MountPath: "/conf/hosts.yml",
+									SubPath:   "hosts.yml",
+								},
+								{
+									Name:      "vars-conf",
+									MountPath: "/conf/group_vars.yml",
+									SubPath:   "group_vars.yml",
+								},
+							},
+						},
+					},
+					Volumes: []corev1.Volume{
+						{
+							Name: "entrypoint",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: clusterOps.Spec.EntrypointSHRef.Name,
+									},
+									DefaultMode: &DefaultMode,
+								},
+							},
+						},
+						{
+							Name: "hosts-conf",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: clusterOps.Spec.HostsConfRef.Name,
+									},
+								},
+							},
+						},
+						{
+							Name: "vars-conf",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: clusterOps.Spec.VarsConfRef.Name,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
+		// mount ssh data
+		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+			job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
+				corev1.VolumeMount{
+					Name:      "ssh-auth",
+					MountPath: "/auth/ssh-privatekey",
+					SubPath:   "ssh-privatekey",
+					ReadOnly:  true,
+				})
+		}
+		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
+			corev1.Volume{
+				Name: "ssh-auth",
+				VolumeSource: corev1.VolumeSource{
+					Secret: &corev1.SecretVolumeSource{
+						SecretName:  clusterOps.Spec.SSHAuthRef.Name,
+						DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
+					},
+				},
+			})
+	}
+	return job
 }
 
 func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
 	if !clusterOps.Status.JobRef.IsEmpty() {
 		return false, nil
 	}
-	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
-	DefaultMode := int32(0o700)
-	PrivatekeyMode := int32(0o400)
 	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job, err := c.ClientSet.BatchV1().Jobs(namespace).Get(context.Background(), jobName, metav1.GetOptions{})
@@ -128,104 +232,8 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 		if apierrors.IsNotFound(err) {
 			// the job doest not exist , and will create the job.
 			klog.Warningf("create job %s for kubeanClusterOp %s", jobName, clusterOps.Name)
-			job = &batchv1.Job{
-				TypeMeta: metav1.TypeMeta{
-					APIVersion: "batch/v1",
-					Kind:       "Job",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: namespace,
-					Name:      jobName,
-				},
-				Spec: batchv1.JobSpec{
-					BackoffLimit: &BackoffLimit,
-					Template: corev1.PodTemplateSpec{
-						Spec: corev1.PodSpec{
-							RestartPolicy: corev1.RestartPolicyNever,
-							Containers: []corev1.Container{
-								{
-									Name:    "kubespray", // do not change this name
-									Image:   clusterOps.Spec.Image,
-									Command: []string{"/bin/entrypoint.sh"},
-									VolumeMounts: []corev1.VolumeMount{
-										{
-											Name:      "entrypoint",
-											MountPath: "/bin/entrypoint.sh",
-											SubPath:   "entrypoint.sh",
-											ReadOnly:  true,
-										},
-										{
-											Name:      "hosts-conf",
-											MountPath: "/conf/hosts.yml",
-											SubPath:   "hosts.yml",
-										},
-										{
-											Name:      "vars-conf",
-											MountPath: "/conf/group_vars.yml",
-											SubPath:   "group_vars.yml",
-										},
-									},
-								},
-							},
-							Volumes: []corev1.Volume{
-								{
-									Name: "entrypoint",
-									VolumeSource: corev1.VolumeSource{
-										ConfigMap: &corev1.ConfigMapVolumeSource{
-											LocalObjectReference: corev1.LocalObjectReference{
-												Name: clusterOps.Spec.EntrypointSHRef.Name,
-											},
-											DefaultMode: &DefaultMode,
-										},
-									},
-								},
-								{
-									Name: "hosts-conf",
-									VolumeSource: corev1.VolumeSource{
-										ConfigMap: &corev1.ConfigMapVolumeSource{
-											LocalObjectReference: corev1.LocalObjectReference{
-												Name: clusterOps.Spec.HostsConfRef.Name,
-											},
-										},
-									},
-								},
-								{
-									Name: "vars-conf",
-									VolumeSource: corev1.VolumeSource{
-										ConfigMap: &corev1.ConfigMapVolumeSource{
-											LocalObjectReference: corev1.LocalObjectReference{
-												Name: clusterOps.Spec.VarsConfRef.Name,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			}
-			if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
-				// mount ssh data
-				if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
-					job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
-						corev1.VolumeMount{
-							Name:      "ssh-auth",
-							MountPath: "/auth/ssh-privatekey",
-							SubPath:   "ssh-privatekey",
-							ReadOnly:  true,
-						})
-				}
-				job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
-					corev1.Volume{
-						Name: "ssh-auth",
-						VolumeSource: corev1.VolumeSource{
-							Secret: &corev1.SecretVolumeSource{
-								SecretName:  clusterOps.Spec.SSHAuthRef.Name,
-								DefaultMode: &PrivatekeyMode, // fix Permissions 0644 are too open
-							},
-						},
-					})
-			}
+			job = c.NewKubesprayJob(clusterOps)
+
 			c.SetOwnerReferences(&job.ObjectMeta, clusterOps)
 			job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
 			if err != nil {
