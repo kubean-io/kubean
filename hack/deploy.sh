@@ -22,6 +22,7 @@ TARGET_NS=${4:-"kubean-system"}
 HELM_REPO=${5:-"https://release.daocloud.io/chartrepo/kubean"}
 IMG_REPO=${6:-} #default using what inside helm chart
 DEPLOY_ENV=${7:-}   # E2E/DEV/PROD
+CD_TO_ENVIRONMENT=${8:-}   # cd
 
 LOCAL_REPO_ALIAS=kubean_release
 LOCAL_RELEASE_NAME=kubean
@@ -53,12 +54,49 @@ KUBEAN_CHART_VERSION="$(echo "${HELM_VER}" |sed  's/^v//g' )"
 
 #ensure kube.conf without group-readable
 chmod 600 ${KUBE_CONF}
+
+#################################argocd：加到helm upgrade上面###############################
+
+if [[ $CD_TO_ENVIRONMENT == '' ]];
+then
+    echo "CD_TO_ENVIRONMENT is empty"
+    exit 2
+fi
+
+git config --global user.name "${GITLAB_USER_NAME}"
+git config --global user.email "${GITLAB_USER_EMAIL}"
+# 为gitops的git仓库创建临时目录
+TEMP_REPO_DIR="temp"
+mkdir -p $TEMP_REPO_DIR
+git clone https://gitlab-ci-token:${GITLAB_TOKEN}@gitlab.daocloud.cn/ndx/cicd-infrastructure.git $TEMP_REPO_DIR
+# 为新项目创建项目目录
+mkdir -p ${TEMP_REPO_DIR}/argocd/${CD_TO_ENVIRONMENT}/${CI_PROJECT_NAME}
+#################################argocd：加到helm upgrade上面###############################
+
 # install or upgrade
 helm upgrade --install  --create-namespace --cleanup-on-fail \
              ${LOCAL_RELEASE_NAME}     ${LOCAL_REPO_ALIAS}/kubean   \
              ${values} ${value_override} \
              -n "${TARGET_NS}"  --version ${KUBEAN_CHART_VERSION} \
-             --kubeconfig ${KUBE_CONF}
+             --kubeconfig ${KUBE_CONF} --dry-run --debug > /helm.yaml
 
-# check it
-helm list -n "${TARGET_NS}" --kubeconfig ${KUBE_CONF}
+#################################argocd：加到helm upgrade下面###############################
+
+set +e
+YAML_FILE="/helm.yaml"
+# 拿到yaml第一行 （# 这里由于环境问题，设置了set -e可能误报，但是能正常过滤出yaml文件）
+BEGIN_LINE=`grep -n "\-\-\-" ${YAML_FILE} |head -1|awk -F ":" '{print $1}'`
+let BEGIN_LINE+=1
+# 拿到yaml最后一行
+END_LINE=`grep -n "NOTES:" ${YAML_FILE} |head -1|awk -F ":" '{print $1}'`
+let END_LINE-=1
+set -e
+
+# 把yaml文件过滤出来放到git仓库的项目目录下
+sed -n "${BEGIN_LINE},${END_LINE}p" $YAML_FILE > $TEMP_REPO_DIR/argocd/${CD_TO_ENVIRONMENT}/${CI_PROJECT_NAME}/${CI_PROJECT_NAME}.yaml
+# 推送代码提交代码到git仓库
+cd $TEMP_REPO_DIR
+git add -A
+git commit -m "Update ${CI_PROJECT_NAME}"
+git push https://gitlab-ci-token:${GITLAB_TOKEN}@gitlab.daocloud.cn/ndx/cicd-infrastructure.git HEAD:master
+#################################argocd：加到helm upgrade下面###############################
