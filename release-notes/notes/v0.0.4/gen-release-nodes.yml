@@ -1,0 +1,12 @@
+kind: feature
+area: infrastructure
+
+issues:
+  - 7
+
+jiras:
+  - DCE-20866
+
+releaseNotes:
+  - |-
+    **新增** `kpanda`增加release-notes生成功能。

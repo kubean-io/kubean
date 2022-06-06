@@ -140,3 +140,7 @@ verify-code-gen:
 .PHONY: verify-vendor
 verify-vendor:
 	#hack/verify-vendor.sh
+
+.PHONY: gen-release-notes
+gen-release-notes:
+	bash hack/release-version.sh

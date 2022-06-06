@@ -194,3 +194,13 @@ cd_to_prod_site:
       export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
       export CD_TO_ENVIRONMENT="cd-to-demo-alpha" # argocd存放yaml的repo目录，填cd-to-demo-dev或者cd-to-demo-alpha
       make argocd
+
+# gen release notes
+Release Version:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
+  image: release.daocloud.io/mspider-ci/mspider:v0.0.10
+  script:
+    - make gen-release-notes

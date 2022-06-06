@@ -1,0 +1,52 @@
+# kind 描述了 PR 所代表的的变化类型。
+# 合法的类型为：
+# - bug-fix -- 用于描述此更改代表一个错误修复。
+# - security-fix -- 用于描述此更改代表一个漏洞修复。
+# - feature -- 用于描述此更改代表新增一项功能。
+# - test -- 用于描述添加额外的测试用例。
+kind:
+
+# area 描述了此更改影响的领域。
+# 有效值为：
+# - api
+# - api-service
+# - work-api
+# - infrastructure
+# - controller （跟 CRDs 相关）
+# - external (跟外部的一些组件相关，如 ckube, insight)
+# - installation
+# - cli
+# - documentation
+area:
+
+# issue 是本改动中解决的 Gitlab 的问题列表。
+# 类型为数组，如有多个 issues 相关，请使用如下格式：
+# issues:
+#   - https://gitlab.daocloud.cn/ndx/mspider/-/issues/4
+#   - 3
+# 可以仅写issue的编号
+issues:
+
+# jira 是本改动中解决的 Jira 的问题列表.
+# 请提供完整的 Jira 链接.
+# 例如：
+# jiras:
+#   - https://jira.daocloud.io/browse/DXMESH-1252
+#   - 1253
+# 可以仅写Jira的编号
+jiras:
+
+# releaseNotes 是有关于任何对用户有影响的改动的内容。内容会在发版的 release notes 中体现。
+# 应该由动作开始，比如：
+# **修复**了一个导致服务列表分页失效的问题。
+# 可接受的动作为：`**新增**`,`**弃用**`,`**修复**`,`**优化**`,`**改进**`,`**移除**`,`**升级**`
+# 这里的** **其实对应的是markdown的** **动作
+releaseNotes:
+
+# securityNotes 是跟安全漏洞修复相关的一些改动。内容会在发版的 release notes 中体现。
+securityNotes:
+
+# upgradeNotes 是有关于任何影响升级相关的改动的内容。该内容会在发版的 release notes 中体现。
+upgradeNotes:
+  - title:
+    content:
