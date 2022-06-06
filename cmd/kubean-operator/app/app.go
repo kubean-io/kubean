@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"net"
+	"os"
 	"strconv"
 
 	"github.com/daocloud/kubean/pkg/controllers/cluster"
@@ -16,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -92,7 +94,10 @@ func StartManager(ctx context.Context, opt *Options) error {
 func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan struct{}) error {
 	resetConfig, err := rest.InClusterConfig()
 	if err != nil {
-		return err
+		resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+		if err != nil {
+			return err
+		}
 	}
 	ClientSet, err := kubernetes.NewForConfig(resetConfig)
 	if err != nil {

@@ -14,10 +14,10 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-// KuBeanClusterOpsesGetter has a method to return a KuBeanClusterOpsInterface.
+// KuBeanClusterOpsGetter has a method to return a KuBeanClusterOpsInterface.
 // A group's client should implement this interface.
-type KuBeanClusterOpsesGetter interface {
-	KuBeanClusterOpses() KuBeanClusterOpsInterface
+type KuBeanClusterOpsGetter interface {
+	KuBeanClusterOps() KuBeanClusterOpsInterface
 }
 
 // KuBeanClusterOpsInterface has methods to work with KuBeanClusterOps resources.
@@ -34,23 +34,23 @@ type KuBeanClusterOpsInterface interface {
 	KuBeanClusterOpsExpansion
 }
 
-// kuBeanClusterOpses implements KuBeanClusterOpsInterface
-type kuBeanClusterOpses struct {
+// kuBeanClusterOps implements KuBeanClusterOpsInterface
+type kuBeanClusterOps struct {
 	client rest.Interface
 }
 
-// newKuBeanClusterOpses returns a KuBeanClusterOpses
-func newKuBeanClusterOpses(c *KubeanclusteropsV1alpha1Client) *kuBeanClusterOpses {
-	return &kuBeanClusterOpses{
+// newKuBeanClusterOps returns a KuBeanClusterOps
+func newKuBeanClusterOps(c *KubeanclusteropsV1alpha1Client) *kuBeanClusterOps {
+	return &kuBeanClusterOps{
 		client: c.RESTClient(),
 	}
 }
 
 // Get takes name of the kuBeanClusterOps, and returns the corresponding kuBeanClusterOps object, and an error if there is any.
-func (c *kuBeanClusterOpses) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *kuBeanClusterOps) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	result = &v1alpha1.KuBeanClusterOps{}
 	err = c.client.Get().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
 		Do(ctx).
@@ -58,15 +58,15 @@ func (c *kuBeanClusterOpses) Get(ctx context.Context, name string, options v1.Ge
 	return
 }
 
-// List takes label and field selectors, and returns the list of KuBeanClusterOpses that match those selectors.
-func (c *kuBeanClusterOpses) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.KuBeanClusterOpsList, err error) {
+// List takes label and field selectors, and returns the list of KuBeanClusterOps that match those selectors.
+func (c *kuBeanClusterOps) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.KuBeanClusterOpsList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
 	result = &v1alpha1.KuBeanClusterOpsList{}
 	err = c.client.Get().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Do(ctx).
@@ -74,25 +74,25 @@ func (c *kuBeanClusterOpses) List(ctx context.Context, opts v1.ListOptions) (res
 	return
 }
 
-// Watch returns a watch.Interface that watches the requested kuBeanClusterOpses.
-func (c *kuBeanClusterOpses) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested kuBeanClusterOps.
+func (c *kuBeanClusterOps) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
 	}
 	opts.Watch = true
 	return c.client.Get().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Watch(ctx)
 }
 
 // Create takes the representation of a kuBeanClusterOps and creates it.  Returns the server's representation of the kuBeanClusterOps, and an error, if there is any.
-func (c *kuBeanClusterOpses) Create(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.CreateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *kuBeanClusterOps) Create(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.CreateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	result = &v1alpha1.KuBeanClusterOps{}
 	err = c.client.Post().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(kuBeanClusterOps).
 		Do(ctx).
@@ -101,10 +101,10 @@ func (c *kuBeanClusterOpses) Create(ctx context.Context, kuBeanClusterOps *v1alp
 }
 
 // Update takes the representation of a kuBeanClusterOps and updates it. Returns the server's representation of the kuBeanClusterOps, and an error, if there is any.
-func (c *kuBeanClusterOpses) Update(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *kuBeanClusterOps) Update(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	result = &v1alpha1.KuBeanClusterOps{}
 	err = c.client.Put().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		Name(kuBeanClusterOps.Name).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(kuBeanClusterOps).
@@ -115,10 +115,10 @@ func (c *kuBeanClusterOpses) Update(ctx context.Context, kuBeanClusterOps *v1alp
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *kuBeanClusterOpses) UpdateStatus(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *kuBeanClusterOps) UpdateStatus(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	result = &v1alpha1.KuBeanClusterOps{}
 	err = c.client.Put().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		Name(kuBeanClusterOps.Name).
 		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
@@ -129,9 +129,9 @@ func (c *kuBeanClusterOpses) UpdateStatus(ctx context.Context, kuBeanClusterOps 
 }
 
 // Delete takes name of the kuBeanClusterOps and deletes it. Returns an error if one occurs.
-func (c *kuBeanClusterOpses) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+func (c *kuBeanClusterOps) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return c.client.Delete().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		Name(name).
 		Body(&opts).
 		Do(ctx).
@@ -139,13 +139,13 @@ func (c *kuBeanClusterOpses) Delete(ctx context.Context, name string, opts v1.De
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *kuBeanClusterOpses) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+func (c *kuBeanClusterOps) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	var timeout time.Duration
 	if listOpts.TimeoutSeconds != nil {
 		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Body(&opts).
@@ -154,10 +154,10 @@ func (c *kuBeanClusterOpses) DeleteCollection(ctx context.Context, opts v1.Delet
 }
 
 // Patch applies the patch and returns the patched kuBeanClusterOps.
-func (c *kuBeanClusterOpses) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *kuBeanClusterOps) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.KuBeanClusterOps, err error) {
 	result = &v1alpha1.KuBeanClusterOps{}
 	err = c.client.Patch(pt).
-		Resource("kubeanclusteropses").
+		Resource("kubeanclusterops").
 		Name(name).
 		SubResource(subresources...).
 		VersionedParams(&opts, scheme.ParameterCodec).

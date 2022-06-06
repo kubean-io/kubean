@@ -17,7 +17,7 @@ import (
 )
 
 // KuBeanClusterOpsInformer provides access to a shared informer and lister for
-// KuBeanClusterOpses.
+// KuBeanClusterOps.
 type KuBeanClusterOpsInformer interface {
 	Informer() cache.SharedIndexInformer
 	Lister() v1alpha1.KuBeanClusterOpsLister
@@ -45,13 +45,13 @@ func NewFilteredKuBeanClusterOpsInformer(client versioned.Interface, resyncPerio
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubeanclusteropsV1alpha1().KuBeanClusterOpses().List(context.TODO(), options)
+				return client.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubeanclusteropsV1alpha1().KuBeanClusterOpses().Watch(context.TODO(), options)
+				return client.KubeanclusteropsV1alpha1().KuBeanClusterOps().Watch(context.TODO(), options)
 			},
 		},
 		&kubeanclusteropsv1alpha1.KuBeanClusterOps{},

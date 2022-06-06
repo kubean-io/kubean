@@ -37,8 +37,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=kubeanclusterops.kubean.io, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("kubeanclusteropses"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubeanclusterops().V1alpha1().KuBeanClusterOpses().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("kubeanclusterops"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubeanclusterops().V1alpha1().KuBeanClusterOps().Informer()}, nil
 
 	}
 

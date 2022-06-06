@@ -14,29 +14,29 @@ import (
 	testing "k8s.io/client-go/testing"
 )
 
-// FakeKuBeanClusterOpses implements KuBeanClusterOpsInterface
-type FakeKuBeanClusterOpses struct {
+// FakeKuBeanClusterOps implements KuBeanClusterOpsInterface
+type FakeKuBeanClusterOps struct {
 	Fake *FakeKubeanclusteropsV1alpha1
 }
 
-var kubeanclusteropsesResource = schema.GroupVersionResource{Group: "kubeanclusterops.kubean.io", Version: "v1alpha1", Resource: "kubeanclusteropses"}
+var kubeanclusteropsResource = schema.GroupVersionResource{Group: "kubeanclusterops.kubean.io", Version: "v1alpha1", Resource: "kubeanclusterops"}
 
-var kubeanclusteropsesKind = schema.GroupVersionKind{Group: "kubeanclusterops.kubean.io", Version: "v1alpha1", Kind: "KuBeanClusterOps"}
+var kubeanclusteropsKind = schema.GroupVersionKind{Group: "kubeanclusterops.kubean.io", Version: "v1alpha1", Kind: "KuBeanClusterOps"}
 
 // Get takes name of the kuBeanClusterOps, and returns the corresponding kuBeanClusterOps object, and an error if there is any.
-func (c *FakeKuBeanClusterOpses) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *FakeKuBeanClusterOps) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootGetAction(kubeanclusteropsesResource, name), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootGetAction(kubeanclusteropsResource, name), &v1alpha1.KuBeanClusterOps{})
 	if obj == nil {
 		return nil, err
 	}
 	return obj.(*v1alpha1.KuBeanClusterOps), err
 }
 
-// List takes label and field selectors, and returns the list of KuBeanClusterOpses that match those selectors.
-func (c *FakeKuBeanClusterOpses) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.KuBeanClusterOpsList, err error) {
+// List takes label and field selectors, and returns the list of KuBeanClusterOps that match those selectors.
+func (c *FakeKuBeanClusterOps) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.KuBeanClusterOpsList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootListAction(kubeanclusteropsesResource, kubeanclusteropsesKind, opts), &v1alpha1.KuBeanClusterOpsList{})
+		Invokes(testing.NewRootListAction(kubeanclusteropsResource, kubeanclusteropsKind, opts), &v1alpha1.KuBeanClusterOpsList{})
 	if obj == nil {
 		return nil, err
 	}
@@ -54,16 +54,16 @@ func (c *FakeKuBeanClusterOpses) List(ctx context.Context, opts v1.ListOptions) 
 	return list, err
 }
 
-// Watch returns a watch.Interface that watches the requested kuBeanClusterOpses.
-func (c *FakeKuBeanClusterOpses) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+// Watch returns a watch.Interface that watches the requested kuBeanClusterOps.
+func (c *FakeKuBeanClusterOps) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewRootWatchAction(kubeanclusteropsesResource, opts))
+		InvokesWatch(testing.NewRootWatchAction(kubeanclusteropsResource, opts))
 }
 
 // Create takes the representation of a kuBeanClusterOps and creates it.  Returns the server's representation of the kuBeanClusterOps, and an error, if there is any.
-func (c *FakeKuBeanClusterOpses) Create(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.CreateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *FakeKuBeanClusterOps) Create(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.CreateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootCreateAction(kubeanclusteropsesResource, kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootCreateAction(kubeanclusteropsResource, kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
 	if obj == nil {
 		return nil, err
 	}
@@ -71,9 +71,9 @@ func (c *FakeKuBeanClusterOpses) Create(ctx context.Context, kuBeanClusterOps *v
 }
 
 // Update takes the representation of a kuBeanClusterOps and updates it. Returns the server's representation of the kuBeanClusterOps, and an error, if there is any.
-func (c *FakeKuBeanClusterOpses) Update(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *FakeKuBeanClusterOps) Update(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (result *v1alpha1.KuBeanClusterOps, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateAction(kubeanclusteropsesResource, kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootUpdateAction(kubeanclusteropsResource, kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
 	if obj == nil {
 		return nil, err
 	}
@@ -82,9 +82,9 @@ func (c *FakeKuBeanClusterOpses) Update(ctx context.Context, kuBeanClusterOps *v
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeKuBeanClusterOpses) UpdateStatus(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (*v1alpha1.KuBeanClusterOps, error) {
+func (c *FakeKuBeanClusterOps) UpdateStatus(ctx context.Context, kuBeanClusterOps *v1alpha1.KuBeanClusterOps, opts v1.UpdateOptions) (*v1alpha1.KuBeanClusterOps, error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootUpdateSubresourceAction(kubeanclusteropsesResource, "status", kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootUpdateSubresourceAction(kubeanclusteropsResource, "status", kuBeanClusterOps), &v1alpha1.KuBeanClusterOps{})
 	if obj == nil {
 		return nil, err
 	}
@@ -92,24 +92,24 @@ func (c *FakeKuBeanClusterOpses) UpdateStatus(ctx context.Context, kuBeanCluster
 }
 
 // Delete takes name of the kuBeanClusterOps and deletes it. Returns an error if one occurs.
-func (c *FakeKuBeanClusterOpses) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+func (c *FakeKuBeanClusterOps) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(kubeanclusteropsesResource, name, opts), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootDeleteActionWithOptions(kubeanclusteropsResource, name, opts), &v1alpha1.KuBeanClusterOps{})
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeKuBeanClusterOpses) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewRootDeleteCollectionAction(kubeanclusteropsesResource, listOpts)
+func (c *FakeKuBeanClusterOps) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewRootDeleteCollectionAction(kubeanclusteropsResource, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.KuBeanClusterOpsList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched kuBeanClusterOps.
-func (c *FakeKuBeanClusterOpses) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.KuBeanClusterOps, err error) {
+func (c *FakeKuBeanClusterOps) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.KuBeanClusterOps, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewRootPatchSubresourceAction(kubeanclusteropsesResource, name, pt, data, subresources...), &v1alpha1.KuBeanClusterOps{})
+		Invokes(testing.NewRootPatchSubresourceAction(kubeanclusteropsResource, name, pt, data, subresources...), &v1alpha1.KuBeanClusterOps{})
 	if obj == nil {
 		return nil, err
 	}
