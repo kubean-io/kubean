@@ -140,6 +140,10 @@ spec:
               endTime:
                 format: date-time
                 type: string
+              hasModified:
+                description: HasModified indicates the spec has been modified by others
+                  after created.
+                type: boolean
               jobRef:
                 properties:
                   name:
@@ -160,6 +164,10 @@ spec:
                 - name
                 - namespace
                 type: object
+              salt:
+                description: Salt is used to avoid the change of clusterOps by others.
+                  it will be filled by operator.
+                type: string
               startTime:
                 format: date-time
                 type: string

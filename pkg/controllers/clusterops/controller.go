@@ -2,8 +2,10 @@ package clusterops
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -41,6 +43,59 @@ func (c *Controller) Start(ctx context.Context) error {
 	klog.Warningf("KuBeanClusterOps Controller Start")
 	<-ctx.Done()
 	return nil
+}
+
+const BaseSlat = "kubean"
+
+func (c *Controller) CalSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+	summaryStr := ""
+	summaryStr += BaseSlat
+	summaryStr += clusterOps.Spec.KuBeanCluster
+	summaryStr += string(clusterOps.Spec.ActionType)
+	summaryStr += strings.TrimSpace(clusterOps.Spec.Action)
+	summaryStr += strconv.Itoa(clusterOps.Spec.BackoffLimit)
+	summaryStr += clusterOps.Spec.Image
+	for _, action := range clusterOps.Spec.PreHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	for _, action := range clusterOps.Spec.PostHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	return fmt.Sprintf("%x", md5.Sum([]byte(summaryStr)))
+}
+
+func (c *Controller) UpdateClusterOpsStatusSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if len(clusterOps.Status.Salt) != 0 {
+		// already has value.
+		return false, nil
+	}
+	// init salt value.
+	clusterOps.Status.Salt = c.CalSalt(clusterOps)
+	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (c *Controller) compareSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+	return clusterOps.Status.Salt == c.CalSalt(clusterOps)
+}
+
+func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if clusterOps.Status.HasModified {
+		// already true.
+		return false, nil
+	}
+	if same := c.compareSalt(clusterOps); !same {
+		clusterOps.Status.HasModified = true
+		if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+			return false, nil
+		}
+		return true, nil
+	}
+	return false, nil
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
