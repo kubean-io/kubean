@@ -10,7 +10,7 @@ ROOT_PATH=$(pwd)
 
 IMPORT_ALIASES_PATH="${ROOT_PATH}/hack/.import-aliases"
 INCLUDE_PATH="(${ROOT_PATH}/cmd|${ROOT_PATH}/test|${ROOT_PATH}/pkg)"
-EXCLUDE_PATH="(${ROOT_PATH}/pkg/generated|${ROOT_PATH}/pkg/apis)"
+EXCLUDE_PATH="(${ROOT_PATH}/pkg/generated|${ROOT_PATH}/pkg/apis|${ROOT_PATH}/tests)"
 
 ret=0
 # We can't directly install preferredimports by `go install` due to the go.mod issue:
