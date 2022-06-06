@@ -6,6 +6,7 @@ require (
 	github.com/golang/mock v1.5.0
 	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.18.1
+	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
@@ -19,6 +20,7 @@ require (
 	k8s.io/component-base v0.24.0
 	k8s.io/klog/v2 v2.60.1
 	sigs.k8s.io/controller-runtime v0.12.1
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -101,5 +103,4 @@ require (
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )

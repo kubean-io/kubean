@@ -2,8 +2,10 @@ package clusterops
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -43,6 +45,64 @@ func (c *Controller) Start(ctx context.Context) error {
 	return nil
 }
 
+const BaseSlat = "kubean"
+
+func (c *Controller) CalSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+	summaryStr := ""
+	summaryStr += BaseSlat
+	summaryStr += clusterOps.Spec.KuBeanCluster
+	summaryStr += string(clusterOps.Spec.ActionType)
+	summaryStr += strings.TrimSpace(clusterOps.Spec.Action)
+	summaryStr += strconv.Itoa(clusterOps.Spec.BackoffLimit)
+	summaryStr += clusterOps.Spec.Image
+	for _, action := range clusterOps.Spec.PreHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	for _, action := range clusterOps.Spec.PostHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	return fmt.Sprintf("%x", md5.Sum([]byte(summaryStr)))
+}
+
+func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if len(clusterOps.Status.Digest) != 0 {
+		// already has value.
+		return false, nil
+	}
+	// init salt value.
+	clusterOps.Status.Digest = c.CalSalt(clusterOps)
+	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (c *Controller) compareDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+	return clusterOps.Status.Digest == c.CalSalt(clusterOps)
+}
+
+func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if len(clusterOps.Status.Digest) == 0 {
+		return false, nil
+	}
+	if clusterOps.Status.HasModified {
+		// already true.
+		return false, nil
+	}
+	if same := c.compareDigest(clusterOps); !same {
+		// compare
+		clusterOps.Status.HasModified = true
+		if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+			return false, err
+		}
+		klog.Warningf("clusterOps %s Spec has been modified", clusterOps.Name)
+		return true, nil
+	}
+	return false, nil
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
@@ -57,8 +117,22 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
-
-	needRequeue, err := c.BackUpDataRef(clusterOps, cluster)
+	needRequeue, err := c.UpdateClusterOpsStatusDigest(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	needRequeue, err = c.UpdateStatusHasModified(clusterOps)
+	if err != nil {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	needRequeue, err = c.BackUpDataRef(clusterOps, cluster)
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
