@@ -83,6 +83,7 @@ helm upgrade --install  --create-namespace --cleanup-on-fail \
 #################################argocd：加到helm upgrade下面###############################
 
 set +e
+# 关闭shell脚本error exit功能，防止yaml文件未变更时git push报错。
 YAML_FILE="/helm.yaml"
 # 拿到yaml第一行 （# 这里由于环境问题，设置了set -e可能误报，但是能正常过滤出yaml文件）
 BEGIN_LINE=`grep -n "\-\-\-" ${YAML_FILE} |head -1|awk -F ":" '{print $1}'`
@@ -90,7 +91,6 @@ let BEGIN_LINE+=1
 # 拿到yaml最后一行
 END_LINE=`grep -n "NOTES:" ${YAML_FILE} |head -1|awk -F ":" '{print $1}'`
 let END_LINE-=1
-set -e
 
 # 把yaml文件过滤出来放到git仓库的项目目录下
 sed -n "${BEGIN_LINE},${END_LINE}p" $YAML_FILE > $TEMP_REPO_DIR/argocd/${CD_TO_ENVIRONMENT}/${CI_PROJECT_NAME}/${CI_PROJECT_NAME}.yaml
