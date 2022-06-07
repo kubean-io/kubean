@@ -138,7 +138,7 @@ spec:
               action:
                 type: string
               digest:
-                description: Salt is used to avoid the change of clusterOps by others.
+                description: Digest is used to avoid the change of clusterOps by others.
                   it will be filled by operator. Do Not change this value.
                 type: string
               endTime:
