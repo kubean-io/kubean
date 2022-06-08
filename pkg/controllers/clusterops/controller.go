@@ -397,14 +397,14 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
 	}
-	entryPointData := entrypoint.EntryPoint{}
+	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	for _, action := range clusterOps.Spec.PreHook {
 		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action); err != nil {
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, isPrivateKey); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, "", isPrivateKey); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {

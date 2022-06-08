@@ -99,6 +99,35 @@ var testData = `
           kubectl get cs
   matchString: "kubectl get cs"
   output: true
+
+- message: "Check kubespray remove-node"
+  input:
+    actionType: playbook
+    action: remove-node.yml
+  matchString: "remove-node.yml"
+  output: true
+
+- message: "Check kubespray upgrade-cluster"
+  input:
+    actionType: playbook
+    action: upgrade-cluster.yml
+  matchString: "upgrade-cluster.yml"
+  output: true
+
+- message: "Check kubespray scale"
+  input:
+    actionType: playbook
+    action: scale.yml
+  matchString: "scale.yml"
+  output: true
+
+- message: "Check ansible inventory parameter 'limit'"
+  input:
+    actionType: playbook
+    action: scale.yml
+    limit: node3,node4
+  matchString: "--limit=node3,node4"
+  output: true
 `
 
 type SubAction struct {
@@ -109,6 +138,7 @@ type SubAction struct {
 type ActionData struct {
 	ActionType   string       `yaml:"actionType"`
 	Action       string       `yaml:"action"`
+	Limit        string       `yaml:"limit"`
 	PreHooks     []*SubAction `yaml:"prehook"`
 	PostHooks    []*SubAction `yaml:"posthook"`
 	IsPrivateKey bool         `yaml:"isPrivateKey"`
@@ -131,7 +161,7 @@ func TestEntrypoint(t *testing.T) {
 
 	for _, item := range ad {
 		t.Run(item.Message, func(t *testing.T) {
-			ep := &EntryPoint{}
+			ep := NewEntryPoint()
 			// Prehook 命令处理
 			for _, prehook := range item.Input.PreHooks {
 				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action)
@@ -140,7 +170,7 @@ func TestEntrypoint(t *testing.T) {
 				}
 			}
 			// Kubespray 命令处理
-			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.IsPrivateKey)
+			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.Limit, item.Input.IsPrivateKey)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster2-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    node: node3

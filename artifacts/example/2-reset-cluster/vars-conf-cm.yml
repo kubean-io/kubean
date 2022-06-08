@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    # k8s-cluster
+    kube_version: "v1.21.6"
+    cluster_name: kubean.cluster
+    container_manager: docker
+    k8s_image_pull_policy: IfNotPresent
+    kube_network_plugin: calico
+    kube_network_plugin_multus: false
+    kube_apiserver_port: 6443
+    kube_proxy_mode: iptables
+    enable_nodelocaldns: false
+    etcd_deployment_type: docker
+    metrics_server_enabled: true
+    local_path_provisioner_enabled: true

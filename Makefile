@@ -80,7 +80,6 @@ kubean-operator: $(SOURCES)
 	! ( docker buildx ls | grep kubean-operator-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-operator-multi-platform-builder ;\
 	docker buildx build \
 			--build-arg kubean_version=$(KUBEAN_VERSION) \
-			--build-arg UBUNTU_MIRROR=$(UBUNTU_MIRROR) \
 			--builder kubean-operator-multi-platform-builder \
 			--platform $(BUILD_ARCH) \
 			--tag $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)  \
