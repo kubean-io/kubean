@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o nounset
 set -o pipefail
-
+set -e
 # This script schedules e2e tests
 # Parameters:
 #[TARGET_VERSION] apps ta ge images/helm-chart revision( image and helm versions should be the same)
@@ -22,14 +22,9 @@ chmod +x ./hack/run-e2e.sh
 
 ###### Clean Up #######
 clean_up(){
-    local auto_cleanup="true"
-    if [ "$auto_cleanup" == "true" ];then
-        ./hack/delete-cluster.sh "${CLUSTER_PREFIX}"-host "${CLUSTER_PREFIX}"-member1 "${CLUSTER_PREFIX}"-member2
-    fi
-    if [ "$EXIT_CODE" == "0" ];then
-        exit $EXIT_CODE
-    fi
-    exit $EXIT_CODE
+    echo 'Removing kubean kind cluster...'
+    kind delete cluster --name "$CLUSTER_PREFIX"
+    echo 'Done!'
 }
 
 ###### e2e logic ########
@@ -37,7 +32,9 @@ clean_up(){
 trap clean_up EXIT
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
-./hack/run-e2e.sh "${CLUSTER_PREFIX}"-host "${CLUSTER_PREFIX}"-member1 "${CLUSTER_PREFIX}"-member2
+###### e2e test execution ########
+ginkgo run -v -race --fail-fast ./test/e2e/
+
 ret=$?
 if [ ${ret} -ne 0 ]; then
   EXIT_CODE=1
