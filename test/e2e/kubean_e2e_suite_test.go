@@ -1,16 +1,13 @@
 package e2e
 
 import (
-	"flag"
-	"fmt"
+	//"flag"
+	//"fmt"
 	"testing"
 
 	ginkgo "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"insight.io/test/tools"
 )
-
-var insightyml = tools.InitInsightSetting()
 
 func TestInsight(t *testing.T) {
 	gomega.RegisterFailHandler(ginkgo.Fail)
