@@ -2,6 +2,7 @@ package clusterops
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/daocloud/kubean/pkg/apis"
@@ -24,6 +25,99 @@ func newFakeClient() client.Client {
 	}
 	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&kubeanclusteropsv1alpha1.KuBeanClusterOps{}).WithRuntimeObjects(&kubeanclusterv1alpha1.KuBeanCluster{}).Build()
 	return client
+}
+
+func TestUpdateStatusLoop(t *testing.T) {
+	controller := Controller{}
+	controller.Client = newFakeClient()
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.ObjectMeta.Name = "clusteropsname"
+	controller.Client.Create(context.Background(), &ops)
+	ops.Spec.BackoffLimit = 12
+	tests := []struct {
+		name string
+		args func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool
+		want bool
+	}{
+		{
+			name: "the status is Succeeded",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.SucceededStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
+				return err == nil && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Failed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
+				return err == nil && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is err",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return "", fmt.Errorf("one error")
+				})
+				return err != nil && err.Error() == "one error" && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Running",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.RunningStatus, nil
+				})
+				return err == nil && needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Succeed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				ops.Status.EndTime = nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.SucceededStatus, nil
+				})
+				resultOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
+				if resultOps.Status.Status != kubeanclusteropsv1alpha1.SucceededStatus {
+					return false
+				}
+				return err == nil && !needRequeue && ops.Status.Status == kubeanclusteropsv1alpha1.SucceededStatus && ops.Status.EndTime != nil
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Failed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				ops.Status.EndTime = nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.FailedStatus, nil
+				})
+				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == kubeanclusteropsv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			opsCopy := ops
+			if test.args(&opsCopy) != test.want {
+				t.Fatal()
+			}
+		})
+	}
 }
 
 func TestCompareSalt(t *testing.T) {

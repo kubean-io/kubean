@@ -91,7 +91,7 @@ type ClusterStatus struct {
 	StartTime *metav1.Time `json:"startTime"`
 	// +optional
 	EndTime *metav1.Time `json:"endTime"`
-	// Salt is used to avoid the change of clusterOps by others. it will be filled by operator. Do Not change this value.
+	// Digest is used to avoid the change of clusterOps by others. it will be filled by operator. Do Not change this value.
 	// +optional
 	Digest string `json:"digest,omitempty"`
 	// HasModified indicates the spec has been modified by others after created.
