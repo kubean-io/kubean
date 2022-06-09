@@ -7,6 +7,13 @@ data:
   hosts.yml: |
     all:
       hosts:
+        node1:
+          ip: 10.6.170.21
+          access_ip: 10.6.170.21
+          ansible_host: 10.6.170.21
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
         node2:
           ip: 10.6.170.23
           access_ip: 10.6.170.23
@@ -24,14 +31,19 @@ data:
       children:
         kube_control_plane:
           hosts:
+            node1:
             node2:
+            node3:
         kube_node:
           hosts:
+            node1:
             node2:
             node3:
         etcd:
           hosts:
+            node1:
             node2:
+            node3:
         k8s_cluster:
           children:
             kube_control_plane:
