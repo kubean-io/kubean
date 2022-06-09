@@ -9,8 +9,7 @@ import (
 
 	"github.com/daocloud/kubean/pkg/controllers/cluster"
 	"github.com/daocloud/kubean/pkg/controllers/clusterops"
-	kubeanClusterClientSet "github.com/daocloud/kubean/pkg/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
+
 	"github.com/daocloud/kubean/pkg/util"
 	"github.com/daocloud/kubean/pkg/version"
 
@@ -19,6 +18,8 @@ import (
 	rest "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
+	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
+	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )

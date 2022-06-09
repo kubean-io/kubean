@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
+	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 
 	"gopkg.in/yaml.v2"
 )

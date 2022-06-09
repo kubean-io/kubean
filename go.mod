@@ -12,13 +12,14 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	golang.org/x/tools v0.1.10-0.20220218145154-897bd77cd717
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.24.0
-	k8s.io/apimachinery v0.24.0
+	k8s.io/api v0.24.1
+	k8s.io/apimachinery v0.24.1
 	k8s.io/apiserver v0.24.0
-	k8s.io/client-go v0.24.0
-	k8s.io/code-generator v0.24.0
+	k8s.io/client-go v0.24.1
+	k8s.io/code-generator v0.24.1
 	k8s.io/component-base v0.24.0
 	k8s.io/klog/v2 v2.60.1
+	kubean.io/api v0.0.0
 	sigs.k8s.io/controller-runtime v0.12.1
 	sigs.k8s.io/yaml v1.3.0
 )
@@ -104,3 +105,5 @@ require (
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 )
+
+replace kubean.io/api => ./api
