@@ -1,7 +1,7 @@
 apiVersion: kubeanclusterops.kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
-  name: cluster2-ops-1e2w32
+  name: cluster2-ops-1e2w34
   labels:
     clusterName: cluster2
 spec:
@@ -9,7 +9,7 @@ spec:
   image: jiangink/kubespray:arm-f9ba272
   backoffLimit: 1
   actionType: playbook
-  action: remove-node.yml
+  action: cluster.yml
 #  preHook:
 #  - actionType: shell
 #    action: |

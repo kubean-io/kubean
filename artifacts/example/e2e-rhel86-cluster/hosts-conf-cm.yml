@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster2-hosts-conf
+  name: cluster1-hosts-conf
   namespace: kubean-system
 data:
   hosts.yml: |
     all:
       hosts:
         node1:
-          ip: 10.6.170.21
-          access_ip: 10.6.170.21
-          ansible_host: 10.6.170.21
+          ip: 10.6.127.12
+          access_ip: 10.6.127.12
+          ansible_host: 10.6.127.12
           ansible_connection: ssh
           ansible_user: root
-          ansible_ssh_pass: daocloud
+          ansible_ssh_pass: dangerous
       children:
         kube_control_plane:
           hosts:
