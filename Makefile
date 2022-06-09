@@ -123,7 +123,7 @@ clear-kind:
 
 .PHONY: update
 update:
-	bash hack/update-all.sh
+	cd ./api/ && make update && cd .. && go mod tidy && go mod vendor
 
 .PHONY: test-staticcheck
 test-staticcheck:

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/daocloud/kubean/pkg/apis"
-	kubeanclusterv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeancluster/v1alpha1"
-	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
+	"kubean.io/api/apis"
+	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
+	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
