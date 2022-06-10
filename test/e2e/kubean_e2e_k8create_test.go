@@ -13,7 +13,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var _ = ginkgo.Describe("[install] Test Kubean Operator All Info", func() {
+var _ = ginkgo.Describe("[create] Test K8 cluster All Info", func() {
 	kubeconfig := tools.Path("/tmp/kind_cluster.conf")
 	NamespaceName := "kubean-system"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)

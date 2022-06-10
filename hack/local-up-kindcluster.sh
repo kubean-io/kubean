@@ -92,6 +92,7 @@ done <<< "$IMAGE_LIST"
 #step4. install kubean control plane components
 echo "Installing kubean control plane components..."
 export KUBECONFIG="${MAIN_KUBECONFIG}" # kube.conf for helm and kubectl
+cp ${MAIN_KUBECONFIG} /tmp/kind_cluster.conf # for e2e test
 
 # deploy.sh (1)HELM_VER (2)IMG_VER (3)KUBE_CONF (4)TARGET_NS (5)HELM_REPO (6)IMG_REPO
 bash "${REPO_ROOT}"/hack/deploy.sh "${KUBEAN_VERSION}" "${KUBEAN_IMAGE_VERSION}"  "${MAIN_KUBECONFIG}"  "${KUBEAN_SYSTEM_NAMESPACE}"  "${HELM_REPO}" "${IMG_REPO}" "false" "E2E"

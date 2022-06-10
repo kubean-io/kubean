@@ -32,8 +32,14 @@ clean_up(){
 trap clean_up EXIT
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
-###### e2e test execution ########
-ginkgo run -v -race --fail-fast ./test/e2e/
+###### e2e install test execution ########
+ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
+
+###### e2e apply ops test execution ########
+# sshpass 免密获取k8集群的kubeconfig文件: sshpass -p 'dangerous' scp root@xx:/root/.kube/config .
+sshpass -p 'dangerous' scp root@xx:/root/.kube/config ../test/e2e/
+ginkgo run -v -race --fail-fast --focus="\[create\]" ./test/e2e/
+
 
 ret=$?
 if [ ${ret} -ne 0 ]; then
