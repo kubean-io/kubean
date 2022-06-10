@@ -143,3 +143,7 @@ verify-vendor:
 .PHONY: gen-release-notes
 gen-release-notes:
 	bash hack/release-version.sh
+
+.PHONY: sync_api
+sync_api:
+	bash hack/sync-api.sh $(CI_PROJECT_URL) $(CI_DEFAULT_BRANCH) "https://gitlab.daocloud.cn/ndx/kubean-api.git" "main" "api" $(SYNC_USER) $(SYNC_TOKEN) $(VERSION)
