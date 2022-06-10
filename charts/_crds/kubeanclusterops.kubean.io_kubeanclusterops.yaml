@@ -130,7 +130,6 @@ spec:
             - action
             - actionType
             - backoffLimit
-            - extraArgs
             - image
             - kuBeanCluster
             type: object
