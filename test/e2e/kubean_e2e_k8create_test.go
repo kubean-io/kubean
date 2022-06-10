@@ -2,7 +2,7 @@ package e2e
 
 import (
 	"context"
-	//"fmt"
+	"fmt"
 	//"strings"
 
 	tools "github.com/daocloud/kubean/test/tools"
@@ -14,23 +14,35 @@ import (
 )
 
 var _ = ginkgo.Describe("[create] Test K8 cluster All Info", func() {
-	kubeconfig := tools.Path("/tmp/kind_cluster.conf")
-	NamespaceName := "kubean-system"
+	// 此处的config来自于从k8 cluster master node上scp取到
+	kubeconfig := tools.Path("demo_dev_config")
+	//kubeconfig := tools.Path("/config")
+	NamespaceName := "kube-system"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	tools.CheckError(err)
 	kubeClient, err := kubernetes.NewForConfig(config)
 	tools.CheckError(err)
 
-	// pod, err := kubeClient.CoreV1().Pods(NamespaceName).List(context.TODO(), metav1.ListOptions{labels.Selector == "kubean"})
-	// fmt.Println(pod)
-	ginkgo.Context("When fetching kubean deployment info", func() {
-		deploymentList, err := kubeClient.AppsV1().Deployments(NamespaceName).List(context.TODO(), metav1.ListOptions{})
+	ginkgo.Context("When fetching kube-system pods status", func() {
+		podList, err := kubeClient.CoreV1().Pods(NamespaceName).List(context.TODO(), metav1.ListOptions{})
 		tools.CheckError(err)
-		for _, dm := range deploymentList.Items {
-			ginkgo.It("Kubean deployment should be ready", func() {
-				gomega.Expect(dm.Status.ReadyReplicas).To(gomega.Equal(dm.Status.AvailableReplicas))
-			})
-		}
+		ginkgo.It("every k8 pod should be in running status", func() {
+			for _, pod := range podList.Items {
+				fmt.Println(pod.Name, string(pod.Status.Phase))
+				gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
+			}
+		})
+	})
+
+	ginkgo.Context("When fetching kube-system nodes status", func() {
+		nodeList, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+		tools.CheckError(err)
+		ginkgo.It("every node should be in Ready status", func() {
+			for _, node := range nodeList.Items {
+				fmt.Println(node.Name, node.Status.Conditions[len(node.Status.Conditions)-1].Type)
+				gomega.Expect(string(node.Status.Conditions[len(node.Status.Conditions)-1].Type)).To(gomega.Equal("Ready"))
+			}
+		})
 	})
 
 })

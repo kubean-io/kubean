@@ -36,7 +36,9 @@ trap clean_up EXIT
 ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 
 ###### e2e apply ops test execution ########
+# TBD: 首先要检查vm上是否已经有k8 cluster；如果有的话则reset再安装
 # sshpass 免密获取k8集群的kubeconfig文件: sshpass -p 'dangerous' scp root@xx:/root/.kube/config .
+# 暂定k8集群环境的ip是10.6.127.12；用户名密码是root/dangerous；此处需与hosts-conf-cm yml文件保持一致
 sshpass -p 'dangerous' scp root@xx:/root/.kube/config ../test/e2e/
 ginkgo run -v -race --fail-fast --focus="\[create\]" ./test/e2e/
 
