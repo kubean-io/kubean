@@ -143,3 +143,7 @@ verify-vendor:
 .PHONY: gen-release-notes
 gen-release-notes:
 	bash hack/release-version.sh
+
+.PHONY: sync_api
+sync_api:
+	bash hack/sync-api.sh $(VERSION)
