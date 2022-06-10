@@ -24,6 +24,7 @@ stages:
   - verify
   - test
   - gitpages
+  - sync_api
   - build
   - e2e-test
   - cd
@@ -111,6 +112,7 @@ pages:
     paths:
       - public
     expire_in: 1 week
+  interruptible: true
 
 build_to_release_ci:
   rules:
@@ -172,6 +174,7 @@ cd_to_dev_site:
       export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
       export CD_TO_ENVIRONMENT="cd-to-demo-dev" # argocd存放yaml的repo目录，填cd-to-demo-dev或者cd-to-demo-alpha
       make argocd
+  interruptible: true
 
 cd_to_prod_site:
   rules:
@@ -194,20 +197,20 @@ cd_to_prod_site:
       export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
       export CD_TO_ENVIRONMENT="cd-to-demo-alpha" # argocd存放yaml的repo目录，填cd-to-demo-dev或者cd-to-demo-alpha
       make argocd
+  interruptible: true
 
 # sync api code to kubean api repo
 sync_api_code:
-  rules:
-    - if: "$CI_COMMIT_TAG"
+  # rules:
+  #   - if: "$CI_COMMIT_TAG"
   retry:
     max: 2
   before_script:
     - docker -v #override the global before_script
-  stage: post-merge-build
+  stage: sync_api
   script:
-    - export SYNC_TOKEN=$sync_token
-    - export SYNC_USER=$sync_user
     - make sync_api
+  interruptible: true
 
 # gen release notes
 Release Version:
@@ -218,3 +221,4 @@ Release Version:
   image: release.daocloud.io/mspider-ci/mspider:v0.0.10
   script:
     - make gen-release-notes
+  interruptible: true

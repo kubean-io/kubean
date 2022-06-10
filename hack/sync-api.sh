@@ -12,35 +12,23 @@ set -o pipefail
 # get envorinment varible.
 
 # source repository name (eg. kubernetes) has to be set for the sync-tags
-SOURCE_REPO="${1:-https://gitlab.daocloud.cn/ndx/engineering/kubean.git}"
+SOURCE_REPO="https://gitlab.daocloud.cn/ndx/engineering/kubean.git"
 # src branch of k8s.io/kubernetes
-SRC_BRANCH="${2:-master}"
+SRC_BRANCH="main"
 # the target repo
-DST_REPO="${3:-https://gitlab.daocloud.cn/ndx/kubean-api.git}"
+DST_REPO="https://gitlab.daocloud.cn/ndx/kubean-api.git"
 # dst branch of k8s.io/${repo}
-DST_BRANCH="${4:-main}"
+DST_BRANCH="main"
 # maps to staging/k8s.io/src/${REPO}
-SUBDIR="${5:-api}"
-# git user name
-GIT_USER_NAME="${6}"
-# git token
-GIT_TOKEN="${7}"
+SUBDIR="api"
 # kubean tag(will be synced to kubean-api)
-KPANDA_TAG="${8}"
+KUBEAN_TAG="${1}"
 # git commits
-GIT_COMMITS="${9:-'sync api code from kubean'}"
+GIT_COMMITS="sync api code from kubean"
 # tmp dir for code sync
 TMP_DIR="/tmp/kubean-api"-$RANDOM
 WORK_SPACE="$PWD"
 mkdir -p $TMP_DIR
-if [ "$GIT_USER_NAME" == "" ];then
-    echo "git username must be specified"
-    exit 1
-fi
-if [ "$GIT_TOKEN" == "" ];then
-    echo "git user token must be specified"
-    exit 1
-fi
 
 ###### Clean Up #######
 # clean_up(){
@@ -62,21 +50,19 @@ function create_git_tag_if_needed() {
   if [ $(git tag -l "$tag") ]; then
       echo "tag already exist~"
   else
-      git tag $KPANDA_TAG -a -m "$comments"
-      git push origin $KPANDA_TAG
+      git tag $KUBEAN_TAG -a -m "$comments"
+      git push origin $KUBEAN_TAG
   fi
 }
 
-git clone -b $DST_BRANCH "https://oauth2:$GIT_TOKEN@gitlab.daocloud.cn/ndx/kubean-api.git" $TMP_DIR
+git clone -b $DST_BRANCH "https://gitlab-ci-token:${GITLAB_TOKEN}@gitlab.daocloud.cn/ndx/kubean-api.git" $TMP_DIR
 
 pushd ~
 cd $TMP_DIR
 
-git config --global user.email "xiao.zhang@daocloud.io"
-git config --global user.name $GIT_USER_NAME
+git config --global user.email "shihang.yun@daocloud.io"
+git config --global user.name shihang.yun
 
-git remote remove origin
-git remote add origin "https://$GIT_USER_NAME:$GIT_TOKEN@gitlab.daocloud.cn/ndx/kubean-api.git"
 
 # Check if the api has been updated
 ret=0
@@ -84,7 +70,7 @@ diff -Naupr -x ".git" $WORK_SPACE/$SUBDIR $TMP_DIR || ret=$?
 if [[ $ret -eq 0 ]]
 then
   echo "api is already up to date, ignore changes."
-  create_git_tag_if_needed $KPANDA_TAG $GIT_COMMITS
+  create_git_tag_if_needed $KUBEAN_TAG $GIT_COMMITS
   exit 0
 fi
 
@@ -94,7 +80,7 @@ echo "The api definition has been updated, and the corresponding repo of the api
 
 git rm -r $TMP_DIR
 
-cp -r $WORK_SPACE/$SUBDIR/* $TMP_DIR
+cp -r ${WORK_SPACE}/${SUBDIR}/* $TMP_DIR
 
 # commit(keep it consistent with the main library commit).
 git add -A
@@ -102,8 +88,9 @@ git commit -m "$GIT_COMMITS"
 
 # git tag(if needed).
 # git push
-git push --set-upstream origin $DST_BRANCH
 
-create_git_tag_if_needed $KPANDA_TAG $GIT_COMMITS
+git push
+
+create_git_tag_if_needed $KUBEAN_TAG $GIT_COMMITS
 
 popd

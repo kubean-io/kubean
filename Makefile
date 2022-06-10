@@ -146,4 +146,4 @@ gen-release-notes:
 
 .PHONY: sync_api
 sync_api:
-	bash hack/sync-api.sh $(CI_PROJECT_URL) $(CI_DEFAULT_BRANCH) "https://gitlab.daocloud.cn/ndx/kubean-api.git" "main" "api" $(SYNC_USER) $(SYNC_TOKEN) $(VERSION)
+	bash hack/sync-api.sh $(VERSION)
