@@ -20,7 +20,7 @@ data:
     etcd_deployment_type: docker
     metrics_server_enabled: true
     local_path_provisioner_enabled: true
-     
+    
     # offline
     registry_host: "10.6.170.10:5000"
     files_repo: "http://10.6.170.10:81"

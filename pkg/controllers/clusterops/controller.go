@@ -404,7 +404,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, "", isPrivateKey); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
