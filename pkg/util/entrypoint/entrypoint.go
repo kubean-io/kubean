@@ -97,7 +97,7 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 	}
 
 	if actionType == PBAction {
-		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root"
+		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 		if isPrivateKey {
 			ep.SprayCMD = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", ep.SprayCMD)
 		}
@@ -110,8 +110,6 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 		ep.SprayCMD = fmt.Sprintf("%s /kubespray/%s", ep.SprayCMD, action)
 		if len(extraArgs) > 0 {
 			ep.SprayCMD = fmt.Sprintf("%s %s", ep.SprayCMD, extraArgs)
-		} else {
-			ep.SprayCMD = fmt.Sprintf("%s -e \"@/conf/group_vars.yml\"", ep.SprayCMD)
 		}
 	} else if actionType == SHAction {
 		ep.SprayCMD = action
