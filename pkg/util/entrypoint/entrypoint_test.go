@@ -121,12 +121,20 @@ var testData = `
   matchString: "scale.yml"
   output: true
 
-- message: "Check ansible inventory parameter 'limit'"
+- message: "Check scale parameter 'extraArgs'"
   input:
     actionType: playbook
     action: scale.yml
-    limit: node3,node4
+    extraArgs: "--limit=node3,node4"
   matchString: "--limit=node3,node4"
+  output: true
+
+- message: "Check remove node parameter 'extraArgs'"
+  input:
+    actionType: playbook
+    action: remove-node.yml
+    extraArgs: "-e node=node3"
+  matchString: "-e node=node3"
   output: true
 `
 
@@ -138,7 +146,7 @@ type SubAction struct {
 type ActionData struct {
 	ActionType   string       `yaml:"actionType"`
 	Action       string       `yaml:"action"`
-	Limit        string       `yaml:"limit"`
+	ExtraArgs    string       `yaml:"extraArgs"`
 	PreHooks     []*SubAction `yaml:"prehook"`
 	PostHooks    []*SubAction `yaml:"posthook"`
 	IsPrivateKey bool         `yaml:"isPrivateKey"`
@@ -170,7 +178,7 @@ func TestEntrypoint(t *testing.T) {
 				}
 			}
 			// Kubespray 命令处理
-			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.Limit, item.Input.IsPrivateKey)
+			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.ExtraArgs, item.Input.IsPrivateKey)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}

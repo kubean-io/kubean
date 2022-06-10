@@ -59,6 +59,8 @@ spec:
                 - name
                 - namespace
                 type: object
+              extraArgs:
+                type: string
               hostsConfRef:
                 description: HostsConfRef will be filled by operator when it performs
                   backup.
@@ -128,6 +130,7 @@ spec:
             - action
             - actionType
             - backoffLimit
+            - extraArgs
             - image
             - kuBeanCluster
             type: object

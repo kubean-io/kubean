@@ -54,6 +54,8 @@ type ClusterSpec struct {
 	// +required
 	Action string `json:"action"`
 	// +required
+	ExtraArgs string `json:"extraArgs"`
+	// +required
 	BackoffLimit int `json:"backoffLimit"`
 	// +required
 	Image string `json:"image"`

@@ -91,13 +91,13 @@ func (ep *EntryPoint) PostHookRunPart(actionType, action string) error {
 	return nil
 }
 
-func (ep *EntryPoint) SprayRunPart(actionType, action, limit string, isPrivateKey bool) error {
+func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	if _, ok := ep.Playbooks[action]; !ok {
 		return fmt.Errorf("unknown kubespray playbook: %s", action)
 	}
 
 	if actionType == PBAction {
-		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
+		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root"
 		if isPrivateKey {
 			ep.SprayCMD = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", ep.SprayCMD)
 		}
@@ -108,8 +108,10 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, limit string, isPrivateKe
 			ep.SprayCMD = fmt.Sprintf("%s -e \"skip_confirmation=true\"", ep.SprayCMD)
 		}
 		ep.SprayCMD = fmt.Sprintf("%s /kubespray/%s", ep.SprayCMD, action)
-		if len(limit) > 0 {
-			ep.SprayCMD = fmt.Sprintf("%s --limit=%s", ep.SprayCMD, limit)
+		if len(extraArgs) > 0 {
+			ep.SprayCMD = fmt.Sprintf("%s %s", ep.SprayCMD, extraArgs)
+		} else {
+			ep.SprayCMD = fmt.Sprintf("%s -e \"@/conf/group_vars.yml\"", ep.SprayCMD)
 		}
 	} else if actionType == SHAction {
 		ep.SprayCMD = action

@@ -17,4 +17,4 @@ spec:
 
 ### kubespray 相关参数：
 
-> vars-conf-cm 中没有重置的相关参数，保持与 install cluster 一致的参数即可，其中的 offline 相关参数可以移除；
+> vars-conf-cm 中没有重置的相关参数，保持与 install cluster 一致的参数即可；
