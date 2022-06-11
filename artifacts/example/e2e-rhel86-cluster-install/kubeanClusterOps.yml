@@ -6,7 +6,7 @@ metadata:
     clusterName: cluster1
 spec:
   kuBeanCluster: cluster1
-  image: jiangink/kubespray:arm-f9ba272
+  image: release-ci.daocloud.io/kubean-ci/kubespray:v2.17.1
   backoffLimit: 1
   actionType: playbook
   action: cluster.yml
