@@ -36,22 +36,34 @@ kubeconf_pos='/tmp/kind_cluster.conf'
 current_dir=$(pwd) # 获取当前路径
 echo 'current_dir: '${current_dir}
 vm_ipaddr='10.6.127.12'
-ops_name='cluster1-ops-install-1e2w3q'
 ###### e2e install test execution ########
 ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 
+reset_ops_name='cluster1-ops-reset-1e2w3q'
+install_ops_name='cluster1-ops-install-1e2w3q'
 ###### e2e apply ops test execution ########
 # TBD: 首先要检查vm上是否已经有k8 cluster；如果有的话则reset再安装
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_reset
+# 检查reset job执行是否成功
+ATTEMPTS=0
+check_cmd=0
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
+until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
+echo 'check_cmd: '${check_cmd}
+ATTEMPTS=$((ATTEMPTS + 1))
+sleep 30
+done
+
 # 安装k8 cluster
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_install
 kubectl --kubeconfig=${kubeconf_pos} -n kubean-system get jobs
-# 检查job执行是否成功
+# 检查install job执行是否成功
 ATTEMPTS=0
 check_cmd=0
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
 until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
 echo 'check_cmd: '${check_cmd}
 ATTEMPTS=$((ATTEMPTS + 1))
 sleep 30
