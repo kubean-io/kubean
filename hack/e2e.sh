@@ -32,10 +32,10 @@ clean_up(){
 trap clean_up EXIT
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
-echo 'KUBECONFIG: 'KUBECONFIG
-local kubeconf_pos = '/tmp/kind_cluster.conf'
-local upper_dir=$(dirname "$PWD") # 获取上一层路径
-local vm_ipaddr = '10.6.127.12'
+echo 'KUBECONFIG: '${KUBECONFIG}
+kubeconf_pos = '/tmp/kind_cluster.conf'
+upper_dir=$(dirname "$PWD") # 获取上一层路径
+vm_ipaddr = '10.6.127.12'
 ###### e2e install test execution ########
 ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 
