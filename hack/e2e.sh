@@ -45,12 +45,13 @@ ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_reset
 # 安装k8 cluster
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_install
+kubectl --kubeconfig=${kubeconf_pos} -n kubean-system get jobs
 # 检查job执行是否成功
 ATTEMPTS=0
 check_cmd=0
-check_cmd=${kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'}
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
 until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
-check_cmd=${kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'}
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
 echo 'check_cmd: '${check_cmd}
 ATTEMPTS=$((ATTEMPTS + 1))
 sleep 30
