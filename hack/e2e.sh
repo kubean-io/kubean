@@ -33,9 +33,10 @@ trap clean_up EXIT
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
 kubeconf_pos='/tmp/kind_cluster.conf'
-current_dir=$(pwd) # 获取上一层路径
+current_dir=$(pwd) # 获取当前路径
 echo 'current_dir: '${current_dir}
 vm_ipaddr='10.6.127.12'
+ops_name='cluster1-ops-install-1e2w3q'
 ###### e2e install test execution ########
 ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 
@@ -44,6 +45,17 @@ ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_reset
 # 安装k8 cluster
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_install
+# 检查job执行是否成功
+ATTEMPTS=0
+check_cmd=0
+check_cmd=${kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'}
+until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
+check_cmd=${kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${ops_name}-job -o jsonpath=\'{.status.succeeded}\'}
+echo 'check_cmd: '${check_cmd}
+ATTEMPTS=$((ATTEMPTS + 1))
+sleep 30
+done
+
 # sshpass 免密获取k8集群的kubeconfig文件: sshpass -p 'dangerous' scp root@xx:/root/.kube/config .
 # 暂定k8集群环境的ip是10.6.127.12；用户名密码是root/dangerous；此处需与hosts-conf-cm yml文件保持一致
 sshpass -p 'dangerous' scp root@${vm_ipaddr}:/root/.kube/config ${current_dir}/test/e2e/
