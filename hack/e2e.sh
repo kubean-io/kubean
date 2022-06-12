@@ -32,15 +32,22 @@ clean_up(){
 trap clean_up EXIT
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "release.daocloud.io/kpanda/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
+echo 'KUBECONFIG: 'KUBECONFIG
+local kubeconf_pos = '/tmp/kind_cluster.conf'
+local upper_dir=$(dirname "$PWD") # 获取上一层路径
+local vm_ipaddr = '10.6.127.12'
 ###### e2e install test execution ########
 ginkgo run -v -race --fail-fast --focus="\[install\]" ./test/e2e/
 
 ###### e2e apply ops test execution ########
 # TBD: 首先要检查vm上是否已经有k8 cluster；如果有的话则reset再安装
+kubectl --kubeconfig=${kubeconf_pos} apply -f ${upper_dir}/artifacts/example/e2e_reset
+# 安装k8 cluster
+kubectl --kubeconfig=${kubeconf_pos} apply -f ${upper_dir}/artifacts/example/e2e_install
 # sshpass 免密获取k8集群的kubeconfig文件: sshpass -p 'dangerous' scp root@xx:/root/.kube/config .
 # 暂定k8集群环境的ip是10.6.127.12；用户名密码是root/dangerous；此处需与hosts-conf-cm yml文件保持一致
-sshpass -p 'dangerous' scp root@xx:/root/.kube/config ../test/e2e/
-ginkgo run -v -race --fail-fast --focus="\[create\]" ./test/e2e/
+sshpass -p 'dangerous' scp root@${vm_ipaddr}:/root/.kube/config ${upper_dir}/test/e2e/
+ginkgo run -v -race --fail-fast --focus="\[create\]" ${upper_dir}/test/e2e/
 
 
 ret=$?

@@ -1,7 +1,7 @@
 apiVersion: kubeanclusterops.kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
-  name: cluster1-ops-1e2w3q
+  name: cluster1-ops-install-1e2w3q
   namespace: kubean-system
   labels:
     clusterName: e2ecluster
