@@ -27,6 +27,7 @@ stages:
   - build
   - e2e-test
   - cd
+  - independent_job
 
 static_check:
   rules:
