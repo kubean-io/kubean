@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	//"strings"
 
 	tools "github.com/daocloud/kubean/test/tools"
 	ginkgo "github.com/onsi/ginkgo/v2"
@@ -15,7 +14,6 @@ import (
 
 var _ = ginkgo.Describe("[create] Test K8 cluster All Info", func() {
 	// 此处的config来自于从k8 cluster master node上scp取到
-	//kubeconfig := tools.Path("demo_dev_config")
 	kubeconfig := tools.Path("config")
 	NamespaceName := "kube-system"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
