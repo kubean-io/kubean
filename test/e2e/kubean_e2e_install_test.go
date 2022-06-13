@@ -8,10 +8,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"os"
 )
 
 var _ = ginkgo.Describe("[install] Test Kubean Operator All Info", func() {
-	kubeconfig := tools.Path(os.Getenv("KUBECONFIG"))
+	kubeconfig := tools.Path("/tmp/kind_cluster.conf")
 	NamespaceName := "kubean-system"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	tools.CheckError(err)
