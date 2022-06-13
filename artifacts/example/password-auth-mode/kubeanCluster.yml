@@ -2,7 +2,6 @@ apiVersion: kubeancluster.kubean.io/v1alpha1
 kind: KuBeanCluster
 metadata:
   name: sample
-  namespace: kubean-system
   labels:
     clusterName: sample
 spec:

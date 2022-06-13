@@ -80,7 +80,6 @@ kubean-operator: $(SOURCES)
 	! ( docker buildx ls | grep kubean-operator-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-operator-multi-platform-builder ;\
 	docker buildx build \
 			--build-arg kubean_version=$(KUBEAN_VERSION) \
-			--build-arg UBUNTU_MIRROR=$(UBUNTU_MIRROR) \
 			--builder kubean-operator-multi-platform-builder \
 			--platform $(BUILD_ARCH) \
 			--tag $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)  \
@@ -124,7 +123,7 @@ clear-kind:
 
 .PHONY: update
 update:
-	bash hack/update-all.sh
+	cd ./api/ && make update && cd .. && go mod tidy && go mod vendor
 
 .PHONY: test-staticcheck
 test-staticcheck:
@@ -144,3 +143,7 @@ verify-vendor:
 .PHONY: gen-release-notes
 gen-release-notes:
 	bash hack/release-version.sh
+
+.PHONY: sync_api
+sync_api:
+	bash hack/sync-api.sh $(VERSION)

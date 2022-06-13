@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    # k8s-cluster
+    kube_version: "v1.21.6"
+    cluster_name: kubean.cluster
+    container_manager: docker
+    docker_insecure_registries:
+        "10.6.170.10:5000": "http://10.6.170.10:5000"
+    k8s_image_pull_policy: IfNotPresent
+    kube_network_plugin: calico
+    kube_network_plugin_multus: false
+    kube_apiserver_port: 6443
+    kube_proxy_mode: iptables
+    enable_nodelocaldns: false
+    etcd_deployment_type: docker
+    metrics_server_enabled: true
+    local_path_provisioner_enabled: true
+    
+    # offline
+    registry_host: "10.6.170.10:5000"
+    files_repo: "http://10.6.170.10:81"
+    kube_image_repo: "{{ registry_host }}"
+    gcr_image_repo: "{{ registry_host }}"
+    github_image_repo: "{{ registry_host }}"
+    docker_image_repo: "{{ registry_host }}"
+    quay_image_repo: "{{ registry_host }}"
+    kubeadm_download_url: "{{ files_repo }}/kubernetes/{{ kube_version }}/kubeadm"
+    kubectl_download_url: "{{ files_repo }}/kubernetes/{{ kube_version }}/kubectl"
+    kubelet_download_url: "{{ files_repo }}/kubernetes/{{ kube_version }}/kubelet"
+    cni_download_url: "{{ files_repo }}/kubernetes/cni/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
+    crictl_download_url: "{{ files_repo }}/kubernetes/cri-tools/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+    etcd_download_url: "{{ files_repo }}/kubernetes/etcd/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+    calicoctl_download_url: "{{ files_repo }}/kubernetes/calico/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
+    calico_crds_download_url: "{{ files_repo }}/kubernetes/calico/{{ calico_version }}.tar.gz"

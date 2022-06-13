@@ -1,13 +1,385 @@
 package clusterops
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
-	"github.com/daocloud/kubean/pkg/apis"
-	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
+	"kubean.io/api/apis"
+	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
+	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
+
+func newFakeClient() client.Client {
+	sch := scheme.Scheme
+	if err := kubeanclusteropsv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	if err := kubeanclusterv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&kubeanclusteropsv1alpha1.KuBeanClusterOps{}).WithRuntimeObjects(&kubeanclusterv1alpha1.KuBeanCluster{}).Build()
+	return client
+}
+
+func TestUpdateStatusLoop(t *testing.T) {
+	controller := Controller{}
+	controller.Client = newFakeClient()
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.ObjectMeta.Name = "clusteropsname"
+	controller.Client.Create(context.Background(), &ops)
+	ops.Spec.BackoffLimit = 12
+	tests := []struct {
+		name string
+		args func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool
+		want bool
+	}{
+		{
+			name: "the status is Succeeded",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.SucceededStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
+				return err == nil && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Failed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
+				return err == nil && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is err",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return "", fmt.Errorf("one error")
+				})
+				return err != nil && err.Error() == "one error" && !needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Running",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.RunningStatus, nil
+				})
+				return err == nil && needRequeue
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Succeed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				ops.Status.EndTime = nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.SucceededStatus, nil
+				})
+				resultOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
+				if resultOps.Status.Status != kubeanclusteropsv1alpha1.SucceededStatus {
+					return false
+				}
+				return err == nil && !needRequeue && ops.Status.Status == kubeanclusteropsv1alpha1.SucceededStatus && ops.Status.EndTime != nil
+			},
+			want: true,
+		},
+		{
+			name: "the status is Running and the result of fetchJobStatus is still Failed",
+			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
+				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				ops.Status.EndTime = nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+					return kubeanclusteropsv1alpha1.FailedStatus, nil
+				})
+				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == kubeanclusteropsv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			opsCopy := ops
+			if test.args(&opsCopy) != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestCompareSalt(t *testing.T) {
+	controller := Controller{}
+	controller.Client = newFakeClient()
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.ObjectMeta.Name = "clusteropsname"
+	controller.Client.Create(context.Background(), &ops)
+	ops.Spec.BackoffLimit = 12
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "same salt",
+			args: func() bool {
+				ops.Status.Digest = ""
+				controller.UpdateClusterOpsStatusDigest(&ops)
+				if len(ops.Status.Digest) == 0 {
+					return false
+				}
+				return controller.compareDigest(&ops)
+			},
+			want: true,
+		},
+		{
+			name: "not same salt with different spec value",
+			args: func() bool {
+				ops.Status.Digest = ""
+				controller.UpdateClusterOpsStatusDigest(&ops)
+				if len(ops.Status.Digest) == 0 {
+					return false
+				}
+				ops.Spec.BackoffLimit = 12345
+				return !controller.compareDigest(&ops)
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestUpdateClusterOpsStatusSalt(t *testing.T) {
+	controller := Controller{}
+	controller.Client = newFakeClient()
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.ObjectMeta.Name = "clusteropsname"
+	controller.Client.Create(context.Background(), &ops)
+	ops.Spec.BackoffLimit = 12
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "salt empty value",
+			args: func() bool {
+				ops.Status.Digest = ""
+				needRequeue, err := controller.UpdateClusterOpsStatusDigest(&ops)
+				return needRequeue && err == nil && len(ops.Status.Digest) > 0
+			},
+			want: true,
+		},
+		{
+			name: "nothing changed",
+			args: func() bool {
+				needRequeue, err := controller.UpdateClusterOpsStatusDigest(&ops)
+				return !needRequeue && err == nil && len(ops.Status.Digest) > 0
+			},
+			want: true,
+		},
+		{
+			name: "salt empty value again",
+			args: func() bool {
+				ops.Status.Digest = ""
+				needRequeue, err := controller.UpdateClusterOpsStatusDigest(&ops)
+				return needRequeue && err == nil && len(ops.Status.Digest) > 0
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestUpdateStatusHasModified(t *testing.T) {
+	controller := Controller{}
+	controller.Client = newFakeClient()
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.ObjectMeta.Name = "clusteropsname"
+	controller.Client.Create(context.Background(), &ops)
+	ops.Spec.BackoffLimit = 12
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "empty salt value",
+			args: func() bool {
+				ops.Status.Digest = ""
+				needRequeue, err := controller.UpdateStatusHasModified(&ops)
+				return !needRequeue && err == nil && !ops.Status.HasModified
+			},
+			want: true,
+		},
+		{
+			name: "already modified",
+			args: func() bool {
+				ops.Status.Digest = "123"
+				ops.Status.HasModified = true
+				needRequeue, err := controller.UpdateStatusHasModified(&ops)
+				return !needRequeue && err == nil && ops.Status.HasModified
+			},
+			want: true,
+		},
+		{
+			name: "nothing need update",
+			args: func() bool {
+				ops.Status.Digest = ""
+				ops.Status.HasModified = false
+				controller.UpdateClusterOpsStatusDigest(&ops)
+				if len(ops.Status.Digest) == 0 {
+					return false
+				}
+				needRequeue, err := controller.UpdateStatusHasModified(&ops)
+				return len(ops.Status.Digest) != 0 && err == nil && !needRequeue && !ops.Status.HasModified
+			},
+			want: true,
+		},
+		{
+			name: "something update",
+			args: func() bool {
+				ops.Status.Digest = ""
+				ops.Status.HasModified = false
+				controller.UpdateClusterOpsStatusDigest(&ops)
+				if len(ops.Status.Digest) == 0 {
+					return false
+				}
+				ops.Spec.BackoffLimit = 111
+				needRequeue, err := controller.UpdateStatusHasModified(&ops)
+				return len(ops.Status.Digest) != 0 && err == nil && needRequeue && ops.Status.HasModified
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestCalSalt(t *testing.T) {
+	controller := Controller{}
+	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops.Spec.KuBeanCluster = "123456789"
+	ops.Spec.ActionType = "1"
+	ops.Spec.Action = "2"
+	ops.Spec.BackoffLimit = 3
+	ops.Spec.Image = "4"
+	ops.Spec.PreHook = []kubeanclusteropsv1alpha1.HookAction{
+		{
+			ActionType: "11",
+			Action:     "22",
+		},
+		{
+			ActionType: "22",
+			Action:     "33",
+		},
+	}
+	ops.Spec.PostHook = []kubeanclusteropsv1alpha1.HookAction{
+		{
+			ActionType: "55",
+			Action:     "66",
+		},
+	}
+	targetSaltValue := controller.CalSalt(&ops)
+	tests := []struct {
+		name string
+		args func(kubeanclusteropsv1alpha1.KuBeanClusterOps) string
+		want bool
+	}{
+		{
+			name: "change clusterName",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.KuBeanCluster = "ok1"
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+		{
+			name: "change actionType",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.ActionType = "luck"
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+		{
+			name: "change action",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.Action = "ok123"
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+		{
+			name: "change backoff",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.BackoffLimit = 100
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+		{
+			name: "change image",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.Image = "image123"
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+		{
+			name: "unchanged",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				return controller.CalSalt(&ops)
+			},
+			want: true,
+		},
+		{
+			name: "change postHook",
+			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+				ops.Spec.PostHook[0].ActionType = "ok12qaz"
+				return controller.CalSalt(&ops)
+			},
+			want: false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := test.args(ops) == targetSaltValue
+			if result != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
 
 func TestController_SetOwnerReferences(t *testing.T) {
 	cm := corev1.ConfigMap{}

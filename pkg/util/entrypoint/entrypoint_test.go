@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
+	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 
 	"gopkg.in/yaml.v2"
 )
@@ -99,6 +99,43 @@ var testData = `
           kubectl get cs
   matchString: "kubectl get cs"
   output: true
+
+- message: "Check kubespray remove-node"
+  input:
+    actionType: playbook
+    action: remove-node.yml
+  matchString: "remove-node.yml"
+  output: true
+
+- message: "Check kubespray upgrade-cluster"
+  input:
+    actionType: playbook
+    action: upgrade-cluster.yml
+  matchString: "upgrade-cluster.yml"
+  output: true
+
+- message: "Check kubespray scale"
+  input:
+    actionType: playbook
+    action: scale.yml
+  matchString: "scale.yml"
+  output: true
+
+- message: "Check scale parameter 'extraArgs'"
+  input:
+    actionType: playbook
+    action: scale.yml
+    extraArgs: "--limit=node3,node4"
+  matchString: "--limit=node3,node4"
+  output: true
+
+- message: "Check remove node parameter 'extraArgs'"
+  input:
+    actionType: playbook
+    action: remove-node.yml
+    extraArgs: "-e node=node3"
+  matchString: "-e node=node3"
+  output: true
 `
 
 type SubAction struct {
@@ -109,6 +146,7 @@ type SubAction struct {
 type ActionData struct {
 	ActionType   string       `yaml:"actionType"`
 	Action       string       `yaml:"action"`
+	ExtraArgs    string       `yaml:"extraArgs"`
 	PreHooks     []*SubAction `yaml:"prehook"`
 	PostHooks    []*SubAction `yaml:"posthook"`
 	IsPrivateKey bool         `yaml:"isPrivateKey"`
@@ -131,7 +169,7 @@ func TestEntrypoint(t *testing.T) {
 
 	for _, item := range ad {
 		t.Run(item.Message, func(t *testing.T) {
-			ep := &EntryPoint{}
+			ep := NewEntryPoint()
 			// Prehook 命令处理
 			for _, prehook := range item.Input.PreHooks {
 				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action)
@@ -140,7 +178,7 @@ func TestEntrypoint(t *testing.T) {
 				}
 			}
 			// Kubespray 命令处理
-			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.IsPrivateKey)
+			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.ExtraArgs, item.Input.IsPrivateKey)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}

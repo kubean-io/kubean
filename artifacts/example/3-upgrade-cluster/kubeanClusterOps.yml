@@ -1,0 +1,12 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster1-ops-1e2w3e
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: quay.m.daocloud.io/kubespray/kubespray:v2.17.1
+  backoffLimit: 1
+  actionType: playbook
+  action: upgrade-cluster.yml

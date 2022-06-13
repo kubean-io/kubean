@@ -2,16 +2,13 @@ package clusterops
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/daocloud/kubean/pkg/apis"
-	kubeanclusterv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeancluster/v1alpha1"
-	kubeanclusteropsv1alpha1 "github.com/daocloud/kubean/pkg/apis/kubeanclusterops/v1alpha1"
-	kubeanClusterClientSet "github.com/daocloud/kubean/pkg/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "github.com/daocloud/kubean/pkg/generated/kubeanclusterops/clientset/versioned"
 	"github.com/daocloud/kubean/pkg/util/entrypoint"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -21,13 +18,19 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
+	"kubean.io/api/apis"
+	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
+	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
+	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	RequeueAfter = time.Millisecond * 500
-	OpsBackupNum = 5
+	RequeueAfter        = time.Millisecond * 500
+	OpsBackupNum        = 5
+	LoopAskForJobStatus = time.Second * 5
 )
 
 type Controller struct {
@@ -41,6 +44,109 @@ func (c *Controller) Start(ctx context.Context) error {
 	klog.Warningf("KuBeanClusterOps Controller Start")
 	<-ctx.Done()
 	return nil
+}
+
+const BaseSlat = "kubean"
+
+func (c *Controller) CalSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+	summaryStr := ""
+	summaryStr += BaseSlat
+	summaryStr += clusterOps.Spec.KuBeanCluster
+	summaryStr += string(clusterOps.Spec.ActionType)
+	summaryStr += strings.TrimSpace(clusterOps.Spec.Action)
+	summaryStr += strconv.Itoa(clusterOps.Spec.BackoffLimit)
+	summaryStr += clusterOps.Spec.Image
+	for _, action := range clusterOps.Spec.PreHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	for _, action := range clusterOps.Spec.PostHook {
+		summaryStr += string(action.ActionType)
+		summaryStr += strings.TrimSpace(action.Action)
+	}
+	return fmt.Sprintf("%x", md5.Sum([]byte(summaryStr)))
+}
+
+func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if len(clusterOps.Status.Digest) != 0 {
+		// already has value.
+		return false, nil
+	}
+	// init salt value.
+	clusterOps.Status.Digest = c.CalSalt(clusterOps)
+	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func (c *Controller) compareDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+	return clusterOps.Status.Digest == c.CalSalt(clusterOps)
+}
+
+func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+	if len(clusterOps.Status.Digest) == 0 {
+		return false, nil
+	}
+	if clusterOps.Status.HasModified {
+		// already true.
+		return false, nil
+	}
+	if same := c.compareDigest(clusterOps); !same {
+		// compare
+		clusterOps.Status.HasModified = true
+		if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+			return false, err
+		}
+		klog.Warningf("clusterOps %s Spec has been modified", clusterOps.Name)
+		return true, nil
+	}
+	return false, nil
+}
+
+func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, fetchJobStatus func(*kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error)) (bool, error) {
+	if clusterOps.Status.Status == kubeanclusteropsv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
+		// need fetch jobStatus again when the last status of job is running
+		jobStatus, err := fetchJobStatus(clusterOps)
+		if err != nil {
+			return false, err
+		}
+		if jobStatus == kubeanclusteropsv1alpha1.RunningStatus {
+			// still running
+			return true, nil // requeue for loop ask for status
+		}
+		// the status  succeed or failed
+		clusterOps.Status.Status = jobStatus
+		clusterOps.Status.EndTime = &metav1.Time{Time: time.Now()}
+		if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
+			return false, err
+		}
+		return false, nil // need not requeue because the job is finished.
+	}
+	// already finished(succeed or failed)
+	return false, nil
+}
+
+func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+	if clusterOps.Status.JobRef.IsEmpty() {
+		return "", fmt.Errorf("clusterOps %s no job", clusterOps.Name)
+	}
+	targetJob, err := c.ClientSet.BatchV1().Jobs(clusterOps.Status.JobRef.NameSpace).Get(context.Background(), clusterOps.Status.JobRef.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		// maybe the job is removed.
+		klog.Errorf("clusterOps %s  job %s not found", clusterOps.Name, clusterOps.Status.JobRef.Name)
+		return kubeanclusteropsv1alpha1.FailedStatus, nil
+	}
+	if err != nil {
+		return "", err
+	}
+	if targetJob.Status.Failed > 0 {
+		return kubeanclusteropsv1alpha1.FailedStatus, nil
+	}
+	if targetJob.Status.Succeeded > 0 {
+		return kubeanclusteropsv1alpha1.SucceededStatus, nil
+	}
+	return kubeanclusteropsv1alpha1.RunningStatus, nil
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
@@ -57,8 +163,22 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
-
-	needRequeue, err := c.BackUpDataRef(clusterOps, cluster)
+	needRequeue, err := c.UpdateClusterOpsStatusDigest(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	needRequeue, err = c.UpdateStatusHasModified(clusterOps)
+	if err != nil {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	needRequeue, err = c.BackUpDataRef(clusterOps, cluster)
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
@@ -104,7 +224,14 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
+	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobStatus)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: LoopAskForJobStatus}, nil
+	}
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
@@ -231,7 +358,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			// the job doest not exist , and will create the job.
-			klog.Warningf("create job %s for kubeanClusterOp %s", jobName, clusterOps.Name)
+			klog.Warningf("create job %s for kuBeanClusterOp %s", jobName, clusterOps.Name)
 			job = c.NewKubesprayJob(clusterOps)
 
 			c.SetOwnerReferences(&job.ObjectMeta, clusterOps)
@@ -249,6 +376,10 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 		NameSpace: job.Namespace,
 		Name:      job.Name,
 	}
+	clusterOps.Status.StartTime = &metav1.Time{Time: time.Now()}
+	clusterOps.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+	clusterOps.Status.Action = clusterOps.Spec.Action
+
 	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
 		return false, err
 	}
@@ -266,14 +397,14 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
 	}
-	entryPointData := entrypoint.EntryPoint{}
+	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	for _, action := range clusterOps.Spec.PreHook {
 		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action); err != nil {
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, isPrivateKey); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
@@ -439,7 +570,7 @@ func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBean
 	})
 	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
 	for _, item := range excessClusterOpsList {
-		klog.Infof("Delete KuBeanClusterOps: name: %s, createTime: %s\n", item.Name, item.CreationTimestamp.String())
+		klog.Warningf("Delete KuBeanClusterOps: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
 		c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
 	}
 	return true, nil

@@ -1,0 +1,13 @@
+apiVersion: kubeancluster.kubean.io/v1alpha1
+kind: KuBeanCluster
+metadata:
+  name: cluster2
+  labels:
+    clusterName: cluster2
+spec:
+  hostsConfRef:
+    namespace: kubean-system
+    name: cluster2-hosts-conf
+  varsConfRef:
+    namespace: kubean-system
+    name: cluster2-vars-conf

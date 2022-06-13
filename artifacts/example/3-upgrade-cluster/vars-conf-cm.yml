@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    # [必填] 指定要升级的版本
+    kube_version: "v1.22.0"
+    
+    # [选填] 升级每个节点前，暂停60秒，60秒后将会恢复playbook执行
+    # upgrade_node_pause_seconds: 60
+    
+    # [选填] 升级每个节点后，暂停60秒，60秒后将会恢复playbook执行
+    # upgrade_node_post_upgrade_pause_seconds: 60
