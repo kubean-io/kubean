@@ -15,7 +15,7 @@ import (
 
 var _ = ginkgo.Describe("[install] Test Kubean Operator All Info", func() {
 	//kubeconfig := tools.Path("demo_dev_config")
-	kubeconfig := tools.Path("/tmp/kind_cluster.conf")
+	kubeconfig := tools.Path("config")
 	NamespaceName := "kubean-system"
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	tools.CheckError(err)

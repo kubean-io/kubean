@@ -44,34 +44,37 @@ install_ops_name='cluster1-ops-install-1e2w3q'
 ###### e2e apply ops test execution ########
 # TBD: 首先要检查vm上是否已经有k8 cluster；如果有的话则reset再安装
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_reset
+sleep 10
 # 检查reset job执行是否成功
 ATTEMPTS=0
-check_cmd=0
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
-until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
-echo 'check_cmd: '${check_cmd}
+check_cmd=2
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath='{.status.succeeded}'`
+until [ "$check_cmd" == "1" ] || [ $ATTEMPTS -eq 60 ]; do
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${reset_ops_name}-job -o jsonpath='{.status.succeeded}'`
+echo 'check_cmd: '$check_cmd
 ATTEMPTS=$((ATTEMPTS + 1))
 sleep 30
 done
 
 # 安装k8 cluster
 kubectl --kubeconfig=${kubeconf_pos} apply -f ${current_dir}/artifacts/example/e2e_install
+sleep 10
 kubectl --kubeconfig=${kubeconf_pos} -n kubean-system get jobs
 # 检查install job执行是否成功
 ATTEMPTS=0
-check_cmd=0
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
-until [ check_cmd == 1 ] || [ $ATTEMPTS -eq 60 ]; do
-check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath=\'{.status.succeeded}\'`
-echo 'check_cmd: '${check_cmd}
+check_cmd=2
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath='{.status.succeeded}'`
+until [ "$check_cmd" == "1" ] || [ $ATTEMPTS -eq 60 ]; do
+check_cmd=`kubectl --kubeconfig=${kubeconf_pos}  -n kubean-system get job ${install_ops_name}-job -o jsonpath='{.status.succeeded}'`
+echo 'check_cmd: '$check_cmd
 ATTEMPTS=$((ATTEMPTS + 1))
 sleep 30
 done
 
 # sshpass 免密获取k8集群的kubeconfig文件: sshpass -p 'dangerous' scp root@xx:/root/.kube/config .
 # 暂定k8集群环境的ip是10.6.127.12；用户名密码是root/dangerous；此处需与hosts-conf-cm yml文件保持一致
-sshpass -p 'dangerous' scp root@${vm_ipaddr}:/root/.kube/config ${current_dir}/test/e2e/
+sshpass -p 'dangerous' scp root@${vm_ipaddr}:/root/.kube/config ${current_dir}/test/tools/
+sed -i  "s/127.0.0.1:.*/${vm_ipaddr}:6443/" ${current_dir}/test/tools/config
 ginkgo run -v -race --fail-fast --focus="\[create\]" ${current_dir}/test/e2e/
 
 
