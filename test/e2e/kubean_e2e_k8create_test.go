@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"fmt"
-	//"strings"
 
 	tools "github.com/daocloud/kubean/test/tools"
 	ginkgo "github.com/onsi/ginkgo/v2"

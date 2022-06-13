@@ -1,8 +1,6 @@
 package e2e
 
 import (
-	//"flag"
-	//"fmt"
 	"testing"
 
 	ginkgo "github.com/onsi/ginkgo/v2"
