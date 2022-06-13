@@ -19,9 +19,6 @@ GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 
 # Run e2e
-# kubean-operator's svc is kubean
-kubectl --kubeconfig="${MAIN_KUBECONFIG}" patch svc kubean -n kubean-system -p '{"spec": {"type": "NodePort"}}'
+ginkgo -v -race --fail-fast ./test/e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
 
-# Note: After ginkgo 2.1.4, to pass additional arguments or custom flags down to your suite
-# no need to use -- to separate your arguments from arguments intended for ginkgo
-ginkgo run -v -race --fail-fast ./test/e2e/ --kubeconfig="${MAIN_KUBECONFIG}" --controlplane="${HOST_CLUSTER_NAME}"-control-plane
+
