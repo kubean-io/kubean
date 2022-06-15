@@ -28,6 +28,7 @@ stages:
   - build
   - e2e-test
   - cd
+  - independent_job
 
 static_check:
   rules:
@@ -222,3 +223,45 @@ Release Version:
   script:
     - make gen-release-notes
   interruptible: true
+
+
+.dependabot-gitlab:
+  image:
+    name: release-ci.daocloud.io/common-ci/dependabot-gitlab:0.16.0
+    entrypoint: [""]
+  tags:
+    - docker
+  variables:
+    GIT_STRATEGY: none
+    SECRET_KEY_BASE: key
+    PACKAGE_MANAGER: $CI_JOB_NAME
+    SETTINGS__GITLAB_URL: $CI_SERVER_URL
+    SETTINGS__STANDALONE: "true"
+    SETTINGS__LOG_COLOR: "true"
+    SETTINGS__GITLAB_ACCESS_TOKEN: $GITLAB_ACCESS_TOKEN
+  script:
+    - cd /home/dependabot/app
+    - bundle exec rake "dependabot:update[$PROJECT_PATH,$PACKAGE_MANAGER,$DIRECTORY]"
+  allow_failure: true
+
+gomod:
+  stage: independent_job
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $PACKAGE_MANAGER_SET =~ /\bgomod\b/ && $SCHEDULE_TYPE == "independent"'
+  image:
+    name: release-ci.daocloud.io/common-ci/dependabot-gitlab:0.16.0
+    entrypoint: [""]
+  tags:
+    - docker
+  variables:
+    GIT_STRATEGY: none
+    SECRET_KEY_BASE: key
+    PACKAGE_MANAGER: $CI_JOB_NAME
+    SETTINGS__GITLAB_URL: $CI_SERVER_URL
+    SETTINGS__STANDALONE: "true"
+    SETTINGS__LOG_COLOR: "true"
+    SETTINGS__GITLAB_ACCESS_TOKEN: $GITLAB_ACCESS_TOKEN
+  script:
+    - cd /home/dependabot/app
+    - bundle exec rake "dependabot:update[$PROJECT_PATH,$PACKAGE_MANAGER,$DIRECTORY]"
+  allow_failure: true
