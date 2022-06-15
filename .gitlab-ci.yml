@@ -23,7 +23,7 @@ variables:
 stages:
   - verify
   - test
-  - gitpages
+  # - gitpages
   - sync_api
   - build
   - e2e-test
@@ -95,25 +95,25 @@ e2e_test:
     - make e2e-test
   interruptible: true
 
-pages:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  stage: gitpages
-  image: release-ci.daocloud.io/docker/honkit/honkit:v3.7.1
-  retry:
-    max: 2
-  before_script:
-    - npx --version #override the global before_script
-    - cd ./docs/honkit && npm install npm -g && npm install  # install gitbook plugins
-  tags:
-    - docker
-  script:
-    - npx honkit build .  ../../public # build to public path
-  artifacts:
-    paths:
-      - public
-    expire_in: 1 week
-  interruptible: true
+# pages:
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#   stage: gitpages
+#   image: release-ci.daocloud.io/docker/honkit/honkit:v3.7.1
+#   retry:
+#     max: 2
+#   before_script:
+#     - npx --version #override the global before_script
+#     - cd ./docs/honkit && npm install npm -g && npm install  # install gitbook plugins
+#   tags:
+#     - docker
+#   script:
+#     - npx honkit build .  ../../public # build to public path
+#   artifacts:
+#     paths:
+#       - public
+#     expire_in: 1 week
+#   interruptible: true
 
 build_to_release_ci:
   rules:
