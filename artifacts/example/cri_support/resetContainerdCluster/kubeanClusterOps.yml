@@ -1,0 +1,17 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster1-ops-1e2w3w
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: release-ci.daocloud.io/kubean/kubespray_jh:2.19.1
+  backoffLimit: 1
+  actionType: playbook
+  action: reset.yml
+  preHook:
+  - actionType: shell
+    action: |
+      ansible -i /conf/hosts.yml all -m ping;
+      echo 'ping success'
