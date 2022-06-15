@@ -61,7 +61,7 @@ unit_test:
 
 build_for_e2e:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   retry:
     max: 2
   tags:
@@ -80,7 +80,7 @@ build_for_e2e:
 
 e2e_test:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_COMMIT_BRANCH == "main"'
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
   tags:
