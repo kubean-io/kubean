@@ -190,7 +190,7 @@ sync_api_code:
   before_script:
     - docker -v #override the global before_script
   stage: sync_api
-  script:
+  script: 
     - make sync_api
   interruptible: true
 
