@@ -84,7 +84,7 @@ spec:
 这个Pod运行后，输出如下内容。
 
 ```
-Hello Kpanda
+Hello kubean
 ```
 
 ### 使用配置项作为容器的数据卷。

@@ -70,7 +70,7 @@ function util::install_environment_check {
             return 0
         fi
     fi
-    echo "Sorry, Kpanda installation does not support $ARCH/$OS at the moment"
+    echo "Sorry, kubean installation does not support $ARCH/$OS at the moment"
     exit 1
 }
 

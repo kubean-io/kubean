@@ -28,7 +28,7 @@ func (flagString *flagStrings) Set(value string) error {
 	return nil
 }
 
-const KpandaIssueAddress = "https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/"
+const kubeanIssueAddress = "https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/"
 
 func main() {
 	var templatesDir, outDir, oldRelease, newRelease string
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	if issueAddress == "" {
-		issueAddress = KpandaIssueAddress
+		issueAddress = kubeanIssueAddress
 	}
 
 	var releaseNotes []Note

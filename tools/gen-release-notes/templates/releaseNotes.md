@@ -1,8 +1,8 @@
 ---
-title: Announcing Kpanda <!--newRelease-->
+title: Announcing kubean <!--newRelease-->
 linkTitle: <!--newRelease-->
 subtitle: Patch Release
-description: Kpanda <!--newRelease--> patch release.
+description: kubean <!--newRelease--> patch release.
 publishDate:  <!--publishDate-->
 release: <!--newRelease-->
 ---
@@ -11,7 +11,7 @@ release: <!--newRelease-->
 该文件由系统自动生成，暂未经过审核。
 {{< /warning >}}
 
-这次的发布介绍了 Kpanda <!--oldRelease--> 和 Kpanda <!--newRelease--> 的区别，包含 bug 修复、新功能的增加等等。
+这次的发布介绍了 kubean <!--oldRelease--> 和 kubean <!--newRelease--> 的区别，包含 bug 修复、新功能的增加等等。
 
 # Changes
 
