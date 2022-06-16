@@ -40,7 +40,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		}
 
 		// Check if the job and related pods have been created
-		time.Sleep(30 * time.Second)
+		time.Sleep(60 * time.Second)
 		pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("job-name=%s-job", kubeanClusterOpsName),
 		})
@@ -85,7 +85,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		}
 
 		// Check if the job and related pods have been created
-		time.Sleep(30 * time.Second)
+		time.Sleep(60 * time.Second)
 		pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("job-name=%s-job", kubeanClusterOpsName),
 		})
