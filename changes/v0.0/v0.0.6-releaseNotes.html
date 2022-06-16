@@ -1,0 +1,49 @@
+<hr />
+
+<p>title: Announcing kubean v0.0.6
+linkTitle: v0.0.6
+subtitle: Patch Release
+description: kubean v0.0.6 patch release.
+publishDate:  2022-06-16</p>
+
+<h2>release: v0.0.6</h2>
+
+<p>{{&lt; warning &gt;}}
+该文件由系统自动生成，暂未经过审核。
+{{&lt; /warning &gt;}}</p>
+
+<p>这次的发布介绍了 kubean v0.0.5 和 kubean v0.0.6 的区别，包含 bug 修复、新功能的增加等等。</p>
+
+<h1>Changes</h1>
+
+<ul>
+<li><p><strong>新增</strong> kubean的controller适配了新增和移除woker node节点的功能
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36</a> )</p></li>
+
+<li><p><strong>新增</strong> 调研验证 CRI 支持(docker 和 contrainerd)  <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/75">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/75</a>
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36</a> )</p></li>
+
+<li><p><strong>新增</strong> <code>添加集群 LCM 管理相关实例</code> <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/56">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/56</a> ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36</a> )</p></li>
+
+<li><p><strong>新增</strong> 依赖扫描: ci中配置gomod job扫描各个依赖库官方发布的最新版本与当前项目中使用的版本, 如果版本滞后则提PR供开发人员参考是否需要更新到最新版本; 如果不需要更新到最新版本则关闭PR</p></li>
+
+<li><p><strong>新增</strong> <code>clusterOps防修改</code>  <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/49">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/49</a>
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43</a> )</p></li>
+
+<li><p><strong>新增</strong> <code>实时更新kubeanCluster和kubeanClusterOps的status</code>  <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/57">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/57</a>
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43</a> )</p></li>
+
+<li><p><strong>新增</strong> <code>ClusterOps 备份按时间排序清理</code> <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/47">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/47</a>
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43</a> )</p></li>
+
+<li><p><strong>新增</strong> <code>ClusterOps 新增 ExtraArgs 参数以支持节点操作</code> <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/63">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/63</a>
+( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25</a> )  , ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43</a> )</p></li>
+
+<li><p><strong>新增</strong>  <code>更新 e2e 测试流程</code> <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/67">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/67</a> ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/46">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/46</a> )</p></li>
+
+<li><p><strong>新增</strong> kubean项目分离出api子项目，便于kpanda与kubean集成 ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/41">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/41</a> )</p></li>
+
+<li><p><strong>新增</strong> <code>为controller(CRDs)模块编写单元测试，并将覆盖率提升超过10%</code>  <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/45">https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/45</a> ( <a href="https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/24">Issue #https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/24</a> )</p></li>
+</ul>
+
+<h1>Security update</h1>
