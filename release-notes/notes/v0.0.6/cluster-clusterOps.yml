@@ -1,0 +1,18 @@
+kind: feature
+area: controller
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/23
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/25
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/43
+
+releaseNotes:
+  - |
+    **新增** `clusterOps防修改`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/49
+  - |
+    **新增** `实时更新kubeanCluster和kubeanClusterOps的status`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/57
+  - |
+    **新增** `ClusterOps 备份按时间排序清理` https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/47
+  - |
+    **新增** `ClusterOps 新增 ExtraArgs 参数以支持节点操作` https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/63

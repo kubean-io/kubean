@@ -1,0 +1,8 @@
+kind: feature
+area: cli
+
+issues:
+
+releaseNotes:
+  - |
+    **新增** 依赖扫描: ci中配置gomod job扫描各个依赖库官方发布的最新版本与当前项目中使用的版本, 如果版本滞后则提PR供开发人员参考是否需要更新到最新版本; 如果不需要更新到最新版本则关闭PR

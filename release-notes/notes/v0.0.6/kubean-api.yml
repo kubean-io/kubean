@@ -1,0 +1,9 @@
+kind: feature
+area: api
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/41
+
+releaseNotes:
+  - |
+    **新增** kubean项目分离出api子项目，便于kpanda与kubean集成
