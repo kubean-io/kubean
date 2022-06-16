@@ -63,7 +63,7 @@ e2e_test:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_COMMIT_BRANCH == "main"'
   stage: e2e-test
-  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
+  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   tags:
     - docker
   before_script:
