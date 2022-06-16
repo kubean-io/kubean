@@ -47,8 +47,11 @@ fi
 
 CUR_VERSION=$(get_version kubean)
 
+SHORT_VERSION=$(echo ${CUR_VERSION} | awk -F . '{print $1"."$2}')
+
 cd ${CUR_DIR}/../tools/gen-release-notes
-go run . --oldRelease ${PRE_VERSION} --newRelease ${CUR_VERSION} --notes ${CUR_DIR}/../ --outDir ${CUR_DIR}/../changes
+mkdir -p ${CUR_DIR}/../changes/${SHORT_VERSION}
+go run . --oldRelease ${PRE_VERSION} --newRelease ${CUR_VERSION} --notes ${CUR_DIR}/../ --outDir ${CUR_DIR}/../changes/${SHORT_VERSION}
 cd ${CUR_DIR}
 
 f=$(mktemp)
@@ -63,7 +66,7 @@ if ! git config user.name; then
 fi
 
 git commit -m "Release ${CUR_VERSION} and modify versions.json"
-git tag ${CUR_VERSION}
+cat ${CUR_DIR}/../changes/${SHORT_VERSION}/${CUR_VERSION}-minorReleaseNotes.md | git tag -a ${CUR_VERSION} -F-
 
 
 if [ -n "${GITLAB_TOKEN}" ]; then
@@ -77,3 +80,16 @@ else
 fi
 
 git push origin ${CUR_VERSION}
+
+echo "CI_PROJECT_ID: ${CI_PROJECT_ID}"
+
+curl -s -v \
+    -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    "https://gitlab.daocloud.cn/api/v4/projects/${CI_PROJECT_ID}/releases" \
+    -X POST \
+    -d "$(echo '{}' | jq \
+        --arg name "Release ${CUR_VERSION}" \
+        --arg tag_name "${CUR_VERSION}" \
+        --arg description "$(cat ${CUR_DIR}/../changes/${SHORT_VERSION}/${CUR_VERSION}-minorReleaseNotes.md)" \
+        '.name = $name | .tag_name = $tag_name | .description = $description')"
