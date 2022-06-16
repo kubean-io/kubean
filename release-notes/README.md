@@ -1,6 +1,6 @@
-# Kpanda Release Notes
+# kubean Release Notes
 
-此目录包含 Kpanda 相关的 release notes 的介绍。如果 PR 有任何关于用户的影响，都应该创建 release notes。
+此目录包含 kubean 相关的 release notes 的介绍。如果 PR 有任何关于用户的影响，都应该创建 release notes。
 
 
 ## 何时需要 release notes
@@ -51,7 +51,7 @@ securityNotes:
 
 ### Area
 
-该字段描述了影响的 Kpanda 项目的领域，有效值包括:
+该字段描述了影响的 kubean 项目的领域，有效值包括:
 * api
 * api-service
 * work-api
@@ -81,7 +81,7 @@ securityNotes:
 - `**移除**`
 - `**升级**`
 
-## 向多个 Kpanda 版本添加 release notes
+## 向多个 kubean 版本添加 release notes
 
 就像代码修复应该首先添加到 master 一样，release notes 也是一样。要将 notes 添加到多个版本，只需将它们 cherry-pick 到适当的版本中，release notes 生成工具就会将它们包含在其生成中。
 

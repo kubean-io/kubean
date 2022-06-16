@@ -2,7 +2,7 @@
 title: 改动汇总
 linkTitle: <!--newRelease-->
 subtitle: Minor Release
-description: Kpanda <!--newRelease--> release notes.
+description: kubean <!--newRelease--> release notes.
 publishDate:  <!--publishDate-->
 release: <!--newRelease-->
 weight: 10
@@ -16,7 +16,7 @@ weight: 10
 
 ## Deprecation Notices
 
-以下功能在未来的版本发布中会被弃用，请考虑升级您的 Kpanda 版本。
+以下功能在未来的版本发布中会被弃用，请考虑升级您的 kubean 版本。
 
 <!-- releaseNotes action:弃用 -->
 

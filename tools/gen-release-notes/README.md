@@ -59,5 +59,5 @@ go run . --oldRelease v0.2.0 --newRelease v0.2.1 --notes ../../ --outDir ../../c
     hack/               CI过程中使用的脚本
     tools/
       gen-release-notes/   生成release notes的源代码
-    version.json           包含Kpanda版本号
+    version.json           包含kubean版本号
 ```

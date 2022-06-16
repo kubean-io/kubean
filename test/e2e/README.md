@@ -30,7 +30,7 @@ hack/local-up-kpanda.sh
 
 运行结束的输出如下：
 ```
-Local Kpanda is running.
+Local kubean is running.
 
 To start using your kpanda, run:
   export KUBECONFIG=/root/.kube/kpanda.config
@@ -44,7 +44,7 @@ Please use 'kubectl config use-context member1' to switch to the member cluster.
 ```
 export KUBECONFIG=/root/.kube/kpanda.config
 ```
-查看 Kpanda 运行状态：
+查看 kubean 运行状态：
 ```
 [root@node1 ~]# kubectl get all -n kpanda-system
 NAME                                             READY   STATUS    RESTARTS   AGE
@@ -81,7 +81,7 @@ test/e2e/test_suite_test.go，有了它就可以用 ginkgo 命令跑 test/e2e/ 
 ### 测试代码
 以 test/e2e/test_cluster_cr.go 为例，它是用来测试 host 集群纳管 member 集群，即 host 集群上创建的 cluster CR 是否符合预期，如 node 数和 pod 数。
 
-导入方式：避免 dot-import ，dot-import 无法通过 Kpanda CI 的语法检查。
+导入方式：避免 dot-import ，dot-import 无法通过 kubean CI 的语法检查。
 
 入口：var _ = ginkgo.Describe >> ginkgo.Describe >> ginkgo.Context >> ginkgo.It
 

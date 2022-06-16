@@ -13,7 +13,7 @@
 API `.proto`文件中声明的软件包名称**应该**与产品名称和服务名称保持一致。软件包名称**应该**使用单数组件名称，以避免混合使用单数和复数组件名称。软件包名称**不能**使用下划线。进行版本控制的 API 的软件包名称**必须**以此版本结尾。例如：
 
 ```protobuf
-// Kpanda Cluster API
+// kubean Cluster API
 package kpanda.io.api.cluster.v1alpha1;
 
 option go_package = "kpanda.io/api/cluster/v1alpha1;v1alpha1";
