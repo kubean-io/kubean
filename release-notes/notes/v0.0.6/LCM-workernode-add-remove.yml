@@ -1,0 +1,15 @@
+kind: feature
+area: controller
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/34
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/28
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/36
+
+releaseNotes:
+  - |
+    **新增** kubean的controller适配了新增和移除woker node节点的功能
+  - |
+    **新增** 调研验证 CRI 支持(docker 和 contrainerd)  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/75
+  - |
+    **新增** `添加集群 LCM 管理相关实例` https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/56

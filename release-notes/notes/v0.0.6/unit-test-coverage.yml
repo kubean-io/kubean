@@ -1,0 +1,9 @@
+kind: test
+area: controller
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/24
+
+releaseNotes:
+  - |
+    **新增** `为controller(CRDs)模块编写单元测试，并将覆盖率提升超过10%`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/45
