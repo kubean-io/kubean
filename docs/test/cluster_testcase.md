@@ -45,8 +45,14 @@
 |                | 卸载master节点           | 安装后卸载一个master节点                         |                                  | C-004 |          |          |          |
 |                | 卸载worker节点           | 安装后卸载一个worker节点                         |                                  | C-004 |          |          |          |
 |                | master节点替换           | 多master集群，可以轮流替换掉现有的所有master节点 | 往后放                           |       |          |          |          |
-| 高可用         | master高可用             | 多master集群，master高可用                       |                                  | L-006 |          |          |          |
-|                | worker高可用             | 多worker集群，worker高可用                       |                                  | L-006 |          |          |          |
+| 高可用         | master高可用-宕机        | 多主集群宕机第一台master节点                     |                                  | L-006 |          |          |          |
+|                | master高可用-CPU         | 多主集群第一台masterCPU占用99%                   |                                  | L-006 |          |          |          |
+|                | master高可用-Mem         | 多主集群etcd的leader节点内存占用99%              |                                  |       |          |          |          |
+|                | master-高可用-磁盘       | 多主集群etcd的leader节点磁盘空间占满             |                                  |       |          |          |          |
+|                | master的etcd高可用       | 多主集群的etcd的follow节点宕机                   |                                  |       |          |          |          |
+|                | master的etcd高可用       | 多主集群的etcd的leader节点宕机                   |                                  |       |          |          |          |
+|                | master高可用-网络        | 多主集群单个master的网络不稳定持续1分钟          |                                  |       |          |          |          |
+|                | worker节点高可用         | 多worker集群worker节点宕机                       |                                  |       |          |          |          |
 | 网络           | ip_forward生效           | 集群部署后各个节点ip_forward生效                 |                                  |       |          |          |          |
 |                | 硬件加速器               | SR-IOV 硬件加速                                  | 往后放                           | N-001 |          |          |          |
 | ClusterOps     | ClusterOps的自动清除     | ClusterOps按照时间逆序清楚                       | 默认最大保留10个快照             |       |          |          |          |
