@@ -422,7 +422,7 @@ func TestNewKubesprayJob(t *testing.T) {
 			name: "no ssh args",
 			args: func() bool {
 				job := controller.NewKubesprayJob(clusterOps)
-				return job.Namespace == "mynamespace" && job.Name == "myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 3 && len(job.Spec.Template.Spec.Volumes) == 3
+				return job.Namespace == "mynamespace" && job.Name == "kubean-myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 3 && len(job.Spec.Template.Spec.Volumes) == 3
 			},
 			want: true,
 		},
@@ -434,7 +434,7 @@ func TestNewKubesprayJob(t *testing.T) {
 					Name:      "secret",
 				}
 				job := controller.NewKubesprayJob(clusterOps)
-				return job.Namespace == "mynamespace" && job.Name == "myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 4 && len(job.Spec.Template.Spec.Volumes) == 4
+				return job.Namespace == "mynamespace" && job.Name == "kubean-myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 4 && len(job.Spec.Template.Spec.Volumes) == 4
 			},
 			want: true,
 		},

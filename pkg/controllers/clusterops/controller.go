@@ -207,15 +207,6 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
-	needRequeue, err = c.UpdatePodInfo(clusterOps)
-	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
-	}
-	if needRequeue {
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
-	}
-
 	needRequeue, err = c.CleanExcessClusterOps(cluster)
 	if err != nil {
 		klog.Error(err)
@@ -224,6 +215,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
+
 	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobStatus)
 	if err != nil {
 		klog.Error(err)
@@ -235,17 +227,11 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
-func (c *Controller) UpdatePodInfo(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
-	// todo
-	// todo PodRef 是 通过label来选择
-	return false, nil
-}
-
 func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) *batchv1.Job {
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
-	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
+	jobName := fmt.Sprintf("kubean-%s-job", clusterOps.Name)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
@@ -561,7 +547,7 @@ func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBean
 		return false, err
 	}
 	if len(clusterOpsList.Items) <= OpsBackupNum {
-		return true, nil
+		return false, nil
 	}
 
 	// clusterOps list sort by creation timestamp

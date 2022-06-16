@@ -64,11 +64,6 @@ func (in *ClusterStatus) DeepCopyInto(out *ClusterStatus) {
 		*out = new(apis.DataRef)
 		**out = **in
 	}
-	if in.PodRef != nil {
-		in, out := &in.PodRef, &out.PodRef
-		*out = new(apis.DataRef)
-		**out = **in
-	}
 	if in.StartTime != nil {
 		in, out := &in.StartTime, &out.StartTime
 		*out = (*in).DeepCopy()
