@@ -65,7 +65,7 @@ e2e_test:
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   tags:
-    - docker
+    - kubean-e2e
   before_script:
     # double-check the kind cluster was deleted
     - make clear-kind
