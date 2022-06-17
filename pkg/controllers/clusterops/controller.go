@@ -227,6 +227,10 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
+func (c *Controller) FetchClusterOpsJobs(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) []*batchv1.Job {
+	c.ClientSet.BatchV1().Jobs(clusterOps.Spec.HostsConfRef.NameSpace).List(context.Background(), metav1.ListOptions{})
+}
+
 func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) *batchv1.Job {
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
@@ -241,6 +245,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      jobName,
+			Labels:    map[string]string{"job.kubean.io.cluster": clusterOps.Spec.KuBeanCluster},
 		},
 		Spec: batchv1.JobSpec{
 			BackoffLimit: &BackoffLimit,

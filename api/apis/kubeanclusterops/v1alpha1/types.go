@@ -76,6 +76,7 @@ const (
 	RunningStatus   ClusterOpsStatus = "Running"
 	SucceededStatus ClusterOpsStatus = "Succeeded"
 	FailedStatus    ClusterOpsStatus = "Failed"
+	BlockedStatus   ClusterOpsStatus = "BlockedStatus"
 )
 
 // ClusterStatus contains information about the current status of a
