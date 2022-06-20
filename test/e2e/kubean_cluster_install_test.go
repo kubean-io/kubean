@@ -40,9 +40,9 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		}
 
 		// Check if the job and related pods have been created
-		time.Sleep(60 * time.Second)
+		time.Sleep(30 * time.Second)
 		pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("job-name=%s-job", kubeanClusterOpsName),
+			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
 		})
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get pod list")
 		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
@@ -85,9 +85,9 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		}
 
 		// Check if the job and related pods have been created
-		time.Sleep(60 * time.Second)
+		time.Sleep(30 * time.Second)
 		pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("job-name=%s-job", kubeanClusterOpsName),
+			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
 		})
 		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
 		jobPodName := pods.Items[0].Name
