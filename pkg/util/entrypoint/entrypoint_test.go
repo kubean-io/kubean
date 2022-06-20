@@ -136,6 +136,20 @@ var testData = `
     extraArgs: "-e node=node3"
   matchString: "-e node=node3"
   output: true
+
+- message: "Check postback kubeconf when the cluster is installed"
+  input:
+    actionType: playbook
+    action: cluster.yml
+  matchString: "ansible -i $inventory_file $first_master -m fetch"
+  output: true
+
+- message: "Check clean up kubeconf after cluster reset"
+  input:
+    actionType: playbook
+    action: reset.yml
+  matchString: "{\"spec\": {\"kubeconfRef\": null}}"
+  output: true
 `
 
 type SubAction struct {

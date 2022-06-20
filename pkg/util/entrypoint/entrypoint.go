@@ -17,10 +17,33 @@ const (
 	ClusterPB        = "cluster.yml"
 	RemoveNodePB     = "remove-node.yml"
 	UpgradeClusterPB = "upgrade-cluster.yml"
-)
 
-const EntrypointTemplate = `
- #!/bin/bash
+	KubeconfInstall = `
+# postback cluster kubeconfig
+inventory_file="/conf/hosts.yml"
+first_master=` + "`" + `yq e '.all.children.kube_control_plane.hosts' $inventory_file -o y | head -n 1 | sed 's/.$//'` + "`" + `
+kubeconfig_name="$CLUSTER_NAME-kubeconf"
+fetch_src="/root/.kube/config"
+fetch_dest="/root/$kubeconfig_name"
+ansible -i $inventory_file $first_master -m fetch -a "src=$fetch_src dest=$fetch_dest" %s
+kubeconf_count=` + "`" + `kubectl -n kubean-system get configmap | grep $kubeconfig_name | wc -l | sed 's/ //g'` + "`" + `
+if [ "${kubeconf_count}" -gt 0 ]; then
+    kubectl -n kubean-system delete configmap $kubeconfig_name
+fi
+kubectl -n kubean-system create configmap $kubeconfig_name --from-file=$fetch_dest/$first_master$fetch_src
+kubectl patch --type=merge kubeancluster $CLUSTER_NAME -p '{"spec": {"kubeconfRef": {"name": "'$kubeconfig_name'", "namespace": "kubean-system"}}}'
+`
+	KubeconfReset = `
+# reset cluster kubeconfig
+kubeconfig_name="$CLUSTER_NAME-kubeconf"
+kubeconf_count=` + "`" + `kubectl -n kubean-system get configmap | grep $kubeconfig_name | wc -l | sed 's/ //g'` + "`" + `
+if [ "${kubeconf_count}" -gt 0 ]; then
+    kubectl -n kubean-system delete configmap $kubeconfig_name
+fi
+kubectl patch --type=merge kubeancluster $CLUSTER_NAME -p '{"spec": {"kubeconfRef": null}}'
+`
+	EntrypointTemplate = `
+#!/bin/bash
 
 # preinstall
 {{ range $preCMD := .PreHookCMDs }}
@@ -34,8 +57,8 @@ const EntrypointTemplate = `
 {{ range $postCMD := .PostHookCMDs }}
 {{- $postCMD -}}
 {{ end }}
-
 `
+)
 
 type void struct{}
 
@@ -91,6 +114,30 @@ func (ep *EntryPoint) PostHookRunPart(actionType, action string) error {
 	return nil
 }
 
+func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) error {
+	if _, ok := ep.Playbooks[action]; !ok {
+		return nil
+	}
+	script := ""
+	if action == ClusterPB {
+		script = KubeconfInstall
+		if isPrivateKey {
+			script = fmt.Sprintf(script, "--private-key /auth/ssh-privatekey")
+		} else {
+			script = fmt.Sprintf(script, "")
+		}
+	}
+	if action == ResetPB {
+		script = KubeconfReset
+	}
+	posthook, err := ep.hookRunPart(SHAction, script)
+	if err != nil {
+		return fmt.Errorf("posthook: %w", err)
+	}
+	ep.PostHookCMDs = append(ep.PostHookCMDs, posthook)
+	return nil
+}
+
 func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	if _, ok := ep.Playbooks[action]; !ok {
 		return fmt.Errorf("unknown kubespray playbook: %s", action)
@@ -115,6 +162,9 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 		ep.SprayCMD = action
 	} else {
 		return fmt.Errorf("unknown action type: %s", actionType)
+	}
+	if err := ep.kubeconfPostbackPart(action, isPrivateKey); err != nil {
+		return fmt.Errorf("failed to set kubeconfig postback: %s", err)
 	}
 	return nil
 }
