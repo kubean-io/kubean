@@ -246,12 +246,19 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 			BackoffLimit: &BackoffLimit,
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
-					RestartPolicy: corev1.RestartPolicyNever,
+					RestartPolicy:      corev1.RestartPolicyNever,
+					ServiceAccountName: "kubean",
 					Containers: []corev1.Container{
 						{
 							Name:    "kubespray", // do not change this name
 							Image:   clusterOps.Spec.Image,
 							Command: []string{"/bin/entrypoint.sh"},
+							Env: []corev1.EnvVar{
+								{
+									Name:  "CLUSTER_NAME",
+									Value: clusterOps.Spec.KuBeanCluster,
+								},
+							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "entrypoint",
