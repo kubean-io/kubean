@@ -61,7 +61,7 @@ unit_test:
 
 e2e_test:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_PIPELINE_SOURCE == "schedule"'
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   tags:
