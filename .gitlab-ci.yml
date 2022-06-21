@@ -13,7 +13,7 @@ default:
     - git version
     - go version
     - go env -w GO111MODULE=on
-    - go env -w GOPROXY="https://goproxy.cn,direct"
+    - go env -w GOPROXY="http://10.6.229.27"
 
 # add 'node_modules' to cache for speeding up builds
 
@@ -31,8 +31,8 @@ stages:
   - independent_job
 
 static_check:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   tags:
     - k8s
   stage: verify
