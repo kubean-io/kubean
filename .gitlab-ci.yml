@@ -23,7 +23,7 @@ variables:
 stages:
   - verify
   - test
-  - gitpages
+  # - gitpages
   - sync_api
   - build
   - e2e-test
