@@ -139,11 +139,10 @@ func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) err
 }
 
 func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
-	if _, ok := ep.Playbooks[action]; !ok {
-		return fmt.Errorf("unknown kubespray playbook: %s", action)
-	}
-
 	if actionType == PBAction {
+		if _, ok := ep.Playbooks[action]; !ok {
+			return fmt.Errorf("unknown kubespray playbook: %s", action)
+		}
 		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 		if isPrivateKey {
 			ep.SprayCMD = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", ep.SprayCMD)
