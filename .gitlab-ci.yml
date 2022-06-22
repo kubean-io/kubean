@@ -118,7 +118,7 @@ build_to_release_ci:
 
 security-scanning:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
   retry:
     max: 2
   tags:
