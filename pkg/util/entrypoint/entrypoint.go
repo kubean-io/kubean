@@ -22,10 +22,12 @@ const (
 # postback cluster kubeconfig
 inventory_file="/conf/hosts.yml"
 first_master=` + "`" + `yq e '.all.children.kube_control_plane.hosts' $inventory_file -o y | head -n 1 | sed 's/.$//'` + "`" + `
+first_master_ip=` + "`" + `yq e '.all.hosts.'$first_master'.ip' $inventory_file -o y` + "`" + `
 kubeconfig_name="$CLUSTER_NAME-kubeconf"
 fetch_src="/root/.kube/config"
 fetch_dest="/root/$kubeconfig_name"
 ansible -i $inventory_file $first_master -m fetch -a "src=$fetch_src dest=$fetch_dest" %s
+sed -i "s/127.0.0.1:.*/"$first_master_ip":6443/" $fetch_dest/$first_master$fetch_src
 kubeconf_count=` + "`" + `kubectl -n kubean-system get configmap | grep $kubeconfig_name | wc -l | sed 's/ //g'` + "`" + `
 if [ "${kubeconf_count}" -gt 0 ]; then
     kubectl -n kubean-system delete configmap $kubeconfig_name

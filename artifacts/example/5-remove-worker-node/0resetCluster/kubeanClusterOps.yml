@@ -6,7 +6,7 @@ metadata:
     clusterName: cluster1
 spec:
   kuBeanCluster: cluster1
-  image: quay.m.daocloud.io/kubespray/kubespray:v2.17.1
+  image: release.daocloud.io/kubean/kubespray:release-2.17
   backoffLimit: 1
   actionType: playbook
   action: reset.yml
