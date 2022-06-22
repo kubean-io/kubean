@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kpanda-sample-hosts-conf
+  namespace: kubean-system
+data:
+  hosts.yml: |    
+    all:
+      hosts:
+        master:
+          ip: 10.6.214.4
+          access_ip: 10.6.214.4
+          ansible_host: 10.6.214.4
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: dangerous
+      children:
+        kube_control_plane:
+          hosts:
+            master: null
+        kube_node:
+          hosts:
+            master: null
+        etcd:
+          hosts:
+            master: null
+        k8s_cluster:
+          children:
+            kube_control_plane: null
+            kube_node: null

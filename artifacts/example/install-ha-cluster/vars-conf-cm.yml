@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-vars-conf
+  name: cluster-ha-vars-conf
   namespace: kubean-system
 data:
   group_vars.yml: |
@@ -11,22 +11,13 @@ data:
     container_manager: docker
     docker_insecure_registries:
         "10.6.170.10:5000": "http://10.6.170.10:5000"
-    k8s_image_pull_policy: IfNotPresent
-    kube_network_plugin: calico
-    kube_network_plugin_multus: false
-    kube_apiserver_port: 6443
-    kube_proxy_mode: iptables
-    enable_nodelocaldns: false
-    etcd_deployment_type: docker
-    metrics_server_enabled: true
-    local_path_provisioner_enabled: true
-
+    
     # Download Config
     download_run_once: true
     download_container: false
     download_force_cache: true
     download_localhost: true
-     
+
     # offline
     registry_host: "10.6.170.10:5000"
     files_repo: "http://10.6.170.10:81"

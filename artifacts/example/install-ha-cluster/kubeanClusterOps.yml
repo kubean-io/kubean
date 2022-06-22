@@ -1,0 +1,22 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster-ha-ops
+  labels:
+    clusterName: cluster-ha
+spec:
+  kuBeanCluster: cluster-ha
+  image: release.daocloud.io/kubean/kubespray:release-2.17
+  backoffLimit: 0
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+  - actionType: shell
+    action: |
+      ansible -i /conf/hosts.yml all -m ping;
+      ansible -i /conf/hosts.yml all -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'
+      ansible -i /conf/hosts.yml all -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org'
+  postHook:
+  - actionType: shell
+    action: |
+      ansible -i /conf/hosts.yml master1 -m shell -a 'kubectl get cs'

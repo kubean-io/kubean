@@ -1,0 +1,13 @@
+apiVersion: kubeancluster.kubean.io/v1alpha1
+kind: KuBeanCluster
+metadata:
+  name: kpanda-sample
+  labels:
+    clusterName: kpanda-sample
+spec:
+  hostsConfRef:
+    namespace: kubean-system
+    name: kpanda-sample-hosts-conf
+  varsConfRef:
+    namespace: kubean-system
+    name: kpanda-sample-vars-conf

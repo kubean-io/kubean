@@ -141,6 +141,7 @@ var testData = `
   input:
     actionType: playbook
     action: cluster.yml
+    isPrivateKey: true
   matchString: "ansible -i $inventory_file $first_master -m fetch"
   output: true
 
