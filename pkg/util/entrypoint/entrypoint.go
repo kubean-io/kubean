@@ -18,6 +18,8 @@ const (
 	RemoveNodePB     = "remove-node.yml"
 	UpgradeClusterPB = "upgrade-cluster.yml"
 
+	PingPB = "ping.yml"
+
 	KubeconfInstall = `
 # postback cluster kubeconfig
 inventory_file="/conf/hosts.yml"
@@ -81,6 +83,7 @@ func NewEntryPoint() *EntryPoint {
 		ClusterPB:        member,
 		RemoveNodePB:     member,
 		UpgradeClusterPB: member,
+		PingPB:           member,
 	}
 	return ep
 }

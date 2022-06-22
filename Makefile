@@ -59,6 +59,7 @@ KUBEAN_IMAGE_VERSION := $(shell echo $(KUBEAN_VERSION) | sed 's/+/-/1')
 #v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
 KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
 
+SPRAY_TAG ?= "release-2.17"
 
 
 ## Deploy current version of helm package to target cluster of $(YOUR_KUBE_CONF) [not defined]
@@ -71,7 +72,7 @@ argocd:
 	bash hack/argocd.sh "$(KUBEAN_CHART_VERSION)" "$(KUBEAN_IMAGE_VERSION)" "$(YOUR_KUBE_CONF)" "$(KUBEAN_NAMESPACE)" "$(HELM_REPO)" "$(REGISTRY_REPO)" "$(DEPLOY_ENV)" "$(CD_TO_ENVIRONMENT)"
 
 .PHONY: kubean-imgs
-kubean-imgs: kubean-operator
+kubean-imgs: kubean-operator spray-job
 
 .PHONY: kubean-operator
 kubean-operator: $(SOURCES)
@@ -88,12 +89,29 @@ kubean-operator: $(SOURCES)
 			--load \
 			.
 
+.PHONY: spray-job
+spray-job: $(SOURCES)
+	echo "Building spray-job for arch = $(BUILD_ARCH)"
+	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
+	! ( docker buildx ls | grep spray-job-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name spray-job-multi-platform-builder ;\
+	docker buildx build \
+			--build-arg spray_tag=$(SPRAY_TAG) \
+			--builder spray-job-multi-platform-builder \
+			--platform $(BUILD_ARCH) \
+			--tag $(REGISTRY_REPO)/spray-job:$(KUBEAN_IMAGE_VERSION)  \
+			--tag $(REGISTRY_REPO)/spray-job:latest  \
+			-f ./build/images/spray-job/Dockerfile \
+			--load \
+			.
+
 .PHONY: upload-image
 upload-image: kubean-imgs
 	@echo "push images to $(REGISTRY_REPO)"
 	docker login -u ${REGISTRY_USER_NAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_SERVER_ADDRESS}
 	@docker push $(REGISTRY_REPO)/kubean-operator:latest
 	@docker push $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
+	@docker push $(REGISTRY_REPO)/spray-job:latest
+	@docker push $(REGISTRY_REPO)/spray-job:$(KUBEAN_IMAGE_VERSION)
 
 .PHONY: push-chart
 push-chart:
