@@ -1,5 +1,5 @@
 default:
-  image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.8
+  image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.15
   tags:
     - k8s
   retry:
@@ -26,6 +26,7 @@ stages:
   # - gitpages
   - sync_api
   - build
+  - security-scanning
   - e2e-test
   - cd
   - independent_job
@@ -113,6 +114,20 @@ build_to_release_ci:
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
     - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make -j2 release
+  interruptible: true
+
+security-scanning:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  retry:
+    max: 2
+  tags:
+    - docker
+  before_script:
+  stage: security-scanning
+  script:
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+    - make security-scanning
   interruptible: true
 
 build_to_release:
