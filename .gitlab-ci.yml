@@ -48,7 +48,6 @@ security-scanning:
   tags:
     - docker
   before_script:
-    -
   stage: security-scanning
   script:
     - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
