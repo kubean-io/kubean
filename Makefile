@@ -147,3 +147,8 @@ gen-release-notes:
 .PHONY: sync_api
 sync_api:
 	bash hack/sync-api.sh $(VERSION)
+
+
+.PHONY: security-scanning
+security-scanning:
+	bash hack/trivy.sh $(REGISTRY_REPO)/kubean-operator:$(KUBEAN_IMAGE_VERSION)
