@@ -32,13 +32,13 @@ stages:
   - independent_job
 
 static_check:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   tags:
     - k8s
   stage: verify
   script:
-    - golangci-lint run --timeout=10m && echo "pass" || exit 1
+    - tail -f /dev/null
   interruptible: true
 
 verify_import_alias:
