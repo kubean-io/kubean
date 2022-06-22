@@ -19,9 +19,11 @@ const (
 	UpgradeClusterPB = "upgrade-cluster.yml"
 
 	KubeconfInstall = `
+set -x
 # postback cluster kubeconfig
 inventory_file="/conf/hosts.yml"
-first_master=` + "`" + `yq e '.all.children.kube_control_plane.hosts' $inventory_file -o y | head -n 1 | sed 's/.$//'` + "`" + `
+first_master_crude=` + "`" + `yq e '.all.children.kube_control_plane.hosts' $inventory_file -o y | head -n 1 | sed 's/.$//'` + "`" + `
+first_master=${first_master_crude%:*}
 first_master_ip=` + "`" + `yq e '.all.hosts.'$first_master'.ip' $inventory_file -o y` + "`" + `
 kubeconfig_name="$CLUSTER_NAME-kubeconf"
 fetch_src="/root/.kube/config"
@@ -36,6 +38,7 @@ kubectl -n kubean-system create configmap $kubeconfig_name --from-file=$fetch_de
 kubectl patch --type=merge kubeancluster $CLUSTER_NAME -p '{"spec": {"kubeconfRef": {"name": "'$kubeconfig_name'", "namespace": "kubean-system"}}}'
 `
 	KubeconfReset = `
+set -x
 # reset cluster kubeconfig
 kubeconfig_name="$CLUSTER_NAME-kubeconf"
 kubeconf_count=` + "`" + `kubectl -n kubean-system get configmap | grep $kubeconfig_name | wc -l | sed 's/ //g'` + "`" + `
@@ -46,6 +49,10 @@ kubectl patch --type=merge kubeancluster $CLUSTER_NAME -p '{"spec": {"kubeconfRe
 `
 	EntrypointTemplate = `
 #!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
 
 # preinstall
 {{ range $preCMD := .PreHookCMDs }}
