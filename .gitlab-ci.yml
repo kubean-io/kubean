@@ -1,5 +1,5 @@
 default:
-  image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.8
+  image: release-ci.daocloud.io/common-ci/common-ci-builder:v0.1.15
   tags:
     - k8s
   retry:
@@ -44,7 +44,6 @@ stages:
 security-scanning:
   retry:
     max: 2
-  image: release-ci.daocloud.io/aquasec/trivy:0.29.0
   tags:
     - docker
   before_script:
