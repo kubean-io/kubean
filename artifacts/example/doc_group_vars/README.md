@@ -75,7 +75,7 @@ container_manager: containerd
 etcd_deployment_type: host
 ```
 
-* 当cri为containerd时，etcd只能设置为host类型
+* 当cri为containerd时，etcd设置为host或者kubeadm类型
 
 ## CNI插件参数设置
 
@@ -180,5 +180,5 @@ audit_log_maxsize: 100
 
 ### ETCD类型
 
-* 在`container_manager: containerd`时,etcd_deployment_type只能是host类型
+* 在`container_manager: containerd`时,etcd_deployment_type是host或者kubeadm类型
 * etcd_deployment_type可以有host docker 和 kubeadm 三个选项

@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-hosts-conf
+  namespace: kubean-system
+data:
+  hosts.yml: |
+    all:
+      hosts:
+        master1:
+          ip: 10.6.109.2
+          access_ip: 10.6.109.2
+          ansible_host: 10.6.109.2
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: dangerous
+        master2:
+          ip: 10.6.109.3
+          access_ip: 10.6.109.3
+          ansible_host: 10.6.109.3
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: dangerous
+        master3:
+          ip: 10.6.109.4
+          access_ip: 10.6.109.4
+          ansible_host: 10.6.109.4
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: dangerous
+        node1:
+          ip: 10.6.109.5
+          access_ip: 10.6.109.5
+          ansible_host: 10.6.109.5
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: dangerous
+      children:
+        kube_control_plane:
+          hosts:
+            master1:
+            master2:
+            master3:
+        kube_node:
+          hosts:
+            master1:
+            master2:
+            master3:
+            node1:
+        etcd:
+          hosts:
+            master2:
+        k8s_cluster:
+          children:
+            kube_control_plane:
+            kube_node:
+        calico_rr:
+          hosts: {}
