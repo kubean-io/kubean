@@ -85,9 +85,12 @@ spec:
                       type: string
                     actionType:
                       type: string
+                    extraArgs:
+                      type: string
                   required:
                   - action
                   - actionType
+                  - extraArgs
                   type: object
                 type: array
               preHook:
@@ -97,9 +100,12 @@ spec:
                       type: string
                     actionType:
                       type: string
+                    extraArgs:
+                      type: string
                   required:
                   - action
                   - actionType
+                  - extraArgs
                   type: object
                 type: array
               sshAuthRef:
