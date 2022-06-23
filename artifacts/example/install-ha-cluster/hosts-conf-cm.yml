@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-ha-hosts-conf
+  namespace: kubean-system
+data:
+  hosts.yml: |
+    all:
+      hosts:
+        master1:
+          ip: 10.6.170.31
+          access_ip: 10.6.170.31
+          ansible_host: 10.6.170.31
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        master2:
+          ip: 10.6.170.32
+          access_ip: 10.6.170.32
+          ansible_host: 10.6.170.32
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        master3:
+          ip: 10.6.170.33
+          access_ip: 10.6.170.33
+          ansible_host: 10.6.170.33
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        node1:
+          ip: 10.6.170.34
+          access_ip: 10.6.170.34
+          ansible_host: 10.6.170.34
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        node2:
+          ip: 10.6.170.35
+          access_ip: 10.6.170.35
+          ansible_host: 10.6.170.35
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+      children:
+        kube_control_plane:
+          hosts:
+            master1:
+            master2:
+            master3:
+        kube_node:
+          hosts:
+            master1:
+            master2:
+            master3:
+            node1:
+            node2:
+        etcd:
+          hosts:
+            master1:
+            master2:
+            master3:
+        k8s_cluster:
+          children:
+            kube_control_plane:
+            kube_node:
+        calico_rr:
+          hosts: {}
