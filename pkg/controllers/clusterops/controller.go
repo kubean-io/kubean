@@ -15,6 +15,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
@@ -28,9 +29,10 @@ import (
 )
 
 const (
-	RequeueAfter        = time.Millisecond * 500
-	OpsBackupNum        = 5
-	LoopAskForJobStatus = time.Second * 5
+	RequeueAfter          = time.Millisecond * 500
+	OpsBackupNum          = 5
+	LoopForJobStatus      = time.Second * 3
+	KubeanClusterLabelKey = "clusterName"
 )
 
 type Controller struct {
@@ -149,6 +151,35 @@ func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanC
 	return kubeanclusteropsv1alpha1.RunningStatus, nil
 }
 
+func (c *Controller) ListClusterOps(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+	list, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{KubeanClusterLabelKey: clusterName}).String()})
+	if err != nil {
+		return nil, err
+	}
+	return list.Items, nil
+}
+
+func (c *Controller) CurrentJobNeedBlock(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, listClusterOps func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error)) (bool, error) {
+	clusterOpsList, err := listClusterOps(clusterOps.Spec.KuBeanCluster)
+	if err != nil {
+		return false, err
+	}
+	filter := func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+		// todo: clusterOps has the group label and number label, first find the early group and then find the before number in the same group if possible
+		// try to find the early running clusterOps job in the same cluster
+		return ops.Name != clusterOps.Name &&
+			ops.CreationTimestamp.UnixMilli() < clusterOps.CreationTimestamp.UnixMilli() && // <= or < ? , use "<" to avoid two jobs with the same createTime waiting for each others(blocked by each others) ,createTimes is base on second not mills.
+			(ops.Status.Status == kubeanclusteropsv1alpha1.RunningStatus || ops.Status.JobRef.IsEmpty()) // Empty jobRef means the job is blocked or ready to run.
+	}
+	runningClusterOpsList := make([]kubeanclusteropsv1alpha1.KuBeanClusterOps, 0)
+	for i := range clusterOpsList {
+		if filter(clusterOpsList[i]) {
+			runningClusterOpsList = append(runningClusterOpsList, clusterOpsList[i])
+		}
+	}
+	return len(runningClusterOpsList) != 0, nil
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
@@ -198,6 +229,23 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
+	needBlock, err := c.CurrentJobNeedBlock(clusterOps, c.ListClusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needBlock {
+		klog.Infof("clusterOps %s is blocked and waiting for other clusterOps completed", clusterOps.Name)
+		if clusterOps.Status.Status != kubeanclusteropsv1alpha1.BlockedStatus {
+			clusterOps.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
+			if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+				klog.Warningf("clusterOps %s update Status to Blocked but %s", clusterOps.Name, err.Error())
+				return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+			}
+		}
+		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
+	}
+
 	needRequeue, err = c.CreateKubeSprayJob(clusterOps)
 	if err != nil {
 		klog.Error(err)
@@ -222,7 +270,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
 	if needRequeue {
-		return controllerruntime.Result{RequeueAfter: LoopAskForJobStatus}, nil
+		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
 	}
 	return controllerruntime.Result{Requeue: false}, nil
 }
@@ -495,10 +543,10 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return false, fmt.Errorf("cluster %s DataRef has empty value", cluster.Name)
 	}
 	if clusterOps.Labels == nil {
-		clusterOps.Labels = map[string]string{"clusterName": cluster.Name}
+		clusterOps.Labels = map[string]string{KubeanClusterLabelKey: cluster.Name}
 	}
-	if _, ok := clusterOps.Labels["clusterName"]; !ok {
-		clusterOps.Labels["clusterName"] = cluster.Name
+	if _, ok := clusterOps.Labels[KubeanClusterLabelKey]; !ok {
+		clusterOps.Labels[KubeanClusterLabelKey] = cluster.Name
 	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
 		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)

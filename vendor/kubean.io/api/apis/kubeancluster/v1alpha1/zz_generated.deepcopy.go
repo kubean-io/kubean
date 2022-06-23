@@ -47,6 +47,11 @@ func (in *ClusterSpec) DeepCopyInto(out *ClusterSpec) {
 		*out = new(apis.DataRef)
 		**out = **in
 	}
+	if in.KubeConfRef != nil {
+		in, out := &in.KubeConfRef, &out.KubeConfRef
+		*out = new(apis.DataRef)
+		**out = **in
+	}
 	if in.SSHAuthRef != nil {
 		in, out := &in.SSHAuthRef, &out.SSHAuthRef
 		*out = new(apis.DataRef)
