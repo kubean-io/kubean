@@ -174,6 +174,7 @@ var testData = `
 type SubAction struct {
 	ActionType string `yaml:"actionType"`
 	Action     string `yaml:"action"`
+	ExtraArgs  string `yaml:"extraArgs"`
 }
 
 type ActionData struct {
@@ -205,7 +206,7 @@ func TestEntrypoint(t *testing.T) {
 			ep := NewEntryPoint()
 			// Prehook 命令处理
 			for _, prehook := range item.Input.PreHooks {
-				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action)
+				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action, prehook.ExtraArgs, item.Input.IsPrivateKey)
 				if err != nil {
 					t.Fatalf("error: %v", err)
 				}
@@ -217,7 +218,7 @@ func TestEntrypoint(t *testing.T) {
 			}
 			// Posthook 命令处理
 			for _, posthook := range item.Input.PostHooks {
-				err = ep.PostHookRunPart(posthook.ActionType, posthook.Action)
+				err = ep.PostHookRunPart(posthook.ActionType, posthook.Action, posthook.ExtraArgs, item.Input.IsPrivateKey)
 				if err != nil {
 					t.Fatalf("error: %v", err)
 				}

@@ -1,0 +1,141 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-hosts-conf
+  namespace: kubean-system
+data:
+  hosts.yml: |
+    all:
+      hosts:
+        master1:
+          ip: 10.6.170.21
+          access_ip: 10.6.170.21
+          ansible_host: 10.6.170.21
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        master2:
+          ip: 10.6.170.22
+          access_ip: 10.6.170.22
+          ansible_host: 10.6.170.22
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        master3:
+          ip: 10.6.170.23
+          access_ip: 10.6.170.23
+          ansible_host: 10.6.170.23
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        node1:
+          ip: 10.6.170.24
+          access_ip: 10.6.170.24
+          ansible_host: 10.6.170.24
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+        node2:
+          ip: 10.6.170.25
+          access_ip: 10.6.170.25
+          ansible_host: 10.6.170.25
+          ansible_connection: ssh
+          ansible_user: root
+          ansible_ssh_pass: daocloud
+      children:
+        kube_control_plane:
+          hosts:
+            master1:
+            master2:
+            master3:
+        kube_node:
+          hosts:
+            master1:
+            master2:
+            master3:
+            node1:
+            node2:
+        etcd:
+          hosts:
+            master1:
+            master2:
+            master3:
+        k8s_cluster:
+          children:
+            kube_control_plane:
+            kube_node:
+        calico_rr:
+          hosts: {}
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    # k8s-cluster
+    kube_version: "v1.23.7"
+    cluster_name: kubean.cluster
+    container_manager: containerd
+    containerd_insecure_registries:
+      "10.6.170.10:5000": "http://10.6.170.10:5000"
+    k8s_image_pull_policy: IfNotPresent
+    kube_network_plugin: calico
+    kube_network_plugin_multus: false
+    kube_apiserver_port: 6443
+    kube_proxy_mode: iptables
+    enable_nodelocaldns: false
+    etcd_deployment_type: kubeadm
+    metrics_server_enabled: true
+    local_path_provisioner_enabled: true
+
+    # Download Config
+    download_run_once: true
+    download_container: false
+    download_force_cache: true
+    download_localhost: true
+    
+    # offline
+    registry_host: "10.6.170.10:5000"
+    files_repo: "http://10.6.170.10:8080"
+    kube_image_repo: "{{ registry_host }}"
+    gcr_image_repo: "{{ registry_host }}"
+    github_image_repo: "{{ registry_host }}"
+    docker_image_repo: "{{ registry_host }}"
+    quay_image_repo: "{{ registry_host }}"
+    kubeadm_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+    kubectl_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
+    kubelet_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
+    cni_download_url: "{{ files_repo }}/github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
+    crictl_download_url: "{{ files_repo }}/github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+    etcd_download_url: "{{ files_repo }}/github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
+    calicoctl_download_url: "{{ files_repo }}/github.com/projectcalico/calico/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
+    calicoctl_alternate_download_url: "{{ files_repo }}/github.com/projectcalico/calicoctl/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
+    calico_crds_download_url: "{{ files_repo }}/github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
+    helm_download_url: "{{ files_repo }}/get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
+    crun_download_url: "{{ files_repo }}/github.com/containers/crun/releases/download/{{ crun_version }}/crun-{{ crun_version }}-linux-{{ image_arch }}"
+    kata_containers_download_url: "{{ files_repo }}/github.com/kata-containers/kata-containers/releases/download/{{ kata_containers_version }}/kata-static-{{ kata_containers_version }}-{{ ansible_architecture }}.tar.xz"
+    runc_download_url: "{{ files_repo }}/github.com/opencontainers/runc/releases/download/{{ runc_version }}/runc.{{ image_arch }}"
+    containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ image_arch }}.tar.gz"
+    nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+
+---
+
+apiVersion: kubeancluster.kubean.io/v1alpha1
+kind: KuBeanCluster
+metadata:
+  name: cluster1
+  labels:
+    clusterName: cluster1
+spec:
+  hostsConfRef:
+    namespace: kubean-system
+    name: cluster1-hosts-conf
+  varsConfRef:
+    namespace: kubean-system
+    name: cluster1-vars-conf
