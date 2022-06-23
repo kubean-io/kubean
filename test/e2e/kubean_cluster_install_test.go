@@ -54,7 +54,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			ginkgo.GinkgoWriter.Printf("* wait for reset job related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
 			podStatus := string(pod.Status.Phase)
-			if podStatus != "Running" {
+			if podStatus == "Succeeded" || podStatus == "Failed" {
 				gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
 				break
 			}
@@ -98,7 +98,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			ginkgo.GinkgoWriter.Printf("* wait for install job related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
 			podStatus := string(pod.Status.Phase)
-			if podStatus != "Running" {
+			if podStatus == "Succeeded" || podStatus == "Failed" {
 				gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
 				break
 			}
