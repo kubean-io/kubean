@@ -61,7 +61,7 @@ set -o pipefail
 
 # preinstall
 {{ range $preCMD := .PreHookCMDs }}
-{{- $preCMD -}}
+{{- $preCMD }}
 {{ end }}
 
 # run kubespray
@@ -69,7 +69,7 @@ set -o pipefail
 
 # postinstall
 {{ range $postCMD := .PostHookCMDs }}
-{{- $postCMD -}}
+{{- $postCMD }}
 {{ end }}
 `
 )

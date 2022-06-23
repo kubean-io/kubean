@@ -11,12 +11,12 @@ spec:
   actionType: playbook
   action: cluster.yml
   preHook:
-  - actionType: shell
-    action: |
-      ansible -i /conf/hosts.yml all -m ping;
-      ansible -i /conf/hosts.yml all -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'
-      ansible -i /conf/hosts.yml all -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org'
+    - actionType: shell
+      action: ansible -i /conf/hosts.yml all -m ping
+    - actionType: shell
+      action: ansible -i /conf/hosts.yml all -m shell -a 'systemctl stop firewalld && systemctl disable firewalld'
+    - actionType: shell
+      action: set +e && ansible -i /conf/hosts.yml all -m shell -a 'yum install -y ntpdate && ntpdate cn.pool.ntp.org' && set -e;
   postHook:
-  - actionType: shell
-    action: |
-      ansible -i /conf/hosts.yml master -m shell -a 'kubectl get cs'
+    - actionType: shell
+      action: ansible -i /conf/hosts.yml master -m shell -a 'kubectl get cs'

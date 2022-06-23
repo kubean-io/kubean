@@ -151,6 +151,24 @@ var testData = `
     action: reset.yml
   matchString: "{\"spec\": {\"kubeconfRef\": null}}"
   output: true
+
+- message: "Check entrypoint script cmd concatenation"
+  input:
+    actionType: playbook
+    action: cluster.yml
+    prehook:
+      - actionType: shell
+        action: ansible -i host.yml -m ping
+      - actionType: shell
+        action: echo "test"
+    posthook:
+      - actionType: shell
+        action: systemctl status docker
+      - actionType: shell
+        action: systemctl status kubelet
+  matchString: "ansible -i host.yml -m ping\n"
+  output: true
+
 `
 
 type SubAction struct {
