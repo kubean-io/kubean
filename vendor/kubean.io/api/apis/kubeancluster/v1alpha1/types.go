@@ -32,6 +32,9 @@ type ClusterSpec struct {
 	// VarsConfRef stores group_vars.yml.
 	// +required
 	VarsConfRef *apis.ConfigMapRef `json:"varsConfRef"`
+	// KubeConfRef stores cluster kubeconfig.
+	// +optional
+	KubeConfRef *apis.ConfigMapRef `json:"kubeconfRef"`
 	// SSHAuthRef stores ssh key and if it is empty ,then use sshpass.
 	// +optional
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
@@ -45,6 +48,8 @@ const (
 	ClusterConditionRunning ClusterConditionType = "Succeeded"
 
 	ClusterConditionUpdating ClusterConditionType = "Failed"
+
+	BlockedStatus ClusterConditionType = "Blocked"
 )
 
 type ClusterCondition struct {

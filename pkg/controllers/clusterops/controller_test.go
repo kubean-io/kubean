@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
-	"kubean.io/api/apis"
 	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
 	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
+	"kubean.io/api/apis"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -442,6 +444,166 @@ func TestNewKubesprayJob(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestCurrentJobNeedBlock(t *testing.T) {
+	controller := Controller{}
+	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps.Name = "the target one clusterOps"
+	clusterOps.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
+	testCases := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "it occurs error",
+			args: func() bool {
+				_, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					return nil, fmt.Errorf("error")
+				})
+				return err == nil
+			},
+			want: false,
+		},
+		{
+			name: "it returns none jobs running before the target clusterOps",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					return nil, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns none jobs running before the target clusterOps again",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs running before the target clusterOps",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs running before the target clusterOps with the same createTime",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
+					ops1.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs completed before the target clusterOps",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
+					ops1.Status.Status = kubeanclusteropsv1alpha1.SucceededStatus
+					ops1.Status.JobRef = &apis.JobRef{Name: "ok", NameSpace: "ok"}
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs failed before the target clusterOps",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
+					ops1.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+					ops1.Status.JobRef = &apis.JobRef{Name: "ok", NameSpace: "ok"}
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs blocked before the target clusterOps",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
+					ops1.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && needBlock
+			},
+			want: true,
+		},
+		{
+			name: "it returns some jobs blocked at the same createTime",
+			args: func() bool {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Name = "ops1"
+					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
+					ops1.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
+					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2.Name = "ops2"
+					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
+					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			if testCase.args() != testCase.want {
 				t.Fatal()
 			}
 		})

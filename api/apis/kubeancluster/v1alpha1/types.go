@@ -48,6 +48,8 @@ const (
 	ClusterConditionRunning ClusterConditionType = "Succeeded"
 
 	ClusterConditionUpdating ClusterConditionType = "Failed"
+
+	BlockedStatus ClusterConditionType = "Blocked"
 )
 
 type ClusterCondition struct {
