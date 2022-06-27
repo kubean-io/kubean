@@ -22,174 +22,174 @@ variables:
 
 stages:
   - verify
-  - test
-  - gitpages
-  - build
-  - e2e-test
-  - cd
+  # - test
+  # - gitpages
+  # - build
+  # - e2e-test
+  # - cd
 
 static_check:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   tags:
-    - k8s
+    - $K8S_TAG
   stage: verify
   script:
     - golangci-lint run --timeout=10m && echo "pass" || exit 1
   interruptible: true
-
-verify_import_alias:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  stage: verify
-  tags:
-    - k8s
-  script:
-    - make verify-import-alias
-  interruptible: true
-
-unit_test:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'
-  stage: test
-  script:
-    - make test
-  interruptible: true
-  coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
-
-build_for_e2e:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  retry:
-    max: 2
-  tags:
-    - docker
-  before_script:
-    - docker -v #override the global before_script
-  stage: build
-  script:
-    - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
-    - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
-    - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
-    - make -j2 release
-  interruptible: true
-
-e2e_test:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  stage: e2e-test
-  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
-  tags:
-    - docker
-  before_script:
-    # double-check the kind cluster was deleted
-    - make clear-kind
-  script:
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
-    - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
-    - make e2e-test
-  interruptible: true
-
-pages:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  stage: gitpages
-  image: release-ci.daocloud.io/docker/honkit/honkit:v3.7.1
-  retry:
-    max: 2
-  before_script:
-    - npx --version #override the global before_script
-    - cd ./docs/honkit && npm install npm -g && npm install  # install gitbook plugins
-  tags:
-    - docker
-  script:
-    - npx honkit build .  ../../public # build to public path
-  artifacts:
-    paths:
-      - public
-    expire_in: 1 week
-
-build_to_release_ci:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  retry:
-    max: 2
-  tags:
-    - docker
-  before_script:
-    - docker -v #override the global before_script
-  stage: build
-  script:
-    - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
-    - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
-    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
-    - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
-    - make -j2 release
-  interruptible: true
-
-build_to_release:
-  rules:
-    - if: '$CI_COMMIT_TAG'
-  retry:
-    max: 2
-  tags:
-    - docker
-  before_script:
-    - docker -v #override the global before_script
-  stage: build
-  script:
-    - |
-      # set envirment varible when new release publish by new tag created
-      export REGISTRY_USER_NAME=$REGISTRY_USER_NAME
-      export REGISTRY_PASSWORD=$REGISTRY_PASSWORD
-      export REGISTRY_REPO="release.daocloud.io/kubean"
-      export REGISTRY_SERVER_ADDRESS="release.daocloud.io"
-      export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
-      make release -j2 #REGISTRY_USER_NAME and REGISTRY_PASSWORD config as Gitlab Variables
-
-cd_to_dev_site:
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-  image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.8
-  retry:
-    max: 2
-  tags:
-    - docker
-  before_script:
-    - helm version #override the global before_script
-  stage: cd
-  script:
-    - |
-      export RETAIN_UI_IMAGE_WHEN_DEPLOY=true; # on dev site, helm upgrade will retain the ui unchanged.
-      export YOUR_KUBE_CONF=${DEV_KUBECONF}; #dev_kubeconf has been configured as Gitlab Variable
-      export DEPLOY_ENV=DEV;
-      export REGISTRY_REPO="release-ci.daocloud.io/kubean"
-      export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
-      export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
-      make deploy
-
-cd_to_prod_site:
-  rules:
-    - if: '$CI_COMMIT_TAG'
-  image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.8
-  retry:
-    max: 2
-  tags:
-    - docker
-  before_script:
-    - helm version #override the global before_script
-  stage: cd
-  script:
-    - |
-      env;
-      export RETAIN_UI_IMAGE_WHEN_DEPLOY=false; # treat it as real user experience.
-      export YOUR_KUBE_CONF=${PROD_KUBECONF};
-      export DEPLOY_ENV=PROD;
-      export REGISTRY_REPO="release.daocloud.io/kubean"
-      export REGISTRY_SERVER_ADDRESS="release.daocloud.io"
-      export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
-      make deploy
+#
+# verify_import_alias:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#   stage: verify
+#   tags:
+#     - k8s
+#   script:
+#     - make verify-import-alias
+#   interruptible: true
+#
+# unit_test:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'
+#   stage: test
+#   script:
+#     - make test
+#   interruptible: true
+#   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
+#
+# build_for_e2e:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#   retry:
+#     max: 2
+#   tags:
+#     - docker
+#   before_script:
+#     - docker -v #override the global before_script
+#   stage: build
+#   script:
+#     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
+#     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
+#     - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+#     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+#     - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+#     - make -j2 release
+#   interruptible: true
+#
+# e2e_test:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#   stage: e2e-test
+#   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.8
+#   tags:
+#     - docker
+#   before_script:
+#     # double-check the kind cluster was deleted
+#     - make clear-kind
+#   script:
+#     - export REGISTRY_REPO="release-ci.daocloud.io/kubean-ci"
+#     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+#     - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean-ci"
+#     - make e2e-test
+#   interruptible: true
+#
+# pages:
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#   stage: gitpages
+#   image: release-ci.daocloud.io/docker/honkit/honkit:v3.7.1
+#   retry:
+#     max: 2
+#   before_script:
+#     - npx --version #override the global before_script
+#     - cd ./docs/honkit && npm install npm -g && npm install  # install gitbook plugins
+#   tags:
+#     - docker
+#   script:
+#     - npx honkit build .  ../../public # build to public path
+#   artifacts:
+#     paths:
+#       - public
+#     expire_in: 1 week
+#
+# build_to_release_ci:
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#   retry:
+#     max: 2
+#   tags:
+#     - docker
+#   before_script:
+#     - docker -v #override the global before_script
+#   stage: build
+#   script:
+#     - export REGISTRY_USER_NAME=$CI_REGISTRY_USER_NAME
+#     - export REGISTRY_PASSWORD=$CI_REGISTRY_PASSWORD
+#     - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+#     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+#     - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+#     - make -j2 release
+#   interruptible: true
+#
+# build_to_release:
+#   rules:
+#     - if: '$CI_COMMIT_TAG'
+#   retry:
+#     max: 2
+#   tags:
+#     - docker
+#   before_script:
+#     - docker -v #override the global before_script
+#   stage: build
+#   script:
+#     - |
+#       # set envirment varible when new release publish by new tag created
+#       export REGISTRY_USER_NAME=$REGISTRY_USER_NAME
+#       export REGISTRY_PASSWORD=$REGISTRY_PASSWORD
+#       export REGISTRY_REPO="release.daocloud.io/kubean"
+#       export REGISTRY_SERVER_ADDRESS="release.daocloud.io"
+#       export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
+#       make release -j2 #REGISTRY_USER_NAME and REGISTRY_PASSWORD config as Gitlab Variables
+#
+# cd_to_dev_site:
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main"'
+#   image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.8
+#   retry:
+#     max: 2
+#   tags:
+#     - docker
+#   before_script:
+#     - helm version #override the global before_script
+#   stage: cd
+#   script:
+#     - |
+#       export RETAIN_UI_IMAGE_WHEN_DEPLOY=true; # on dev site, helm upgrade will retain the ui unchanged.
+#       export YOUR_KUBE_CONF=${DEV_KUBECONF}; #dev_kubeconf has been configured as Gitlab Variable
+#       export DEPLOY_ENV=DEV;
+#       export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+#       export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+#       export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+#       make deploy
+#
+# cd_to_prod_site:
+#   rules:
+#     - if: '$CI_COMMIT_TAG'
+#   image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.8
+#   retry:
+#     max: 2
+#   tags:
+#     - docker
+#   before_script:
+#     - helm version #override the global before_script
+#   stage: cd
+#   script:
+#     - |
+#       env;
+#       export RETAIN_UI_IMAGE_WHEN_DEPLOY=false; # treat it as real user experience.
+#       export YOUR_KUBE_CONF=${PROD_KUBECONF};
+#       export DEPLOY_ENV=PROD;
+#       export REGISTRY_REPO="release.daocloud.io/kubean"
+#       export REGISTRY_SERVER_ADDRESS="release.daocloud.io"
+#       export HELM_REPO="https://release.daocloud.io/chartrepo/kubean"
+#       make deploy
