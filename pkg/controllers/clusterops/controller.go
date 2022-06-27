@@ -441,7 +441,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	for _, action := range clusterOps.Spec.PreHook {
-		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action); err != nil {
+		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey); err != nil {
 			return false, err
 		}
 	}
@@ -449,7 +449,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
-		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action); err != nil {
+		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey); err != nil {
 			return false, err
 		}
 	}

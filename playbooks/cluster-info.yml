@@ -1,0 +1,14 @@
+---
+- hosts: kube_control_plane[0]
+  gather_facts: false
+  become: yes
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Show cluster info
+      ansible.builtin.shell: |
+        kubectl get node -o wide
+        kubectl -n kube-system get pod
+        kubectl get --raw='/readyz?verbose'
+      register: clusterinfo
+    - debug: var=clusterinfo.stdout_lines
+        

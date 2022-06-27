@@ -85,6 +85,8 @@ spec:
                       type: string
                     actionType:
                       type: string
+                    extraArgs:
+                      type: string
                   required:
                   - action
                   - actionType
@@ -96,6 +98,8 @@ spec:
                     action:
                       type: string
                     actionType:
+                      type: string
+                    extraArgs:
                       type: string
                   required:
                   - action

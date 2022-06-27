@@ -59,7 +59,7 @@ KUBEAN_IMAGE_VERSION := $(shell echo $(KUBEAN_VERSION) | sed 's/+/-/1')
 #v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
 KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
 
-SPRAY_TAG ?= "release-2.17"
+SPRAY_TAG ?= "release-2.19"
 
 
 ## Deploy current version of helm package to target cluster of $(YOUR_KUBE_CONF) [not defined]

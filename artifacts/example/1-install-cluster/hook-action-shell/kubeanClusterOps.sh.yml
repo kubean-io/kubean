@@ -1,13 +1,13 @@
 apiVersion: kubeanclusterops.kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
-  name: cluster-ha-ops
+  name: cluster1-ops-sh-1
   labels:
-    clusterName: cluster-ha
+    clusterName: cluster1
 spec:
-  kuBeanCluster: cluster-ha
-  image: release.daocloud.io/kubean/kubespray:release-2.17
-  backoffLimit: 0
+  kuBeanCluster: cluster1
+  image: release-ci.daocloud.io/kubean-ci/spray-job:dev-2.19
+  backoffLimit: 1
   actionType: playbook
   action: cluster.yml
   preHook:
@@ -19,4 +19,4 @@ spec:
   postHook:
   - actionType: shell
     action: |
-      ansible -i /conf/hosts.yml master1 -m shell -a 'kubectl get cs'
+      ansible -i /conf/hosts.yml node1 -m shell -a 'kubectl get cs'

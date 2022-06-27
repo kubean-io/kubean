@@ -18,7 +18,10 @@ const (
 	RemoveNodePB     = "remove-node.yml"
 	UpgradeClusterPB = "upgrade-cluster.yml"
 
-	PingPB = "ping.yml"
+	PingPB        = "ping.yml"
+	FirewallPB    = "disable-firewalld.yml"
+	NtpDatePB     = "ntpdate.yml"
+	ClusterInfoPB = "cluster-info.yml"
 
 	KubeconfInstall = `
 set -x
@@ -94,15 +97,42 @@ func NewEntryPoint() *EntryPoint {
 		RemoveNodePB:     member,
 		UpgradeClusterPB: member,
 		PingPB:           member,
+		FirewallPB:       member,
+		NtpDatePB:        member,
+		ClusterInfoPB:    member,
 	}
 	return ep
 }
 
-func (ep *EntryPoint) hookRunPart(actionType, action string) (string, error) {
+func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey bool) (string, error) {
+	if _, ok := ep.Playbooks[action]; !ok {
+		return "", fmt.Errorf("unknown playbook: %s", action)
+	}
+	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
+	if isPrivateKey {
+		playbookCmd = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", playbookCmd)
+	}
+	if action == ResetPB {
+		playbookCmd = fmt.Sprintf("%s -e \"reset_confirmation=yes\"", playbookCmd)
+	}
+	if action == RemoveNodePB {
+		playbookCmd = fmt.Sprintf("%s -e \"skip_confirmation=true\"", playbookCmd)
+	}
+	playbookCmd = fmt.Sprintf("%s /kubespray/%s", playbookCmd, action)
+	if len(extraArgs) > 0 {
+		playbookCmd = fmt.Sprintf("%s %s", playbookCmd, extraArgs)
+	}
+	return playbookCmd, nil
+}
+
+func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivateKey bool) (string, error) {
 	hookRunCmd := ""
 	if actionType == PBAction {
-		// todo
-		return "", fmt.Errorf("playbook is not currently supported")
+		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
+		if err != nil {
+			return "", fmt.Errorf("buildPlaybookCmd: %w", err)
+		}
+		hookRunCmd = playbookCmd
 	} else if actionType == SHAction {
 		hookRunCmd = action
 	} else {
@@ -111,8 +141,8 @@ func (ep *EntryPoint) hookRunPart(actionType, action string) (string, error) {
 	return hookRunCmd, nil
 }
 
-func (ep *EntryPoint) PreHookRunPart(actionType, action string) error {
-	prehook, err := ep.hookRunPart(actionType, action)
+func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
+	prehook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
 	if err != nil {
 		return fmt.Errorf("prehook: %w", err)
 	}
@@ -120,8 +150,8 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action string) error {
 	return nil
 }
 
-func (ep *EntryPoint) PostHookRunPart(actionType, action string) error {
-	posthook, err := ep.hookRunPart(actionType, action)
+func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
+	posthook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
 	if err != nil {
 		return fmt.Errorf("posthook: %w", err)
 	}
@@ -145,7 +175,7 @@ func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) err
 	if action == ResetPB {
 		script = KubeconfReset
 	}
-	posthook, err := ep.hookRunPart(SHAction, script)
+	posthook, err := ep.hookRunPart(SHAction, script, "", false)
 	if err != nil {
 		return fmt.Errorf("posthook: %w", err)
 	}
@@ -155,23 +185,11 @@ func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) err
 
 func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	if actionType == PBAction {
-		if _, ok := ep.Playbooks[action]; !ok {
-			return fmt.Errorf("unknown kubespray playbook: %s", action)
+		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
+		if err != nil {
+			return fmt.Errorf("buildPlaybookCmd: %w", err)
 		}
-		ep.SprayCMD = "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
-		if isPrivateKey {
-			ep.SprayCMD = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", ep.SprayCMD)
-		}
-		if action == ResetPB {
-			ep.SprayCMD = fmt.Sprintf("%s -e \"reset_confirmation=yes\"", ep.SprayCMD)
-		}
-		if action == RemoveNodePB {
-			ep.SprayCMD = fmt.Sprintf("%s -e \"skip_confirmation=true\"", ep.SprayCMD)
-		}
-		ep.SprayCMD = fmt.Sprintf("%s /kubespray/%s", ep.SprayCMD, action)
-		if len(extraArgs) > 0 {
-			ep.SprayCMD = fmt.Sprintf("%s %s", ep.SprayCMD, extraArgs)
-		}
+		ep.SprayCMD = playbookCmd
 	} else if actionType == SHAction {
 		ep.SprayCMD = action
 	} else {

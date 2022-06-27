@@ -66,8 +66,12 @@ type ClusterSpec struct {
 }
 
 type HookAction struct {
+	// +required
 	ActionType ActionType `json:"actionType"`
-	Action     string     `json:"action"`
+	// +required
+	Action string `json:"action"`
+	// +optional
+	ExtraArgs string `json:"extraArgs"`
 }
 
 type ClusterOpsStatus string

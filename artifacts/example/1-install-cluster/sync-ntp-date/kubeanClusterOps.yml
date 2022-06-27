@@ -1,0 +1,12 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: sync-ntp-date
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: release-ci.daocloud.io/kubean-ci/spray-job:dev-2.19
+  backoffLimit: 0
+  actionType: playbook
+  action: ntpdate.yml
