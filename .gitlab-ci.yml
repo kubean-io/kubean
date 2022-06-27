@@ -36,7 +36,7 @@ static_check:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   tags:
-    - k8s
+    - docker
   stage: verify
   script:
     - golangci-lint run --timeout=10m && echo "pass" || exit 1
@@ -57,6 +57,8 @@ unit_test:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
   stage: test
+  tags:
+    - docker
   script:
     - make test
   interruptible: true
