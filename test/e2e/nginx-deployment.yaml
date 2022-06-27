@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx-deployment1
+  namespace: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: docker.m.daocloud.io/nginx:alpine
+        ports:
+        - containerPort: 80
+        name: nginx
+      tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "nginx"
+        effect: "NoSchedule"
