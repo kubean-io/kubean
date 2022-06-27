@@ -8,9 +8,9 @@ data:
     all:
       hosts:
         node1:
-          ip: 10.6.127.12
-          access_ip: 10.6.127.12
-          ansible_host: 10.6.127.12
+          ip: 10.6.127.11
+          access_ip: 10.6.127.11
+          ansible_host: 10.6.127.11
           ansible_connection: ssh
           ansible_user: root
           ansible_ssh_pass: dangerous

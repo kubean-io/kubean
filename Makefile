@@ -131,6 +131,10 @@ test:
 e2e-test:
 	bash hack/e2e.sh "$(KUBEAN_VERSION)" "${KUBEAN_IMAGE_VERSION}" "${HELM_REPO}" "${REGISTRY_REPO}"
 
+.PHONY: nightly-e2e-test
+nightly-e2e-test:
+	bash hack/run-nightly-e2e.sh "$(KUBEAN_VERSION)" "${KUBEAN_IMAGE_VERSION}" "${HELM_REPO}" "${REGISTRY_REPO}"
+
 .PHONY: clear-kind
 clear-kind:
 	bash hack/delete-kind-cluster.sh
