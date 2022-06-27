@@ -21,7 +21,7 @@ variables:
   GET_SOURCES_ATTEMPTS: 3
 
 stages:
-  - verify
+  - verify 
   # - test
   # - gitpages
   # - build
