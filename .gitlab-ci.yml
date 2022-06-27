@@ -28,6 +28,7 @@ stages:
   - build
   - security-scanning
   - e2e-test
+  - nightly-test
   - cd
   - independent_job
 
@@ -54,15 +55,16 @@ verify_import_alias:
 unit_test:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
   stage: test
   script:
     - make test
   interruptible: true
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
-e2e_test:
+e2e_test: # pre PR e2e
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   tags:
@@ -75,6 +77,23 @@ e2e_test:
     - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
     - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
     - make e2e-test
+  interruptible: true
+
+nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
+  stage: nightly-test
+  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
+  tags:
+    - kubean-e2e
+  before_script:
+    # double-check the kind cluster was deleted
+    - make clear-kind
+  script:
+    - export REGISTRY_REPO="release-ci.daocloud.io/kubean"
+    - export REGISTRY_SERVER_ADDRESS="release-ci.daocloud.io"
+    - export HELM_REPO="https://release-ci.daocloud.io/chartrepo/kubean"
+    - make nightly-e2e-test
   interruptible: true
 
 # pages:
@@ -100,6 +119,7 @@ e2e_test:
 build_to_release_ci:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"  || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
   retry:
     max: 2
   tags:
@@ -118,7 +138,7 @@ build_to_release_ci:
 
 security-scanning:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "security"'
   retry:
     max: 2
   tags:
@@ -152,7 +172,7 @@ build_to_release:
 
 cd_to_dev_site:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $SCHEDULE_TYPE == "build_ui"'
   image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.8
   retry:
     max: 2

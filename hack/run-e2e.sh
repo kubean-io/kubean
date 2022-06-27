@@ -19,6 +19,6 @@ GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 
 # Run e2e
-ginkgo -v -race --fail-fast ./test/e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
+ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
 
 
