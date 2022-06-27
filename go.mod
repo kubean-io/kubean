@@ -3,7 +3,7 @@ module github.com/daocloud/kubean
 go 1.17
 
 require (
-	github.com/golang/mock v1.5.0
+	github.com/golang/mock v1.6.0
 	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.18.1
 	github.com/russross/blackfriday/v2 v2.1.0
