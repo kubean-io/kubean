@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+   app: nginx
+  name: nginx-deployment1
+  namespace: nginx
+spec:
+  ports:
+  - port: 9000
+    name: nginx-service80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 31090
+  selector:
+    app: nginx
+  type: NodePort
