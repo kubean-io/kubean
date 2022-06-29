@@ -1,0 +1,9 @@
+kind: test
+area: controller
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/63
+
+releaseNotes:
+  - |
+    **优化**  `更新 e2e 测试流程分为Pre PR E2E/Nightly E2E Test; 其中Pre PR E2E用时小于3min, Nightly E2E Test用时小于60min`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/103

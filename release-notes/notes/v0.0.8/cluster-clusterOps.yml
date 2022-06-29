@@ -1,0 +1,34 @@
+kind: feature
+area: controller
+
+issues:
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/11
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/22
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/26
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/27
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/32
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/42
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/48
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/50
+  - https://gitlab.daocloud.cn/ndx/engineering/kubean/-/issues/52
+
+
+releaseNotes:
+  - |
+    **修复** `fix update status of clusterOps`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/79
+  - |
+    **新增** 调研验证 CNI 支持(calico 和 Cilium)  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/86
+  - |
+    **新增** `group_vars参数梳理` https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/98
+  - |
+    **新增** `master节点 LCM验证` https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/100
+  - |
+    **新增** `确保同属kubeanCluster的多个kubeanClusterOps对应的Job串行运行`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/101
+  - |
+    **新增** `集群部署完成通过 posthook 回传 kubeconfig 到 kubeanCluster`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/88
+  - |
+    **修复** `修复 clusterOps action 无法支持 shell 模式`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/91
+  - |
+    **优化** `Prehook 网络检测，关闭防火墙等，采用 ansible playbook 方式`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/102
+  - |
+    **新增** `etcd 节点 LCM 验证`  https://gitlab.daocloud.cn/ndx/engineering/kubean/-/merge_requests/112
