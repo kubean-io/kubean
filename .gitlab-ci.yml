@@ -177,7 +177,7 @@ build_to_release:
 
 cd_to_dev_site:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" && $SCHEDULE_TYPE == "build_ui"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
   image: release-ci.daocloud.io/common-ci/common-ci-deployer:v0.1.15
   retry:
     max: 2
