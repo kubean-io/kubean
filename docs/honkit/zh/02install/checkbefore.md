@@ -28,7 +28,7 @@
 | CPU 要求       | CPU ≥ 4 Cores                                                | 8 Cores  |                                                              |
 | 内存要求<br /> | 内存 ≥ 1.5G                                                  | 4G       |                                                              |
 | 磁盘           | 至少需要两块磁盘：<br />一块系统盘<br />一块数据盘（用于 overlay2 模式，可用容量至少为 100 GB） |          | 用于 Docker Storage 的 overlay2 模式。<br />在 CentOS/Redhat 生产环境下必须具备，Ubuntu 不需要。 |
-| 网卡           | 至少 1 张网卡                                                |          |                                                              |
+| 网卡           | 至少 1 张网卡                                                |          |                                                              |               |
 
 **工作节点**
 
@@ -39,5 +39,5 @@
 | CPU 要求 | CPU ≥ 4 Cores                                                | 8 Cores  |                                                              |
 | 内存要求 | 内存 ≥ 1.5G                                                  | 4G       |                                                              |
 | 磁盘     | 至少需要两块磁盘：<br />一块系统盘<br />一块数据盘（用于 overlay2 模式，可用容量至少为 100 GB） |          | 用于 Docker Storage 的 overlay2 模式。<br />在 CentOS/Redhat 生产环境下必须具备，Ubuntu 不需要。 |
-| 网卡     | 至少 1 张网卡                                                |          |                                                              |
+| 网卡     | 至少 1 张网卡                                                |          |                                                              |               |
 
