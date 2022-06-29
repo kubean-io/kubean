@@ -29,13 +29,13 @@
 **控制器节点**
 
 | 硬件要求       | 要求                                                         | 生产推荐 | 备注                                                         |
-| -------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| -------------- | ------------------------------------------------------------ | -------- | -----------------------------------------------------|
 | 系统版本       | 1. **Debian** Bullseye, Buster, Jessie, Stretch <br />2.**Ubuntu** 16.04, 18.04, 20.04, 22.04 <br />3. **CentOS/RHEL** 7, [8](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/centos.md#centos-8)<br />4. **Fedora** 34, 35<br />5. **Fedora CoreOS** (see [fcos Note](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/fcos.md)) <br />6. **openSUSE** Leap 15.x/Tumbleweed <br />7.**Oracle Linux** 7, [8](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/centos.md#centos-8) <br /> |          |                                                              |
 | CPU 架构       | X86 架构<br/>ARM 架构                                        |          |                                                              |
 | CPU 要求       | CPU ≥ 4 Core                                                 | 8 Core   |                                                              |
 | 内存要求<br /> | 内存≥ 1.5 G                                                  | 4G       |                                                              |
 | 磁盘           | 至少两块磁盘：<br />一块系统盘<br />一块数据盘（用于 overlay2 模式，可用容量至少 100 GB） |          | 用于 Docker Storage 的 overlay2 模式。<br />CentOS/Redhat 生产环境必须具备，Ubuntu 不需要。 |
-| 网卡           | 至少 1 张网卡                                                |          |                                                              |
+| 网卡           | 至少 1 张网卡                                                |          |                                                              |               |
 
 **工作节点**
 
@@ -46,5 +46,6 @@
 | CPU 要求       | CPU ≥ 4 Core                                                 | 8 Core   |                                                              |
 | 内存要求<br /> | 内存≥ 1.5 G                                                  | 4G       |                                                              |
 | 磁盘           | 至少两块磁盘：<br />一块系统盘<br />一块数据盘（用于 overlay2 模式，可用容量至少 100 GB） |          | 用于 Docker Storage 的 overlay2 模式。<br />CentOS/Redhat 生产环境必须具备，Ubuntu 不需要。 |
-| 网卡           | 至少 1 张网卡                                                |          |                                                              |
+| 网卡           | 至少 1 张网卡                                                |          |                                                              |              |
+
 
