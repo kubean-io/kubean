@@ -5,7 +5,8 @@
 # 大纲目录
 
 * [Release Notes](00Releases/README.md)
-  * [Release 0.1](00Releases/0.1.md)
+  * [Release 0.0.6](00Releases/0.0.6.md)
+  * [Release 0.0.8](00Releases/0.0.8.md)
 * [产品介绍](01Intro/README.md)
   * [功能总览](01Intro/features.md)
   * [适用场景](01Intro/scenarios.md)
