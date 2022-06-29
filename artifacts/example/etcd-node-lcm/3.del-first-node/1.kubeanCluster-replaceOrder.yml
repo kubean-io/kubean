@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-hosts-conf
+  name: cluster-dfn-hosts-conf
   namespace: kubean-system
 data:
   hosts.yml: |
@@ -46,22 +46,22 @@ data:
           ansible_ssh_pass: daocloud
       children:
         kube_control_plane:
-          hosts:
-            master1:
+          hosts: 
             master2:
             master3:
+            master1:
         kube_node:
           hosts:
-            master1:
             master2:
             master3:
+            master1:
             node1:
             node2:
         etcd:
           hosts:
-            master1:
             master2:
             master3:
+            master1:
         k8s_cluster:
           children:
             kube_control_plane:
@@ -74,7 +74,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-vars-conf
+  name: cluster-dfn-vars-conf
   namespace: kubean-system
 data:
   group_vars.yml: |
@@ -129,13 +129,28 @@ data:
 apiVersion: kubeancluster.kubean.io/v1alpha1
 kind: KuBeanCluster
 metadata:
-  name: cluster1
+  name: cluster-dfn
   labels:
-    clusterName: cluster1
+    clusterName: cluster-dfn
 spec:
   hostsConfRef:
     namespace: kubean-system
-    name: cluster1-hosts-conf
+    name: cluster-dfn-hosts-conf
   varsConfRef:
     namespace: kubean-system
-    name: cluster1-vars-conf
+    name: cluster-dfn-vars-conf
+
+---
+
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster-dfn-1-replace-order
+  labels:
+    clusterName: cluster-dfn
+spec:
+  kuBeanCluster: cluster-dfn
+  image: release-ci.daocloud.io/kubean-ci/spray-job:dev-2.19
+  backoffLimit: 0
+  actionType: playbook
+  action: upgrade-cluster.yml

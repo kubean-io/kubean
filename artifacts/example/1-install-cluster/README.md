@@ -19,10 +19,12 @@ spec:
 以下参数参考开叔的 [customize.yml](https://gist.github.com/yankay/a863cf2e300bff6f9040ab1c6c58fbae#file-k8s-customize-yml)
 ```yaml
 # Normal
-kube_version: "v1.21.6"
+kube_version: "v1.23.7"
 cluster_name: kubean.cluster
-container_manager: docker
+container_manager: containerd
 kube_network_plugin: calico
+kube_network_plugin_multus: false
+auto_renew_certificates: true
 
 override_system_hostname: false
 kube_proxy_mode: iptables
