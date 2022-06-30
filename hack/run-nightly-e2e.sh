@@ -42,6 +42,10 @@ clean_up(){
 ###### nightly e2e logic ########
 
 trap clean_up EXIT
+
+vagrant snapshot restore default e2e_vm_initial
+vagrant status
+
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${IMG_REPO}/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
 KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
