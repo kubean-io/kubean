@@ -1,0 +1,38 @@
+site_name: kubean
+docs_dir: ./
+nav:
+- Release Notes:
+  - Release0.0.6: 00Releases/0.0.6.md
+  - Release0.0.8: 00Releases/0.0.8.md
+- 产品介绍:
+  - 功能总览: 01Intro/features.md
+  - 适用场景: 01Intro/scenarios.md
+  - 常见术语: 01Intro/terms.md
+- 准备及集群创建:
+  - 创建前准备: 02install/checkbefore.md
+  - 创建步骤: 02install/install.md
+  - 创建后检查: 02install/checkafter.md
+- 用户指南:
+  - 集群管理:
+    - 集群说明: 03userguide/clusters/description.md
+    - 创建标准集群: 03userguide/clusters/create-standard.md
+    - 创建标准集群: 03userguide/clusters/create-resilient.md
+    - 升级集群: 03userguide/clusters/upgrade.md
+    - 扩展集群: 03userguide/clusters/extend.md
+    - 删除集群: 03userguide/clusters/delete.md
+    - 通过 CloudShell 访问集群: 03userguide/clusters/cloudshell.md
+    - 更新集群证书: 03userguide/clusters/updatecert.md
+  - 节点管理:
+    - 集群节点扩容: 03userguide/nodes/create.md
+    - 集群节点缩容: 03userguide/nodes/delete.md
+    - 节点污点管理: 03userguide/nodes/taints.md
+    - 节点标签管理: 03userguide/nodes/labels.md
+  - 支持的组件: 
+    - 运行时插件 CRI: 03userguide/components/cri.md
+    - 网络插件: 03userguide/components/network.md
+  - 集群组件高可用: 03userguide/ha.md
+  - 安装运维日志: 03userguide/log.md
+  - 审计日志: 03userguide/audit.md
+- API文档: 04API/README.md
+- 常见问题: 05FAQs/README.md
+- 故障排查: 06Troubleshooting/README.md
