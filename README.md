@@ -1,5 +1,7 @@
 # KuBean
 
+![kubean-best-practice](https://gitlab.daocloud.cn/ndx/best-practice/-/raw/main/badges/kubean.svg)
+
 KuBean是一款用于自动化安装k8s集群的工具
 
 # CRD
