@@ -129,7 +129,7 @@ nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
 #   interruptible: true
 
 build_to_release_ci:
-  image: release-ci.daocloud.io/cicd/docker-test:v20.10.16
+  image: release-ci.daocloud.io/cicd/e2e-test:v20.10.16
   retry:
     max: 2
   tags:
