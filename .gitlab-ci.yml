@@ -138,7 +138,7 @@ build_to_release_ci:
     - docker:20.10.16-dind
   tags:
     - dind
-  variables:
+  variables: 
     DOCKER_HOST: tcp://docker:2375
     #
     # This instructs Docker not to start over TLS.
