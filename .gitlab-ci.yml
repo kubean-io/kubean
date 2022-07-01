@@ -79,8 +79,6 @@ e2e_test: # pre PR e2e
     #
     # This instructs Docker not to start over TLS.
     DOCKER_TLS_CERTDIR: ""
-  tags:
-    - dind
   before_script:
     - docker info
     # double-check the kind cluster was deleted
