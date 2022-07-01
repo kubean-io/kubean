@@ -69,6 +69,7 @@ unit_test:
 e2e_test: # pre PR e2e
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   stage: e2e-test
   services:
     - docker:20.10.16-dind
