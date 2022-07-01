@@ -70,7 +70,6 @@ e2e_test: # pre PR e2e
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
-  image: release-ci.daocloud.io/cicd/e2e-test:v20.10.16
   services:
     - docker:20.10.16-dind
   tags:
@@ -142,8 +141,6 @@ build_to_release_ci:
     #
     # This instructs Docker not to start over TLS.
     DOCKER_TLS_CERTDIR: ""
-  tags:
-    - dind
   before_script:
     - docker info #override the global before_script
   stage: build
