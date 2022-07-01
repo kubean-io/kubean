@@ -76,7 +76,10 @@ e2e_test: # pre PR e2e
   tags:
     - dind
   variables:
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2375
+    #
+    # This instructs Docker not to start over TLS.
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     # double-check the kind cluster was deleted
     - docker info
