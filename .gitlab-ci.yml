@@ -70,7 +70,7 @@ e2e_test: # pre PR e2e
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
-  image: docker
+  image: docker:20.10.16
   services:
     - docker:20.10.16-dind
   tags:
