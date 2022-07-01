@@ -67,10 +67,10 @@ unit_test:
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
 e2e_test: # pre PR e2e
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
-  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
+  image: release-ci.daocloud.io/cicd/docker-test:v20.10.16
   services:
     - docker:20.10.11-dind
   tags:
@@ -126,10 +126,10 @@ nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
 #   interruptible: true
 
 build_to_release_ci:
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  #   - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
   image: docker:20.10.16
   retry:
     max: 2
