@@ -65,14 +65,14 @@ unit_test:
     - make test
   interruptible: true
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
-
+ 
 e2e_test: # pre PR e2e
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
   image: release-ci.daocloud.io/cicd/docker-test:v20.10.16
   services:
-    - docker:20.10.11-dind
+    - docker:20.10.16-dind
   tags:
     - dind
   variables:
