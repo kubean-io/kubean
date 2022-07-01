@@ -129,7 +129,6 @@ nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
 #   interruptible: true
 
 build_to_release_ci:
-  image: release-ci.daocloud.io/cicd/e2e-test:v20.10.16
   retry:
     max: 2
   tags:
@@ -138,7 +137,7 @@ build_to_release_ci:
     - docker:20.10.16-dind
   tags:
     - dind
-  variables: 
+  variables:
     DOCKER_HOST: tcp://docker:2375
     #
     # This instructs Docker not to start over TLS.
