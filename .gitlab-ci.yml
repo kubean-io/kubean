@@ -67,13 +67,24 @@ unit_test:
   coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
 
 e2e_test: # pre PR e2e
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
+  services:
+    - docker:20.10.16-dind
   tags:
-    - kubean-e2e
+    - dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
+    # double-check the kind cluster was deleted
+    - docker info
+    - make clear-kind
+  tags:
+    - dind
+  before_script:
+    - docker info
     # double-check the kind cluster was deleted
     - make clear-kind
   script:
@@ -88,8 +99,6 @@ nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "build_ui"'
   stage: nightly-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
-  tags:
-    - kubean-e2e
   before_script:
     # double-check the kind cluster was deleted
     - make clear-kind
