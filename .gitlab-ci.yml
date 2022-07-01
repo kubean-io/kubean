@@ -70,20 +70,13 @@ e2e_test: # pre PR e2e
   # rules:
   #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   stage: e2e-test
-  image: docker:20.10.16
+  image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   services:
     - docker:20.10.16-dind
   tags:
     - dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
-    #
-    # This instructs Docker not to start over TLS.
-    DOCKER_TLS_CERTDIR: ""
-  before_script:
-    # double-check the kind cluster was deleted
-    - docker info
-    - make clear-kind
+    DOCKER_TLS_CERTDIR: "/certs"
   tags:
     - dind
   before_script:
