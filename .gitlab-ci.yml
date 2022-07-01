@@ -74,7 +74,7 @@ e2e_test: # pre PR e2e
   services:
     - docker:20.10.16-dind
   tags:
-    - dind
+    - dind 
   variables:
     DOCKER_HOST: tcp://docker:2375
     #
