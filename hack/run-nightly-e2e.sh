@@ -21,6 +21,18 @@ EXIT_CODE=0
 
 CLUSTER_PREFIX=kubean-"${IMAGE_VERSION}"-$RANDOM
 
+local_helm_repo_alias="kubean_release"
+# add kubean repo locally
+repoCount=$(helm repo list | grep "${local_helm_repo_alias}" && repoCount=true || repoCount=false)
+if [ "$repoCount" == "true" ]; then
+    helm repo remove ${local_helm_repo_alias}
+else
+    echo "repoCount:" $repoCount
+fi
+helm repo add ${local_helm_repo_alias} ${HELM_REPO}
+helm repo update
+helm repo list
+
 chmod +x ./hack/delete-cluster.sh
 chmod +x ./hack/local-up-kindcluster.sh
 chmod +x ./hack/run-e2e.sh
