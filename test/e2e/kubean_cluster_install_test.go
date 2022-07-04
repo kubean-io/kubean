@@ -248,7 +248,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		service, err = kubeClient.CoreV1().Services("default").Create(context.TODO(), service, metav1.CreateOptions{})
 		fmt.Printf("Created service %q.\n", service.GetObjectMeta().GetName())
 
-		time.Sleep(20 * time.Second)
+		time.Sleep(30 * time.Second)
 		// check nginx request
 		nginxReq := "10.6.127.11:30090"
 		cmd := exec.Command("curl", nginxReq)
