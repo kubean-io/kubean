@@ -89,7 +89,7 @@ nightly_e2e_test: # 0 20 * * 1-5: every night 22 o'clock in monday~friday
   stage: nightly-test
   image: release-ci.daocloud.io/common-ci/common-ci-e2e:v0.1.14
   tags:
-    - kubean-e2e
+    - kubean-e2e-runner 
   before_script:
     # double-check the kind cluster was deleted
     - make clear-kind
