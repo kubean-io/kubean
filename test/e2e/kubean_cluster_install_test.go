@@ -10,6 +10,10 @@ import (
 	"github.com/daocloud/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+    apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -22,55 +26,55 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 	kubeClient, err := kubernetes.NewForConfig(config)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-	// ginkgo.Context("when reset a cluster", func() {
-	// 	clusterResetYamlsPath := "artifacts/example/e2e-rhel86-cluster/reset"
-	// 	kubeanNamespace := "kubean-system"
-	// 	kubeanClusterOpsName := "e2e-cluster1-reset"
+	ginkgo.Context("when reset a cluster", func() {
+		clusterResetYamlsPath := "artifacts/example/e2e-rhel86-cluster/reset"
+		kubeanNamespace := "kubean-system"
+		kubeanClusterOpsName := "e2e-cluster1-reset"
 
-	// 	// Create yaml for kuBean CR and related configuration
-	// 	resetYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterResetYamlsPath)
-	// 	cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", resetYamlPath)
-	// 	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-	// 	var out, stderr bytes.Buffer
-	// 	cmd.Stdout = &out
-	// 	cmd.Stderr = &stderr
-	// 	if err := cmd.Run(); err != nil {
-	// 		ginkgo.GinkgoWriter.Printf("reset cmd error: %s\n", err.Error())
-	// 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
-	// 	}
+		// Create yaml for kuBean CR and related configuration
+		resetYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterResetYamlsPath)
+		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", resetYamlPath)
+		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
+		var out, stderr bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			ginkgo.GinkgoWriter.Printf("reset cmd error: %s\n", err.Error())
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
+		}
 
-	// 	// Check if the job and related pods have been created
-	// 	time.Sleep(30 * time.Second)
-	// 	pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-	// 		LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
-	// 	})
-	// 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get pod list")
-	// 	gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
-	// 	jobPodName := pods.Items[0].Name
+		// Check if the job and related pods have been created
+		time.Sleep(30 * time.Second)
+		pods, err := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
+		})
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get pod list")
+		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
+		jobPodName := pods.Items[0].Name
 
-	// 	// Wait for job-related pod status to be succeeded
-	// 	for {
-	// 		pod, err := kubeClient.CoreV1().Pods(kubeanNamespace).Get(context.Background(), jobPodName, metav1.GetOptions{})
-	// 		ginkgo.GinkgoWriter.Printf("* wait for reset job related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
-	// 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
-	// 		podStatus := string(pod.Status.Phase)
-	// 		if podStatus == "Succeeded" || podStatus == "Failed" {
-	// 			ginkgo.It("cluster podStatus should be Succeeded", func() {
-	// 				gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
-	// 			})
-	// 			break
-	// 		}
-	// 		time.Sleep(1 * time.Minute)
-	// 	}
-	// })
+		// Wait for job-related pod status to be succeeded
+		for {
+			pod, err := kubeClient.CoreV1().Pods(kubeanNamespace).Get(context.Background(), jobPodName, metav1.GetOptions{})
+			ginkgo.GinkgoWriter.Printf("* wait for reset job related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
+			podStatus := string(pod.Status.Phase)
+			if podStatus == "Succeeded" || podStatus == "Failed" {
+				ginkgo.It("cluster podStatus should be Succeeded", func() {
+					gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
+				})
+				break
+			}
+			time.Sleep(1 * time.Minute)
+		}
+	})
 
 	ginkgo.Context("when install a cluster", func() {
 		clusterInstallYamlsPath := "artifacts/example/e2e-rhel86-cluster/install"
 		kubeanNamespace := "kubean-system"
 		kubeanClusterOpsName := "e2e-cluster1-install"
-		remoteAddr := "10.6.127.21"
+		remoteAddr := "10.6.127.11"
 		remoteUser := "root"
-		remotePass := "root"
+		remotePass := "dangerous"
 		remoteKubeConfigPath := "/root/.kube/config"
 		localKubeConfigPath := "/root/.kube/cluster1-config"
 
@@ -132,11 +136,11 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
 		}
 
+		// Check if pods under kube-system namespace are running
 		k8ClusterConfig, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build clusterKubeClient config")
 		k8ClusterKubeClient, err := kubernetes.NewForConfig(k8ClusterConfig)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new clusterKubeClient set")
-		// Check if pods under kube-system namespace are running
 		kubepods, err := k8ClusterKubeClient.CoreV1().Pods("kube-system").List(context.Background(), metav1.ListOptions{})
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get pods in ns:kube-system")
 		for _, kubepod := range kubepods.Items {
@@ -147,7 +151,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		}
 
 		// Check if cluster nodes are ready
-		nodes, err := k8ClusterKubeClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+		nodes, err := kubeClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get nodes")
 		for _, node := range nodes.Items {
 			ginkgo.GinkgoWriter.Printf("node[%s] status: %s\n", node.Name, node.Status.Conditions[len(node.Status.Conditions)-1].Type)
@@ -158,61 +162,108 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 	})
 
 	ginkgo.Context("when install nginx service", func() {
-		nginxReq := "10.6.127.21:31090"
 		localKubeConfigPath := "/root/.kube/cluster1-config"
-		nignxNSYml := "test/e2e/nginx-namespace.yaml"
-		nignxDSYml := "test/e2e/nginx-deployment.yaml"
-		nignxSVCYml := "test/e2e/nginx-service.yaml"
 
-		//deploy nginx demo namespace, deployment and service
-		cmd := exec.Command("kubectl", "--kubeconfig="+localKubeConfigPath, "apply", "-f", fmt.Sprint(tools.GetKuBeanPath(), nignxNSYml))
-		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-		output, err := cmd.Output()
-		if err != nil {
-			fmt.Println("nignxNSYml exec Error:", err)
+		config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+		kubeClient, err = kubernetes.NewForConfig(config)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
+
+		//Create Depployment
+		deployment := &appsv1.Deployment{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "nginx-deployment",
+			},
+			Spec: appsv1.DeploymentSpec{
+				//Replicas: int32Ptr(1),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: map[string]string{
+						"app": "nginx",
+					},
+				},
+				Template: apiv1.PodTemplateSpec{
+					ObjectMeta: metav1.ObjectMeta{
+						Labels: map[string]string{
+							"app": "nginx",
+						},
+					},
+					Spec: apiv1.PodSpec{
+						Containers: []apiv1.Container{
+							{
+								Name: "nginx",
+								Image: "docker.m.daocloud.io/nginx:alpine",
+								ImagePullPolicy: "IfNotPresent",
+								Ports: []apiv1.ContainerPort{
+									{
+										Name: "http",
+										Protocol: apiv1.ProtocolTCP,
+										ContainerPort: 80,
+									},
+								},
+							},
+						},
+					},
+	 
+				},
+			},
 		}
-		fmt.Println("nignxNSYml exec: ", string(output))
-
-		cmd = exec.Command("kubectl", "--kubeconfig="+localKubeConfigPath, "apply", "-f", fmt.Sprint(tools.GetKuBeanPath(), nignxDSYml))
-		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-		output, err = cmd.Output()
-		if err != nil {
-			fmt.Println("nignxDSYml exec Error:", err)
+		fmt.Println("Creating nginx deployment...")
+		deploymentName := deployment.ObjectMeta.Name
+		deploymentClient := kubeClient.AppsV1().Deployments(apiv1.NamespaceDefault)
+		if _, err = deploymentClient.Get(context.TODO(), deploymentName, metav1.GetOptions{}); err !=nil {
+			if !errors.IsNotFound(err){
+				fmt.Println(err)
+				return
+			}
+			result, err := deploymentClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
+			if err != nil {
+				panic(err)
+			}
+			fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 		}
-		fmt.Println("nignxDSYml exec: ", string(output))
-
-		cmd = exec.Command("kubectl", "--kubeconfig="+localKubeConfigPath, "apply", "-f", fmt.Sprint(tools.GetKuBeanPath(), nignxSVCYml))
-		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-		output, err = cmd.Output()
-		if err != nil {
-			fmt.Println("nignxSVCYml exec Error:", err)
+		
+		service := &apiv1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "nginx-svc",
+				Labels: map[string]string{
+					"app": "nginx",
+				},
+			},
+			Spec: apiv1.ServiceSpec{
+				Selector: map[string]string{
+					"app": "nginx",
+				},
+				Type: apiv1.ServiceTypeNodePort,
+				Ports: []apiv1.ServicePort{
+					{
+						Name:     "http",
+						Port:     80,
+						Protocol: apiv1.ProtocolTCP,
+						NodePort: 30090,
+					},
+				},
+			},
 		}
-		fmt.Println("nignxSVCYml exec: ", string(output))
+		fmt.Println("Creating nginx service...")
+		service, err = kubeClient.CoreV1().Services("default").Create(context.TODO(), service, metav1.CreateOptions{})
+		fmt.Printf("Created service %q.\n", service.GetObjectMeta().GetName())
 
-		time.Sleep(1 * time.Minute)
-
-		// check nginx svc config
-		config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build clusterKubeClient config")
-		clusterKubeClient, err := kubernetes.NewForConfig(config)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new clusterKubeClient set")
-		nginxSVC, err := clusterKubeClient.CoreV1().Services("nginx").Get(context.TODO(), "nginx-deployment1", metav1.GetOptions{})
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get nginxSVC")
-		ginkgo.It("nginx service type should be NodePort", func() {
-			gomega.Expect(string(nginxSVC.Spec.Type)).To(gomega.Equal("NodePort"))
-		})
-
+		time.Sleep(20 * time.Second)
 		// check nginx request
-		cmd = exec.Command("curl", nginxReq)
+		nginxReq := "10.6.127.11:30090"
+		cmd := exec.Command("curl", nginxReq)
 		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-		output, err = cmd.Output()
-		if err != nil {
-			fmt.Println("curl nginx exec Error:", err)
+		var out, stderr bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		fmt.Println("curl nginx exec: ", out.String())
+		if err := cmd.Run(); err != nil {
+			ginkgo.GinkgoWriter.Printf("curl cmd error: %s\n", err.Error())
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
 		}
-		fmt.Println("curl nginx exec: ", string(output))
+
 		ginkgo.It("nginx service can be request", func() {
-			gomega.Expect(string(output)).Should(gomega.ContainSubstring("Welcome to nginx!"))
+			gomega.Expect(out.String()).Should(gomega.ContainSubstring("Welcome to nginx!"))
 		})
 	})
-
 })
