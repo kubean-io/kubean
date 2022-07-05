@@ -56,9 +56,9 @@ clean_up(){
 trap clean_up EXIT
 
 ###### for future use ########
-# vagrant halt defaul
-# vagrant snapshot restore default e2e_vm_initial
-# vagrant status
+vagrant halt default
+vagrant snapshot restore default e2e_vm_initial
+vagrant status
 
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${IMG_REPO}/kindest-node:v1.21.1" "${CLUSTER_PREFIX}"-host
 
