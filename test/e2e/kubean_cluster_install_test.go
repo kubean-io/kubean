@@ -210,7 +210,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		deploymentName := deployment.ObjectMeta.Name
 		deploymentClient := kubeClient.AppsV1().Deployments(corev1.NamespaceDefault)
 		if _, err = deploymentClient.Get(context.TODO(), deploymentName, metav1.GetOptions{}); err != nil {
-			if !errors.IsNotFound(err) {
+			if !apierrors.IsNotFound(err) {
 				fmt.Println(err)
 				return
 			}
