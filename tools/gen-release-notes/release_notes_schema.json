@@ -1,0 +1,74 @@
+{
+    "$id": "mspider/release-notes/v2",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "Defines an individual Mspider release note",
+    "type": "object",
+    "anyOf": [
+        {
+            "required": [
+                "releaseNotes"
+            ]
+        },
+        {
+            "required": [
+                "securityNotes"
+            ]
+        }
+    ],
+    "required": [
+        "kind",
+        "area"
+    ],
+    "properties": {
+        "kind": {
+            "type": "string",
+            "enum": [
+                "bug-fix",
+                "feature",
+                "security-fix",
+                "test"
+            ]
+        },
+        "area": {
+            "type": "string",
+            "enum": [
+                "api",
+                "api-service",
+                "work-api",
+                "infrastructure",
+                "controller",
+                "external",
+                "installation",
+                "cli",
+                "documentation"
+            ]
+        },
+        "issues": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "integer",
+                    "string"
+                ]
+            }
+        },
+        "jiras": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "releaseNotes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "securityNotes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{{- $name := include "kubean.name" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kubean.fullname" . }}-config
+  namespace: {{ include "kubean.namespace" . }}
+  labels:
+  {{- include "kubean.labels" . | nindent 4}}
+data:
+  BACKEND_LIMIT: "10"

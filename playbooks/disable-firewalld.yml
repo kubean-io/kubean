@@ -1,0 +1,4 @@
+---
+- import_playbook: contrib/os-services/os-services.yml
+  vars:
+    disable_service_firewall: true

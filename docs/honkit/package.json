@@ -1,0 +1,30 @@
+{
+  "name": "@kpanda/book",
+  "version": "3.7.1",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "author": "kpanda",
+  "main": "index.js",
+  "scripts": {
+    "build": "honkit build",
+    "dev": "honkit serve",
+    "help": "honkit --help"
+  },
+  "devDependencies": {
+    "honkit": "^3.7.1",
+    "gitbook-plugin-anchor-navigation-ex": "^1.0.14",
+    "gitbook-plugin-anchors": "^0.7.1",
+    "gitbook-plugin-back-to-top-button": "^0.1.4",
+    "gitbook-plugin-chapter-fold": "^0.0.4",
+    "gitbook-plugin-code": "^0.1.0",
+    "gitbook-plugin-donate": "^1.0.2",
+    "gitbook-plugin-expandable-chapters": "^0.2.0",
+    "gitbook-plugin-expandable-chapters-small": "^0.1.7",
+    "gitbook-plugin-flexible-alerts": "^1.0.3",
+    "gitbook-plugin-hide-element": "^0.0.4",
+    "gitbook-plugin-tbfed-pagefooter": "^0.0.1",
+    "gitbook-plugin-todo": "^0.1.3"
+  }
+}

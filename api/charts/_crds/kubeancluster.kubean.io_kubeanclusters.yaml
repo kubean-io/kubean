@@ -1,0 +1,130 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.6.2
+  creationTimestamp: null
+  name: kubeanclusters.kubeancluster.kubean.io
+spec:
+  group: kubeancluster.kubean.io
+  names:
+    kind: KuBeanCluster
+    listKind: KuBeanClusterList
+    plural: kubeanclusters
+    singular: kubeancluster
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: KuBeanCluster represents the desire state and status of a member
+          cluster.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterSpec defines the desired state of a member cluster.
+            properties:
+              hostsConfRef:
+                description: HostsConfRef stores hosts.yml.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+              kubeconfRef:
+                description: KubeConfRef stores cluster kubeconfig.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+              sshAuthRef:
+                description: SSHAuthRef stores ssh key and if it is empty ,then use
+                  sshpass.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+              varsConfRef:
+                description: VarsConfRef stores group_vars.yml.
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
+            required:
+            - hostsConfRef
+            - varsConfRef
+            type: object
+          status:
+            description: ClusterStatus contains information about the current status
+              of a cluster updated periodically by cluster controller.
+            properties:
+              conditions:
+                items:
+                  properties:
+                    clusterOps:
+                      description: ClusterOps refers to the name of KuBeanClusterOps.
+                      type: string
+                    endTime:
+                      format: date-time
+                      type: string
+                    startTime:
+                      format: date-time
+                      type: string
+                    status:
+                      type: string
+                  required:
+                  - clusterOps
+                  type: object
+                type: array
+            required:
+            - conditions
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
