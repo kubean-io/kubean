@@ -31,6 +31,7 @@ jobs:
           args: --timeout=10m
 
   unit-test:
+    needs: static-check
     runs-on: ubuntu-latest
     permissions:
       packages: write
