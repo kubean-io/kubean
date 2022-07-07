@@ -11,7 +11,7 @@ env:
   SPRAY_JOB_IMAGE_NAME: spray-job
   KUBESPRAY_TAG: latest
 jobs:
-  main:
+  static check:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -33,8 +33,35 @@ jobs:
           version: v1.46.2
           args: --timeout=10m
 
+  unit test:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+
       - name: unit test
-        run: make test
+        run: |make test
+              curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov
+
+  build push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Log in to registry
         # This is where you will update the PAT to GITHUB_TOKEN
