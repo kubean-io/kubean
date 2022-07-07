@@ -8,7 +8,7 @@ on:
       - reopened
 
 jobs:
-  main:
+  pr:
     runs-on: ubuntu-latest
     permissions:
       contents: read
