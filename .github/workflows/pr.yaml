@@ -8,7 +8,7 @@ on:
       - reopened
 
 jobs:
-  static check:
+  static-check:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -30,7 +30,7 @@ jobs:
           version: v1.46.2
           args: --timeout=10m
 
-  unit test:
+  unit-test:
     runs-on: ubuntu-latest
     permissions:
       packages: write
