@@ -18,6 +18,7 @@ for (( i=0; i<${#PATH2TEST[@]}; i++)) do
     # TODO: if `cat $cov_file | grep -v mode: | grep -v zz_generated` outputs null
     # the script will abort and exit. we haven't found a good solution and therefore
     # disable the `set -o errexit` to wraping the statement
+    cat ${cov_file} >> coverage.txt
     set +o errexit
     bash -c "cat $cov_file | grep -v mode: | grep -v generated | grep -v zz_generated  >> ${mergeF}"
     set -o errexit
