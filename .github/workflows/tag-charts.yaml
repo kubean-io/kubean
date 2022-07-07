@@ -21,7 +21,7 @@ jobs:
         run: |
           VERSION=$(git describe --tags --abbrev=8 --dirty)
           VARIABLES="version: $VERSION"
-          sed -i "/^version/c $VARIABLES" charts/Chart.yaml
+          sed -i "/^version/c $VARIABLES" charts/kubean/Chart.yaml
 
       - name: Pushes charts to another repository
         id: push_directory
