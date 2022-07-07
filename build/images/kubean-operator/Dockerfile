@@ -1,4 +1,4 @@
-FROM release-ci.daocloud.io/docker/golang:1.17.3 as build
+FROM golang:1.17.3 as build
 
 WORKDIR /kubean
 
@@ -9,7 +9,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -mod vendor -o kubean-operator ./cmd/kubean-operator/main.go
 
-FROM release-ci.daocloud.io/docker/alpine:3.15
+FROM alpine:3.15
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
