@@ -1,4 +1,4 @@
-name: Release Charts
+name: tag-charts
 
 on:
   push:
