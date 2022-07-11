@@ -1,5 +1,5 @@
-ARG spray_tag
-FROM ghcr.io/kubean-io/kubean/kubean-operator:$spray_tag
+ARG spray_tag=master
+FROM ghcr.io/kubean-io/kubean/kubespray:$spray_tag
 
 WORKDIR /kubespray
 

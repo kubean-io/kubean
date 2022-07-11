@@ -9,7 +9,7 @@ env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
-  KUBESPRAY_TAG: latest
+  KUBESPRAY_TAG: master
 jobs:
   static-check:
     runs-on: ubuntu-latest
@@ -89,23 +89,6 @@ jobs:
           docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:latest
           docker push $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:latest
-
-      # - name: kubespray Build image
-      #   run: docker build . --file ./build/images/kubespray/Dockerfile --tag $KUBESPRAY_IMAGE_NAME
-      #
-      # - name: kubespray Push image
-      #   run: |
-      #     IMAGE_ID=ghcr.io/${{ github.repository }}/$KUBESPRAY_IMAGE_NAME
-      #     # Change all uppercase to lowercase
-      #     IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-      #     # Strip git ref prefix from version
-      #     VERSION=$(git describe --tags --abbrev=8 --dirty)
-      #     echo IMAGE_ID=$IMAGE_ID
-      #     echo VERSION=$VERSION
-      #     docker tag $KUBESPRAY_IMAGE_NAME $IMAGE_ID:$VERSION
-      #     docker tag $KUBESPRAY_IMAGE_NAME $IMAGE_ID:latest
-      #     docker push $IMAGE_ID:$VERSION
-      #     docker push $IMAGE_ID:latest
 
       - name: spray-job Build image
         run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
