@@ -1,0 +1,8 @@
+---
+- hosts: k8s_cluster
+  gather_facts: false
+  become: yes
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Check the network reachability of each node
+      ansible.builtin.ping:
