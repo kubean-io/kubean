@@ -30,7 +30,7 @@ jobs:
           version: v1.46.2
           args: --timeout=10m
 
-  unit-test: 
+  unit-test:
     needs: static-check
     runs-on: ubuntu-latest
     permissions:
@@ -52,3 +52,23 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov
+
+  e2e:
+    needs: unit-test
+    runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+
+      - name: e2e
+        run: |
+          ls
