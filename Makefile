@@ -25,10 +25,7 @@ GOBIN         = $(shell go env GOPATH)/bin
 endif
 GOIMPORTS     = $(GOBIN)/goimports
 
-# Images management
-REGISTRY_SERVER_ADDRESS?="release-ci.daocloud.io"
-REGISTRY_REPO?="$(REGISTRY_SERVER_ADDRESS)/kubean-ci"
-HELM_REPO?="https://$(REGISTRY_SERVER_ADDRESS)/chartrepo/kubean-ci"
+
 API_PKG    := ./api
 
 # Parameter
