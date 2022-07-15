@@ -191,7 +191,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 						Containers: []corev1.Container{
 							{
 								Name:            "nginx",
-								Image:           "docker.m.daocloud.io/nginx:alpine",
+								Image:           "nginx:alpine",
 								ImagePullPolicy: "IfNotPresent",
 								Ports: []corev1.ContainerPort{
 									{
