@@ -1,4 +1,4 @@
-module github.com/daocloud/kubean
+module github.com/kubean-io/kubean
 
 go 1.17
 

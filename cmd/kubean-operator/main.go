@@ -7,7 +7,7 @@ import (
 	"k8s.io/component-base/logs"
 	"k8s.io/klog/v2"
 
-	"github.com/daocloud/kubean/cmd/kubean-operator/app"
+	"github.com/kubean-io/kubean/cmd/kubean-operator/app"
 )
 
 func main() {

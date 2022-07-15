@@ -7,11 +7,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/daocloud/kubean/pkg/controllers/cluster"
-	"github.com/daocloud/kubean/pkg/controllers/clusterops"
+	"github.com/kubean-io/kubean/pkg/controllers/cluster"
+	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
 
-	"github.com/daocloud/kubean/pkg/util"
-	"github.com/daocloud/kubean/pkg/version"
+	"github.com/kubean-io/kubean/pkg/util"
+	"github.com/kubean-io/kubean/pkg/version"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"

@@ -6,7 +6,7 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	componentbaseconfig "k8s.io/component-base/config"
 
-	"github.com/daocloud/kubean/pkg/util"
+	"github.com/kubean-io/kubean/pkg/util"
 )
 
 const (

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daocloud/kubean/pkg/util/entrypoint"
+	"github.com/kubean-io/kubean/pkg/util/entrypoint"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
