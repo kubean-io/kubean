@@ -14,10 +14,10 @@ ifeq ($(GIT_DIFF), 1)
 endif
 BUILDDATE = $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 
-LDFLAGS := "-X github.com/daocloud/kubean/pkg/version.gitVersion=$(GIT_VERSION) \
-            -X github.com/daocloud/kubean/pkg/version.gitCommit=$(GIT_COMMIT_HASH) \
-            -X github.com/daocloud/kubean/pkg/version.gitTreeState=$(GIT_TREESTATE) \
-            -X github.com/daocloud/kubean/pkg/version.buildDate=$(BUILDDATE)"
+LDFLAGS := "-X github.com/kubean-io/kubean/pkg/version.gitVersion=$(GIT_VERSION) \
+            -X github.com/kubean-io/kubean/pkg/version.gitCommit=$(GIT_COMMIT_HASH) \
+            -X github.com/kubean-io/kubean/pkg/version.gitTreeState=$(GIT_TREESTATE) \
+            -X github.com/kubean-io/kubean/pkg/version.buildDate=$(BUILDDATE)"
 
 GOBIN         = $(shell go env GOBIN)
 ifeq ($(GOBIN),)
