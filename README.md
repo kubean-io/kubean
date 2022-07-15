@@ -5,8 +5,7 @@ kubean is a cluster lifecycle management tool based on kubespray.
 
 # Installation
 
-refer to [installation](./docs/usage/install.md)
+helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 
 # Usage
-
-for quick start, refer to [demo](./docs/usage/demo.md)
