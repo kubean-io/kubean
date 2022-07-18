@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/daocloud/kubean/test/tools"
+	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
@@ -96,6 +96,24 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		})
 		defer ginkgo.GinkgoRecover()
 
+	})
+
+	// check kube-system pod status
+	ginkgo.Context("When fetching kube-system pods status", func() {
+		config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+		kubeClient, err = kubernetes.NewForConfig(config)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
+
+		podList, err := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check kube-system pod status")
+		ginkgo.It("every pod should be in running status", func() {
+			for _, pod := range podList.Items {
+				fmt.Println(pod.Name, string(pod.Status.Phase))
+				gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
+			}
+		})
+		defer ginkgo.GinkgoRecover()
 	})
 
 	ginkgo.Context("when install nginx service", func() {
