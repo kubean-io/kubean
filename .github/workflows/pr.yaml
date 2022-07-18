@@ -98,7 +98,7 @@ jobs:
           docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
-  e2e:
+  build-push-for-e2e:
     needs: unit-test
     runs-on: self-hosted
     permissions:
