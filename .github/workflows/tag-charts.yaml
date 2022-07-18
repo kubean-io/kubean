@@ -1,0 +1,38 @@
+name: tag-charts
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  charts:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: update-helm-version
+        run: |
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          VARIABLES="version: $VERSION"
+          sed -i "/^version/c $VARIABLES" charts/kubean/Chart.yaml
+
+      - name: Pushes charts to another repository
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@ssh-deploy-key
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: charts
+          destination-github-username: 'kubean-io'
+          destination-repository-name: 'kubean-helm-chart'
+          user-email: kubean-robot@ykubean.io
+          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          target-directory: charts
+          target-branch: main

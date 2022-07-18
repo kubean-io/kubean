@@ -1,0 +1,33 @@
+name: Kubespray Image Build CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      kubespray_branch:
+        description: "branch name"
+        required: true
+        default: "master"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+      with:
+        repository: kubernetes-sigs/kubespray
+        ref: ${{ github.event.inputs.kubespray_branch }}
+        path: ./kubespray
+    - name: Log in to registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+    - name: Set up Docker Buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        buildx-version: latest
+    - name: Build dockerfile (with push)
+      run: |
+        docker buildx build \
+        --platform=linux/amd64,linux/arm64 \
+        --output "type=image,push=true" \
+        --build-arg "KUBESPRAY_BRANCH=${{ github.event.inputs.kubespray_branch }}" \
+        --file ./build/images/kubespray/Dockerfile . \
+        --tag ghcr.io/${{ github.repository }}/kubespray:"${{ github.event.inputs.kubespray_branch }}"
