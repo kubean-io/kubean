@@ -53,6 +53,51 @@ jobs:
           chmod +x codecov
           ./codecov
 
+  build-push-for-e2e:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to registry
+        # This is where you will update the PAT to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: kubean-operator Build image
+        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+
+      - name: kubean-operator Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: spray-job Build image
+        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
+
+      - name: spray-job Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}/$SPRAY_JOB_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
   e2e:
     needs: unit-test
     runs-on: self-hosted
@@ -71,4 +116,6 @@ jobs:
 
       - name: e2e
         run: |
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
           ls
+
