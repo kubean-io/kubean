@@ -122,7 +122,7 @@ jobs:
 
       - name: e2e
         run: |
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          HELM_CHART_VERSION=`echo $VERSION|awk -F "-" '{print $1 }'`
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
           ls
 
