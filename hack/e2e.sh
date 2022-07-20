@@ -14,7 +14,7 @@ TARGET_VERSION=${1:-v0.0.0}
 IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
 IMG_REPO=${4:-"ghcr.io/kubean-io/kubean"}
-SPRAY_JOB_VERSION=${5:-"ghcr.io/kubean-io/kubean/spray-job:v0.0.1"}
+SPRAY_JOB_VERSION=${5:-v0.0.1}
 RUNNER_NAME=${6:-"kubean-actions-runner1"} 
 EXIT_CODE=0
 
