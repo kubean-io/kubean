@@ -19,6 +19,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
+	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
+	v1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 )
 
 var _ = ginkgo.Describe("e2e test cluster operation", func() {
@@ -76,6 +78,8 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		cluster1, err := clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), "cluster1", metav1.GetOptions{})
 		fmt.Println("Name:", cluster1.Spec.KubeConfRef.Name, "NameSpace:", cluster1.Spec.KubeConfRef.NameSpace)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get KuBeanCluster")
+
+
 
 		// get configmap
 		kubeClient, err := kubernetes.NewForConfig(config)
@@ -218,4 +222,27 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("Welcome to nginx!"))
 		})
 	})
+
+	// get KuBeanClusterOps to if validate hasModified: true
+	config, err = clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+	clusterClientOpsSet, err := kubeanClusterOpsClientSet.NewForConfig(config)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
+	clusterOpsName := "e2e-cluster1-install"
+	clusterOps, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+	fmt.Println("before patch KuBeanClusterOps.Spec.Action: ", clusterOps.Spec.Action)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check KuBeanClusterOps Spec.hasModified")
+	ginkgo.Context("when fetching KuBeanClusterOps", func() {
+		clusterOps.Spec.Action = "e2etest"
+		newClusterOps, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Update(context.Background(), clusterOps, metav1.UpdateOptions{})
+		fmt.Println(newClusterOps.Spec.Action)
+		ginkgo.It("KuBeanClusterOps.Spec.Action update success", func() {
+			gomega.Expect(err).Should(gomega.BeNil())
+			gomega.Expect(string(newClusterOps.Spec.Action)).Should(gomega.ContainSubstring("e2etest"))
+		})
+		ginkgo.It("KuBeanClusterOps.Status.hasModified should be true", func() {
+			gomega.Expect(newClusterOps.Status.HasModified).Should(gomega.BeTrue())
+		})
+	})
+
 })
