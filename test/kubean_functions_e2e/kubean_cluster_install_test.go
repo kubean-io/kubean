@@ -20,7 +20,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
 	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
-	v1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 )
 
 var _ = ginkgo.Describe("e2e test cluster operation", func() {
