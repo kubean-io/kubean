@@ -234,6 +234,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 	ginkgo.Context("when fetching KuBeanClusterOps", func() {
 		clusterOps.Spec.Action = "e2etest"
 		newClusterOps, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Update(context.Background(), clusterOps, metav1.UpdateOptions{})
+		time.Sleep(30 * time.Second)
 		fmt.Println(newClusterOps.Spec.Action)
 		ginkgo.It("KuBeanClusterOps.Spec.Action update success", func() {
 			gomega.Expect(err).Should(gomega.BeNil())
