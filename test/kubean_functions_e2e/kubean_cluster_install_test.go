@@ -240,9 +240,18 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			gomega.Expect(err).Should(gomega.BeNil())
 			gomega.Expect(string(newClusterOps.Spec.Action)).Should(gomega.ContainSubstring("e2etest"))
 		})
-		ginkgo.It("KuBeanClusterOps.Status.hasModified should be true", func() {
-			gomega.Expect(newClusterOps.Status.HasModified).Should(gomega.BeTrue())
-		})
+		for {
+			updatedClusterOps, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+			hasModified := updatedClusterOps.Status.HasModified
+			if hasModified {
+				ginkgo.It("KuBeanClusterOps.Status.hasModified should be true", func() {
+					gomega.Expect(hasModified).Should(gomega.BeTrue())
+				})
+				break
+			} else {
+				time.Sleep(10 * time.Second)
+			}
+		}
 	})
 
 })
