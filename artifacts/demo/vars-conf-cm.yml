@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster1-demo-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    container_manager: containerd
+    k8s_image_pull_policy: IfNotPresent
+    kube_network_plugin: calico
+    kube_network_plugin_multus: false
+    kube_proxy_mode: iptables
+    enable_nodelocaldns: false
+    etcd_deployment_type: host
+    override_system_hostname: false
+    
+    download_run_once: true
+    download_container: false
+    download_force_cache: true
+    download_localhost: true
+    

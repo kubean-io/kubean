@@ -3,10 +3,26 @@
 # Introduction
 kubean is a cluster lifecycle management tool based on kubespray.
 
-# Installation
+# Quick Start
 
+## Deploy Kubean-Operator
+
+```
 helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-
 helm install kubean kubean-io/kubean --create-namespace -n kubean-system
+```
 
-# Usage
+Then check kubean-operator status by `kubectl get pods -n kubean-system | grep 'kubean'`.
+
+## Start KuBeanClusterOps for cluster.yml playbook
+
+We cloud use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
+
+1. `cd artifacts`
+2. modify `demo/hosts-conf-cm.yml` by replacing `IP1`, `IP2`... with the real ip where we want to install k8s cluster
+3. `kubectl apply -f demo` to start kubeanClusterOps which will start the kubespray job
+4. `kubectl get job -n kubean-system` to check the kubespray job status
+
+# Offline Usage
+
+[offline](doc/offline.md)
