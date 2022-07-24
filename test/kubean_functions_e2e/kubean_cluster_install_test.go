@@ -1,4 +1,4 @@
-package e2e
+package kubeanOps_functions_e2e
 
 import (
 	"bytes"
@@ -77,8 +77,6 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		cluster1, err := clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), "cluster1", metav1.GetOptions{})
 		fmt.Println("Name:", cluster1.Spec.KubeConfRef.Name, "NameSpace:", cluster1.Spec.KubeConfRef.NameSpace)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get KuBeanCluster")
-
-
 
 		// get configmap
 		kubeClient, err := kubernetes.NewForConfig(config)

@@ -1,4 +1,4 @@
-package e2e
+package kubean_deploy_e2e
 
 import (
 	"context"

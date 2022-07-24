@@ -1,0 +1,13 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: e2e-cluster1-ops1
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: ghcr.io/kubean-io/kubean/spray-job:v0.0.1
+  backoffLimit: 0
+  actionType: shell
+  action: |
+    for i in {1..15}; do echo "hello kubean ops" && sleep 10; done
