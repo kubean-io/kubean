@@ -1,10 +1,11 @@
-package e2e
+package kubean_deploy_e2e
 
 import (
+	"testing"
+
 	"github.com/kubean-io/kubean/test/tools"
 	ginkgo "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"testing"
 )
 
 func init() {
