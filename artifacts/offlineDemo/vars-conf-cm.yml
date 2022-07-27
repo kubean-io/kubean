@@ -7,7 +7,7 @@ data:
   group_vars.yml: |
     registry_host: "REGISTRY_HOST:REGISTRY_PORT"
     files_repo: "http://MINIO_API_HOST:MINIO_API_PORT"
-
+  
     container_manager: containerd
     containerd_insecure_registries:
         "{{ registry_host }}": "http://{{ registry_host }}"
