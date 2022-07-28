@@ -23,6 +23,9 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 3. `kubectl apply -f demo` to start kubeanClusterOps which will start the kubespray job
 4. `kubectl get job -n kubean-system` to check the kubespray job status
 
+
+[![quick_start_image](doc/images/quick_start.png)](https://asciinema.org/a/511386)
+
 # Offline Usage
 
 [offline](doc/offline.md)
