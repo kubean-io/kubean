@@ -27,7 +27,7 @@ CreateImages() {
 
 GetKubeSprayBranch() {
   cd "$CurrentDir"/kubespray
-  KubeSprayBranch="$(git branch --show-current)"
+  KubeSprayBranch="$(git symbolic-ref --short HEAD)"
 }
 
 CreateTar() {
