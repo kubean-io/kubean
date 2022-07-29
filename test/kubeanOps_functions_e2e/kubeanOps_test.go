@@ -43,7 +43,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		for {
 			clusterOps, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			status := string(clusterOps.Status.Status)
-			ginkgo.GinkgoWriter.Printf("* wait for ops status:", status)
+			ginkgo.GinkgoWriter.Printf("* wait for ops status: %s\n", status)
 			if status == "Running" {
 				ginkgo.It("the first ops should be running", func() {
 					gomega.Expect(status).To(gomega.Equal("Running"))
@@ -71,7 +71,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 			if statusSecond == "" {
 				time.Sleep(10 * time.Second)
 			} else {
-				ginkgo.It("the first ops should be running", func() {
+				ginkgo.It("the second ops should be blocked", func() {
 					gomega.Expect(statusSecond).To(gomega.Equal("Blocked"))
 				})
 				break
