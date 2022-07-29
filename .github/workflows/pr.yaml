@@ -55,9 +55,6 @@ jobs:
       - name: unit test
         run: |
           make test
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov
 
   build-push-for-e2e:
     needs: unit-test
