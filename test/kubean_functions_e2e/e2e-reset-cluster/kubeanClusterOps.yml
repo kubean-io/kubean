@@ -1,0 +1,12 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: e2e-cluster1-reset
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: 
+  backoffLimit: 0
+  actionType: playbook
+  action: reset.yml

@@ -37,11 +37,29 @@ vagrant status
 ping -c 5 ${vm_ip_addr}
 sshpass -p root ssh root@${vm_ip_addr} cat /proc/version
 
-# prepare kubean job yml
+# prepare kubean install job yml using containerd
 SPRAY_JOB="ghcr.io/kubean-io/kubean/spray-job:${SPRAY_JOB_VERSION}"
+cp $(pwd)/test/common/* $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/
 sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
+
+# prepare kubean reset job yml
+cp $(pwd)/test/common/* $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/
+sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/kubeanClusterOps.yml
+
+# prepare kubean install job yml using docker
+cp -r $(pwd)/test/kubean_functions_e2e/e2e-install-cluster $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker
+sed -i "s#e2e-cluster1-install#e2e-install-cluster-docker#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
+sed -i "s/containerd/docker/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+sed -i "s#  \"10.6.170.10:5000\": \"http://10.6.170.10:5000\"#   - 10.6.170.10:5000#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+
+# prepare kubean ops yml
+cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubeanOps_functions_e2e/e2e-install-cluster/
+cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubeanOps_functions_e2e/e2e-install-cluster/
+
 # Run nightly e2e
 ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
 ginkgo -v -race --fail-fast ./test/kubean_functions_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --vmipaddr="${vm_ip_addr}"
