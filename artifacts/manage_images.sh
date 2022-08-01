@@ -49,15 +49,7 @@ CreateTar(){
 
   tar -czvf offline-images.tar.gz offline-images
 
-  echo "completed!"
-}
-
-UnZipKubeanioOfflineTarGz() {
-  ls kubeanio-offline-*tar.gz
-  if [ ! -d "kubeanio-offline" ]; then
-    ls kubeanio-offline-*tar.gz | xargs  tar -xvf
-    mv kubeanio-offline/*.tar.gz .
-  fi
+  echo "zipping images completed!"
 }
 
 ImagesToRegistry() {
@@ -99,7 +91,6 @@ case $OPTION in
 
   import)
     CheckSkopeoCmd
-    UnZipKubeanioOfflineTarGz
     ImagesToRegistry
     ;;
 
