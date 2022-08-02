@@ -28,14 +28,6 @@ CheckMCCmd() {
   fi
 }
 
-UnZipKubeanioOfflineTarGz() {
-  ls kubeanio-offline-*tar.gz
-  if [ ! -d "kubeanio-offline" ]; then
-    ls kubeanio-offline-*tar.gz | xargs  tar -xvf
-    mv kubeanio-offline/*.tar.gz .
-  fi
-}
-
 ImportFilesToMinio() {
   if [ ! -d "offline-files" ]; then
     tar -xvf offline-files.tar.gz
@@ -65,7 +57,6 @@ case $OPTION in
 import)
   CheckMCCmd
   AddMCHostConfig
-  UnZipKubeanioOfflineTarGz
   ImportFilesToMinio
   RemoveMCHostConfig
   ;;
