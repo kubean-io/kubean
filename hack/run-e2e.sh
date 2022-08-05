@@ -36,6 +36,9 @@ vagrant up
 vagrant status
 ping -c 5 ${vm_ip_addr}
 sshpass -p root ssh root@${vm_ip_addr} cat /proc/version
+# print vm origin hostname
+echo "before deploy display hostname: "
+sshpass -p root ssh root@${vm_ip_addr} hostname
 
 # prepare kubean install job yml using containerd
 SPRAY_JOB="ghcr.io/kubean-io/kubean/spray-job:${SPRAY_JOB_VERSION}"
@@ -55,6 +58,10 @@ cp -r $(pwd)/test/kubean_functions_e2e/e2e-install-cluster $(pwd)/test/kubean_fu
 sed -i "s#e2e-cluster1-install#e2e-install-cluster-docker#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
 sed -i "s/containerd/docker/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 sed -i "s#  \"10.6.170.10:5000\": \"http://10.6.170.10:5000\"#   - 10.6.170.10:5000#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+# TBD: kube_network_plugin=cillium; cause' the core version of centos79 is low 3.10.0, cillium require high core version more than 4.x; so such case id pending.
+# sed -i "s#kube_network_plugin: calico#kube_network_plugin: cillium#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+# override_system_hostname=false
+sed -i "$ a\    override_system_hostname: false" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 
 # prepare kubean ops yml
 cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubeanOps_functions_e2e/e2e-install-cluster/
