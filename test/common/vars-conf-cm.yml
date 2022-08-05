@@ -7,7 +7,6 @@ data:
   group_vars.yml: |
     # k8s-cluster
     kube_version: "v1.23.7"
-    cluster_name: kubean.cluster
     container_manager: containerd
     containerd_insecure_registries:
       "10.6.170.10:5000": "http://10.6.170.10:5000"
@@ -19,7 +18,13 @@ data:
     enable_nodelocaldns: false
     etcd_deployment_type: kubeadm
     metrics_server_enabled: true
+    auto_renew_certificates: true
     local_path_provisioner_enabled: true
+    ntp_enabled: true
+
+    kube_service_addresses: 10.96.0.0/12
+    kube_pods_subnet: 192.168.128.0/20
+    kube_network_node_prefix: 24
  
     # Download Config
     download_run_once: true

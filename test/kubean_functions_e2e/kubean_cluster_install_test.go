@@ -294,11 +294,22 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		kubeanClusterOpsName := "e2e-install-cluster-docker"
 		localKubeConfigPath := "cluster1-config-in-docker"
 
-		// Create yaml for kuBean CR and related configuration
-		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
+		// modify hostname
+		remoteClient := fmt.Sprintf("root@%s", tools.Vmipaddr)
+		cmd := exec.Command("sshpass", "-p", "root", "ssh", remoteClient, "hostnamectl", "set-hostname", "hello-kubean")
 		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
 		var out, stderr bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
+		}
+
+		// Create yaml for kuBean CR and related configuration
+		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
+		cmd = exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
+		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
 		cmd.Stdout = &out
 		cmd.Stderr = &stderr
 		if err := cmd.Run(); err != nil {
@@ -354,6 +365,19 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 				}
 			})
 		})
-		defer ginkgo.GinkgoRecover()
+
+		// check hostname after deploy: hostname should be hello-kubean
+		cmd = exec.Command("sshpass", "-p", "root", "ssh", remoteClient, "hostname")
+		ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
+		cmd.Stdout = &out
+		cmd.Stderr = &stderr
+		if err := cmd.Run(); err != nil {
+			ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
+		}
+		ginkgo.It("set-hostname to hello-kubean", func() {
+			fmt.Println("hostname: ", out.String())
+			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
+		})
 	})
 })
