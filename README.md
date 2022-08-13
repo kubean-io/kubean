@@ -3,7 +3,7 @@
 # Introduction
 kubean is a cluster lifecycle management tool based on kubespray.
 
-# Quick Start
+# Quick Start  
 
 ## Deploy Kubean-Operator
 
