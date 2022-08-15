@@ -544,8 +544,7 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 	}
 	if clusterOps.Labels == nil {
 		clusterOps.Labels = map[string]string{KubeanClusterLabelKey: cluster.Name}
-	}
-	if _, ok := clusterOps.Labels[KubeanClusterLabelKey]; !ok {
+	} else {
 		clusterOps.Labels[KubeanClusterLabelKey] = cluster.Name
 	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
