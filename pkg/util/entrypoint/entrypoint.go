@@ -20,7 +20,6 @@ const (
 
 	PingPB        = "ping.yml"
 	FirewallPB    = "disable-firewalld.yml"
-	NtpDatePB     = "ntpdate.yml"
 	ClusterInfoPB = "cluster-info.yml"
 
 	KubeconfInstall = `
@@ -81,32 +80,47 @@ type void struct{}
 
 var member void
 
+type Playbooks struct {
+	List []string
+	Dict map[string]void
+}
+
+type Actions struct {
+	Types     []string
+	Playbooks *Playbooks
+}
+
+func NewActions() *Actions {
+	actions := &Actions{}
+	actions.Types = []string{PBAction, SHAction}
+	actions.Playbooks = &Playbooks{}
+	actions.Playbooks.List = []string{
+		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
+		PingPB, FirewallPB, ClusterInfoPB,
+	}
+	actions.Playbooks.Dict = map[string]void{}
+	for _, pbItem := range actions.Playbooks.List {
+		actions.Playbooks.Dict[pbItem] = member
+	}
+	return actions
+}
+
 type EntryPoint struct {
 	PreHookCMDs  []string
 	SprayCMD     string
 	PostHookCMDs []string
-	Playbooks    map[string]void
+	Actions      *Actions
 }
 
 func NewEntryPoint() *EntryPoint {
 	ep := &EntryPoint{}
-	ep.Playbooks = map[string]void{
-		ResetPB:          member,
-		ScalePB:          member,
-		ClusterPB:        member,
-		RemoveNodePB:     member,
-		UpgradeClusterPB: member,
-		PingPB:           member,
-		FirewallPB:       member,
-		NtpDatePB:        member,
-		ClusterInfoPB:    member,
-	}
+	ep.Actions = NewActions()
 	return ep
 }
 
 func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey bool) (string, error) {
-	if _, ok := ep.Playbooks[action]; !ok {
-		return "", fmt.Errorf("unknown playbook: %s", action)
+	if _, ok := ep.Actions.Playbooks.Dict[action]; !ok {
+		return "", fmt.Errorf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)
 	}
 	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 	if isPrivateKey {
@@ -136,7 +150,7 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 	} else if actionType == SHAction {
 		hookRunCmd = action
 	} else {
-		return "", fmt.Errorf("unknown action type: %s", actionType)
+		return "", fmt.Errorf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)
 	}
 	return hookRunCmd, nil
 }
@@ -160,7 +174,7 @@ func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPr
 }
 
 func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) error {
-	if _, ok := ep.Playbooks[action]; !ok {
+	if _, ok := ep.Actions.Playbooks.Dict[action]; !ok {
 		return nil
 	}
 	script := ""
@@ -193,7 +207,7 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 	} else if actionType == SHAction {
 		ep.SprayCMD = action
 	} else {
-		return fmt.Errorf("unknown action type: %s", actionType)
+		return fmt.Errorf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)
 	}
 	if err := ep.kubeconfPostbackPart(action, isPrivateKey); err != nil {
 		return fmt.Errorf("failed to set kubeconfig postback: %s", err)
