@@ -106,7 +106,7 @@ func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha
 	return false, nil
 }
 
-func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, fetchJobStatus func(*kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error)) (bool, error) {
+func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, fetchJobStatus func(*kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error)) (bool, error) {
 	if clusterOps.Status.Status == kubeanclusteropsv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
 		// need fetch jobStatus again when the last status of job is running
 		jobStatus, err := fetchJobStatus(clusterOps)
@@ -129,7 +129,7 @@ func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBea
 	return false, nil
 }
 
-func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
 	if clusterOps.Status.JobRef.IsEmpty() {
 		return "", fmt.Errorf("clusterOps %s no job", clusterOps.Name)
 	}

@@ -22,7 +22,7 @@ type KuBeanClusterOps struct {
 	Spec ClusterSpec `json:"spec"`
 
 	// +optional
-	Status ClusterStatus `json:"status,omitempty"`
+	Status ClusterOpsStatus `json:"status,omitempty"`
 }
 
 type ActionType string
@@ -74,24 +74,24 @@ type HookAction struct {
 	ExtraArgs string `json:"extraArgs"`
 }
 
-type ClusterOpsStatus string
+type OpsStatus string
 
 const (
-	RunningStatus   ClusterOpsStatus = "Running"
-	SucceededStatus ClusterOpsStatus = "Succeeded"
-	FailedStatus    ClusterOpsStatus = "Failed"
-	BlockedStatus   ClusterOpsStatus = "Blocked"
+	RunningStatus   OpsStatus = "Running"
+	SucceededStatus OpsStatus = "Succeeded"
+	FailedStatus    OpsStatus = "Failed"
+	BlockedStatus   OpsStatus = "Blocked"
 )
 
-// ClusterStatus contains information about the current status of a
-// cluster updated periodically by cluster controller.
-type ClusterStatus struct {
+// ClusterOpsStatus contains information about the current status of a
+// cluster operation job updated periodically by cluster controller.
+type ClusterOpsStatus struct {
 	// +optional
 	Action string `json:"action"`
 	// +optional
 	JobRef *apis.JobRef `json:"jobRef"`
 	// +optional
-	Status ClusterOpsStatus `json:"status"`
+	Status OpsStatus `json:"status"`
 	// +optional
 	StartTime *metav1.Time `json:"startTime"`
 	// +optional
