@@ -11,7 +11,10 @@ spec:
   actionType: playbook
   action: cluster.yml
   preHook:
-    - actionType: shell
-      action: |
-        ansible -i /conf/hosts.yml all -m ping;
-        echo 'ping success'
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
