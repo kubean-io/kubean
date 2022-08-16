@@ -63,7 +63,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 			name: "the status is Running and the result of fetchJobStatus is err",
 			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
 				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
 					return "", fmt.Errorf("one error")
 				})
 				return err != nil && err.Error() == "one error" && !needRequeue
@@ -74,7 +74,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 			name: "the status is Running and the result of fetchJobStatus is still Running",
 			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
 				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
 					return kubeanclusteropsv1alpha1.RunningStatus, nil
 				})
 				return err == nil && needRequeue
@@ -86,7 +86,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
 				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
 					return kubeanclusteropsv1alpha1.SucceededStatus, nil
 				})
 				resultOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
@@ -104,7 +104,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
 				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.ClusterOpsStatus, error) {
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
 					return kubeanclusteropsv1alpha1.FailedStatus, nil
 				})
 				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == kubeanclusteropsv1alpha1.FailedStatus
