@@ -14,13 +14,13 @@ the internet easily.
 Or we can perform these operations step by step equally like the following:
 
 * `cd artifacts`
-* `bash generate_offline_package.sh createtemplist`
+* `bash generate_offline_package.sh list`
     * this command will clone `kubespray` project to current folder and generate `images.list` and `files.list` in
       folder `kubespray/contrib/offline/temp`
     * We can optionally modify `images.list` and `files.list` with the specific version which we want
-* `bash generate_offline_package.sh createfiles`
+* `bash generate_offline_package.sh files`
     * this command will generate file `offline-files.tar.gz` in current folder
-* `bash generate_offline_package.sh createimages`
+* `bash generate_offline_package.sh images`
     * this command will generate file `offline-images.tar.gz` in current folder
 
 ## using offline package

@@ -1,0 +1,32 @@
+apiVersion: kubeancomponentsversions.kubeancomponentsversion.kubean.io
+kind: KuBeanComponentsVersion
+metadata:
+  name: componentsversion-global
+spec:
+  kubespray: ""
+  kubean: ""
+  docker:
+    - os: "centos7"
+      versionRange: [ ]
+      containerdRange: [ ]
+  items:
+    - name: "cni"
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: "containerd"
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: "kube"
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: "calico"
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: "cilium"
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: "etcd"
+      defaultVersion: ""
+      versionRange: [ ]
+status:
+  offline:
