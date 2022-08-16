@@ -4,10 +4,13 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBESPRAY_IMAGE_NAME: kubespray
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: master
 jobs:
   build-push:
-    needs: unit-test
     runs-on: ubuntu-latest
     permissions:
       packages: write
