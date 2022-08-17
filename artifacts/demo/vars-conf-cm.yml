@@ -13,6 +13,7 @@ data:
     enable_nodelocaldns: false
     etcd_deployment_type: host
     override_system_hostname: false
+    ntp_enabled: true
     
     download_run_once: true
     download_container: false
