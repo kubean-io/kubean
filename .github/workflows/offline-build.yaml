@@ -1,0 +1,58 @@
+name: Offline Build CI
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  KUBESPRAY_TAG: master
+  KUBEAN_TAG: v0.1.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: git clone kubean repo
+      uses: actions/checkout@v3
+
+    - name: git clone kubespray repo
+      uses: actions/checkout@v3
+      with:
+        repository: kubernetes-sigs/kubespray
+        ref: ${{ env.KUBESPRAY_TAG }}
+        path: ./kubespray
+
+    - name: install yq tool
+      uses: mikefarah/yq@v4.27.2
+
+    - name: generate ComponentsVersion & OfflineVersion files
+      run: |
+          KUBEAN_TAG=${{ env.KUBEAN_TAG }} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_componentsversion
+          KUBEAN_TAG=${{ env.KUBEAN_TAG }} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_offlineversion
+
+    - name: preparing the python environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9' 
+
+    - name: install kubespray requirements
+      run: |
+        cd kubespray/
+        python3 -m pip install --no-cache-dir -r requirements.txt
+        cd ../
+    
+    - name: package image & binary offline resources
+      run: |
+        echo "kubeanofflineversion cr output:"
+        cat ${{ env.KUBEAN_TAG }}/kubeanofflineversion.cr.yaml
+        echo "kubeancomponentsversion cr output:"
+        cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        
+        KUBEAN_TAG=${{ env.KUBEAN_TAG }} bash artifacts/generate_offline_package.sh all
+
+        ls -lh $KUBEAN_TAG/
+
+
+

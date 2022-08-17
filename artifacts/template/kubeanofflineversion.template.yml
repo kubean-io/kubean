@@ -1,0 +1,24 @@
+apiVersion: kubeanofflineversion.kubean.io/v1alpha1
+kind: KuBeanOfflineVersion
+metadata:
+  name: KuBeanOfflineVersionNAME
+spec:
+  arch: [ "x86_64" ]
+  kubespray: ""
+  docker:
+    - os: "centos7"
+      versionRange: [ ]
+      containerdRange: [ ]
+  items:
+    - name: "cni"
+      versionRange: [ ]
+    - name: "containerd"
+      versionRange: [ ]
+    - name: "kube"
+      versionRange: [ ]
+    - name: "calico"
+      versionRange: [ ]
+    - name: "cilium"
+      versionRange: [ ]
+    - name: "etcd"
+      versionRange: [ ]
