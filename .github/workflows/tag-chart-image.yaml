@@ -10,59 +10,59 @@ env:
   SPRAY_JOB_IMAGE_NAME: spray-job
   KUBESPRAY_TAG: master
 jobs:
-  build-push:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Log in to registry
-        # This is where you will update the PAT to GITHUB_TOKEN
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-
-      - name: kubean-operator Build image
-        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
-
-      - name: kubean-operator Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$KUKEAN_OPERATOR_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
-
-      - name: spray-job Build image
-        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
-
-      - name: spray-job Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$SPRAY_JOB_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
+  # build-push:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     packages: write
+  #     contents: read
+  #
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Log in to registry
+  #       # This is where you will update the PAT to GITHUB_TOKEN
+  #       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+  #
+  #     - name: kubean-operator Build image
+  #       run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+  #
+  #     - name: kubean-operator Push image
+  #       run: |
+  #         IMAGE_ID=ghcr.io/${{ github.repository }}/$KUKEAN_OPERATOR_IMAGE_NAME
+  #         # Change all uppercase to lowercase
+  #         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+  #         # Strip git ref prefix from version
+  #         VERSION=$(git describe --tags --abbrev=8 --dirty)
+  #         echo IMAGE_ID=$IMAGE_ID
+  #         echo VERSION=$VERSION
+  #         docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+  #         docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:latest
+  #         docker push $IMAGE_ID:$VERSION
+  #         docker push $IMAGE_ID:latest
+  #
+  #     - name: spray-job Build image
+  #       run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
+  #
+  #     - name: spray-job Push image
+  #       run: |
+  #         IMAGE_ID=ghcr.io/${{ github.repository }}/$SPRAY_JOB_IMAGE_NAME
+  #         # Change all uppercase to lowercase
+  #         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+  #         # Strip git ref prefix from version
+  #         VERSION=$(git describe --tags --abbrev=8 --dirty)
+  #         echo IMAGE_ID=$IMAGE_ID
+  #         echo VERSION=$VERSION
+  #         docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+  #         docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:latest
+  #         docker push $IMAGE_ID:$VERSION
+  #         docker push $IMAGE_ID:latest
 
   offline:
     runs-on: ubuntu-latest
+    # needs: build-push
     steps:
-
     - name: git clone kubean repo
       uses: actions/checkout@v3
       with:
@@ -111,29 +111,29 @@ jobs:
       packages: write
       contents: read
 
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: update helm version and image tag
-        run: |
-          CHART_VERSION="version: ${GITHUB_REF_NAME}"
-          CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
-          sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
-          # example =>  tag: v0.1.0
-          sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
-
-      - name: Pushes charts to another repository
-        id: push_directory
-        uses: cpina/github-action-push-to-another-repository@ssh-deploy-key
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
-        with:
-          source-directory: charts
-          destination-github-username: 'kubean-io'
-          destination-repository-name: 'kubean-helm-chart'
-          user-email: kubean-robot@ykubean.io
-          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-          target-directory: charts
-          target-branch: main
+    # steps:
+    #   - uses: actions/checkout@v3
+    #     with:
+    #       fetch-depth: 0
+    #
+    #   - name: update helm version and image tag
+    #     run: |
+    #       CHART_VERSION="version: ${GITHUB_REF_NAME}"
+    #       CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
+    #       sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
+    #       # example =>  tag: v0.1.0
+    #       sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
+    #
+    #   - name: Pushes charts to another repository
+    #     id: push_directory
+    #     uses: cpina/github-action-push-to-another-repository@ssh-deploy-key
+    #     env:
+    #       SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+    #     with:
+    #       source-directory: charts
+    #       destination-github-username: 'kubean-io'
+    #       destination-repository-name: 'kubean-helm-chart'
+    #       user-email: kubean-robot@ykubean.io
+    #       commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+    #       target-directory: charts
+    #       target-branch: main
