@@ -102,14 +102,15 @@ jobs:
 
         KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
         ls -lh ${GITHUB_REF_NAME}/
+        echo "分割线"
         pwd
 
-  charts:
-    needs: build-push
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
+#   charts:
+#     needs: build-push
+#     runs-on: ubuntu-latest
+#     permissions:
+#       packages: write
+#       contents: read
 
     # steps:
     #   - uses: actions/checkout@v3
