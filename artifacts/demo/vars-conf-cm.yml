@@ -11,7 +11,7 @@ data:
     kube_network_plugin_multus: false
     kube_proxy_mode: iptables
     enable_nodelocaldns: false
-    etcd_deployment_type: host
+    etcd_deployment_type: kubeadm
     override_system_hostname: false
     
     download_run_once: true
