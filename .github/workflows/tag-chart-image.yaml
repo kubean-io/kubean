@@ -59,6 +59,50 @@ jobs:
           docker push $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:latest
 
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: git clone kubean repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: git clone kubespray repo
+      uses: actions/checkout@v3
+      with:
+        repository: kubernetes-sigs/kubespray
+        ref: ${{ env.KUBESPRAY_TAG }}
+        path: ./kubespray
+
+    - name: install yq tool
+      uses: mikefarah/yq@v4.27.2
+
+    - name: generate ComponentsVersion & OfflineVersion files
+      run: |
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_componentsversion
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_offlineversion
+    - name: preparing the python environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: install kubespray requirements
+      run: |
+        cd kubespray/
+        python3 -m pip install --no-cache-dir -r requirements.txt
+        cd ../
+
+    - name: package image & binary offline resources
+      run: |
+        echo "kubeanofflineversion cr output:"
+        cat ${GITHUB_REF_NAME}/kubeanofflineversion.cr.yaml
+        echo "kubeancomponentsversion cr output:"
+        cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
+
+        KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
+        ls -lh ${GITHUB_REF_NAME}/
+        pwd
 
   charts:
     needs: build-push
@@ -74,9 +118,8 @@ jobs:
 
       - name: update helm version and image tag
         run: |
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          CHART_VERSION="version: $VERSION"
-          CHART_IMAGE_TAG="$VERSION"
+          CHART_VERSION="version: ${GITHUB_REF_NAME}"
+          CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
