@@ -4,7 +4,6 @@ on: workflow_call
 
 jobs:
   build-push:
-    needs: unit-test
     runs-on: ubuntu-latest
     permissions:
       packages: write
