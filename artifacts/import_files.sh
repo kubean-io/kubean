@@ -1,25 +1,26 @@
+#!/bin/bash
+
 set -eo pipefail
 
-OPTION=${1:-'import'}
-MinioAPIAddress=${2:-'http://127.0.0.1:9000'}
+MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
 
-AddMCHostConfig() {
-  if [ -z "$Minio_User" ]; then
-    echo "need Minio_User and Minio_Password"
+function add_mc_host_conf() {
+  if [ -z "$MINIO_USER" ]; then
+    echo "need MINIO_USER and MINIO_PASS"
     exit 1
   fi
-  if ! mc config host add kubeaniominioserver "$MinioAPIAddress" "$Minio_User" "$Minio_Password"; then
-    echo "mc add $MinioAPIAddress server failed"
+  if ! mc config host add kubeaniominioserver "$MINIO_API_ADDR" "$MINIO_USER" "$MINIO_PASS"; then
+    echo "mc add $MINIO_API_ADDR server failed"
     exit 1
   fi
 }
 
-RemoveMCHostConfig() {
+function del_mc_host_conf() {
   echo "remove mc config"
   mc config host remove kubeaniominioserver
 }
 
-CheckMCCmd() {
+function check_mc_cmd() {
   if which mc; then
     echo "mc check successfully"
   else
@@ -28,7 +29,7 @@ CheckMCCmd() {
   fi
 }
 
-ImportFilesToMinio() {
+function import_files() {
   if [ ! -d "offline-files" ]; then
     tar -xvf offline-files.tar.gz
     echo "unzip successfully"
@@ -53,15 +54,7 @@ ImportFilesToMinio() {
 
 }
 
-case $OPTION in
-import)
-  CheckMCCmd
-  AddMCHostConfig
-  ImportFilesToMinio
-  RemoveMCHostConfig
-  ;;
-
-*)
-  echo -n "unknown operator"
-  ;;
-esac
+check_mc_cmd
+add_mc_host_conf
+import_files
+del_mc_host_conf
