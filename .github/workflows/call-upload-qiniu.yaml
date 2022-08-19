@@ -24,7 +24,6 @@ jobs:
 
       - name: upload qiniu
         run: |
-              tree
               mkdir -p os-pkgs
               ls |grep "kubean-"|xargs -i mv {} os-pkgs/
               tar zcvf kubean-${{ github.ref_name }}.tar.gz ./
