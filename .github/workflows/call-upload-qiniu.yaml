@@ -10,6 +10,9 @@ jobs:
       packages: write
       contents: read
     steps:
+      - name: clean environment
+        run: rm -rf ./*
+
       - name: Make os packages dir
         run: |
           mkdir -p ${{ github.ref_name }}/
@@ -29,7 +32,7 @@ jobs:
       - name: Upload tar file to qiniu
         run: |
           ls -lh ${{ github.ref_name }}/
-          tar zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
+          tar --warning=no-file-changed zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
           wget https://devtools.qiniu.com/$QINIU_SHELL_TAR
           tar -zxvf $QINIU_SHELL_TAR
           mv qshell /usr/local/bin/
