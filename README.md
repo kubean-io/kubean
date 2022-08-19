@@ -26,6 +26,3 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 
 [![quick_start_image](doc/images/quick_start.gif)](https://asciinema.org/a/511386)
 
-# Offline Usage
-
-[offline](doc/offline.md)
