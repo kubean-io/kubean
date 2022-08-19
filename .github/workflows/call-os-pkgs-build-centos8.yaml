@@ -1,0 +1,55 @@
+name: Build OS Packages
+
+on: workflow_call
+
+jobs:
+  os-pkgs-build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build OS packages to local
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: build/os-packages/Dockerfile.centos8
+          platforms: linux/amd64,linux/arm64
+          outputs: type=local,dest=./
+
+      - name: Make OS packages into Tar files
+        shell: bash
+        run: |
+          mv linux_amd64/resources resources
+          tar -I pigz -cf kubean-$GITHUB_REF_NAME-centos8-amd64.tar.gz resources --remove-files
+          mv linux_arm64/resources resources
+          tar -I pigz -cf kubean-$GITHUB_REF_NAME-centos8-arm64.tar.gz resources --remove-files
+          sha256sum kubean-$GITHUB_REF_NAME-centos8-{amd64,arm64}.tar.gz > kubean-$GITHUB_REF_NAME-centos8.sha256sum.txt
+
+      - name: Release and upload packages
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            kubean-${{ github.ref_name }}-centos8.sha256sum.txt
+            kubean-${{ github.ref_name }}-centos8-amd64.tar.gz
+            kubean-${{ github.ref_name }}-centos8-arm64.tar.gz
+
+      - name: Upload output file
+        uses: actions/upload-artifact@v3
+        with:
+          name: os-pkgs-build-centos8
+          path: |
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-centos8.sha256sum.txt
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-centos8-amd64.tar.gz
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-centos8-arm64.tar.gz
