@@ -25,6 +25,11 @@ function generate_temp_list() {
   echo "$CURRENT_DIR/kubespray"
   cd $CURRENT_DIR/kubespray
   bash contrib/offline/generate_list.sh
+
+  # Clean up unused images
+  mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
+  cat contrib/offline/temp/images.list.old | egrep -v 'aws-alb|aws-ebs|cert-manager|netchecker|weave' > contrib/offline/temp/images.list
+
   cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
 }
 

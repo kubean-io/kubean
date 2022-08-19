@@ -44,18 +44,32 @@ jobs:
         cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
 
         KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
+        cd ${{ github.ref_name }}/
+        tar -zcvf files-${{ github.ref_name }}.tar.gz files/
+        tar -zcvf images-${{ github.ref_name }}.tar.gz images/
+        cd ../
+        tree ${GITHUB_REF_NAME}/
 
-        ls -lh ${GITHUB_REF_NAME}/
-
-    - name: Upload output file
-      uses: actions/upload-artifact@v3
+    - name: Release and upload packages
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: offline-build
-        path: ${{ github.ref_name }}/
+        files: |
+          ${{ github.ref_name }}/files-${{ github.ref_name }}.tar.gz
+          ${{ github.ref_name }}/images-${{ github.ref_name }}.tar.gz
+          ${{ github.ref_name }}/*.list
+          ${{ github.ref_name }}/*.cr.yaml
 
-    - name: Upload chart file
-      uses: actions/upload-artifact@v3
+    # - name: Store offline-build cache
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ${{ github.ref_name }}/
+    #     key: offline-build
+
+    - name: Store componentversion CR cache
+      uses: actions/cache@v3
       with:
-        name: offline-build-chart-file
-        path: |
-          charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        key: offline-build-cr-file

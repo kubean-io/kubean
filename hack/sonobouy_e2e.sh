@@ -58,12 +58,20 @@ if [ "${RUNNER_NAME}" == "kubean-actions-runner1" ]; then
     vm_ip_addr2="10.6.127.36"
 fi
 if [ "${RUNNER_NAME}" == "kubean-actions-runner2" ]; then
-    vm_ip_addr1="10.6.127.35"
+    vm_ip_addr="10.6.127.35"
     vm_ip_addr2="10.6.127.37"
 fi
+if [ "${RUNNER_NAME}" == "kubean-actions-runner3" ]; then
+    vm_ip_addr1="10.6.127.39"
+    vm_ip_addr2="10.6.127.40"
+fi
+if [ "${RUNNER_NAME}" == "kubean-actions-runner4" ]; then
+    vm_ip_addr1="10.6.127.42"
+    vm_ip_addr2="10.6.127.43"
+fi
 if [ "${RUNNER_NAME}" == "debug" ]; then
-    vm_ip_addr1="10.6.127.41"
-    vm_ip_addr2="10.6.127.42"
+    vm_ip_addr1="10.6.127.45"
+    vm_ip_addr2="10.6.127.46"
 fi
 
 ###### e2e logic ########

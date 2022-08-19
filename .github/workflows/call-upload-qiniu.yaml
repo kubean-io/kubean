@@ -4,8 +4,8 @@ env:
   QINIU_SHELL_TAR: qshell-v2.8.0-linux-amd64.tar.gz
 
 jobs:
-  upload-qiniu:
-    runs-on: self-hosted
+  make-package:
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
@@ -13,29 +13,61 @@ jobs:
       - name: clean environment
         run: rm -rf ./*
 
-      - name: Make os packages dir
-        run: |
-          mkdir -p ${{ github.ref_name }}/
-
-      - name: Download artifact offline-build
-        uses: actions/download-artifact@v3
+      - name: Restore offline-build cache
+        uses: actions/cache@v3
         with:
-          name: offline-build
           path: ${{ github.ref_name }}/
+          key: offline-build
 
-      - name: Download artifact os-pkgs-build
+      - name: Restore os-pkgs-build-centos7 cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            os-pkgs/kubean-${{ github.ref_name }}-centos7.sha256sum.txt
+            os-pkgs/kubean-${{ github.ref_name }}-centos7-amd64.tar.gz
+            os-pkgs/kubean-${{ github.ref_name }}-centos7-arm64.tar.gz
+          key: os-pkgs-build-centos7
+
+      - name: Restore os-pkgs-build-centos8 cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            os-pkgs/kubean-${{ github.ref_name }}-centos8.sha256sum.txt
+            os-pkgs/kubean-${{ github.ref_name }}-centos8-amd64.tar.gz
+            os-pkgs/kubean-${{ github.ref_name }}-centos8-arm64.tar.gz
+          key: os-pkgs-build-centos8
+
+      - name: Make tar package
+        run: |
+          tree .
+          mv os-pkgs/* ${{ github.ref_name }}/os-pkgs/
+          tar -zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
+
+      - name: Upload offline tar file
+        uses: actions/upload-artifact@v3
+        with:
+          name: kubean-offline-tar
+          path: |
+              kubean-${{ github.ref_name }}.tar.gz
+
+  upload-qiniu:
+    needs: [make-package]
+    runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Download offline tar file
         uses: actions/download-artifact@v3
         with:
-          name: os-pkgs-build
-          path: ${{ github.ref_name }}/os-pkgs/
+          name: kubean-offline-tar
 
-      - name: Upload tar file to qiniu
+      - name: Upload offline package to Qiniu
         run: |
-          ls -lh ${{ github.ref_name }}/
-          tar --warning=no-file-changed zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
           wget https://devtools.qiniu.com/$QINIU_SHELL_TAR
           tar -zxvf $QINIU_SHELL_TAR
           mv qshell /usr/local/bin/
+          chmod +x /usr/local/bin/qshell
           qshell account -w ${{ secrets.QINIU_AK }} ${{ secrets.QINIU_SK }} 'dce-ci'
           echo 'delete the same name of old file'
           qshell delete ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz

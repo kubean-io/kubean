@@ -16,13 +16,13 @@ jobs:
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
-
-  call-build-image:
-    uses: ./.github/workflows/call-build-image.yaml
+  
+  call-images-build:
+    uses: ./.github/workflows/call-images-build.yaml
     secrets: inherit
 
   charts:
-    needs: [call-build-image,call-os-pkgs-build,call-offline-build]
+    needs: [call-images-build,call-offline-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -33,10 +33,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download artifact offline-build-chart-file
-        uses: actions/download-artifact@v3
+      - name: Restore offline-build-cr-file cache
+        uses: actions/cache@v3
         with:
-          name: offline-build-chart-file
+          path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+          key: offline-build-cr-file
 
       - name: update helm version and image tag
         run: |
@@ -45,7 +46,6 @@ jobs:
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
-          mv kubeancomponentsversion.cr.yaml charts/kubean/templates/
 
       - name: Pushes charts to another repository
         id: push_directory
@@ -61,8 +61,7 @@ jobs:
           target-directory: charts
           target-branch: main
 
-
-  call-upload-qiniu:
-    needs: charts
-    uses: ./.github/workflows/call-upload-qiniu.yaml
-    secrets: inherit
+  # call-upload-qiniu:
+  #   needs: [call-os-pkgs-build,call-offline-build]
+  #   uses: ./.github/workflows/call-upload-qiniu.yaml
+  #   secrets: inherit

@@ -29,7 +29,6 @@ common:
   - wget
   - ethtool
   - net-tools
-  - rsync
   - chrony
 
 yum:
