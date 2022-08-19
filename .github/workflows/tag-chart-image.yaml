@@ -22,7 +22,7 @@ jobs:
     secrets: inherit
 
   charts:
-    needs: [build-push,call-os-pkgs-build,call-offline-build]
+    needs: [call-build-image,call-os-pkgs-build,call-offline-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
