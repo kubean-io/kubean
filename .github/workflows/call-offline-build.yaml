@@ -47,6 +47,7 @@ jobs:
 
         ls -lh ${GITHUB_REF_NAME}/
         mv ${GITHUB_REF_NAME}/* /home/runner/work/kubean/kubean/
+        mv charts/kubean/templates/kubeancomponentsversion.cr.yaml /home/runner/work/kubean/kubean/
 
     - name: Upload output file
       uses: actions/upload-artifact@v3
@@ -67,4 +68,4 @@ jobs:
       with:
         name: offline-build-chart-file
         path: |
-            /home/runner/work/kubean/kubean/kubeanofflineversion.cr.yaml
+            /home/runner/work/kubean/kubean/kubeancomponentsversion.cr.yaml
