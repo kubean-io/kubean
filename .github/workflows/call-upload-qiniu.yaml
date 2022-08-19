@@ -1,5 +1,8 @@
 on: workflow_call
 
+env:
+  QINIU_SHELL_TAR: qshell-v2.8.0-linux-amd64.tar.gz
+
 jobs:
   upload-qiniu:
     runs-on: self-hosted
@@ -7,33 +10,34 @@ jobs:
       packages: write
       contents: read
     steps:
+      - name: clean environment
+        run: rm -rf ./*
+
+      - name: Make os packages dir
+        run: |
+          mkdir -p ${{ github.ref_name }}/
+
       - name: Download artifact offline-build
         uses: actions/download-artifact@v3
         with:
           name: offline-build
+          path: ${{ github.ref_name }}/
 
-      - name: Download artifact os-pkgs-build-centos7
+      - name: Download artifact os-pkgs-build
         uses: actions/download-artifact@v3
         with:
-          name: os-pkgs-build-centos7
+          name: os-pkgs-build
+          path: ${{ github.ref_name }}/os-pkgs/
 
-      - name: Download artifact os-pkgs-build-centos8
-        uses: actions/download-artifact@v3
-        with:
-          name: os-pkgs-build-centos8
-
-      - name: upload qiniu
+      - name: Upload tar file to qiniu
         run: |
-              tree
-              mkdir -p os-pkgs
-              ls |grep "kubean-"|xargs -i mv {} os-pkgs/
-              tar zcvf kubean-${{ github.ref_name }}.tar.gz ./
-
-              wget https://devtools.qiniu.com/qshell-v2.8.0-linux-amd64.tar.gz
-              tar -zxvf qshell-v2.8.0-linux-amd64.tar.gz
-              mv qshell /usr/local/bin/
-              qshell account -w ${{ secrets.QINIU_AK }} ${{ secrets.QINIU_SK }} 'dce-ci'
-              # delete the same name of old file
-              qshell delete   ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz
-              # upload to qiniu
-              qshell rput   ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz kubean-${{ github.ref_name }}.tar.gz
+          ls -lh ${{ github.ref_name }}/
+          tar --warning=no-file-changed zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
+          wget https://devtools.qiniu.com/$QINIU_SHELL_TAR
+          tar -zxvf $QINIU_SHELL_TAR
+          mv qshell /usr/local/bin/
+          qshell account -w ${{ secrets.QINIU_AK }} ${{ secrets.QINIU_SK }} 'dce-ci'
+          echo 'delete the same name of old file'
+          qshell delete ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz
+          echo 'upload to qiniu'
+          qshell rput ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz kubean-${{ github.ref_name }}.tar.gz
