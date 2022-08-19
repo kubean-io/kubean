@@ -30,28 +30,28 @@ folder `artifacts`.
 
 ### importing images to registry
 
-The script `manage_images.sh` will unzip the file `offline-images.tar.gz` in the current folder and transfer the local
+The script `import_images.sh` will unzip the file `offline-images.tar.gz` in the current folder and transfer the local
 image data to the remote registry.
 
 ```bash
-Dest_TLS_Verify=false Dest_User="" Dest_Password="" bash manage_images.sh import IP:PORT
+DEST_TLS_VERIFY=false DEST_USER="" DEST_PASS="" bash import_images.sh IP:PORT
 ```
 
 * replace `IP:PORT` with the real registry IP and Port
-* populate `Dest_User` and `Dest_Password` if the registry has password auth
-* let `Dest_TLS_Verify` false if the registry is running on unsafe http
+* populate `DEST_USER` and `DEST_PASS` if the registry has password auth
+* let `DEST_TLS_VERIFY` false if the registry is running on unsafe http
 
 ### importing files to minio server
 
-The script `manage_files.sh` will unzip the file `offline-files.tar.gz` in the current folder and transfer the local
+The script `import_files.sh` will unzip the file `offline-files.tar.gz` in the current folder and transfer the local
 binary files to the minio server.
 
 ```bash
-Minio_User=xxxxx Minio_Password=xxxxx bash manage_files.sh import http://IP:PORT
+MINIO_USER=xxxxx MINIO_PASS=xxxxx bash import_files.sh http://IP:PORT
 ```
 
 * replace `http://IP:PORT` with the real minio API Server Address.
-* populate `Minio_User` and `Minio_Password` correctly.
+* populate `MINIO_USER` and `MINIO_PASS` correctly.
 
 ## offline docker-ce linux repo
 
