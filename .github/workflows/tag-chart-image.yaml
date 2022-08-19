@@ -14,7 +14,11 @@ jobs:
   call-offline-build:
     uses: ./.github/workflows/call-offline-build.yaml
 
+  call-os-pkgs-build:
+    uses: ./.github/workflows/call-os-pkgs-build.yaml
+
   build-push:
+    needs: [call-offline-build,call-os-pkgs-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -63,8 +67,6 @@ jobs:
           docker push $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:latest
 
-
-
   charts:
     needs: build-push
     runs-on: ubuntu-latest
@@ -105,13 +107,8 @@ jobs:
           target-directory: charts
           target-branch: main
 
-  call-os-pkgs-build-centos7:
-    uses: ./.github/workflows/call-os-pkgs-build-centos7.yaml
-
-  call-os-pkgs-build-centos8:
-    uses: ./.github/workflows/call-os-pkgs-build-centos8.yaml
 
   call-upload-qiniu:
-    needs: [call-os-pkgs-build-centos7,call-os-pkgs-build-centos8,call-offline-build]
+    needs: charts
     uses: ./.github/workflows/call-upload-qiniu.yaml
     secrets: inherit

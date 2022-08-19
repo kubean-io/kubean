@@ -22,7 +22,7 @@ jobs:
         with:
           name: os-pkgs-build-centos8
 
-      - name: echo
+      - name: upload qiniu
         run: |
               tree
               mkdir -p os-pkgs
