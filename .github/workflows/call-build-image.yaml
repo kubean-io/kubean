@@ -2,6 +2,11 @@ name: build-image
 
 on: workflow_call
 
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: master
+
 jobs:
   build-push:
     runs-on: ubuntu-latest
