@@ -41,6 +41,7 @@ jobs:
           mv linux_arm64/resources resources
           tar -I pigz -cf kubean-$GITHUB_REF_NAME-${{ matrix.name }}-arm64.tar.gz resources --remove-files
           sha256sum kubean-$GITHUB_REF_NAME-${{ matrix.name }}-{amd64,arm64}.tar.gz > kubean-$GITHUB_REF_NAME-${{ matrix.name }}.sha256sum.txt
+
       - name: Release and upload packages
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1

@@ -22,7 +22,7 @@ jobs:
     secrets: inherit
 
   charts:
-    needs: [build-push,call-os-pkgs-build,call-offline-build]
+    needs: [call-build-image,call-os-pkgs-build,call-offline-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -45,7 +45,7 @@ jobs:
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
-          mv kubeancomponentsversion.cr.yaml charts/templates/
+          mv kubeancomponentsversion.cr.yaml charts/kubean/templates/
 
       - name: Pushes charts to another repository
         id: push_directory

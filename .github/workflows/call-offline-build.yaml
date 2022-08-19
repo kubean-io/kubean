@@ -46,26 +46,24 @@ jobs:
         KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
 
         ls -lh ${GITHUB_REF_NAME}/
-        mv ${GITHUB_REF_NAME}/* /home/runner/work/kubean/kubean/
-        mv charts/kubean/templates/kubeancomponentsversion.cr.yaml /home/runner/work/kubean/kubean/
 
     - name: Upload output file
       uses: actions/upload-artifact@v3
       with:
         name: offline-build
         path: |
-            /home/runner/work/kubean/kubean/files.list
-            /home/runner/work/kubean/kubean/images.list
-            /home/runner/work/kubean/kubean/import_files.sh
-            /home/runner/work/kubean/kubean/import_images.sh
-            /home/runner/work/kubean/kubean/import_ospkgs.sh
-            /home/runner/work/kubean/kubean/kubeanofflineversion.cr.yaml
-            /home/runner/work/kubean/kubean/offline-files.tar.gz
-            /home/runner/work/kubean/kubean/offline-images.tar.gz
+          ${{ github.ref_name }}/files.list
+          ${{ github.ref_name }}/images.list
+          ${{ github.ref_name }}/import_files.sh
+          ${{ github.ref_name }}/import_images.sh
+          ${{ github.ref_name }}/import_ospkgs.sh
+          ${{ github.ref_name }}/kubeanofflineversion.cr.yaml
+          ${{ github.ref_name }}/offline-files.tar.gz
+          ${{ github.ref_name }}/offline-images.tar.gz
 
     - name: Upload chart file
       uses: actions/upload-artifact@v3
       with:
         name: offline-build-chart-file
         path: |
-            /home/runner/work/kubean/kubean/kubeancomponentsversion.cr.yaml
+          charts/kubean/templates/kubeancomponentsversion.cr.yaml
