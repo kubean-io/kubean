@@ -7,9 +7,14 @@ KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}
 
 CURRENT_DIR=$(pwd)
 OFFLINE_PACKAGE_DIR=${CURRENT_DIR}/${KUBEAN_TAG}
+OFFLINE_FILES_DIR=${OFFLINE_PACKAGE_DIR}/files
+OFFLINE_IMAGES_DIR=${OFFLINE_PACKAGE_DIR}/images
+OFFLINE_OSPKGS_DIR=${OFFLINE_PACKAGE_DIR}/os-pkgs
 
 function generate_offline_dir() {
-  mkdir -p $OFFLINE_PACKAGE_DIR
+  mkdir -p $OFFLINE_FILES_DIR
+  mkdir -p $OFFLINE_IMAGES_DIR
+  mkdir -p $OFFLINE_OSPKGS_DIR
 }
 
 function generate_temp_list() {
@@ -26,7 +31,7 @@ function generate_temp_list() {
 function create_files() {
   cd $CURRENT_DIR/kubespray/contrib/offline/
   NO_HTTP_SERVER=true bash manage-offline-files.sh
-  cp offline-files.tar.gz $OFFLINE_PACKAGE_DIR
+  cp offline-files.tar.gz $OFFLINE_FILES_DIR
 }
 
 function create_images() {
@@ -56,13 +61,15 @@ function create_images() {
     skopeo copy --retry-times=3 --override-os linux --override-arch amd64 docker://"$image_name" dir:offline-images/"$new_dir_name"
   done <"$IMG_LIST"
 
-  tar -czvf $OFFLINE_PACKAGE_DIR/offline-images.tar.gz offline-images
+  tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
 
   echo "zipping images completed!"
 }
 
 function copy_import_sh() {
-    cp $CURRENT_DIR/artifacts/import_*.sh $OFFLINE_PACKAGE_DIR
+    cp $CURRENT_DIR/artifacts/import_files.sh $OFFLINE_FILES_DIR
+    cp $CURRENT_DIR/artifacts/import_images.sh $OFFLINE_IMAGES_DIR
+    cp $CURRENT_DIR/artifacts/import_ospkgs.sh $OFFLINE_OSPKGS_DIR
 }
 
 case $OPTION in

@@ -51,15 +51,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: offline-build
-        path: |
-          ${{ github.ref_name }}/files.list
-          ${{ github.ref_name }}/images.list
-          ${{ github.ref_name }}/import_files.sh
-          ${{ github.ref_name }}/import_images.sh
-          ${{ github.ref_name }}/import_ospkgs.sh
-          ${{ github.ref_name }}/kubeanofflineversion.cr.yaml
-          ${{ github.ref_name }}/offline-files.tar.gz
-          ${{ github.ref_name }}/offline-images.tar.gz
+        path: ${{ github.ref_name }}/
 
     - name: Upload chart file
       uses: actions/upload-artifact@v3

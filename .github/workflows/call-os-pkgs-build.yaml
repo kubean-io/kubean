@@ -56,8 +56,8 @@ jobs:
       - name: Upload output file
         uses: actions/upload-artifact@v3
         with:
-          name: os-pkgs-build-${{ matrix.name }}
+          name: os-pkgs-build
           path: |
-              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}.sha256sum.txt
-              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}-amd64.tar.gz
-              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}-arm64.tar.gz
+              kubean-*.sha256sum.txt
+              kubean-*-amd64.tar.gz
+              kubean-*-arm64.tar.gz
