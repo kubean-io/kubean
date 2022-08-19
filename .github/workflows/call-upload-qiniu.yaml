@@ -1,0 +1,39 @@
+on: workflow_call
+
+jobs:
+  upload-qiniu:
+    runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Download artifact offline-build
+        uses: actions/download-artifact@v3
+        with:
+          name: offline-build
+
+      - name: Download artifact os-pkgs-build-centos7
+        uses: actions/download-artifact@v3
+        with:
+          name: os-pkgs-build-centos7
+
+      - name: Download artifact os-pkgs-build-centos8
+        uses: actions/download-artifact@v3
+        with:
+          name: os-pkgs-build-centos8
+
+      - name: upload qiniu
+        run: |
+              tree
+              mkdir -p os-pkgs
+              ls |grep "kubean-"|xargs -i mv {} os-pkgs/
+              tar zcvf kubean-${{ github.ref_name }}.tar.gz ./
+
+              wget https://devtools.qiniu.com/qshell-v2.8.0-linux-amd64.tar.gz
+              tar -zxvf qshell-v2.8.0-linux-amd64.tar.gz
+              mv qshell /usr/local/bin/
+              qshell account -w ${{ secrets.QINIU_AK }} ${{ secrets.QINIU_SK }} 'dce-ci'
+              # delete the same name of old file
+              qshell delete   ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz
+              # upload to qiniu
+              qshell rput   ${{ secrets.QINIU_BU }} DaoCloud_Enterprise/dce5/kubean-${{ github.ref_name }}.tar.gz kubean-${{ github.ref_name }}.tar.gz

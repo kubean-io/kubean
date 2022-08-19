@@ -1,9 +1,6 @@
----
 name: Build OS Packages
-on:
-  push:
-    tag:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+on: workflow_call
 
 jobs:
   build:
@@ -44,7 +41,6 @@ jobs:
           mv linux_arm64/resources resources
           tar -I pigz -cf kubean-$GITHUB_REF_NAME-${{ matrix.name }}-arm64.tar.gz resources --remove-files
           sha256sum kubean-$GITHUB_REF_NAME-${{ matrix.name }}-{amd64,arm64}.tar.gz > kubean-$GITHUB_REF_NAME-${{ matrix.name }}.sha256sum.txt
-
       - name: Release and upload packages
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
@@ -55,3 +51,12 @@ jobs:
             kubean-${{ github.ref_name }}-${{ matrix.name }}.sha256sum.txt
             kubean-${{ github.ref_name }}-${{ matrix.name }}-amd64.tar.gz
             kubean-${{ github.ref_name }}-${{ matrix.name }}-arm64.tar.gz
+
+      - name: Upload output file
+        uses: actions/upload-artifact@v3
+        with:
+          name: os-pkgs-build-${{ matrix.name }}
+          path: |
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}.sha256sum.txt
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}-amd64.tar.gz
+              /home/runner/work/kubean/kubean/kubean-${{ github.ref_name }}-${{ matrix.name }}-arm64.tar.gz

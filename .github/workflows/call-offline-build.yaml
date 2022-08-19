@@ -1,0 +1,71 @@
+name: Offline Build CI
+
+on: workflow_call
+
+jobs:
+  offline-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: git clone kubean repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: git clone kubespray repo
+      uses: actions/checkout@v3
+      with:
+        repository: kubernetes-sigs/kubespray
+        ref: ${{ env.KUBESPRAY_TAG }}
+        path: ./kubespray
+
+    - name: install yq tool
+      uses: mikefarah/yq@v4.27.2
+
+    - name: generate ComponentsVersion & OfflineVersion files
+      run: |
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_componentsversion
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${{ env.KUBESPRAY_TAG }} bash artifacts/manage_version_cr.sh create_offlineversion
+    - name: preparing the python environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: install kubespray requirements
+      run: |
+        cd kubespray/
+        python3 -m pip install --no-cache-dir -r requirements.txt
+        cd ../
+
+    - name: package image & binary offline resources
+      run: |
+        echo "kubeanofflineversion cr output:"
+        cat ${GITHUB_REF_NAME}/kubeanofflineversion.cr.yaml
+        echo "kubeancomponentsversion cr output:"
+        cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
+
+        KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
+
+        ls -lh ${GITHUB_REF_NAME}/
+        mv ${GITHUB_REF_NAME}/* /home/runner/work/kubean/kubean/
+        mv charts/kubean/templates/kubeancomponentsversion.cr.yaml /home/runner/work/kubean/kubean/
+
+    - name: Upload output file
+      uses: actions/upload-artifact@v3
+      with:
+        name: offline-build
+        path: |
+            /home/runner/work/kubean/kubean/files.list
+            /home/runner/work/kubean/kubean/images.list
+            /home/runner/work/kubean/kubean/import_files.sh
+            /home/runner/work/kubean/kubean/import_images.sh
+            /home/runner/work/kubean/kubean/import_ospkgs.sh
+            /home/runner/work/kubean/kubean/kubeanofflineversion.cr.yaml
+            /home/runner/work/kubean/kubean/offline-files.tar.gz
+            /home/runner/work/kubean/kubean/offline-images.tar.gz
+
+    - name: Upload chart file
+      uses: actions/upload-artifact@v3
+      with:
+        name: offline-build-chart-file
+        path: |
+            /home/runner/work/kubean/kubean/kubeancomponentsversion.cr.yaml

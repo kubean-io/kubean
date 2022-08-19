@@ -9,8 +9,16 @@ env:
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
   KUBESPRAY_TAG: master
+
 jobs:
+  call-offline-build:
+    uses: ./.github/workflows/call-offline-build.yaml
+
+  call-os-pkgs-build:
+    uses: ./.github/workflows/call-os-pkgs-build.yaml
+
   build-push:
+    needs: [call-offline-build,call-os-pkgs-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -59,7 +67,6 @@ jobs:
           docker push $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:latest
 
-
   charts:
     needs: build-push
     runs-on: ubuntu-latest
@@ -72,14 +79,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Download artifact offline-build-chart-file
+        uses: actions/download-artifact@v3
+        with:
+          name: offline-build-chart-file
+
       - name: update helm version and image tag
         run: |
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          CHART_VERSION="version: $VERSION"
-          CHART_IMAGE_TAG="$VERSION"
+          CHART_VERSION="version: ${GITHUB_REF_NAME}"
+          CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
+          mv kubeancomponentsversion.cr.yaml charts/templates/
 
       - name: Pushes charts to another repository
         id: push_directory
@@ -94,3 +106,9 @@ jobs:
           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
           target-directory: charts
           target-branch: main
+
+
+  call-upload-qiniu:
+    needs: charts
+    uses: ./.github/workflows/call-upload-qiniu.yaml
+    secrets: inherit
