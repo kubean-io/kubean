@@ -34,7 +34,7 @@ jobs:
           chmod +x codecov
           ./codecov
 
-  call-build-image:
-    uses: ./.github/workflows/call-build-image.yaml
+  call-images-build:
+    uses: ./.github/workflows/call-images-build.yaml
     needs: unit-test
     secrets: inherit
