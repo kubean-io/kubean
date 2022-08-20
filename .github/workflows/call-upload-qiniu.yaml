@@ -10,29 +10,28 @@ jobs:
       packages: write
       contents: read
     steps:
-      - name: clean environment
-        run: rm -rf ./*
-
-      - name: Make os packages dir
-        run: |
-          mkdir -p ${{ github.ref_name }}/
-
-      - name: Download artifact offline-build
-        uses: actions/download-artifact@v3
+      - name: Restore offline-build cache
+        uses: actions/cache@v3
         with:
-          name: offline-build
           path: ${{ github.ref_name }}/
+          key: offline-build
 
-      - name: Download artifact os-pkgs-build
-        uses: actions/download-artifact@v3
+      - name: Restore os-pkgs-build cache
+        uses: actions/cache@v3
         with:
-          name: os-pkgs-build
-          path: ${{ github.ref_name }}/os-pkgs/
+          path: |
+            kubean-*.sha256sum.txt
+            kubean-*-amd64.tar.gz
+            kubean-*-arm64.tar.gz
+          key: os-pkgs-build
 
       - name: Upload tar file to qiniu
         run: |
           ls -lh ${{ github.ref_name }}/
-          tar --warning=no-file-changed zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
+          mv kubean-*.sha256sum.txt ${{ github.ref_name }}/os-pkgs/
+          mv kubean-*-amd64.tar.gz ${{ github.ref_name }}/os-pkgs/
+          mv kubean-*-arm64.tar.gz ${{ github.ref_name }}/os-pkgs/
+          tar -zcvf kubean-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}/
           wget https://devtools.qiniu.com/$QINIU_SHELL_TAR
           tar -zxvf $QINIU_SHELL_TAR
           mv qshell /usr/local/bin/

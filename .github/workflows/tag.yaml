@@ -33,10 +33,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download artifact offline-build-chart-file
-        uses: actions/download-artifact@v3
+      - name: Restore offline-build-cr-file cache
+        uses: actions/cache@v3
         with:
-          name: offline-build-chart-file
+          path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+          key: offline-build-cr-file
 
       - name: update helm version and image tag
         run: |
@@ -45,7 +46,6 @@ jobs:
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
-          mv kubeancomponentsversion.cr.yaml charts/kubean/templates/
 
       - name: Pushes charts to another repository
         id: push_directory

@@ -47,15 +47,14 @@ jobs:
 
         ls -lh ${GITHUB_REF_NAME}/
 
-    - name: Upload output file
-      uses: actions/upload-artifact@v3
+    - name: Store offline-build cache
+      uses: actions/cache@v3
       with:
-        name: offline-build
         path: ${{ github.ref_name }}/
+        key: offline-build
 
-    - name: Upload chart file
-      uses: actions/upload-artifact@v3
+    - name: Store componentversion CR cache
+      uses: actions/cache@v3
       with:
-        name: offline-build-chart-file
-        path: |
-          charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        key: offline-build-cr-file

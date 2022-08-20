@@ -53,11 +53,11 @@ jobs:
             kubean-${{ github.ref_name }}-${{ matrix.name }}-amd64.tar.gz
             kubean-${{ github.ref_name }}-${{ matrix.name }}-arm64.tar.gz
 
-      - name: Upload output file
-        uses: actions/upload-artifact@v3
+      - name: Store os packages cache
+        uses: actions/cache@v3
         with:
-          name: os-pkgs-build
           path: |
-              kubean-*.sha256sum.txt
-              kubean-*-amd64.tar.gz
-              kubean-*-arm64.tar.gz
+            kubean-*.sha256sum.txt
+            kubean-*-amd64.tar.gz
+            kubean-*-arm64.tar.gz
+          key: os-pkgs-build
