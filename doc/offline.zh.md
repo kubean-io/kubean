@@ -3,11 +3,14 @@
 ## 准备事项
 
 1. 需要预先部署的服务:
+
 * 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
-* 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry) 或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
+* 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)
+  或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
 
 2. 需要安装的必要工具:
-* 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md) 
+
+* 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)
 * 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 ## 下载离线资源
@@ -15,6 +18,7 @@
 通过 [Github Releases](https://github.com/kubean-io/kubean/releases) 页面可以下载我们想要版本的离线资源
 
 离线资源的基本说明:
+
 ``` bash
 ├── files.list                                  # 文件内容的列表
 ├── files-${tag}.tar.gz                         # 文件压缩包, 内含导入脚本
@@ -25,9 +29,10 @@
 
 ## 将离线资源导入对应服务
 
-### 1. Binaris 资源的导入
+### 1. Binaries 资源的导入
 
 请先解压 `files-${tag}.tar.gz` 文件, 其内部包含:
+
 ``` bash
 files/
 ├── import_files.sh       # 该脚本用于导入二进制文件到 minio 文件服务
@@ -35,13 +40,17 @@ files/
 ```
 
 执行如下命令, 将二进制文件导入到 minio 服务中:
+
 ``` bash
 $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
 ```
 
+* `minio_address` 是 `minio API Server`地址，端口一般为9000，比如 `http://1.2.3.4:9000`
+
 ### 2. Images 资源的导入
 
 需要解压 `images-${tag}.tar.gz` 文件, 其内部包含:
+
 ``` bash
 images/
 ├── import_images.sh       # 该脚本用于导入镜像文件到 docker registry 或 harbor 镜像仓库服务
@@ -49,22 +58,25 @@ images/
 ```
 
 执行如下命令, 将镜像文件导入到 docker registry 或 harbor 镜像仓库服务中:
+
 ``` bash
 # 1. 非安全免密模式
 $ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
 
 # 2. 用户名口令模式
-$ DEST_TLS_VERIFY=true DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
+$ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
 ```
 
-* 当 `DEST_TLS_VERIFY=false`, 此时采用非安全 HTTP 模式上传镜像, 故无需设置 `DEST_USER` 和 `DEST_PASS`
-* 当 `DEST_TLS_VERIFY=true`, 此时需要安装用户名及密码, 需要设置 `DEST_USER` 和 `DEST_PASS`
+* 当 `DEST_TLS_VERIFY=false`, 此时采用非安全 HTTP 模式上传镜像
+* 当镜像仓库存在用户名密码验证时，需要设置 `DEST_USER` 和 `DEST_PASS`
+* `registry_address` 是镜像仓库的地址，比如`1.2.3.4:5000`
 
 ### 3. OS packages 资源的导入
 
 > 注: 当前仅支持 Centos 发行版的 OS Packages 资源
 
 需要解压 `os-pkgs-${linux_distribution}-${tag}.tar.gz` 文件, 其内部包含:
+
 ``` bash
 os-pkgs
 ├── import_ospkgs.sh              # 该脚本用于导入 os packages 到 minio 文件服务
@@ -74,17 +86,19 @@ os-pkgs
 ```
 
 执行如下命令, 将 os packages 包到 minio 文件服务中:
+
 ``` bash
 $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${tag}-${arch}.tar.gz
 ```
 
-# 建立本地 ISO 镜像源
+## 建立本地 ISO 镜像源
 
 OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到系统的其他包, 此时需要建立本地 ISO 镜像源.
 
 > 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前仅支持 Centos 发行版的 ISO 镜像源创建;
 
 这里需要使用到 `make_local_iso_repo.sh`, 该脚本目前位于 `artifacts/` 目录下, 执行如下命令即可创建 ISO 镜像源:
+
 ``` bash
 $ ISO_IMG_FILE=${iso_image_file} ./make_local_iso_repo.sh ${linux_distribution}
 
@@ -92,9 +106,28 @@ $ ISO_IMG_FILE=${iso_image_file} ./make_local_iso_repo.sh ${linux_distribution}
 $ ISO_IMG_FILE=CentOS-7-x86_64-Everything-2207-02.iso ./make_local_iso_repo.sh centos
 ```
 
+## 建立本地 extras 镜像源
+
+> 当前仅仅支持 Centos 发行版
+
+在安装 K8S 集群中，还会依赖一些extras软件，比如 container-selinux ，这些软件不在上文提到的 ISO 镜像源中。但 kubean 提供的 OS packages 包含这些软件。
+
+在需要安装 K8S 集群的机器上，新建文件 `/etc/yum.repos.d/localextras.repo` ，内容如下
+
+```yaml
+[ localextras ]
+  name=localextras
+  baseurl=${minio_address}/centos/$releasever/os/$basearch
+  enable=1
+  gpgcheck=0
+```
+
+* 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
+
 ## 部署集群前的配置
 
-离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray) 位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件:
+离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
+位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件:
 
 ``` yaml
 ---
@@ -103,16 +136,16 @@ $ ISO_IMG_FILE=CentOS-7-x86_64-Everything-2207-02.iso ./make_local_iso_repo.sh c
 registry_host: "{{ registry_address }}"
 
 ### 配置二进制文件服务的地址
-files_repo: "http://{{ minio_address }}"
+files_repo: "{{ minio_address }}"
 
 ### 如果使用 CentOS / RedHat / AlmaLinux / Fedora, 需要配置 yum 源文件服务地址:
-yum_repo: "http://{{ minio_address }}"
+yum_repo: "{{ minio_address }}"
 
 ### 如果使用 Debian, 则配置:
-debian_repo: "http://{{ minio_address }}"
+debian_repo: "{{ minio_address }}"
 
 ### 如果使用 Ubuntu, 则配置:
-ubuntu_repo: "http://{{ minio_address }}"
+ubuntu_repo: "{{ minio_address }}"
 
 ### 如果 containerd 采用非安全 HTTP 免认证方式, 则需要配置:
 containerd_insecure_registries:
@@ -164,9 +197,9 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ```
 
-我们以 `artifacts/offlineDemo` 作为模板, 
+我们以 `artifacts/offlineDemo` 作为模板,
 
-将如上离线配置按照具体情况进行调整, 特别需要替换`{{ registry_address }}` 和 `{{ minio_address }}`, 
+将如上离线配置按照具体情况进行调整, 特别需要替换`{{ registry_address }}` 和 `{{ minio_address }}`,
 
 最终将配置添加更新到 `artifacts/offlineDemo/vars-conf-cm.yml` 文件中,
 

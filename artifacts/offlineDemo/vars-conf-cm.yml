@@ -6,9 +6,15 @@ metadata:
 data:
   group_vars.yml: |
     registry_host: "REGISTRY_HOST:REGISTRY_PORT"
-    files_repo: "http://MINIO_API_HOST:MINIO_API_PORT"
+    minio_address: "http://MINIO_API_HOST:MINIO_API_PORT"
 
-    container_manager: containerd
+    files_repo: "{{ minio_address }}"
+    container_manager: docker ## containerd
+    docker_version: "20.10"
+    docker_cli_version: "20.10"
+    docker_containerd_version: "latest"
+    docker_insecure_registries:
+        - "{{ registry_host }}"
     containerd_insecure_registries:
         "{{ registry_host }}": "http://{{ registry_host }}"
     k8s_image_pull_policy: IfNotPresent
@@ -26,6 +32,9 @@ data:
     docker_image_repo: "{{ registry_host }}"
     quay_image_repo: "{{ registry_host }}"
 
+    docker_rh_repo_base_url: "{{ files_repo }}/centos/$releasever/os/$basearch"
+    docker_rh_repo_gpgkey: ""
+
     kubeadm_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
     kubectl_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
     kubelet_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
@@ -41,3 +50,4 @@ data:
     runc_download_url: "{{ files_repo }}/github.com/opencontainers/runc/releases/download/{{ runc_version }}/runc.{{ image_arch }}"
     containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ image_arch }}.tar.gz"
     nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+    cri_dockerd_download_url: "{{ files_repo }}/github.com/Mirantis/cri-dockerd/releases/download/v{{ cri_dockerd_version }}/cri-dockerd-{{ cri_dockerd_version }}.{{ image_arch }}.tgz"
