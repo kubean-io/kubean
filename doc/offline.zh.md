@@ -97,13 +97,13 @@ OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线�
 
 > 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前仅支持 Centos 发行版的 ISO 镜像源创建;
 
-这里需要使用到 `make_local_iso_repo.sh`, 该脚本目前位于 `artifacts/` 目录下, 执行如下命令即可创建 ISO 镜像源:
+这里需要使用到 `gen_repo_conf.sh`, 该脚本目前位于 `artifacts/` 目录下, 执行如下命令即可创建 ISO 镜像源:
 
 ``` bash
-$ ISO_IMG_FILE=${iso_image_file} ./make_local_iso_repo.sh ${linux_distribution}
+$ ./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
 
 # 比如:
-$ ISO_IMG_FILE=CentOS-7-x86_64-Everything-2207-02.iso ./make_local_iso_repo.sh centos
+$ ./gen_repo_conf.sh --iso-mode centos iso/CentOS-7-x86_64-Everything-2207-02.iso
 ```
 
 ## 建立本地 extras 镜像源
@@ -114,12 +114,21 @@ $ ISO_IMG_FILE=CentOS-7-x86_64-Everything-2207-02.iso ./make_local_iso_repo.sh c
 
 在需要安装 K8S 集群的机器上，新建文件 `/etc/yum.repos.d/localextras.repo` ，内容如下
 
-```yaml
+``` ini
 [ localextras ]
   name=localextras
   baseurl=${minio_address}/centos/$releasever/os/$basearch
   enable=1
   gpgcheck=0
+```
+
+或者, 可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
+
+``` bash
+$ ./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
+
+# 比如:
+$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/centos/$releasever/os/$basearch
 ```
 
 * 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
