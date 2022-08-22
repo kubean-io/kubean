@@ -41,20 +41,20 @@ vagrant status
 ATTEMPTS=0
 pingOK=0
 ping -w 2 -c 1 $vm_ip_addr1|grep "0%" && pingOK=true || pingOK=false
-until [ "${pingOK}" == "false" ] || [ $ATTEMPTS -eq 10 ]; do
+until [ "${pingOK}" == "true" ] || [ $ATTEMPTS -eq 10 ]; do
 ping -w 2 -c 1 $vm_ip_addr1|grep "0%" && pingOK=true || pingOK=false
 echo "==> ping "$vm_ip_addr1 $pingOK
 ATTEMPTS=$((ATTEMPTS + 1))
 sleep 10
 done
 
-sshpass -p root ssh root@${vm_ip_addr1} cat /proc/version
+sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
 ping -c 5 ${vm_ip_addr1}
 ping -c 5 ${vm_ip_addr2}
 echo "==> scp sonobuoy bin to master: "
-sshpass -p root scp $(pwd)/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+sshpass -p root scp  -o StrictHostKeyChecking=no $(pwd)/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 
-# prepare kubean install job yml using containerd
+# prepare kubean install job yml using docker
 SPRAY_JOB="ghcr.io/kubean-io/kubean/spray-job:${SPRAY_JOB_VERSION}"
 cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/
 cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/
@@ -62,7 +62,15 @@ sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" $(pwd)/test/kubean_sonobouy_e2e/e2e-insta
 sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/hosts-conf-cm.yml
 sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/kubeanClusterOps.yml
 sed -i "s/containerd/docker/" $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/vars-conf-cm.yml
+sed -i "s/v1.23.7/v1.22.12/" $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/vars-conf-cm.yml
 sed -i "s#  \"10.6.170.10:5000\": \"http://10.6.170.10:5000\"#   - 10.6.170.10:5000#" $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/vars-conf-cm.yml
+
+# prepare cluster upgrade job yml
+mkdir $(pwd)/test/kubean_sonobouy_e2e/e2e-upgrade-cluster
+cp $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/* $(pwd)/test/kubean_sonobouy_e2e/e2e-upgrade-cluster/
+sed -i "s/v1.22.12/v1.23.7/" $(pwd)/test/kubean_sonobouy_e2e/e2e-upgrade-cluster/vars-conf-cm.yml
+sed -i "s/e2e-cluster1-install-sonobouy/e2e-upgrade-cluster/" $(pwd)/test/kubean_sonobouy_e2e/e2e-upgrade-cluster/kubeanClusterOps.yml
+sed -i "s/cluster.yml/upgrade-cluster.yml/" $(pwd)/test/kubean_sonobouy_e2e/e2e-upgrade-cluster/kubeanClusterOps.yml
 
 # Run nightly e2e
 ginkgo -v -race --fail-fast ./test/kubean_sonobouy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --vmipaddr="${vm_ip_addr1}"

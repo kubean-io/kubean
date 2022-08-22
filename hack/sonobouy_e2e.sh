@@ -58,7 +58,7 @@ if [ "${RUNNER_NAME}" == "kubean-actions-runner1" ]; then
     vm_ip_addr2="10.6.127.36"
 fi
 if [ "${RUNNER_NAME}" == "kubean-actions-runner2" ]; then
-    vm_ip_addr="10.6.127.35"
+    vm_ip_addr1="10.6.127.35"
     vm_ip_addr2="10.6.127.37"
 fi
 if [ "${RUNNER_NAME}" == "kubean-actions-runner3" ]; then
