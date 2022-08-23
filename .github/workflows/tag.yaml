@@ -33,11 +33,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore offline-build-cr-file cache
-        uses: actions/cache@v3
-        with:
-          path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
-          key: offline-build-cr-file
+      # - name: Restore offline-build-cr-file cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+      #     key: offline-build-cr-file
 
       - name: update helm version and image tag
         run: |
