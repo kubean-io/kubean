@@ -48,7 +48,7 @@ function generate_yum_repo() {
 
   if [ ${MODE} == "iso" ]; then
     cat >${YUM_REPOS_PATH}/${ISO_REPO_CONF} <<EOF
-[kubean iso]
+[kubean-iso]
 name=Kubean ISO Repo
 baseurl=file://${ISO_MOUNT_PATH}
 enabled=1
@@ -60,7 +60,7 @@ EOF
 
   if [ ${MODE} == "url" ]; then
     cat >${YUM_REPOS_PATH}/${URL_REPO_CONF} <<EOF
-[kubean extra]
+[kubean-extra]
 name=Kubean Extra Repo
 baseurl=${REPO_BASE_URL}
 enabled=1

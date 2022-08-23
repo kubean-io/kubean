@@ -91,47 +91,99 @@ os-pkgs
 $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${tag}-${arch}.tar.gz
 ```
 
-## 建立本地 ISO 镜像源
+## 建立离线源
 
-OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到系统的其他包, 此时需要建立本地 ISO 镜像源.
+### 1. 建立本地 ISO 镜像源
+
+OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地 ISO 镜像源.
 
 > 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前仅支持 Centos 发行版的 ISO 镜像源创建;
 
-这里需要使用到 `gen_repo_conf.sh`, 该脚本目前位于 `artifacts/` 目录下, 执行如下命令即可创建 ISO 镜像源:
+这里可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可挂载 ISO 镜像文件, 并创建 Repo 配置文件:
 
 ``` bash
+# 基本格式
 $ ./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
 
-# 比如:
-$ ./gen_repo_conf.sh --iso-mode centos iso/CentOS-7-x86_64-Everything-2207-02.iso
+# 执行脚本创建 ISO 镜像源
+$ ./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
+# 查看 ISO 镜像挂载情况
+$ df -h | grep mnt
+/dev/loop0               9.6G  9.6G     0 100% /mnt/centos-iso
+# 查看 ISO 镜像源配置
+$ cat /etc/yum.repos.d/Kubean-ISO.repo
+[kubean-iso]
+name=Kubean ISO Repo
+baseurl=file:///mnt/centos-iso
+enabled=1
+gpgcheck=0
+sslverify=0
 ```
 
-## 建立本地 extras 镜像源
-
-> 当前仅仅支持 Centos 发行版
-
-在安装 K8S 集群中，还会依赖一些extras软件，比如 container-selinux ，这些软件不在上文提到的 ISO 镜像源中。但 kubean 提供的 OS packages 包含这些软件。
-
-在需要安装 K8S 集群的机器上，新建文件 `/etc/yum.repos.d/localextras.repo` ，内容如下
-
-``` ini
-[ localextras ]
-  name=localextras
-  baseurl=${minio_address}/centos/$releasever/os/$basearch
-  enable=1
-  gpgcheck=0
+当然, 你也可以使用 MINIO 服务命令, 将 ISO 挂载目录暴露出来:
+``` bash
+# 比如, 暴露 centos iso 的挂载目录
+$ minio server /mnt/centos-iso
 ```
 
-或者, 可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
+### 2. 建立 extras 软件源
+
+> 当前仅支持 Centos 发行版
+
+在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供.
+对此 OS packages 离线包已对其进行了补充, 其在导入 minio 之后, 我们还需要向各个节点创建 extra repo 配置文件.
+
+同样可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
 
 ``` bash
 $ ./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
 
-# 比如:
-$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/centos/$releasever/os/$basearch
+# 执行脚本创建 URL 源配置文件
+$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/centos/\$releasever/os/\$basearch
+# 查看 URL 源配置文件
+$ cat /etc/yum.repos.d/Kubean-URL.repo
+[kubean-extra]
+name=Kubean Extra Repo
+baseurl=http://10.20.30.40:9000/centos/$releasever/os/$basearch
+enabled=1
+gpgcheck=0
+sslverify=0
 ```
 
-* 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
+> 注: 若 `repo_base_url` 参数中带有 `$` 符号, 需要对其进行转义 `\$`
+
+> 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
+
+### 3. KubeanClusterOps 结合 playbook 创建源配置文件
+
+> 当前仅支持 Centos yum repo 的添加
+
+由于创建源的过程涉及到集群的所有节点, 手动脚本操作相对繁琐, 这里提供了一种 playbook 的解决方式:
+
+``` yaml
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster-ops-01
+spec:
+  kuBeanCluster: sample
+  image: ghcr.io/kubean-io/kubean/spray-job:latest
+  backoffLimit: 0
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
+      extraArgs: |
+        -e "{yum_repo_url_list: ['http://10.20.30.40:9000/centos/\$releasever/os/\$basearch']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+```
 
 ## 部署集群前的配置
 

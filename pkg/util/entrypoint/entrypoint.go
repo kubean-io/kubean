@@ -19,6 +19,7 @@ const (
 	UpgradeClusterPB = "upgrade-cluster.yml"
 
 	PingPB        = "ping.yml"
+	RepoPB        = "enable-repo.yml"
 	FirewallPB    = "disable-firewalld.yml"
 	ClusterInfoPB = "cluster-info.yml"
 
@@ -96,7 +97,7 @@ func NewActions() *Actions {
 	actions.Playbooks = &Playbooks{}
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
-		PingPB, FirewallPB, ClusterInfoPB,
+		PingPB, RepoPB, FirewallPB, ClusterInfoPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
