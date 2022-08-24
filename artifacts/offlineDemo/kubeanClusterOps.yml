@@ -14,6 +14,10 @@ spec:
     - actionType: playbook
       action: ping.yml
     - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e "{yum_repo_url_list: ['http://MINIO_API_HOST:MINIO_API_PORT/centos/\$releasever/os/\$basearch']}"
+    - actionType: playbook
       action: disable-firewalld.yml
   postHook:
     - actionType: playbook
