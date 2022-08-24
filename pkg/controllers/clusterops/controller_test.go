@@ -609,3 +609,59 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		})
 	}
 }
+
+func TestIsValidImageName(t *testing.T) {
+	testCases := []struct {
+		name string
+		args string
+		want bool
+	}{
+		{
+			name: "empty string",
+			args: "",
+			want: false,
+		},
+		{
+			name: "space string",
+			args: " ",
+			want: false,
+		},
+		{
+			name: "underscore string",
+			args: "_",
+			want: false,
+		},
+		{
+			name: "dot string",
+			args: ".",
+			want: false,
+		},
+		{
+			name: "one letter",
+			args: "a",
+			want: true,
+		},
+		{
+			name: "ubuntu",
+			args: "ubuntu",
+			want: true,
+		},
+		{
+			name: "ubuntu with tag",
+			args: "ubuntu:14.01",
+			want: true,
+		},
+		{
+			name: "valid image name",
+			args: "ghcr.io/kubean-io/kubean/spray-job:latest",
+			want: true,
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			if IsValidImageName(testCase.args) != testCase.want {
+				t.Fatal()
+			}
+		})
+	}
+}

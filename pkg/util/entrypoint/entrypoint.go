@@ -105,6 +105,14 @@ func NewActions() *Actions {
 	return actions
 }
 
+type ArgsError struct {
+	msg string
+}
+
+func (argsError ArgsError) Error() string {
+	return argsError.msg
+}
+
 type EntryPoint struct {
 	PreHookCMDs  []string
 	SprayCMD     string
@@ -120,7 +128,7 @@ func NewEntryPoint() *EntryPoint {
 
 func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey bool) (string, error) {
 	if _, ok := ep.Actions.Playbooks.Dict[action]; !ok {
-		return "", fmt.Errorf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)
+		return "", ArgsError{fmt.Sprintf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)}
 	}
 	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 	if isPrivateKey {
@@ -144,13 +152,13 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 	if actionType == PBAction {
 		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
 		if err != nil {
-			return "", fmt.Errorf("buildPlaybookCmd: %w", err)
+			return "", ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
 		hookRunCmd = playbookCmd
 	} else if actionType == SHAction {
 		hookRunCmd = action
 	} else {
-		return "", fmt.Errorf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)
+		return "", ArgsError{fmt.Sprintf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)}
 	}
 	return hookRunCmd, nil
 }
@@ -158,7 +166,7 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	prehook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
 	if err != nil {
-		return fmt.Errorf("prehook: %w", err)
+		return ArgsError{fmt.Sprintf("prehook: %s", err)}
 	}
 	ep.PreHookCMDs = append(ep.PreHookCMDs, prehook)
 	return nil
@@ -167,7 +175,7 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPri
 func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	posthook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
 	if err != nil {
-		return fmt.Errorf("posthook: %w", err)
+		return ArgsError{fmt.Sprintf("posthook: %s", err)}
 	}
 	ep.PostHookCMDs = append(ep.PostHookCMDs, posthook)
 	return nil
@@ -191,7 +199,7 @@ func (ep *EntryPoint) kubeconfPostbackPart(action string, isPrivateKey bool) err
 	}
 	posthook, err := ep.hookRunPart(SHAction, script, "", false)
 	if err != nil {
-		return fmt.Errorf("posthook: %w", err)
+		return ArgsError{fmt.Sprintf("posthook: %s", err)}
 	}
 	ep.PostHookCMDs = append(ep.PostHookCMDs, posthook)
 	return nil
@@ -201,16 +209,16 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 	if actionType == PBAction {
 		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
 		if err != nil {
-			return fmt.Errorf("buildPlaybookCmd: %w", err)
+			return ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
 		ep.SprayCMD = playbookCmd
 	} else if actionType == SHAction {
 		ep.SprayCMD = action
 	} else {
-		return fmt.Errorf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)
+		return ArgsError{fmt.Sprintf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)}
 	}
 	if err := ep.kubeconfPostbackPart(action, isPrivateKey); err != nil {
-		return fmt.Errorf("failed to set kubeconfig postback: %s", err)
+		return ArgsError{fmt.Sprintf("failed to set kubeconfig postback: %s", err)}
 	}
 	return nil
 }
