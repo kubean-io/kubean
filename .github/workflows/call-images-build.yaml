@@ -1,11 +1,15 @@
 name: build-image
 
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      spray_ref:
+        required: true
+        type: string
 
 env:
-  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
-  SPRAY_JOB_IMAGE_NAME: spray-job
-  KUBESPRAY_TAG: master
+  ONLINE_REGISTER: ghcr.io
+  BUILD_PLATFORM: linux/amd64,linux/arm64
 
 jobs:
   build-push:
@@ -15,44 +19,64 @@ jobs:
       contents: read
 
     steps:
+      - name: Set env
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.spray_ref }} | cut -c 1-7)" >> ${GITHUB_ENV}
+
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+          echo "SPRAY_SHA_SHORT: ${{ env.SPRAY_SHA_SHORT }}"
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - uses: actions/checkout@v3
+        with:
+          repository: kubernetes-sigs/kubespray
+          ref: ${{ inputs.spray_ref }}
+          path: ./kubespray
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+
       - name: Log in to registry
-        # This is where you will update the PAT to GITHUB_TOKEN
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: kubean-operator Build image
-        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+      - name: kubespray base image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/kubespray/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/kubespray:${{ env.SPRAY_SHA_SHORT }}
 
-      - name: kubean-operator Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$KUKEAN_OPERATOR_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
+      - name: spray-job image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/spray-job/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/spray-job:${{ github.ref_name }}
+          build-args: |
+            SPRAY_TAG=${{ env.SPRAY_SHA_SHORT }}
+            REPO=${{ env.REPO }}
 
-      - name: spray-job Build image
-        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
-
-      - name: spray-job Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$SPRAY_JOB_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
+      - name: kubean-operator image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/kubean-operator/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/kubean-operator:${{ github.ref_name }}
