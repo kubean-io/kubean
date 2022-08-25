@@ -120,18 +120,33 @@ gpgcheck=0
 sslverify=0
 ```
 
-当然, 你也可以使用 MINIO 服务命令, 将 ISO 挂载目录暴露出来:
-``` bash
-# 比如, 暴露 centos iso 的挂载目录
-$ minio server /mnt/centos-iso
+#### 1.1. 建立在线 ISO 镜像源
+
+将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到 minio server 中
+
+```bash
+MINIO_USER=${username} MINIO_PASS=${password} ./import_iso.sh ${minio_address} Centos-XXXX.ISO
 ```
+
+为主机新建如下文件 `/etc/yum.repos.d/centos-iso-online.repo` 即可使用在线 ISO 镜像源:
+
+```
+[kubean-iso-online]
+name=Kubean ISO Repo Online
+baseurl=${minio_address}/kubean/centos-iso/$releasever/os/$basearch
+enabled=1
+gpgcheck=0
+sslverify=0
+```
+
+* 需要将 `${minio_address}` 替换为 minio API Server 地址
 
 ### 2. 建立 extras 软件源
 
 > 当前仅支持 Centos 发行版
 
-在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供.
-对此 OS packages 离线包已对其进行了补充, 其在导入 minio 之后, 我们还需要向各个节点创建 extra repo 配置文件.
+在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供. 对此 OS packages 离线包已对其进行了补充, 其在导入 minio 之后,
+我们还需要向各个节点创建 extra repo 配置文件.
 
 同样可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
 
