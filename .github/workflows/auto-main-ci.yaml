@@ -1,4 +1,4 @@
-name: main
+name: Auto Main CI
 
 on:
   push:
@@ -34,7 +34,20 @@ jobs:
           chmod +x codecov
           ./codecov
 
+  get-spray-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.get_ref.outputs.sha }}
+    steps:
+      - name: Get kubespray latest commit sha
+        id: get_ref
+        run: |
+          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
+          echo ::set-output name=sha::${COMMIT_SHA}
+
   call-images-build:
     uses: ./.github/workflows/call-images-build.yaml
-    needs: unit-test
     secrets: inherit
+    needs: [get-spray-ref, unit-test]
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}

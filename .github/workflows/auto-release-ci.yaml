@@ -1,4 +1,4 @@
-name: tag-charts
+name: Auto Release CI
 
 on:
   push:

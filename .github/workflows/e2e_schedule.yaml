@@ -1,4 +1,4 @@
-name: main_schedule
+name: e2e_schedule
 
 on:
   # refer: https://crontab.guru/examples.html
