@@ -4,22 +4,36 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-env:
-  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
-  KUBESPRAY_IMAGE_NAME: kubespray
-  SPRAY_JOB_IMAGE_NAME: spray-job
-  KUBESPRAY_TAG: master
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
 
 jobs:
+  get-spray-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.get_ref.outputs.sha }}
+    steps:
+      - name: Get kubespray latest commit sha
+        id: get_ref
+        run: |
+          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
+          echo ::set-output name=sha::${COMMIT_SHA}
+
   call-offline-build:
     uses: ./.github/workflows/call-offline-build.yaml
+    needs: get-spray-ref
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+
+  call-images-build:
+    uses: ./.github/workflows/call-images-build.yaml
+    secrets: inherit
+    needs: get-spray-ref
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
   
-  call-images-build:
-    uses: ./.github/workflows/call-images-build.yaml
-    secrets: inherit
 
   charts:
     needs: [call-images-build,call-offline-build]
