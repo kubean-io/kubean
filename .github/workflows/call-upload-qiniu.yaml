@@ -28,15 +28,6 @@ jobs:
             os-pkgs/kubean-${{ github.ref_name }}-centos7-arm64.tar.gz
           key: os-pkgs-build-centos7
 
-      - name: Restore os-pkgs-build-centos8 cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            os-pkgs/kubean-${{ github.ref_name }}-centos8.sha256sum.txt
-            os-pkgs/kubean-${{ github.ref_name }}-centos8-amd64.tar.gz
-            os-pkgs/kubean-${{ github.ref_name }}-centos8-arm64.tar.gz
-          key: os-pkgs-build-centos8
-
       - name: Make tar package
         run: |
           tree .

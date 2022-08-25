@@ -1,4 +1,4 @@
-name: Offline Build CI
+name: Offline Build
 
 on:
   workflow_call:
