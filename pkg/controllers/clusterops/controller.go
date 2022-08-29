@@ -36,9 +36,9 @@ const (
 
 type Controller struct {
 	client.Client
-	ClientSet           *kubernetes.Clientset
-	KubeanClusterSet    *kubeanClusterClientSet.Clientset
-	KubeanClusterOpsSet *kubeanClusterOpsClientSet.Clientset
+	ClientSet           kubernetes.Interface
+	KubeanClusterSet    kubeanClusterClientSet.Interface
+	KubeanClusterOpsSet kubeanClusterOpsClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
