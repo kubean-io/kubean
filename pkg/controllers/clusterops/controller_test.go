@@ -6,8 +6,11 @@ import (
 	"testing"
 	"time"
 
+	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
 	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	kubeanclusterv1alpha1fake "kubean.io/api/generated/kubeancluster/clientset/versioned/fake"
+	kubeanclusteropsv1alpha1fake "kubean.io/api/generated/kubeanclusterops/clientset/versioned/fake"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -660,6 +663,52 @@ func TestIsValidImageName(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			if IsValidImageName(testCase.args) != testCase.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestCreateKubeSprayJob(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+	}
+	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps.Spec.BackoffLimit = 10
+	clusterOps.Name = "myops"
+	clusterOps.Spec.Image = "myimage"
+	clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "hostsconf",
+	}
+	clusterOps.Spec.VarsConfRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "varsconf",
+	}
+	clusterOps.Spec.EntrypointSHRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "entrypoint",
+	}
+	controller.CreateKubeSprayJob(clusterOps)
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "create job successfully",
+			args: func() bool {
+				needRequeue, err := controller.CreateKubeSprayJob(clusterOps)
+				return needRequeue && err == nil
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
 				t.Fatal()
 			}
 		})
