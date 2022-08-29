@@ -131,6 +131,39 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		})
 	})
 
+	// check network configuration:
+	// cat /proc/sys/net/ipv4/ip_forward: 1
+	// cat /proc/sys/net/ipv4/tcp_tw_recycle: 0
+	ginkgo.Context("do network configurations checking", func() {
+		masterSSH := fmt.Sprintf("root@%s", tools.Vmipaddr)
+		workerSSH := fmt.Sprintf("root@%s", tools.Vmipaddr2)
+		masterCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "cat", "/proc/sys/net/ipv4/ip_forward")
+		workerCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", workerSSH, "cat", "/proc/sys/net/ipv4/ip_forward")
+		out1, _ := tools.DoCmd(*masterCmd)
+		fmt.Println("out: ", out1.String())
+		ginkgo.It("master net.ipv4.ip_forward result checking: ", func() {
+			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("1"))
+		})
+		out2, _ := tools.DoCmd(*workerCmd)
+		fmt.Println("out: ", out2.String())
+		ginkgo.It("worker net.ipv4.ip_forward result checking: ", func() {
+			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("1"))
+		})
+
+		masterCmd = exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
+		workerCmd = exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
+		out3, _ := tools.DoCmd(*masterCmd)
+		fmt.Println("out: ", out3.String())
+		ginkgo.It("master net.ipv4.tcp_tw_recycle result checking: ", func() {
+			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("0"))
+		})
+		out4, _ := tools.DoCmd(*workerCmd)
+		fmt.Println("out: ", out4.String())
+		ginkgo.It("worker net.ipv4.tcp_tw_recycle result checking: ", func() {
+			gomega.Expect(out4.String()).Should(gomega.ContainSubstring("0"))
+		})
+	})
+
 	// cluster upgrade
 	ginkgo.Context("do cluster upgrade from v1.22.12 to v1.23.7", func() {
 		clusterInstallYamlsPath := "e2e-upgrade-cluster"
