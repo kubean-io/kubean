@@ -25,6 +25,9 @@ data:
     kube_service_addresses: 10.96.0.0/12
     kube_pods_subnet: 192.168.128.0/20
     kube_network_node_prefix: 24
+
+    calico_cni_name: calico
+    calico_felix_premetheusmetricsenabled: true
  
     # Download Config
     download_run_once: true
