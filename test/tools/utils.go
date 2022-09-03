@@ -55,6 +55,21 @@ func UpdateOpsYml(content string, filePath string) {
 	_ = ioutil.WriteFile(filePath, data, 0777)
 }
 
+func UpdateBackoffLimit(content int, filePath string) {
+	// read in Ops yaml file content
+	yamlfileCotent, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Fatal("fail to read insight yml file: ", err)
+	}
+	var kubeanOpsYml KubeanOpsYml
+	_ = yaml.Unmarshal(yamlfileCotent, &kubeanOpsYml)
+	// modify BackoffLimit
+	kubeanOpsYml.Spec.BackoffLimit = content
+	data, _ := yaml.Marshal(kubeanOpsYml)
+	// write back to yml file
+	_ = ioutil.WriteFile(filePath, data, 0777)
+}
+
 func DoCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
 	var out, stderr bytes.Buffer
