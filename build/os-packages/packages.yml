@@ -1,0 +1,55 @@
+---
+kubespray:
+  common:
+    - curl
+    - rsync
+    - socat
+    - unzip
+    - e2fsprogs
+    - xfsprogs
+    - ebtables
+    - bash-completion
+    - ipvsadm
+    - ipset
+    - conntrack
+    - container-selinux
+
+  yum:
+    - nss
+    - device-mapper-libs
+    - conntrack-tools
+
+common:
+  - cifs-utils
+  - lsof
+  - lvm2
+  - openssl
+  - sshpass
+  - vim
+  - wget
+  - ethtool
+  - net-tools
+  - chrony
+
+yum:
+  - nfs-utils
+  - yum-utils
+  - createrepo
+  - nc
+  - httpd-tools
+
+centos7:
+  - libselinux-python
+  - containerd.io-1.6.4
+  - docker-ce-20.10.17
+  - docker-ce-cli-20.10.17
+
+centos8:
+  - libselinux-python3
+  - containerd.io-1.6.4
+  - docker-ce-3:20.10.17
+  - docker-ce-cli-1:20.10.17
+
+
+
+

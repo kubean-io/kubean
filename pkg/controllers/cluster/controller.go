@@ -21,6 +21,7 @@ import (
 
 const (
 	RequeueAfter = time.Second * 5
+	OpsBackupNum = 5
 )
 
 type Controller struct {
@@ -98,6 +99,29 @@ func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) 
 	return nil
 }
 
+// CleanExcessClusterOps clean up excess KuBeanClusterOps.
+func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
+	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	if err != nil {
+		return false, err
+	}
+	if len(clusterOpsList.Items) <= OpsBackupNum {
+		return false, nil
+	}
+
+	// clusterOps list sort by creation timestamp
+	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
+		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
+	})
+	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
+	for _, item := range excessClusterOpsList {
+		klog.Warningf("Delete KuBeanClusterOps: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
+		c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
+	}
+	return true, nil
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	cluster := &kubeanclusterv1alpha1.KuBeanCluster{}
 	if err := c.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -107,6 +131,16 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
+
+	needRequeue, err := c.CleanExcessClusterOps(cluster)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+
 	if err := c.UpdateStatus(cluster); err != nil {
 		klog.Error(err)
 	}

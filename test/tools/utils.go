@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"bytes"
 	"io/ioutil"
 	"log"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/onsi/ginkgo/v2"
+	"github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
 )
 
@@ -50,4 +53,16 @@ func UpdateOpsYml(content string, filePath string) {
 	data, _ := yaml.Marshal(kubeanOpsYml)
 	// write back to yml file
 	_ = ioutil.WriteFile(filePath, data, 0777)
+}
+
+func DoCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
+	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
+	var out, stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
+	}
+	return out, stderr
 }

@@ -1,0 +1,88 @@
+name: Image Build
+
+on:
+  workflow_call:
+    inputs:
+      spray_ref:
+        required: true
+        type: string
+
+env:
+  ONLINE_REGISTER: ghcr.io
+  BUILD_PLATFORM: linux/amd64,linux/arm64
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Set env
+        run: |
+          echo "REPO=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.spray_ref }} | cut -c 1-7)" >> ${GITHUB_ENV}
+
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+          echo "SPRAY_SHA_SHORT: ${{ env.SPRAY_SHA_SHORT }}"
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/checkout@v3
+        with:
+          repository: kubernetes-sigs/kubespray
+          ref: ${{ inputs.spray_ref }}
+          path: ./kubespray
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.0.0
+
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: kubespray base image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/kubespray/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/kubespray:${{ env.SPRAY_SHA_SHORT }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: spray-job image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/spray-job/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/spray-job:${{ github.ref_name }}
+          build-args: |
+            SPRAY_TAG=${{ env.SPRAY_SHA_SHORT }}
+            REPO=${{ env.REPO }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: kubean-operator image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/kubean-operator/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: ${{ env.ONLINE_REGISTER }}/${{ env.REPO }}/kubean-operator:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

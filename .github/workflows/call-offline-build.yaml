@@ -1,0 +1,86 @@
+name: Offline Build
+
+on:
+  workflow_call:
+    inputs:
+      spray_ref:
+        required: true
+        type: string
+
+jobs:
+  offline-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set env
+      run: echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.spray_ref }} | cut -c 1-7)" >> ${GITHUB_ENV}
+
+    - name: Echo env
+      run: echo ${SPRAY_SHA_SHORT}
+
+    - name: git clone kubean repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: git clone kubespray repo
+      uses: actions/checkout@v3
+      with:
+        repository: kubernetes-sigs/kubespray
+        ref: ${{ inputs.spray_ref }}
+        path: ./kubespray
+
+    - name: install yq tool
+      uses: mikefarah/yq@v4.27.2
+
+    - name: generate ComponentsVersion & OfflineVersion files
+      run: |
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${SPRAY_SHA_SHORT} bash artifacts/manage_version_cr.sh create_componentsversion
+          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${SPRAY_SHA_SHORT} bash artifacts/manage_version_cr.sh create_offlineversion
+    - name: preparing the python environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: install kubespray requirements
+      run: |
+        cd kubespray/
+        python3 -m pip install --no-cache-dir -r requirements.txt
+        cd ../
+
+    - name: package image & binary offline resources
+      run: |
+        echo "kubeanofflineversion cr output:"
+        cat ${GITHUB_REF_NAME}/kubeanofflineversion.cr.yaml
+        echo "kubeancomponentsversion cr output:"
+        cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
+
+        KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
+        cd ${{ github.ref_name }}/
+        tar -zcvf files-${{ github.ref_name }}.tar.gz files/
+        tar -zcvf images-${{ github.ref_name }}.tar.gz images/
+        cd ../
+        tree ${GITHUB_REF_NAME}/
+
+    - name: Release and upload packages
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          ${{ github.ref_name }}/files-${{ github.ref_name }}.tar.gz
+          ${{ github.ref_name }}/images-${{ github.ref_name }}.tar.gz
+          ${{ github.ref_name }}/*.list
+          ${{ github.ref_name }}/*.cr.yaml
+
+    # - name: Store offline-build cache
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ${{ github.ref_name }}/
+    #     key: offline-build
+
+    - name: Store componentversion CR cache
+      uses: actions/cache@v3
+      with:
+        path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        key: offline-build-cr-file

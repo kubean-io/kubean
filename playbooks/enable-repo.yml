@@ -1,0 +1,35 @@
+---
+- hosts: k8s_cluster
+  become: yes
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    yum_repo_name: extension
+    yum_repo_src_path: /etc/yum.repos.d
+    yum_repo_bak_path: /etc/yum.repos.d.bak
+    yum_repo_url_list: []
+  tasks:
+    - name: Checking if "{{ yum_repo_name }}" exists
+      stat:
+        path: "{{ yum_repo_src_path }}/{{ yum_repo_name }}.repo"
+      register: file_data
+
+    - name: Backup original yum repo if "{{ yum_repo_name }}" not exist
+      shell: >-
+        mkdir -p {{ yum_repo_bak_path }}/ &&
+        mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/
+      when: 
+        - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
+
+    - name: Enable "{{ yum_repo_name }}" yum repositories
+      ansible.builtin.yum_repository:
+        name: "{{ yum_repo_name }}-{{ url_index }}"
+        description: "kubean {{ yum_repo_name }} {{ url_index }}"
+        file: "{{ yum_repo_name }}"
+        baseurl: "{{ url_item }}"
+        gpgcheck: no
+      loop: "{{ yum_repo_url_list }}"
+      loop_control:
+        loop_var: url_item
+        index_var: url_index
+      when:
+        - ansible_distribution == "CentOS"

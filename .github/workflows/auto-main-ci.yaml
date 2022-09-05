@@ -1,0 +1,53 @@
+name: Auto Main CI
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBESPRAY_IMAGE_NAME: kubespray
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: master
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+
+      - name: unit test
+        run: |
+          make test > coverage.temp
+          grep total coverage.temp > covarage.txt
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov
+
+  get-spray-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.get_ref.outputs.sha }}
+    steps:
+      - name: Get kubespray latest commit sha
+        id: get_ref
+        run: |
+          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
+          echo ::set-output name=sha::${COMMIT_SHA}
+
+  call-images-build:
+    uses: ./.github/workflows/call-images-build.yaml
+    secrets: inherit
+    needs: [get-spray-ref, unit-test]
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}

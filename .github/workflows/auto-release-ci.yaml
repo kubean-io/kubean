@@ -1,0 +1,81 @@
+name: Auto Release CI
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+
+jobs:
+  get-spray-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.get_ref.outputs.sha }}
+    steps:
+      - name: Get kubespray latest commit sha
+        id: get_ref
+        run: |
+          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
+          echo ::set-output name=sha::${COMMIT_SHA}
+
+  call-offline-build:
+    uses: ./.github/workflows/call-offline-build.yaml
+    needs: get-spray-ref
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+
+  call-images-build:
+    uses: ./.github/workflows/call-images-build.yaml
+    secrets: inherit
+    needs: get-spray-ref
+    with:
+      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+
+  call-os-pkgs-build:
+    uses: ./.github/workflows/call-os-pkgs-build.yaml
+  
+
+  charts:
+    needs: [call-images-build,call-offline-build]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # - name: Restore offline-build-cr-file cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+      #     key: offline-build-cr-file
+
+      - name: update helm version and image tag
+        run: |
+          CHART_VERSION="version: ${GITHUB_REF_NAME}"
+          CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
+          sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
+          # example =>  tag: v0.1.0
+          sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
+
+      - name: Pushes charts to another repository
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@ssh-deploy-key
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: charts
+          destination-github-username: 'kubean-io'
+          destination-repository-name: 'kubean-helm-chart'
+          user-email: kubean-robot@ykubean.io
+          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          target-directory: charts
+          target-branch: main
+
+  # call-upload-qiniu:
+  #   needs: [call-os-pkgs-build,call-offline-build]
+  #   uses: ./.github/workflows/call-upload-qiniu.yaml
+  #   secrets: inherit

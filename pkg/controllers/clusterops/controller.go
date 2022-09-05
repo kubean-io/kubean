@@ -4,10 +4,10 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/kubean-io/kubean/pkg/util/entrypoint"
 
@@ -30,16 +30,15 @@ import (
 
 const (
 	RequeueAfter          = time.Millisecond * 500
-	OpsBackupNum          = 5
 	LoopForJobStatus      = time.Second * 3
 	KubeanClusterLabelKey = "clusterName"
 )
 
 type Controller struct {
 	client.Client
-	ClientSet           *kubernetes.Clientset
-	KubeanClusterSet    *kubeanClusterClientSet.Clientset
-	KubeanClusterOpsSet *kubeanClusterOpsClientSet.Clientset
+	ClientSet           kubernetes.Interface
+	KubeanClusterSet    kubeanClusterClientSet.Interface
+	KubeanClusterOpsSet kubeanClusterOpsClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -180,6 +179,17 @@ func (c *Controller) CurrentJobNeedBlock(clusterOps *kubeanclusteropsv1alpha1.Ku
 	return len(runningClusterOpsList) != 0, nil
 }
 
+func IsValidImageName(image string) bool {
+	isNumberOrLetter := func(r rune) bool {
+		return unicode.IsLetter(r) || unicode.IsNumber(r)
+	}
+	if len(image) == 0 || strings.Contains(image, " ") {
+		return false
+	}
+	runeSlice := []rune(image)
+	return isNumberOrLetter(runeSlice[0]) && isNumberOrLetter(runeSlice[len(runeSlice)-1])
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
@@ -189,6 +199,21 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
+
+	if clusterOps.Status.Status == kubeanclusteropsv1alpha1.FailedStatus || clusterOps.Status.Status == kubeanclusteropsv1alpha1.SucceededStatus {
+		// return early
+		return controllerruntime.Result{Requeue: false}, nil
+	}
+
+	if !IsValidImageName(clusterOps.Spec.Image) {
+		klog.Errorf("clusterOps %s has wrong image format and update status Failed", clusterOps.Name)
+		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
+			klog.Error(err)
+		}
+		return controllerruntime.Result{Requeue: false}, nil
+	}
+
 	cluster, err := c.GetKuBeanCluster(clusterOps)
 	if err != nil {
 		klog.Error(err)
@@ -220,6 +245,15 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 
 	needRequeue, err = c.CreateEntryPointShellConfigMap(clusterOps)
+	if argsErr, ok := err.(entrypoint.ArgsError); ok {
+		// preHook or postHook or action error args
+		klog.Errorf("clusterOps %s wrong args %s and update status Failed", clusterOps.Name, argsErr.Error())
+		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
+			klog.Error(err)
+		}
+		return controllerruntime.Result{Requeue: false}, err
+	}
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
@@ -247,15 +281,6 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 
 	needRequeue, err = c.CreateKubeSprayJob(clusterOps)
-	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
-	}
-	if needRequeue {
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
-	}
-
-	needRequeue, err = c.CleanExcessClusterOps(cluster)
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
@@ -591,29 +616,6 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return true, nil
 	}
 	return false, nil // needRequeue,err
-}
-
-// CleanExcessClusterOps clean up excess KuBeanClusterOps.
-func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
-	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
-	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
-	if err != nil {
-		return false, err
-	}
-	if len(clusterOpsList.Items) <= OpsBackupNum {
-		return false, nil
-	}
-
-	// clusterOps list sort by creation timestamp
-	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
-		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
-	})
-	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
-	for _, item := range excessClusterOpsList {
-		klog.Warningf("Delete KuBeanClusterOps: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
-		c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
-	}
-	return true, nil
 }
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {

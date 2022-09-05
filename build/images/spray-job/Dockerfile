@@ -1,5 +1,7 @@
-ARG spray_tag=master
-FROM ghcr.io/kubean-io/kubean/kubespray:$spray_tag
+ARG SPRAY_TAG=master
+ARG REPO=kubean-io/kubean
+
+FROM ghcr.io/${REPO}/kubespray:${SPRAY_TAG}
 
 WORKDIR /kubespray
 
