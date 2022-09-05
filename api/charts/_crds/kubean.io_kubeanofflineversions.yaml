@@ -47,10 +47,6 @@ spec:
               docker:
                 items:
                   properties:
-                    containerdRange:
-                      items:
-                        type: string
-                      type: array
                     os:
                       type: string
                     versionRange:
@@ -65,8 +61,6 @@ spec:
                 description: Items cni containerd kubeadm kube etcd cilium calico
                 items:
                   properties:
-                    defaultVersion:
-                      type: string
                     name:
                       type: string
                     versionRange:

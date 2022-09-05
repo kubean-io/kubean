@@ -8,7 +8,7 @@ spec:
   docker:
     - os: "centos7"
       versionRange: [ ]
-      containerdRange: [ ]
+      defaultVersion: ""
   items:
     - name: "cni"
       defaultVersion: ""

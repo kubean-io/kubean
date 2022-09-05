@@ -304,7 +304,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
-	jobName := fmt.Sprintf("kubean-%s-job", clusterOps.Name)
+	jobName := c.GenerateJobName(clusterOps)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
@@ -414,11 +414,15 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 	return job
 }
 
+func (c *Controller) GenerateJobName(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+	return fmt.Sprintf("kubean-%s-job", clusterOps.Name)
+}
+
 func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
 	if !clusterOps.Status.JobRef.IsEmpty() {
 		return false, nil
 	}
-	jobName := fmt.Sprintf("%s-job", clusterOps.Name)
+	jobName := c.GenerateJobName(clusterOps)
 	namespace := clusterOps.Spec.HostsConfRef.NameSpace
 	job, err := c.ClientSet.BatchV1().Jobs(namespace).Get(context.Background(), jobName, metav1.GetOptions{})
 	if err != nil {

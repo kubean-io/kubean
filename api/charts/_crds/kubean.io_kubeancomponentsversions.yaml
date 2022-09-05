@@ -41,10 +41,8 @@ spec:
               docker:
                 items:
                   properties:
-                    containerdRange:
-                      items:
-                        type: string
-                      type: array
+                    defaultVersion:
+                      type: string
                     os:
                       type: string
                     versionRange:
@@ -84,10 +82,6 @@ spec:
                   docker:
                     items:
                       properties:
-                        containerdRange:
-                          items:
-                            type: string
-                          type: array
                         os:
                           type: string
                         versionRange:
@@ -101,8 +95,6 @@ spec:
                   items:
                     items:
                       properties:
-                        defaultVersion:
-                          type: string
                         name:
                           type: string
                         versionRange:
