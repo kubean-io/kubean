@@ -1,4 +1,4 @@
-apiVersion: kubeancomponentsversions.kubeancomponentsversion.kubean.io
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanComponentsVersion
 metadata:
   name: componentsversion-global

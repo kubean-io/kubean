@@ -138,8 +138,8 @@ spec:
             - kuBeanCluster
             type: object
           status:
-            description: ClusterStatus contains information about the current status
-              of a cluster updated periodically by cluster controller.
+            description: ClusterOpsStatus contains information about the current status
+              of a cluster operation job updated periodically by cluster controller.
             properties:
               action:
                 type: string

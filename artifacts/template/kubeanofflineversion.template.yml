@@ -1,4 +1,4 @@
-apiVersion: kubeanofflineversion.kubean.io/v1alpha1
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanOfflineVersion
 metadata:
   name: KuBeanOfflineVersionNAME
