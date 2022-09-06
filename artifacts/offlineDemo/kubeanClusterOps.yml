@@ -6,7 +6,7 @@ metadata:
     clusterName: cluster1-offline-demo
 spec:
   kuBeanCluster: cluster1-offline-demo
-  image: ghcr.io/kubean-io/kubean/spray-job:latest # or change image to kubespray origin image version
+  image: ghcr.io/kubean-io/spray-job:latest # or change image to kubespray origin image version
   backoffLimit: 0
   actionType: playbook
   action: cluster.yml

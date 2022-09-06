@@ -207,7 +207,7 @@ func CreatCR() {
 		},
 		Spec: kubeanclusterops.ClusterSpec{
 			KuBeanCluster: kubeClusterName,
-			Image:         "ghcr.io/kubean-io/kubean/spray-job:v0.0.1",
+			Image:         "ghcr.io/kubean-io/spray-job:v0.0.1",
 			BackoffLimit:  0,
 			ActionType:    kubeanclusterops.PlaybookActionType,
 			Action:        "cluster.yaml",

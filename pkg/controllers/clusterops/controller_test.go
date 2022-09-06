@@ -656,7 +656,7 @@ func TestIsValidImageName(t *testing.T) {
 		},
 		{
 			name: "valid image name",
-			args: "ghcr.io/kubean-io/kubean/spray-job:latest",
+			args: "ghcr.io/kubean-io/spray-job:latest",
 			want: true,
 		},
 	}

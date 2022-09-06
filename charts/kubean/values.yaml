@@ -7,7 +7,7 @@ namespace: kubean-system
 replicaCount: 1
 
 image:
-  repository:  ghcr.io/kubean-io/kubean/kubean-operator
+  repository: ghcr.io/kubean-io/kubean-operator
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"

@@ -182,7 +182,7 @@ metadata:
   name: cluster-ops-01
 spec:
   kuBeanCluster: sample
-  image: ghcr.io/kubean-io/kubean/spray-job:latest
+  image: ghcr.io/kubean-io/spray-job:latest
   backoffLimit: 0
   actionType: playbook
   action: cluster.yml
