@@ -112,6 +112,14 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
+	//componentsversionClientSet, err := kubeancomponentsversionClientSet.NewForConfig(resetConfig)
+	//if err != nil {
+	//	return err
+	//}
+	//offlineversionClientSet, err := kubeanofflineversionClientSet.NewForConfig(resetConfig)
+	//if err != nil {
+	//	return err
+	//}
 	clusterController := &cluster.Controller{
 		Client:              mgr.GetClient(),
 		ClientSet:           ClientSet,
@@ -133,5 +141,17 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		klog.Errorf("ControllerManager ClusterOps but %s", err)
 		return err
 	}
+
+	//// todo
+	//componentsVersionController := &offlineversion.Controller{
+	//	Client:                     mgr.GetClient(),
+	//	ClientSet:                  ClientSet,
+	//	ComponentsversionClientSet: componentsversionClientSet,
+	//	OfflineversionClientSet:    offlineversionClientSet,
+	//}
+	//if err := componentsVersionController.SetupWithManager(mgr); err != nil {
+	//	klog.Errorf("ControllerManager OfflineVersion but %s", err)
+	//	return err
+	//}
 	return nil
 }

@@ -1001,6 +1001,8 @@ k8s.io/utils/trace
 kubean.io/api/apis
 kubean.io/api/apis/kubeancluster/v1alpha1
 kubean.io/api/apis/kubeanclusterops/v1alpha1
+kubean.io/api/apis/kubeancomponentsversion/v1alpha1
+kubean.io/api/apis/kubeanofflineversion/v1alpha1
 kubean.io/api/generated/kubeancluster/clientset/versioned
 kubean.io/api/generated/kubeancluster/clientset/versioned/fake
 kubean.io/api/generated/kubeancluster/clientset/versioned/scheme
@@ -1011,6 +1013,16 @@ kubean.io/api/generated/kubeanclusterops/clientset/versioned/fake
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/scheme
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1/fake
+kubean.io/api/generated/kubeancomponentsversion/clientset/versioned
+kubean.io/api/generated/kubeancomponentsversion/clientset/versioned/fake
+kubean.io/api/generated/kubeancomponentsversion/clientset/versioned/scheme
+kubean.io/api/generated/kubeancomponentsversion/clientset/versioned/typed/kubeancomponentsversion/v1alpha1
+kubean.io/api/generated/kubeancomponentsversion/clientset/versioned/typed/kubeancomponentsversion/v1alpha1/fake
+kubean.io/api/generated/kubeanofflineversion/clientset/versioned
+kubean.io/api/generated/kubeanofflineversion/clientset/versioned/fake
+kubean.io/api/generated/kubeanofflineversion/clientset/versioned/scheme
+kubean.io/api/generated/kubeanofflineversion/clientset/versioned/typed/kubeanofflineversion/v1alpha1
+kubean.io/api/generated/kubeanofflineversion/clientset/versioned/typed/kubeanofflineversion/v1alpha1/fake
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30
 ## explicit; go 1.17
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client
