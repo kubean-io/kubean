@@ -150,8 +150,8 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("1"))
 		})
 
-		masterCmd = exec.Command("sshpass", "-p", "root", "ssh", masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
-		workerCmd = exec.Command("sshpass", "-p", "root", "ssh", workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
+		masterCmd = exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
+		workerCmd = exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle")
 		out3, _ := tools.DoCmd(*masterCmd)
 		fmt.Println("out: ", out3.String())
 		ginkgo.It("master net.ipv4.tcp_tw_recycle result checking: ", func() {
@@ -161,6 +161,23 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		fmt.Println("out: ", out4.String())
 		ginkgo.It("worker net.ipv4.tcp_tw_recycle result checking: ", func() {
 			gomega.Expect(out4.String()).Should(gomega.ContainSubstring("0"))
+		})
+	})
+
+	ginkgo.Context("check CNI: calico installed", func() {
+		masterSSH := fmt.Sprintf("root@%s", tools.Vmipaddr)
+		workerSSH := fmt.Sprintf("root@%s", tools.Vmipaddr2)
+		masterCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "ls", " /usr/local/bin/")
+		workerCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", workerSSH, "ls", " /usr/local/bin/")
+		out1, _ := tools.DoCmd(*masterCmd)
+		fmt.Println("out1: ", out1.String())
+		ginkgo.It("master calico checking: ", func() {
+			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("calico"))
+		})
+		out2, _ := tools.DoCmd(*workerCmd)
+		fmt.Println("out2: ", out2.String())
+		ginkgo.It("worker calico checking: ", func() {
+			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("calico"))
 		})
 	})
 
