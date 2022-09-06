@@ -18,7 +18,7 @@ set -o pipefail
 KUBEAN_VERSION=${1:-latest}
 KUBEAN_IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
-IMG_REPO=${4:-"ghcr.io/kubean-io/kubean"}
+IMG_REPO=${4:-"ghcr.io/kubean-io"}
 KIND_VERSION=${5:-"kindest/node:v1.21.1"}
 HOST_CLUSTER_NAME=${6:-"kubean-host"}
 

@@ -13,7 +13,7 @@ set -e
 TARGET_VERSION=${1:-v0.0.0}
 IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
-IMG_REPO=${4:-"ghcr.io/kubean-io/kubean"}
+IMG_REPO=${4:-"ghcr.io/kubean-io"}
 SPRAY_JOB_VERSION=${5:-latest}
 RUNNER_NAME=${6:-"kubean-actions-runner1"} 
 EXIT_CODE=0

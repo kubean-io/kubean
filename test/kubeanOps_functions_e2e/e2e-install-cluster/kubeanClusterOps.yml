@@ -6,7 +6,7 @@ metadata:
     clusterName: cluster1
 spec:
   kuBeanCluster: cluster1
-  image: ghcr.io/kubean-io/kubean/spray-job:latest
+  image: ghcr.io/kubean-io/spray-job:latest
   backoffLimit: 0
   actionType: shell
   action: |

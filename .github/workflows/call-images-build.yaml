@@ -21,7 +21,8 @@ jobs:
     steps:
       - name: Set env
         run: |
-          echo "REPO=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
           echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.spray_ref }} | cut -c 1-7)" >> ${GITHUB_ENV}
 
       - name: Echo env

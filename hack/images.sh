@@ -6,7 +6,7 @@ set -o pipefail
 
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 IMAGE_MANIFEST_PATH="${REPO_ROOT}/hack/images.manifest"
-DEFAULT_REGISTRY="ghcr.io/kubean-io/kubean"
+DEFAULT_REGISTRY="ghcr.io/kubean-io"
 REPO_PATTERN='.*/.*'
 
 # Usage: images::manifest "v0.3.18-19-g5ca4e155" "" "release.daocloud.io/kpanda"
