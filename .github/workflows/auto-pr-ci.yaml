@@ -11,7 +11,7 @@ env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
-  KUBESPRAY_TAG: master
+  KUBESPRAY_TAG: latest
 
 jobs:
   static-check:

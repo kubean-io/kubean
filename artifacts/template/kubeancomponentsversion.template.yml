@@ -6,9 +6,15 @@ spec:
   kubespray: ""
   kubean: ""
   docker:
-    - os: "centos7"
-      versionRange: [ ]
+    - os: "redhat-7"
       defaultVersion: ""
+      versionRange: [ ]
+    - os: "debian"
+      defaultVersion: ""
+      versionRange: [ ]
+    - os: "ubuntu"
+      defaultVersion: ""
+      versionRange: [ ]
   items:
     - name: "cni"
       defaultVersion: ""

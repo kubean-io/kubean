@@ -59,6 +59,13 @@ function extract_version_range() {
   echo "${version}"
 }
 
+function extract_docker_version_range() {
+  os=${1:-"redhat-7"}
+  version=$(yq ".docker_versioned_pkg | keys" kubespray/roles/container-engine/docker/vars/${os}.yml --output-format json)
+  version=$(echo $version | tr -d '\n \r') ## ["v1","v2"]
+  echo "${version}"
+}
+
 function update_offline_version_cr() {
   index=$1 ## start with zero
   name=$2  ## cni containerd ...
@@ -70,6 +77,13 @@ function update_offline_version_cr() {
   version_val=${version_val} yq -i ".spec.items[$index].versionRange[0]=strenv(version_val)" $KUBEAN_OFFLINE_VERSION_CR
 }
 
+function update_docker_offline_version() {
+  os=$1
+  version_range=$2
+  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range})" \
+    $KUBEAN_OFFLINE_VERSION_CR
+}
+
 function create_offline_version_cr() {
   cni_version=$(extract_version "cni_version")
   containerd_version=$(extract_version "containerd_version")
@@ -77,6 +91,8 @@ function create_offline_version_cr() {
   calico_version=$(extract_version "calico_version")
   cilium_version=$(extract_version "cilium_version")
   etcd_version=$(extract_etcd_version "$kube_version")
+
+  docker_version_range_redhat7=["18.09","19.03","20.10"]
 
   mkdir -p $OFFLINE_PACKAGE_DIR
   cp $KUBEAN_OFFLINE_VERSION_TEMPLATE $KUBEAN_OFFLINE_VERSION_CR
@@ -89,6 +105,7 @@ function create_offline_version_cr() {
   update_offline_version_cr "3" "calico" "$calico_version"
   update_offline_version_cr "4" "cilium" "$cilium_version"
   update_offline_version_cr "5" "etcd" "$etcd_version"
+  update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
 }
 
 function update_components_version_cr() {
@@ -103,6 +120,18 @@ function update_components_version_cr() {
 
   yq -i ".spec.items[$index].defaultVersion=\"${default_version_val}\"" $KUBEAN_COMPONENTS_VERSION_CR
   yq -i ".spec.items[$index].versionRange |=  ${version_range}" $KUBEAN_COMPONENTS_VERSION_CR ## update string array
+}
+
+function update_docker_component_version() {
+  os=$1
+  default_version=$2
+  version_range=$3
+
+  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).defaultVersion=${default_version})" \
+    $KUBEAN_COMPONENTS_VERSION_CR
+
+  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range})" \
+    $KUBEAN_COMPONENTS_VERSION_CR
 }
 
 function create_components_version_cr() {
@@ -124,6 +153,11 @@ function create_components_version_cr() {
   etcd_version_default=$(extract_etcd_version "$kube_version_default")
   etcd_version_range=$(extract_version_range ".etcd_binary_checksums.amd64")
 
+  docker_version_default=$(extract_version "docker_version" "container-engine/docker")
+  docker_version_range_redhat7=$(extract_docker_version_range "redhat-7")
+  docker_version_range_debian=$(extract_docker_version_range "debian")
+  docker_version_range_ubuntu=$(extract_docker_version_range "ubuntu")
+
   cp $KUBEAN_COMPONENTS_VERSION_TEMPLATE $KUBEAN_COMPONENTS_VERSION_CR
   KUBESPRAY_TAG=${KUBESPRAY_TAG} yq -i '.spec.kubespray=strenv(KUBESPRAY_TAG)' $KUBEAN_COMPONENTS_VERSION_CR
   KUBEAN_TAG=${KUBEAN_TAG} yq -i '.spec.kubean=strenv(KUBEAN_TAG)' $KUBEAN_COMPONENTS_VERSION_CR
@@ -134,6 +168,9 @@ function create_components_version_cr() {
   update_components_version_cr 3 calico "${calico_version_default}" "${calico_version_range}"
   update_components_version_cr 4 cilium "${cilium_version_default}" "${cilium_version_range}"
   update_components_version_cr 5 etcd "${etcd_version_default}" "${etcd_version_range}"
+  update_docker_component_version "redhat-7" "${docker_version_default}" "${docker_version_range_redhat7}"
+  update_docker_component_version "debian" "${docker_version_default}" "${docker_version_range_debian}"
+  update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"
 }
 
 case $OPTION in
