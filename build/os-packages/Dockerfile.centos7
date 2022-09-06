@@ -9,7 +9,7 @@ RUN yum install -q -y ${BUILD_TOOLS} \
 WORKDIR /centos/$OS_VERSION/os
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.common[],.yum[],.centos7[],.kubespray.common[],.kubespray.yum[]' packages.yml > packages.list
+RUN yq eval '.base[],.extras[],.docker.centos7[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && sort -u packages.list | xargs repotrack -p ${ARCH} \
