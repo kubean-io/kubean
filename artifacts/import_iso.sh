@@ -86,15 +86,21 @@ function import_iso_data() {
     echo "can not find os version and arch info from $ISO_IMG_FILE"
     exit 1
   fi
+  dirArray=()
 
-  for path in $(find $ISO_MOUNT_PATH); do
-    if [ -f "$path" ]; then
-      if echo "$path" | grep -E 'Packages|repodata'; then
-        ## replace "/mnt/kubean-temp-iso" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64"
-        minioFileName=${path//$ISO_MOUNT_PATH/kubeaniominioserver\/kubean$Minio_Server_PATH}
-        mc cp --no-color "$path" "$minioFileName"
-      fi
-    fi
+  if [ -d "$ISO_MOUNT_PATH/Packages" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/Packages")
+  fi
+
+  if [ -d "$ISO_MOUNT_PATH/repodata" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/repodata")
+  fi
+
+  minioFileName="kubeaniominioserver/kubean$Minio_Server_PATH/"
+
+  for dirName in "${dirArray[@]}"; do
+    ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
+    mc cp --no-color --recursive "$dirName" "$minioFileName"
   done
 }
 
