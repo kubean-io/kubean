@@ -1,55 +1,27 @@
 ---
-kubespray:
-  common:
-    - curl
-    - rsync
-    - socat
-    - unzip
-    - e2fsprogs
-    - xfsprogs
-    - ebtables
-    - bash-completion
-    - ipvsadm
-    - ipset
-    - conntrack
-    - container-selinux
+base:
+  - conntrack-tools
 
-  yum:
-    - nss
-    - device-mapper-libs
-    - conntrack-tools
-
-common:
-  - cifs-utils
-  - lsof
-  - lvm2
-  - openssl
+extras:
+  - container-selinux
   - sshpass
-  - vim
-  - wget
-  - ethtool
-  - net-tools
-  - chrony
 
-yum:
-  - nfs-utils
-  - yum-utils
-  - createrepo
-  - nc
-  - httpd-tools
+docker:
+  # https://docs.docker.com/engine/installation/linux/centos/#install-from-a-package
+  # https://download.docker.com/linux/centos/<centos_version>>/x86_64/stable/Packages/
+  # or do 'yum --showduplicates list docker-engine'
+  centos7:
+    - containerd.io-1.4.9
+    - containerd.io-1.4.12
+    - containerd.io-1.6.4
+    - docker-ce-18.09.9
+    - docker-ce-19.03.15
+    - docker-ce-20.10.17
+    - docker-ce-cli-18.09.9
+    - docker-ce-cli-19.03.15
+    - docker-ce-cli-20.10.17
 
-centos7:
-  - libselinux-python
-  - containerd.io-1.6.4
-  - docker-ce-20.10.17
-  - docker-ce-cli-20.10.17
-
-centos8:
-  - libselinux-python3
-  - containerd.io-1.6.4
-  - docker-ce-3:20.10.17
-  - docker-ce-cli-1:20.10.17
-
-
-
-
+  centos8:
+    - containerd.io-1.6.4
+    - docker-ce-3:20.10.17
+    - docker-ce-cli-1:20.10.17
