@@ -87,7 +87,7 @@ jobs:
           docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
       - name: spray-job Build image
-        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg spray_tag=$KUBESPRAY_TAG
+        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
 
       - name: spray-job Push image
         run: |
