@@ -1003,6 +1003,7 @@ kubean.io/api/apis/kubeancluster/v1alpha1
 kubean.io/api/apis/kubeanclusterops/v1alpha1
 kubean.io/api/apis/kubeancomponentsversion/v1alpha1
 kubean.io/api/apis/kubeanofflineversion/v1alpha1
+kubean.io/api/constants
 kubean.io/api/generated/kubeancluster/clientset/versioned
 kubean.io/api/generated/kubeancluster/clientset/versioned/fake
 kubean.io/api/generated/kubeancluster/clientset/versioned/scheme

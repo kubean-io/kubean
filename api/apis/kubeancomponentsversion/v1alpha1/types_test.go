@@ -67,6 +67,22 @@ func TestMerge(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "update docker-ce info with zero length",
+			args: func() bool {
+				updated := componentsVersion.Status.Offline.MergeDockerInfo("centos0008", nil)
+				return updated && len(componentsVersion.Status.Offline.Docker) == 2 && len(componentsVersion.Status.Offline.Docker[1].VersionRange) == 0
+			},
+			want: true,
+		},
+		{
+			name: "update docker-ce info",
+			args: func() bool {
+				updated := componentsVersion.Status.Offline.MergeDockerInfo("centos0008", []string{"1.1", "1.2", "1.3"})
+				return updated && len(componentsVersion.Status.Offline.Docker) == 2 && len(componentsVersion.Status.Offline.Docker[1].VersionRange) == 3
+			},
+			want: true,
+		},
 	}
 
 	for _, test := range tests {
