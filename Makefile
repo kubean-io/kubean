@@ -26,6 +26,7 @@ REGISTRY_REPO?=$(REGISTRY_SERVER_ADDRESS)/kubean-ci
 
 SPRAY_TAG?="master"
 
+
 .PHONY: test
 test:
 	bash hack/unit-test.sh
@@ -68,3 +69,11 @@ spray-job: $(SOURCES)
 			--load \
 			.
 
+IMAGE_REPO ?= "ghcr.io/kubean-io"
+RELEASE_NAME ?= "kubean"
+TARGET_NS ?= "kubean-system"
+KUBECONFIG_PATH ?= "kubeconfig"
+GIT_VERSION ?= $(shell git describe --tags --abbrev=8)
+.PHONY: local-chart-to-deploy
+local-chart-to-deploy:
+	bash hack/local-chart-to-deploy.sh ${IMAGE_REPO} ${RELEASE_NAME} ${TARGET_NS} ${KUBECONFIG_PATH} ${GIT_VERSION}

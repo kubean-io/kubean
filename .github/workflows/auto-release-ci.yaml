@@ -5,6 +5,10 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+env:
+  ENVIRONMENT_RUNS_ON: "ubuntu-latest"
+  ENVIRONMENT_CD: "alpha"
+
 
 jobs:
   get-spray-ref:
@@ -33,7 +37,6 @@ jobs:
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
-  
 
   charts:
     needs: [call-images-build,call-offline-build]
@@ -74,6 +77,29 @@ jobs:
           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
           target-directory: charts
           target-branch: main
+
+  get-environment:
+    runs-on: ubuntu-latest
+    needs: charts
+    outputs:
+      environment_runs_on: ${{ steps.get_variables.outputs.environment_runs_on }}
+      enviroment_cd: ${{ steps.get_variables.outputs.enviroment_cd }}
+
+    steps:
+      - name: Get environment variable
+        id: get_variables
+        run: |
+          echo ::set-output name=environment_runs_on::${{ env.ENVIRONMENT_RUNS_ON }}
+          echo ::set-output name=enviroment_cd::${{ env.ENVIRONMENT_CD }}
+
+  call-cd:
+    uses: ./.github/workflows/call-cd.yaml
+    secrets: inherit
+    needs: get-environment
+    with:
+      ENVIRONMENT_RUNS_ON: ${{ needs.get-environment.outputs.environment_runs_on }}
+      ENRIRONMENT_CD: ${{ needs.get-environment.outputs.enviroment_cd }}
+
 
   # call-upload-qiniu:
   #   needs: [call-os-pkgs-build,call-offline-build]
