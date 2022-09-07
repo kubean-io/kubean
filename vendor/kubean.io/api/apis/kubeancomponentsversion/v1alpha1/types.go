@@ -40,11 +40,12 @@ type Spec struct {
 }
 
 type Status struct {
+	// +optional
 	Offline OfflineStatus `json:"offline,omitempty"`
 }
 
 type OfflineStatus struct {
-	// +required
+	// +optional
 	Items []*SoftwareInfoStatus `json:"items"`
 
 	// +optional
