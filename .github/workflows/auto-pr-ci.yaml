@@ -64,6 +64,15 @@ jobs:
       contents: read
 
     steps:
+      - name: Set env
+        run: |
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+    
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -77,7 +86,7 @@ jobs:
 
       - name: kubean-operator Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUKEAN_OPERATOR_IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
@@ -91,7 +100,7 @@ jobs:
 
       - name: spray-job Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository }}/$SPRAY_JOB_IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
