@@ -50,7 +50,7 @@ jobs:
       - name: Download componentversion CR
         uses: actions/download-artifact@v3
         with:
-          path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
+          path: charts/kubean/templates/
           name: offline-build-cr-file
 
       - name: update helm version and image tag
