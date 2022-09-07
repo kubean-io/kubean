@@ -79,8 +79,8 @@ jobs:
     #     path: ${{ github.ref_name }}/
     #     key: offline-build
 
-    - name: Store componentversion CR cache
-      uses: actions/cache@v3
+    - name: Upload componentversion CR
+      uses: actions/upload-artifact@v3
       with:
         path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
-        key: offline-build-cr-file
+        name: offline-build-cr-file
