@@ -9,7 +9,7 @@ import (
 
 	"github.com/kubean-io/kubean/pkg/controllers/cluster"
 	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
-
+	"github.com/kubean-io/kubean/pkg/controllers/offlineversion"
 	"github.com/kubean-io/kubean/pkg/util"
 	"github.com/kubean-io/kubean/pkg/version"
 
@@ -20,6 +20,8 @@ import (
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
 	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
+	kubeancomponentsversionClientSet "kubean.io/api/generated/kubeancomponentsversion/clientset/versioned"
+	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )
@@ -27,7 +29,7 @@ import (
 func NewCommand(ctx context.Context) *cobra.Command {
 	opts := NewOptions()
 	cmd := &cobra.Command{
-		Use:  "kubean-operator", // todo docker build 的二进制名称
+		Use:  "kubean-operator",
 		Long: "run operator for KuBeanCluster and KuBeanClusterOps",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if errs := opts.Validate(); len(errs) != 0 {
@@ -112,14 +114,14 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
-	//componentsversionClientSet, err := kubeancomponentsversionClientSet.NewForConfig(resetConfig)
-	//if err != nil {
-	//	return err
-	//}
-	//offlineversionClientSet, err := kubeanofflineversionClientSet.NewForConfig(resetConfig)
-	//if err != nil {
-	//	return err
-	//}
+	componentsversionClientSet, err := kubeancomponentsversionClientSet.NewForConfig(resetConfig)
+	if err != nil {
+		return err
+	}
+	offlineversionClientSet, err := kubeanofflineversionClientSet.NewForConfig(resetConfig)
+	if err != nil {
+		return err
+	}
 	clusterController := &cluster.Controller{
 		Client:              mgr.GetClient(),
 		ClientSet:           ClientSet,
@@ -142,16 +144,15 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		return err
 	}
 
-	//// todo
-	//componentsVersionController := &offlineversion.Controller{
-	//	Client:                     mgr.GetClient(),
-	//	ClientSet:                  ClientSet,
-	//	ComponentsversionClientSet: componentsversionClientSet,
-	//	OfflineversionClientSet:    offlineversionClientSet,
-	//}
-	//if err := componentsVersionController.SetupWithManager(mgr); err != nil {
-	//	klog.Errorf("ControllerManager OfflineVersion but %s", err)
-	//	return err
-	//}
+	componentsVersionController := &offlineversion.Controller{
+		Client:                     mgr.GetClient(),
+		ClientSet:                  ClientSet,
+		ComponentsversionClientSet: componentsversionClientSet,
+		OfflineversionClientSet:    offlineversionClientSet,
+	}
+	if err := componentsVersionController.SetupWithManager(mgr); err != nil {
+		klog.Errorf("ControllerManager OfflineVersion but %s", err)
+		return err
+	}
 	return nil
 }

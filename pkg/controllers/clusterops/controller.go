@@ -22,6 +22,7 @@ import (
 	"kubean.io/api/apis"
 	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
 	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	"kubean.io/api/constants"
 	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
 	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
@@ -29,9 +30,8 @@ import (
 )
 
 const (
-	RequeueAfter          = time.Millisecond * 500
-	LoopForJobStatus      = time.Second * 3
-	KubeanClusterLabelKey = "clusterName"
+	RequeueAfter     = time.Millisecond * 500
+	LoopForJobStatus = time.Second * 3
 )
 
 type Controller struct {
@@ -151,7 +151,7 @@ func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanC
 }
 
 func (c *Controller) ListClusterOps(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-	list, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{KubeanClusterLabelKey: clusterName}).String()})
+	list, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
 	if err != nil {
 		return nil, err
 	}
@@ -572,9 +572,9 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 		return false, fmt.Errorf("cluster %s DataRef has empty value", cluster.Name)
 	}
 	if clusterOps.Labels == nil {
-		clusterOps.Labels = map[string]string{KubeanClusterLabelKey: cluster.Name}
+		clusterOps.Labels = map[string]string{constants.KubeanClusterLabelKey: cluster.Name}
 	} else {
-		clusterOps.Labels[KubeanClusterLabelKey] = cluster.Name
+		clusterOps.Labels[constants.KubeanClusterLabelKey] = cluster.Name
 	}
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
 		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)

@@ -8,6 +8,8 @@ import (
 
 	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
 	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	kubeancomponentsversionv1alpha1 "kubean.io/api/apis/kubeancomponentsversion/v1alpha1"
+	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -22,6 +24,8 @@ func init() {
 	_ = scheme.AddToScheme(aggregatedScheme)                   // add Kubernetes schemes
 	_ = kubeanclusteropsv1alpha1.AddToScheme(aggregatedScheme) // add clusterOps schemes
 	_ = kubeanclusterv1alpha1.AddToScheme(aggregatedScheme)    // add cluster schemes
+	_ = kubeancomponentsversionv1alpha1.AddToScheme(aggregatedScheme)
+	_ = kubeanofflineversionv1alpha1.AddToScheme(aggregatedScheme)
 	//_ = clusterapiv1alpha4.AddToScheme(aggregatedScheme) // add cluster-api v1alpha4 schemes
 	//_ = v1alpha2.AddToScheme(aggregatedScheme) // add clusterpedia-api v1alpha2 schemes
 }

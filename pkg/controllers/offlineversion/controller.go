@@ -6,6 +6,7 @@ import (
 
 	kubeancomponentsversionv1alpha1 "kubean.io/api/apis/kubeancomponentsversion/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
+	"kubean.io/api/constants"
 	kubeancomponentsversionClientSet "kubean.io/api/generated/kubeancomponentsversion/clientset/versioned"
 	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
 
@@ -18,9 +19,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const Loop = time.Second * 30
-
-const ComponentsversionGlobalName = "componentsversion-global"
+const Loop = time.Second * 20
 
 type Controller struct {
 	client.Client
@@ -36,14 +35,14 @@ func (c *Controller) Start(ctx context.Context) error {
 }
 
 func (c *Controller) FetchGlobalKuBeanComponentsVersion() (*kubeancomponentsversionv1alpha1.KuBeanComponentsVersion, error) {
-	componentsVersion, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().Get(context.Background(), ComponentsversionGlobalName, metav1.GetOptions{})
+	componentsVersion, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().Get(context.Background(), constants.ComponentsversionGlobalName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return componentsVersion, nil
 }
 
-func (c *Controller) MergeOfflineVersion(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, componentsVersion *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) (bool, *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) {
+func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, componentsVersion *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) (bool, *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) {
 	updated := false
 	for _, dockerInfo := range offlineVersion.Spec.Docker {
 		if componentsVersion.Status.Offline.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
@@ -69,12 +68,12 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	componentsVersion, err := c.FetchGlobalKuBeanComponentsVersion()
 	if err != nil {
-		klog.Errorf("Fetch componentsversion-global but %s", err)
-		return controllerruntime.Result{RequeueAfter: Loop}, err
+		klog.Errorf("Fetch %s , ignoring %s", constants.ComponentsversionGlobalName, err)
+		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	if needUpdate, newComponentsVersion := c.MergeOfflineVersion(offlineVersion, componentsVersion); needUpdate {
+	if needUpdate, newComponentsVersion := c.MergeOfflineVersionStatus(offlineVersion, componentsVersion); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().Update(context.Background(), newComponentsVersion, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().UpdateStatus(context.Background(), newComponentsVersion, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}
