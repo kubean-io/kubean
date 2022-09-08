@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	kubeancomponentsversionv1alpha1 "kubean.io/api/apis/kubeancomponentsversion/v1alpha1"
+	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 	"kubean.io/api/constants"
-	kubeancomponentsversionClientSet "kubean.io/api/generated/kubeancomponentsversion/clientset/versioned"
+	kubeanclusterconfigClientSet "kubean.io/api/generated/kubeanclusterconfig/clientset/versioned"
 	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,34 +23,34 @@ const Loop = time.Second * 20
 
 type Controller struct {
 	client.Client
-	ClientSet                  kubernetes.Interface
-	ComponentsversionClientSet kubeancomponentsversionClientSet.Interface
-	OfflineversionClientSet    kubeanofflineversionClientSet.Interface
+	ClientSet               kubernetes.Interface
+	ClusterConfigClientSet  kubeanclusterconfigClientSet.Interface
+	OfflineversionClientSet kubeanofflineversionClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
-	klog.Warningf("KubeanComponentsVersion Controller Start")
+	klog.Warningf("kubeanclusterconfig Controller Start")
 	<-ctx.Done()
 	return nil
 }
 
-func (c *Controller) FetchGlobalKuBeanComponentsVersion() (*kubeancomponentsversionv1alpha1.KuBeanComponentsVersion, error) {
-	componentsVersion, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().Get(context.Background(), constants.ComponentsversionGlobalName, metav1.GetOptions{})
+func (c *Controller) FetchGlobalkubeanclusterconfig() (*kubeanclusterconfigv1alpha1.KubeanClusterConfig, error) {
+	componentsVersion, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().Get(context.Background(), constants.ClusterConfigGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return componentsVersion, nil
 }
 
-func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, componentsVersion *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) (bool, *kubeancomponentsversionv1alpha1.KuBeanComponentsVersion) {
+func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, componentsVersion *kubeanclusterconfigv1alpha1.KubeanClusterConfig) (bool, *kubeanclusterconfigv1alpha1.KubeanClusterConfig) {
 	updated := false
 	for _, dockerInfo := range offlineVersion.Spec.Docker {
-		if componentsVersion.Status.Offline.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
+		if componentsVersion.Status.AirGapStatus.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
 			updated = true
 		}
 	}
 	for _, softItem := range offlineVersion.Spec.Items {
-		if componentsVersion.Status.Offline.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
+		if componentsVersion.Status.AirGapStatus.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
 			updated = true
 		}
 	}
@@ -66,14 +66,14 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	componentsVersion, err := c.FetchGlobalKuBeanComponentsVersion()
+	componentsVersion, err := c.FetchGlobalkubeanclusterconfig()
 	if err != nil {
-		klog.Errorf("Fetch %s , ignoring %s", constants.ComponentsversionGlobalName, err)
+		klog.Errorf("Fetch %s , ignoring %s", constants.ClusterConfigGlobal, err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
 	if needUpdate, newComponentsVersion := c.MergeOfflineVersionStatus(offlineVersion, componentsVersion); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.ComponentsversionClientSet.KubeanV1alpha1().KuBeanComponentsVersions().UpdateStatus(context.Background(), newComponentsVersion, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().UpdateStatus(context.Background(), newComponentsVersion, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}

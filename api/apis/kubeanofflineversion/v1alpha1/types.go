@@ -47,11 +47,13 @@ type KuBeanOfflineVersionList struct {
 }
 
 type SoftwareInfo struct {
-	Name         string   `json:"name"`
+	Name string `json:"name"`
+	// +optional
 	VersionRange []string `json:"versionRange,omitempty"`
 }
 
 type DockerInfo struct {
-	OS           string   `json:"os"`
+	OS string `json:"os"`
+	// +optional
 	VersionRange []string `json:"versionRange,omitempty"`
 }

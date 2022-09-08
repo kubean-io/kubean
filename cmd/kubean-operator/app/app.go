@@ -19,8 +19,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
+	kubeanclusterconfigClientSet "kubean.io/api/generated/kubeanclusterconfig/clientset/versioned"
 	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
-	kubeancomponentsversionClientSet "kubean.io/api/generated/kubeancomponentsversion/clientset/versioned"
 	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -114,7 +114,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
-	componentsversionClientSet, err := kubeancomponentsversionClientSet.NewForConfig(resetConfig)
+	clusterconfigClientSet, err := kubeanclusterconfigClientSet.NewForConfig(resetConfig)
 	if err != nil {
 		return err
 	}
@@ -145,10 +145,10 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	}
 
 	componentsVersionController := &offlineversion.Controller{
-		Client:                     mgr.GetClient(),
-		ClientSet:                  ClientSet,
-		ComponentsversionClientSet: componentsversionClientSet,
-		OfflineversionClientSet:    offlineversionClientSet,
+		Client:                  mgr.GetClient(),
+		ClientSet:               ClientSet,
+		ClusterConfigClientSet:  clusterconfigClientSet,
+		OfflineversionClientSet: offlineversionClientSet,
 	}
 	if err := componentsVersionController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager OfflineVersion but %s", err)
