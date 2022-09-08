@@ -5,10 +5,10 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+
 env:
   ENVIRONMENT_RUNS_ON: "ubuntu-latest"
   ENVIRONMENT_CD: "alpha"
-
 
 jobs:
   get-spray-ref:
@@ -37,8 +37,8 @@ jobs:
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
-
-  charts:
+  
+  sync-charts-and-api:
     needs: [call-images-build,call-offline-build]
     runs-on: ubuntu-latest
     permissions:
@@ -71,12 +71,19 @@ jobs:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
         with:
           source-directory: charts
-          destination-github-username: 'kubean-io'
+          destination-github-username: ${{ github.repository_owner }}
           destination-repository-name: 'kubean-helm-chart'
           user-email: kubean-robot@ykubean.io
           commit-message: See ORIGIN_COMMIT from $GITHUB_REF
           target-directory: charts
           target-branch: main
+
+      - name: Pushes api to kubean-api repository
+        env:
+          REPO_OWNER: ${{ github.repository_owner }}
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        run: |
+          ./hack/sync_api.sh ${GITHUB_REF_NAME}
 
   get-environment:
     runs-on: ubuntu-latest
