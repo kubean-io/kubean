@@ -1,2 +1,2 @@
 kubean-operator #KUBEAN_VERSION#
-kubespray master
+kubespray latest
