@@ -47,11 +47,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download componentversion CR
-        uses: actions/download-artifact@v3
-        with:
-          path: charts/kubean/templates/
-          name: offline-build-cr-file
+      # - name: Download componentversion CR
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     path: charts/kubean/templates/
+      #     name: offline-build-cr-file
 
       - name: update helm version and image tag
         run: |
