@@ -144,13 +144,13 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		return err
 	}
 
-	componentsVersionController := &offlineversion.Controller{
+	offlineVersionController := &offlineversion.Controller{
 		Client:                  mgr.GetClient(),
 		ClientSet:               ClientSet,
 		ClusterConfigClientSet:  clusterconfigClientSet,
 		OfflineversionClientSet: offlineversionClientSet,
 	}
-	if err := componentsVersionController.SetupWithManager(mgr); err != nil {
+	if err := offlineVersionController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager OfflineVersion but %s", err)
 		return err
 	}

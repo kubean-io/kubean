@@ -29,12 +29,12 @@ type Controller struct {
 }
 
 func (c *Controller) Start(ctx context.Context) error {
-	klog.Warningf("kubeanclusterconfig Controller Start")
+	klog.Warningf("KubeanOfflineVersion Controller Start")
 	<-ctx.Done()
 	return nil
 }
 
-func (c *Controller) FetchGlobalkubeanclusterconfig() (*kubeanclusterconfigv1alpha1.KubeanClusterConfig, error) {
+func (c *Controller) FetchGlobalKubeanClusterConfig() (*kubeanclusterconfigv1alpha1.KubeanClusterConfig, error) {
 	componentsVersion, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().Get(context.Background(), constants.ClusterConfigGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -42,19 +42,19 @@ func (c *Controller) FetchGlobalkubeanclusterconfig() (*kubeanclusterconfigv1alp
 	return componentsVersion, nil
 }
 
-func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, componentsVersion *kubeanclusterconfigv1alpha1.KubeanClusterConfig) (bool, *kubeanclusterconfigv1alpha1.KubeanClusterConfig) {
+func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, clusterConfig *kubeanclusterconfigv1alpha1.KubeanClusterConfig) (bool, *kubeanclusterconfigv1alpha1.KubeanClusterConfig) {
 	updated := false
 	for _, dockerInfo := range offlineVersion.Spec.Docker {
-		if componentsVersion.Status.AirGapStatus.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
+		if clusterConfig.Status.AirGapStatus.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
 			updated = true
 		}
 	}
 	for _, softItem := range offlineVersion.Spec.Items {
-		if componentsVersion.Status.AirGapStatus.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
+		if clusterConfig.Status.AirGapStatus.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
 			updated = true
 		}
 	}
-	return updated, componentsVersion
+	return updated, clusterConfig
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
@@ -66,14 +66,14 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	componentsVersion, err := c.FetchGlobalkubeanclusterconfig()
+	globalClusterConfig, err := c.FetchGlobalKubeanClusterConfig()
 	if err != nil {
 		klog.Errorf("Fetch %s , ignoring %s", constants.ClusterConfigGlobal, err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	if needUpdate, newComponentsVersion := c.MergeOfflineVersionStatus(offlineVersion, componentsVersion); needUpdate {
+	if needUpdate, newGlobalClusterConfig := c.MergeOfflineVersionStatus(offlineVersion, globalClusterConfig); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().UpdateStatus(context.Background(), newComponentsVersion, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().UpdateStatus(context.Background(), newGlobalClusterConfig, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}

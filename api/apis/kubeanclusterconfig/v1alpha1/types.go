@@ -35,9 +35,6 @@ type Spec struct {
 	KubeanVersion string `json:"kubeanVersion,omitempty"`
 
 	// +optional
-	KubesprayImage string `json:"kubesprayImage,omitempty"`
-
-	// +optional
 	Components []*SoftwareInfo `json:"components,omitempty"`
 
 	// +optional
@@ -68,6 +65,9 @@ type Status struct {
 }
 
 type AirGapStatus struct {
+	// +optional
+	KubesprayImage string `json:"kubesprayImage,omitempty"`
+
 	// +optional
 	Components []*SoftwareInfoStatus `json:"components,omitempty"`
 

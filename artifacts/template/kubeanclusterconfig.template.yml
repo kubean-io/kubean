@@ -1,10 +1,10 @@
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanComponentsVersion
+kind: KubeanClusterConfig
 metadata:
-  name: componentsversion-global
+  name: clusterconfig-global
 spec:
-  kubespray: ""
-  kubean: ""
+  kubesprayVersion: ""
+  kubeanVersion: ""
   docker:
     - os: "redhat-7"
       defaultVersion: ""
@@ -15,7 +15,7 @@ spec:
     - os: "ubuntu"
       defaultVersion: ""
       versionRange: [ ]
-  items:
+  components:
     - name: "cni"
       defaultVersion: ""
       versionRange: [ ]
@@ -35,4 +35,4 @@ spec:
       defaultVersion: ""
       versionRange: [ ]
 status:
-  offline:
+  airGap:
