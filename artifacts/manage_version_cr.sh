@@ -127,7 +127,7 @@ function update_docker_component_version() {
   default_version=$2
   version_range=$3
 
-  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).defaultVersion=\"${default_version})\"" \
+  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).defaultVersion=\"${default_version}\")" \
     $KUBEAN_COMPONENTS_VERSION_CR
 
   OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range})" \
