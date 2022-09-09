@@ -1,5 +1,5 @@
 package constants
 
-const ComponentsversionGlobalName = "componentsversion-global"
+const ClusterConfigGlobal = "clusterconfig-global"
 
 const KubeanClusterLabelKey = "clusterName"
