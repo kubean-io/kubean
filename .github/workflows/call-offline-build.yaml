@@ -32,10 +32,14 @@ jobs:
     - name: install yq tool
       uses: mikefarah/yq@v4.27.2
 
-    - name: generate ComponentsVersion & OfflineVersion files
+    - name: generate InfoManifest & OfflineVersion files
+      env:
+        KUBEAN_TAG: ${{ github.ref_name }}
+        KUBESPRAY_TAG: ${{ env.SPRAY_SHA_SHORT }}
       run: |
-          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${SPRAY_SHA_SHORT} bash artifacts/manage_version_cr.sh create_componentsversion
-          KUBEAN_TAG=${GITHUB_REF_NAME} KUBESPRAY_TAG=${SPRAY_SHA_SHORT} bash artifacts/manage_version_cr.sh create_offlineversion
+          bash artifacts/manage_version_cr.sh create_infomanifest
+          bash artifacts/manage_version_cr.sh create_offlineversion
+
     - name: preparing the python environment
       uses: actions/setup-python@v4
       with:
@@ -48,13 +52,15 @@ jobs:
         cd ../
 
     - name: package image & binary offline resources
+      env:
+        KUBEAN_TAG: ${{ github.ref_name }}
       run: |
         echo "kubeanofflineversion cr output:"
         cat ${GITHUB_REF_NAME}/kubeanofflineversion.cr.yaml
-        echo "kubeancomponentsversion cr output:"
-        cat charts/kubean/templates/kubeancomponentsversion.cr.yaml
+        echo "kubeaninfomanifest cr output:"
+        cat charts/kubean/templates/kubeaninfomanifest.cr.yaml
 
-        KUBEAN_TAG=${GITHUB_REF_NAME} bash artifacts/generate_offline_package.sh all
+        bash artifacts/generate_offline_package.sh all
         cd ${{ github.ref_name }}/
         tar -zcvf files-${{ github.ref_name }}.tar.gz files/
         tar -zcvf images-${{ github.ref_name }}.tar.gz images/
@@ -79,8 +85,8 @@ jobs:
     #     path: ${{ github.ref_name }}/
     #     key: offline-build
 
-    - name: Upload componentversion CR
+    - name: Upload InfoManifest CR
       uses: actions/upload-artifact@v3
       with:
-        path: charts/kubean/templates/kubeancomponentsversion.cr.yaml
-        name: offline-build-cr-file
+        path: charts/kubean/templates/kubeaninfomanifest.cr.yaml
+        name: info-manifest-cr-file

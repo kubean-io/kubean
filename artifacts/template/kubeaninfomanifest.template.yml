@@ -1,7 +1,9 @@
 apiVersion: kubean.io/v1alpha1
-kind: KubeanClusterConfig
+kind: KubeanInfoManifest
 metadata:
-  name: clusterconfig-global
+  name: kubeaninfomanifest-global
+  annotations:
+    "helm.sh/hook": "post-install"
 spec:
   kubesprayVersion: ""
   kubeanVersion: ""
