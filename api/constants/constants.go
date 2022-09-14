@@ -1,5 +1,5 @@
 package constants
 
-const ClusterConfigGlobal = "clusterconfig-global"
+const InfoManifestGlobal = "infomanifest-global"
 
 const KubeanClusterLabelKey = "clusterName"

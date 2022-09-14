@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
+	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
+
 	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 
@@ -25,9 +26,7 @@ func init() {
 	_ = kubeanclusteropsv1alpha1.AddToScheme(aggregatedScheme) // add clusterOps schemes
 	_ = kubeanclusterv1alpha1.AddToScheme(aggregatedScheme)    // add cluster schemes
 	_ = kubeanofflineversionv1alpha1.AddToScheme(aggregatedScheme)
-	_ = kubeanclusterconfigv1alpha1.AddToScheme(aggregatedScheme)
-	//_ = clusterapiv1alpha4.AddToScheme(aggregatedScheme) // add cluster-api v1alpha4 schemes
-	//_ = v1alpha2.AddToScheme(aggregatedScheme) // add clusterpedia-api v1alpha2 schemes
+	_ = kubeaninfomanifestv1alpha1.AddToScheme(aggregatedScheme)
 }
 
 // NewSchema returns a singleton schema set which aggregated Kubernetes's schemes and extended schemes.

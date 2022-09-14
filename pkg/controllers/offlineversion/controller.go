@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
+	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 	"kubean.io/api/constants"
-	kubeanclusterconfigClientSet "kubean.io/api/generated/kubeanclusterconfig/clientset/versioned"
+	kubeaninfomanifestClientSet "kubean.io/api/generated/kubeaninfomanifest/clientset/versioned"
 	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -24,7 +24,7 @@ const Loop = time.Second * 20
 type Controller struct {
 	client.Client
 	ClientSet               kubernetes.Interface
-	ClusterConfigClientSet  kubeanclusterconfigClientSet.Interface
+	ClusterConfigClientSet  kubeaninfomanifestClientSet.Interface
 	OfflineversionClientSet kubeanofflineversionClientSet.Interface
 }
 
@@ -34,23 +34,23 @@ func (c *Controller) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *Controller) FetchGlobalKubeanClusterConfig() (*kubeanclusterconfigv1alpha1.KubeanClusterConfig, error) {
-	componentsVersion, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().Get(context.Background(), constants.ClusterConfigGlobal, metav1.GetOptions{})
+func (c *Controller) FetchGlobalKubeanClusterConfig() (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
+	componentsVersion, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return componentsVersion, nil
 }
 
-func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, clusterConfig *kubeanclusterconfigv1alpha1.KubeanClusterConfig) (bool, *kubeanclusterconfigv1alpha1.KubeanClusterConfig) {
+func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, clusterConfig *kubeaninfomanifestv1alpha1.KubeanInfoManifest) (bool, *kubeaninfomanifestv1alpha1.KubeanInfoManifest) {
 	updated := false
 	for _, dockerInfo := range offlineVersion.Spec.Docker {
-		if clusterConfig.Status.AirGapStatus.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
+		if clusterConfig.Status.LocalAvailable.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
 			updated = true
 		}
 	}
 	for _, softItem := range offlineVersion.Spec.Items {
-		if clusterConfig.Status.AirGapStatus.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
+		if clusterConfig.Status.LocalAvailable.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
 			updated = true
 		}
 	}
@@ -68,12 +68,12 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	globalClusterConfig, err := c.FetchGlobalKubeanClusterConfig()
 	if err != nil {
-		klog.Errorf("Fetch %s , ignoring %s", constants.ClusterConfigGlobal, err)
+		klog.Errorf("Fetch %s , ignoring %s", constants.InfoManifestGlobal, err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
 	if needUpdate, newGlobalClusterConfig := c.MergeOfflineVersionStatus(offlineVersion, globalClusterConfig); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().UpdateStatus(context.Background(), newGlobalClusterConfig, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().UpdateStatus(context.Background(), newGlobalClusterConfig, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}

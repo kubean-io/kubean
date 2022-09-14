@@ -6,7 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
+	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 )
 
@@ -18,9 +18,9 @@ func TestNewSchema(t *testing.T) {
 		wantGVK schema.GroupVersionKind
 	}{
 		{
-			name:    "KuBeanClusterConfig gvk",
-			obj:     &kubeanclusterconfigv1alpha1.KubeanClusterConfig{},
-			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KubeanClusterConfig"},
+			name:    "KuBeanInfoManifest gvk",
+			obj:     &kubeaninfomanifestv1alpha1.KubeanInfoManifest{},
+			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KubeanInfoManifest"},
 		},
 		{
 			name:    "KuBeanOfflineVersion gvk",

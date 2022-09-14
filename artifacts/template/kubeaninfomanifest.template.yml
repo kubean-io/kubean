@@ -1,7 +1,7 @@
 apiVersion: kubean.io/v1alpha1
 kind: KubeanInfoManifest
 metadata:
-  name: kubeaninfomanifest-global
+  name: KubeanInfoManifestNAME
   annotations:
     "helm.sh/hook": "post-install"
 spec:
@@ -37,4 +37,4 @@ spec:
       defaultVersion: ""
       versionRange: [ ]
 status:
-  airGap:
+
