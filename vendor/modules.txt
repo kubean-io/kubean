@@ -1000,8 +1000,8 @@ k8s.io/utils/trace
 ## explicit; go 1.17
 kubean.io/api/apis
 kubean.io/api/apis/kubeancluster/v1alpha1
-kubean.io/api/apis/kubeanclusterconfig/v1alpha1
 kubean.io/api/apis/kubeanclusterops/v1alpha1
+kubean.io/api/apis/kubeaninfomanifest/v1alpha1
 kubean.io/api/apis/kubeanofflineversion/v1alpha1
 kubean.io/api/constants
 kubean.io/api/generated/kubeancluster/clientset/versioned
@@ -1009,16 +1009,16 @@ kubean.io/api/generated/kubeancluster/clientset/versioned/fake
 kubean.io/api/generated/kubeancluster/clientset/versioned/scheme
 kubean.io/api/generated/kubeancluster/clientset/versioned/typed/kubeancluster/v1alpha1
 kubean.io/api/generated/kubeancluster/clientset/versioned/typed/kubeancluster/v1alpha1/fake
-kubean.io/api/generated/kubeanclusterconfig/clientset/versioned
-kubean.io/api/generated/kubeanclusterconfig/clientset/versioned/fake
-kubean.io/api/generated/kubeanclusterconfig/clientset/versioned/scheme
-kubean.io/api/generated/kubeanclusterconfig/clientset/versioned/typed/kubeanclusterconfig/v1alpha1
-kubean.io/api/generated/kubeanclusterconfig/clientset/versioned/typed/kubeanclusterconfig/v1alpha1/fake
 kubean.io/api/generated/kubeanclusterops/clientset/versioned
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/fake
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/scheme
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1
 kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1/fake
+kubean.io/api/generated/kubeaninfomanifest/clientset/versioned
+kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/fake
+kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/scheme
+kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/typed/kubeaninfomanifest/v1alpha1
+kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/typed/kubeaninfomanifest/v1alpha1/fake
 kubean.io/api/generated/kubeanofflineversion/clientset/versioned
 kubean.io/api/generated/kubeanofflineversion/clientset/versioned/fake
 kubean.io/api/generated/kubeanofflineversion/clientset/versioned/scheme

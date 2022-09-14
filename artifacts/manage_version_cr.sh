@@ -79,7 +79,7 @@ function update_offline_version_cr() {
 function update_docker_offline_version() {
   os=$1
   version_range=$2
-  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range})" \
+  OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range} | ..style=\"double\" )" \
     $KUBEAN_OFFLINE_VERSION_CR
 }
 
@@ -118,7 +118,7 @@ function update_info_manifest_cr() {
   fi
 
   yq -i ".spec.components[$index].defaultVersion=\"${default_version_val}\"" $KUBEAN_INFO_MANIFEST_CR
-  yq -i ".spec.components[$index].versionRange |=  ${version_range}" $KUBEAN_INFO_MANIFEST_CR ## update string array
+  yq -i ".spec.components[$index].versionRange |=  ${version_range} | ..style=\"double\" " $KUBEAN_INFO_MANIFEST_CR ## update string array
 }
 
 function update_docker_component_version() {
@@ -134,8 +134,8 @@ function update_docker_component_version() {
 }
 
 function update_info_manifest_cr_name() {
-  kubean_version=${KUBEAN_TAG//./_}
-  yq -i ".metadata.name=\"kubeaninfomanifest_${kubean_version}\"" $KUBEAN_INFO_MANIFEST_CR
+  kubean_version=${KUBEAN_TAG//./-}
+  yq -i ".metadata.name=\"kubeaninfomanifest-${kubean_version}\"" $KUBEAN_INFO_MANIFEST_CR
 }
 
 function create_info_manifest_cr() {
