@@ -1,0 +1,21 @@
+apiVersion: kubeanclusterops.kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: cluster1-remove-worker-ops
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image: 
+  backoffLimit: 0
+  actionType: playbook
+  action: remove-node.yml
+  extraArgs: -e node=node2
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: disable-firewalld.yml
+  # postHook:
+  #   - actionType: playbook
+  #     action: cluster-info.yml
