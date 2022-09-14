@@ -12,22 +12,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
+	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
 	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
 	"kubean.io/api/constants"
-	kubeanclusterconfigv1alpha1fake "kubean.io/api/generated/kubeanclusterconfig/clientset/versioned/fake"
+	kubeaninfomanifestv1alpha1fake "kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/fake"
 	kubeanofflineversionv1alpha1fake "kubean.io/api/generated/kubeanofflineversion/clientset/versioned/fake"
 )
 
 func newFakeClient() client.Client {
 	sch := scheme.Scheme
-	if err := kubeanclusterconfigv1alpha1.AddToScheme(sch); err != nil {
+	if err := kubeaninfomanifestv1alpha1.AddToScheme(sch); err != nil {
 		panic(err)
 	}
 	if err := kubeanofflineversionv1alpha1.AddToScheme(sch); err != nil {
 		panic(err)
 	}
-	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&kubeanclusterconfigv1alpha1.KubeanClusterConfig{}).WithRuntimeObjects(&kubeanofflineversionv1alpha1.KuBeanOfflineVersion{}).Build()
+	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&kubeaninfomanifestv1alpha1.KubeanInfoManifest{}).WithRuntimeObjects(&kubeanofflineversionv1alpha1.KuBeanOfflineVersion{}).Build()
 	return client
 }
 
@@ -36,13 +36,13 @@ func TestMergeOfflineVersion(t *testing.T) {
 		Client:                  newFakeClient(),
 		ClientSet:               clientsetfake.NewSimpleClientset(),
 		OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-		ClusterConfigClientSet:  kubeanclusterconfigv1alpha1fake.NewSimpleClientset(),
+		ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
 		args struct {
 			OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-			ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+			ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 		}
 		updated bool
 	}{
@@ -50,14 +50,14 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "nothing update",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{},
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{},
 					},
 				},
 			},
@@ -67,7 +67,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "update software info",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{
@@ -79,9 +79,9 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{},
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{},
 					},
 				},
 			},
@@ -91,7 +91,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "update software info",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{
@@ -103,10 +103,10 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{
-							Components: []*kubeanclusterconfigv1alpha1.SoftwareInfoStatus{
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{
+							Components: []*kubeaninfomanifestv1alpha1.SoftwareInfoStatus{
 								{
 									Name:         "etcd-1",
 									VersionRange: []string{"1.2", "1.3"},
@@ -122,7 +122,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "add software info but nothing updated",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{
@@ -134,10 +134,10 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{
-							Components: []*kubeanclusterconfigv1alpha1.SoftwareInfoStatus{
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{
+							Components: []*kubeaninfomanifestv1alpha1.SoftwareInfoStatus{
 								{
 									Name:         "etcd-1",
 									VersionRange: []string{"1.1", "1.2", "1.3"},
@@ -153,7 +153,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "update docker-ce info",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{
@@ -171,16 +171,16 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{
-							Docker: []*kubeanclusterconfigv1alpha1.DockerInfoStatus{
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{
+							Docker: []*kubeaninfomanifestv1alpha1.DockerInfoStatus{
 								{
 									OS:           "redhat-8",
 									VersionRange: []string{},
 								},
 							},
-							Components: []*kubeanclusterconfigv1alpha1.SoftwareInfoStatus{
+							Components: []*kubeaninfomanifestv1alpha1.SoftwareInfoStatus{
 								{
 									Name:         "etcd-1",
 									VersionRange: []string{"1.1", "1.2"},
@@ -196,7 +196,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 			name: "nothing updated",
 			args: struct {
 				OfflineVersion    kubeanofflineversionv1alpha1.KuBeanOfflineVersion
-				ComponentsVersion kubeanclusterconfigv1alpha1.KubeanClusterConfig
+				ComponentsVersion kubeaninfomanifestv1alpha1.KubeanInfoManifest
 			}{
 				OfflineVersion: kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					Spec: kubeanofflineversionv1alpha1.Spec{
@@ -214,10 +214,10 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: kubeanclusterconfigv1alpha1.KubeanClusterConfig{
-					Status: kubeanclusterconfigv1alpha1.Status{
-						AirGapStatus: kubeanclusterconfigv1alpha1.AirGapStatus{
-							Docker: []*kubeanclusterconfigv1alpha1.DockerInfoStatus{
+				ComponentsVersion: kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+					Status: kubeaninfomanifestv1alpha1.Status{
+						LocalAvailable: kubeaninfomanifestv1alpha1.LocalAvailable{
+							Docker: []*kubeaninfomanifestv1alpha1.DockerInfoStatus{
 								{
 									OS:           "redhat-7",
 									VersionRange: []string{"20.02", "20.01"},
@@ -227,7 +227,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 									VersionRange: []string{"21.02", "21.01"},
 								},
 							},
-							Components: []*kubeanclusterconfigv1alpha1.SoftwareInfoStatus{
+							Components: []*kubeaninfomanifestv1alpha1.SoftwareInfoStatus{
 								{
 									Name:         "etcd-1",
 									VersionRange: []string{"1.2", "1.1"},
@@ -263,7 +263,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeanclusterconfigv1alpha1fake.NewSimpleClientset(),
+					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					TypeMeta: metav1.TypeMeta{
@@ -283,23 +283,23 @@ func TestReconcile(t *testing.T) {
 					},
 				}
 
-				globalComponentsVersion := kubeanclusterconfigv1alpha1.KubeanClusterConfig{
+				globalComponentsVersion := kubeaninfomanifestv1alpha1.KubeanInfoManifest{
 					TypeMeta: metav1.TypeMeta{
 						Kind:       "kubeanclusterconfig",
 						APIVersion: "kubean.io/v1alpha1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name: constants.ClusterConfigGlobal,
+						Name: constants.InfoManifestGlobal,
 					},
 				}
 
 				controller.Create(context.Background(), &offlineVersionData)
 				controller.OfflineversionClientSet.KubeanV1alpha1().KuBeanOfflineVersions().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
-				controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
+				controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
 
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
-				newGlobalComponentsVersion, _ := controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanClusterConfigs().Get(context.Background(), constants.ClusterConfigGlobal, metav1.GetOptions{})
-				return err == nil && result.RequeueAfter == Loop && len(newGlobalComponentsVersion.Status.AirGapStatus.Docker) == 1 && len(newGlobalComponentsVersion.Status.AirGapStatus.Docker[0].VersionRange) == 2
+				newGlobalComponentsVersion, _ := controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+				return err == nil && result.RequeueAfter == Loop && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker) == 1 && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker[0].VersionRange) == 2
 			},
 			want: true,
 		},
@@ -310,7 +310,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeanclusterconfigv1alpha1fake.NewSimpleClientset(),
+					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					TypeMeta: metav1.TypeMeta{
@@ -345,7 +345,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeanclusterconfigv1alpha1fake.NewSimpleClientset(),
+					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "offlineversion-1"}})
 				return result.Requeue == false && result.RequeueAfter == 0

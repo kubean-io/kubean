@@ -1,10 +1,10 @@
-package clusterconfig
+package infomanifest
 
 import (
 	"context"
 	"time"
 
-	kubeanclusterconfigv1alpha1 "kubean.io/api/apis/kubeanclusterconfig/v1alpha1"
+	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
 	"kubean.io/api/constants"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -29,16 +29,16 @@ func (c *Controller) Start(ctx context.Context) error {
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
-	globalClusterConfig := &kubeanclusterconfigv1alpha1.KubeanClusterConfig{}
-	if err := c.Client.Get(context.Background(), req.NamespacedName, globalClusterConfig); err != nil {
+	infoManifest := &kubeaninfomanifestv1alpha1.KubeanInfoManifest{}
+	if err := c.Client.Get(context.Background(), req.NamespacedName, infoManifest); err != nil {
 		if apierrors.IsNotFound(err) {
 			return controllerruntime.Result{Requeue: false}, nil
 		}
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	if globalClusterConfig.Name != constants.ClusterConfigGlobal {
-		klog.Errorf("KubeanClusterConfig % is not global", globalClusterConfig.Name)
+	if infoManifest.Name != constants.InfoManifestGlobal {
+		klog.Errorf("KubeanClusterConfig % is not global", infoManifest.Name)
 		return controllerruntime.Result{Requeue: false}, nil
 	}
 	// todo process globalClusterConfig
@@ -47,7 +47,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&kubeanclusterconfigv1alpha1.KubeanClusterConfig{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&kubeaninfomanifestv1alpha1.KubeanInfoManifest{}).Complete(c),
 		mgr.Add(c),
 	})
 }
