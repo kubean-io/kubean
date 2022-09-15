@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -161,6 +161,101 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		fmt.Println("out: ", out4.String())
 		ginkgo.It("worker net.ipv4.tcp_tw_recycle result checking: ", func() {
 			gomega.Expect(out4.String()).Should(gomega.ContainSubstring("0"))
+		})
+	})
+
+	ginkgo.Context("Support CNI: Calico", func() {
+		//4. check calico (calico-node and calico-kube-controller)pod status: pod status should be "Running"
+		config, _ = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+		kubeClient, _ = kubernetes.NewForConfig(config)
+		podList, _ := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
+		for _, pod := range podList.Items {
+			if strings.Contains(pod.ObjectMeta.Name, "calico-node") || strings.Contains(pod.ObjectMeta.Name, "kube-controller") {
+				ginkgo.It("calico/controller pod should works", func() {
+					gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
+				})
+			}
+		}
+
+		//5. check folder /opt/cni/bin contains  file "calico" and "calico-ipam" are exist in both master and worker node
+		masterSSH := fmt.Sprintf("root@%s", tools.Vmipaddr)
+		workerSSH := fmt.Sprintf("root@%s", tools.Vmipaddr2)
+		masterCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "ls", "/opt/cni/bin/")
+		workerCmd := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", workerSSH, "ls", "/opt/cni/bin/")
+		out1, _ := tools.DoCmd(*masterCmd)
+		fmt.Println("out1: ", out1.String())
+		ginkgo.It("master /opt/cni/bin checking: ", func() {
+			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("calico"))
+		})
+		out2, _ := tools.DoCmd(*workerCmd)
+		fmt.Println("out2: ", out2.String())
+		ginkgo.It("worker /opt/cni/bin checking: ", func() {
+			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("calico"))
+		})
+
+		// check calicoctl
+		masterCmd = exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "calicoctl", "version")
+		out3, _ := tools.DoCmd(*masterCmd)
+		fmt.Println("out1: ", out3.String())
+		ginkgo.It("master calicoctl checking: ", func() {
+			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("Client Version"))
+			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("Cluster Version"))
+			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("kubespray,kubeadm,kdd"))
+		})
+
+		//6. check pod connection:
+		config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+		kubeClient, err = kubernetes.NewForConfig(config)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
+		//6.1. create a deployment of nginx1 on master, on namespace ns1: set replicaset to 1(here call the pod as pod1)
+		nginx1Cmd := exec.Command("kubectl", "run", "nginx1", "-n", "kube-system", "--image", "nginx:alpine", "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
+		nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
+		fmt.Println("create nginx1: ", nginx1CmdOut.String(), err1.String())
+		nginx2Cmd := exec.Command("kubectl", "run", "nginx2", "-n", "default", "--image", "nginx:alpine", "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node2")
+		nginx2CmdOut, err2 := tools.DoErrCmd(*nginx2Cmd)
+		fmt.Println("create nginx1: ", nginx2CmdOut.String(), err2.String())
+
+		time.Sleep(60 * time.Second)
+		pod1, _ := kubeClient.CoreV1().Pods("kube-system").Get(context.Background(), "nginx1", metav1.GetOptions{})
+		nginx1Ip := string(pod1.Status.PodIP)
+		ginkgo.It("nginxPod1 should be in running status", func() {
+			gomega.Expect(string(pod1.Status.Phase)).To(gomega.Equal("Running"))
+		})
+		pod2, _ := kubeClient.CoreV1().Pods("default").Get(context.Background(), "nginx2", metav1.GetOptions{})
+		nginx2Ip := string(pod2.Status.PodIP)
+		ginkgo.It("nginxPod1 should be in running status", func() {
+			gomega.Expect(string(pod2.Status.Phase)).To(gomega.Equal("Running"))
+		})
+		// 4.1 node ping 2 pods
+		pingNginx1IpCmd1 := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "ping", "-c 1", nginx1Ip)
+		pingNginx1IpCmd1Out, _ := tools.DoCmd(*pingNginx1IpCmd1)
+		fmt.Println("node ping nginx pod 1: ", pingNginx1IpCmd1Out.String())
+		ginkgo.It("node ping nginx pod 1 succuss: ", func() {
+			gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
+		})
+		pingNginx2IpCmd1 := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", masterSSH, "ping", "-c 1", nginx2Ip)
+		pingNgin21IpCmd1Out, _ := tools.DoCmd(*pingNginx2IpCmd1)
+		fmt.Println("node ping nginx pod 2: ", pingNgin21IpCmd1Out.String())
+		ginkgo.It("node ping nginx pod 2 succuss: ", func() {
+			gomega.Expect(pingNgin21IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
+		})
+		// 4.2 pod ping pod
+		podsPingCmd1 := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null",
+			"-o", "StrictHostKeyChecking=no", masterSSH, "kubectl", "exec", "-it", "nginx1", "-n", "kube-system",
+			"--", "ping", "-c 1", nginx2Ip)
+		podsPingCmdOut1, _ := tools.DoCmd(*podsPingCmd1)
+		fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
+		ginkgo.It("pod ping pod succuss: ", func() {
+			gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
+		})
+		podsPingCmd2 := exec.Command("sshpass", "-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null",
+			"-o", "StrictHostKeyChecking=no", masterSSH, "kubectl", "exec", "-it", "nginx2", "-n", "default",
+			"--", "ping", "-c 1", nginx1Ip)
+		podsPingCmdOut2, _ := tools.DoCmd(*podsPingCmd2)
+		fmt.Println("pod ping pod: ", podsPingCmdOut2.String())
+		ginkgo.It("pod ping pod succuss: ", func() {
+			gomega.Expect(podsPingCmdOut2.String()).Should(gomega.ContainSubstring("1 packets received"))
 		})
 	})
 
