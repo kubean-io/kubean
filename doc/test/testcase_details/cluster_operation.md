@@ -10,9 +10,8 @@
         5.2 CRI check: execute "systemctl status containerd.service"(if cri is docker, check docker service), output should contain "inactive" and "dead"
         5.3 CNI check1: execute "ls -al /opt", the output should not contain "cni"
         5.4 CNI check2: execute "ls -al /etc",the output should not contain "cni"
-        5.5 CNI check3: execute "kubectl get pod -A", the output should not contain "calico"
-        5.6 k8s config file check: execute "ls -al /root", the output should not contain "\\.kube"
-        5.7 kubelet check: execute "ls -al /usr/local/bin", the output should not contain "kubelet"
+        5.5 k8s config file check: execute "ls -al /root", the output should not contain "\\.kube"
+        5.6 kubelet check: execute "ls -al /usr/local/bin", the output should not contain "kubelet"
     6. start a new cluster creation
     7. after the second create job finished, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
 

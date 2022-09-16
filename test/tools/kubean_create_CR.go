@@ -167,7 +167,7 @@ func CreatCR() {
 	kubeclusterObj := &kubeancluster.KuBeanCluster{
 		TypeMeta:   metav1.TypeMeta{Kind: "KuBeanCluster", APIVersion: "kubeancluster.kubean.io/v1alpha1"},
 		ObjectMeta: metav1.ObjectMeta{Name: kubeClusterName, Labels: map[string]string{"ClusterName": kubeClusterLabelName}},
-		Spec:       kubeancluster.ClusterSpec{HostsConfRef: &hostsDataRef, VarsConfRef: &varsDataRef},
+		Spec:       kubeancluster.Spec{HostsConfRef: &hostsDataRef, VarsConfRef: &varsDataRef},
 	}
 	_, err = clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), kubeClusterName, metav1.GetOptions{})
 	if err != nil {
@@ -205,7 +205,7 @@ func CreatCR() {
 				"clusterName": kubeClusterLabelName,
 			},
 		},
-		Spec: kubeanclusterops.ClusterSpec{
+		Spec: kubeanclusterops.Spec{
 			KuBeanCluster: kubeClusterName,
 			Image:         "ghcr.io/kubean-io/spray-job:v0.0.1",
 			BackoffLimit:  0,
