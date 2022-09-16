@@ -43,20 +43,20 @@ type Spec struct {
 
 type LocalService struct {
 	// +optional
-	RegistryRepo string `json:"registryRepo,omitempty"`
+	RegistryRepo string `json:"registryRepo,omitempty" yaml:"registryRepo,omitempty"`
 	// +optional
-	FilesRepo string `json:"filesRepo,omitempty"`
+	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
-	YumRepo []string `json:"yumRepo,omitempty"`
+	YumRepo []string `json:"yumRepo,omitempty" yaml:"yumRepo,omitempty"`
 	// +optional
-	HostsMap []HostsMap `json:"hostsMap,omitempty"`
+	HostsMap []HostsMap `json:"hostsMap,omitempty" yaml:"hostsMap,omitempty"`
 }
 
 type HostsMap struct {
 	// +required
-	Domain string `json:"domain,omitempty"`
+	Domain string `json:"domain,omitempty" yaml:"domain,omitempty"`
 	// +required
-	Address string `json:"address,omitempty"`
+	Address string `json:"address,omitempty" yaml:"address,omitempty"`
 }
 
 type Status struct {

@@ -39,7 +39,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ClusterSpec defines the desired state of a member cluster.
+            description: Spec defines the desired state of a member cluster.
             properties:
               action:
                 type: string
@@ -138,8 +138,8 @@ spec:
             - kuBeanCluster
             type: object
           status:
-            description: ClusterOpsStatus contains information about the current status
-              of a cluster operation job updated periodically by cluster controller.
+            description: Status contains information about the current status of a
+              cluster operation job updated periodically by cluster controller.
             properties:
               action:
                 type: string
