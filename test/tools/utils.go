@@ -81,3 +81,14 @@ func DoCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 	}
 	return out, stderr
 }
+
+func DoErrCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
+	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
+	var out, stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+	}
+	return out, stderr
+}
