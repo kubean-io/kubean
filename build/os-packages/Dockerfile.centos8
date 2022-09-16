@@ -16,7 +16,7 @@ COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.base[],.extras[],.docker.centos8[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
-    && while read -r line; do repotrack --destdir ${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
+    && while read -r line; do yumdownloader –resolve --destdir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
     && createrepo_c ${ARCH} \
     && repo2module -s stable ${ARCH} ${ARCH}/modules.yaml \
     && modifyrepo_c --mdtype=modules ${ARCH}/modules.yaml ${ARCH}/repodata
