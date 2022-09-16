@@ -19,10 +19,10 @@ type KuBeanClusterOps struct {
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +required
-	Spec ClusterSpec `json:"spec"`
+	Spec Spec `json:"spec"`
 
 	// +optional
-	Status ClusterOpsStatus `json:"status,omitempty"`
+	Status Status `json:"status,omitempty"`
 }
 
 type ActionType string
@@ -32,8 +32,8 @@ const (
 	ShellActionType    ActionType = "shell"
 )
 
-// ClusterSpec defines the desired state of a member cluster.
-type ClusterSpec struct {
+// Spec defines the desired state of a member cluster.
+type Spec struct {
 	// KuBeanCluster the name of KuBeanCluster.
 	// +required
 	KuBeanCluster string `json:"kuBeanCluster"`
@@ -83,9 +83,9 @@ const (
 	BlockedStatus   OpsStatus = "Blocked"
 )
 
-// ClusterOpsStatus contains information about the current status of a
+// Status contains information about the current status of a
 // cluster operation job updated periodically by cluster controller.
-type ClusterOpsStatus struct {
+type Status struct {
 	// +optional
 	Action string `json:"action"`
 	// +optional

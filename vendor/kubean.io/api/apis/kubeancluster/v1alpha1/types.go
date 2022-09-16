@@ -18,14 +18,14 @@ type KuBeanCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec ClusterSpec `json:"spec"`
+	Spec Spec `json:"spec"`
 
 	// +optional
-	Status ClusterStatus `json:"status,omitempty"`
+	Status Status `json:"status,omitempty"`
 }
 
-// ClusterSpec defines the desired state of a member cluster.
-type ClusterSpec struct {
+// Spec defines the desired state of a member cluster.
+type Spec struct {
 	// HostsConfRef stores hosts.yml.
 	// +required
 	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
@@ -64,9 +64,9 @@ type ClusterCondition struct {
 	EndTime *metav1.Time `json:"endTime"`
 }
 
-// ClusterStatus contains information about the current status of a
+// Status contains information about the current status of a
 // cluster updated periodically by cluster controller.
-type ClusterStatus struct {
+type Status struct {
 	Conditions []ClusterCondition `json:"conditions"`
 }
 
