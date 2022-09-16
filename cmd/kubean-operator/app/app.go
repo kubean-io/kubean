@@ -9,6 +9,7 @@ import (
 
 	"github.com/kubean-io/kubean/pkg/controllers/cluster"
 	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
+	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
 	"github.com/kubean-io/kubean/pkg/controllers/offlineversion"
 	"github.com/kubean-io/kubean/pkg/util"
 	"github.com/kubean-io/kubean/pkg/version"
@@ -114,7 +115,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
-	clusterconfigClientSet, err := kubeaninfomanifestClientSet.NewForConfig(resetConfig)
+	infomanifestClientSet, err := kubeaninfomanifestClientSet.NewForConfig(resetConfig)
 	if err != nil {
 		return err
 	}
@@ -147,11 +148,21 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	offlineVersionController := &offlineversion.Controller{
 		Client:                  mgr.GetClient(),
 		ClientSet:               ClientSet,
-		ClusterConfigClientSet:  clusterconfigClientSet,
+		InfoManifestClientSet:   infomanifestClientSet,
 		OfflineversionClientSet: offlineversionClientSet,
 	}
 	if err := offlineVersionController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager OfflineVersion but %s", err)
+		return err
+	}
+
+	infomanifestController := &infomanifest.Controller{
+		Client:                mgr.GetClient(),
+		InfoManifestClientSet: infomanifestClientSet,
+		ClientSet:             ClientSet,
+	}
+	if err := infomanifestController.SetupWithManager(mgr); err != nil {
+		klog.Errorf("ControllerManager Infomanifest but %s", err)
 		return err
 	}
 	return nil

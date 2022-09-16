@@ -36,7 +36,7 @@ func TestMergeOfflineVersion(t *testing.T) {
 		Client:                  newFakeClient(),
 		ClientSet:               clientsetfake.NewSimpleClientset(),
 		OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-		ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet:   kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -263,7 +263,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:   kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					TypeMeta: metav1.TypeMeta{
@@ -295,10 +295,10 @@ func TestReconcile(t *testing.T) {
 
 				controller.Create(context.Background(), &offlineVersionData)
 				controller.OfflineversionClientSet.KubeanV1alpha1().KuBeanOfflineVersions().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
-				controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
+				controller.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
 
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
-				newGlobalComponentsVersion, _ := controller.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+				newGlobalComponentsVersion, _ := controller.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 				return err == nil && result.RequeueAfter == Loop && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker) == 1 && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker[0].VersionRange) == 2
 			},
 			want: true,
@@ -310,7 +310,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:   kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := kubeanofflineversionv1alpha1.KuBeanOfflineVersion{
 					TypeMeta: metav1.TypeMeta{
@@ -345,7 +345,7 @@ func TestReconcile(t *testing.T) {
 					Client:                  newFakeClient(),
 					ClientSet:               clientsetfake.NewSimpleClientset(),
 					OfflineversionClientSet: kubeanofflineversionv1alpha1fake.NewSimpleClientset(),
-					ClusterConfigClientSet:  kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:   kubeaninfomanifestv1alpha1fake.NewSimpleClientset(),
 				}
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "offlineversion-1"}})
 				return result.Requeue == false && result.RequeueAfter == 0

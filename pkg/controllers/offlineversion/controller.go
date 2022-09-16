@@ -19,12 +19,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const Loop = time.Second * 20
+const Loop = time.Second * 15
 
 type Controller struct {
 	client.Client
 	ClientSet               kubernetes.Interface
-	ClusterConfigClientSet  kubeaninfomanifestClientSet.Interface
+	InfoManifestClientSet   kubeaninfomanifestClientSet.Interface
 	OfflineversionClientSet kubeanofflineversionClientSet.Interface
 }
 
@@ -35,11 +35,11 @@ func (c *Controller) Start(ctx context.Context) error {
 }
 
 func (c *Controller) FetchGlobalKubeanClusterConfig() (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
-	componentsVersion, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+	infoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	return componentsVersion, nil
+	return infoManifest, nil
 }
 
 func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, clusterConfig *kubeaninfomanifestv1alpha1.KubeanInfoManifest) (bool, *kubeaninfomanifestv1alpha1.KubeanInfoManifest) {
@@ -66,14 +66,14 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	globalClusterConfig, err := c.FetchGlobalKubeanClusterConfig()
+	globalInfoManifest, err := c.FetchGlobalKubeanClusterConfig()
 	if err != nil {
 		klog.Errorf("Fetch %s , ignoring %s", constants.InfoManifestGlobal, err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	if needUpdate, newGlobalClusterConfig := c.MergeOfflineVersionStatus(offlineVersion, globalClusterConfig); needUpdate {
+	if needUpdate, newGlobalInfoManifest := c.MergeOfflineVersionStatus(offlineVersion, globalInfoManifest); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.ClusterConfigClientSet.KubeanV1alpha1().KubeanInfoManifests().UpdateStatus(context.Background(), newGlobalClusterConfig, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().UpdateStatus(context.Background(), newGlobalInfoManifest, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}
