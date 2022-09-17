@@ -12,8 +12,7 @@ COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.base[],.extras[],.docker.centos7[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
-    # && while read -r line; do repotrack -p ${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
-    && while read -r line; do yumdownloader –resolve --destdir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
+    && while read -r line; do yum install --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
     && createrepo -d ${ARCH}
 
 FROM scratch
