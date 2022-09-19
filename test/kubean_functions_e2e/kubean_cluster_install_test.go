@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/kubean-io/kubean/test/tools"
@@ -208,7 +210,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		service, err = kubeClient.CoreV1().Services("default").Create(context.TODO(), service, metav1.CreateOptions{})
 		fmt.Printf("Created service %q.\n", service.GetObjectMeta().GetName())
 
-		time.Sleep(1 * time.Minute)
+		time.Sleep(2 * time.Minute)
 		// check nginx request, such as: nginxReq := "10.6.127.41:30090"
 		nginxReq := fmt.Sprintf("%s:30090", tools.Vmipaddr)
 		cmd := exec.Command("curl", nginxReq)
@@ -224,6 +226,32 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 
 		ginkgo.It("nginx service can be request", func() {
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("Welcome to nginx!"))
+		})
+
+		ginkgo.It("check pod ip is in kube_pods_subnet", func() {
+			//the pod set was 192.168.128.0/20, so the available pod ip range is 192.168.128.1 ~ 192.168.143.255
+			pods, err := kubeClient.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get pods")
+			gomega.Expect(len(pods.Items) > 0).Should(gomega.BeTrue())
+
+			podName := pods.Items[0].Name
+			pod, err := kubeClient.CoreV1().Pods(corev1.NamespaceDefault).Get(context.Background(), podName, metav1.GetOptions{})
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get pod")
+			fmt.Println("pod ip is: ", pod.Status.PodIP)
+			ipSplitArr := strings.Split(pod.Status.PodIP, ".")
+			gomega.Expect(len(ipSplitArr)).Should(gomega.Equal(4))
+
+			ipSub1, err := strconv.Atoi(ipSplitArr[0])
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "ip split conversion failed")
+			ipSub2, err := strconv.Atoi(ipSplitArr[1])
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "ip split conversion failed")
+			ipSub3, err := strconv.Atoi(ipSplitArr[2])
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "ip split conversion failed")
+
+			gomega.Expect(ipSub1).Should(gomega.Equal(192))
+			gomega.Expect(ipSub2).Should(gomega.Equal(168))
+			gomega.Expect(ipSub3 >= 128).Should(gomega.BeTrue())
+			gomega.Expect(ipSub3 <= 143).Should(gomega.BeTrue())
 		})
 	})
 
