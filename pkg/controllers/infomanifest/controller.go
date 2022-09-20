@@ -27,7 +27,7 @@ const Loop = time.Second * 30
 
 const OriginLabel = "origin"
 
-const LocalServiceConfigMap = "kubean-localService"
+const LocalServiceConfigMap = "kubean-localservice"
 
 type Controller struct {
 	client.Client
