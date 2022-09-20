@@ -4,6 +4,7 @@ metadata:
   name: KubeanInfoManifestNAME
   annotations:
     "helm.sh/hook": "post-install"
+    "helm.sh/hook-weight": "-5"
 spec:
   kubesprayVersion: ""
   kubeanVersion: ""
