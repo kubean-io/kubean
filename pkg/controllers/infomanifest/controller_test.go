@@ -276,7 +276,7 @@ func Test_EnsureGlobalInfoManifestBeingLatest(t *testing.T) {
 	}
 }
 
-func Test_UpdateGlobalLocalService(t *testing.T) {
+func Test_UpdateGlobalLocalService1(t *testing.T) {
 	controller := &Controller{
 		Client:                newFakeClient(),
 		ClientSet:             clientsetfake.NewSimpleClientset(),
@@ -305,7 +305,7 @@ func Test_UpdateGlobalLocalService(t *testing.T) {
 				}
 				configMap := &corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kubean-localService",
+						Name:      LocalServiceConfigMap,
 						Namespace: "default",
 					},
 					Data: map[string]string{"localService": "      registryRepo: 'temp-registry.daocloud.io:5000'\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d'"},
@@ -345,7 +345,7 @@ func Test_UpdateGlobalLocalService(t *testing.T) {
 				}
 				configMap := &corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "kubean-localService",
+						Name:      LocalServiceConfigMap,
 						Namespace: "default",
 					},
 					Data: map[string]string{"localService": "      registryRepo: 'temp-registry.daocloud.io:5000'\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d1'"},
