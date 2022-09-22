@@ -17,6 +17,14 @@ function add_mc_host_conf() {
   fi
 }
 
+function ensure_kubean_bucket() {
+  if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
+    echo "create bucket 'kubean'"
+    mc mb kubeaniominioserver/kubean
+    mc policy set download kubeaniominioserver/kubean
+  fi
+}
+
 function remove_mc_host_conf() {
   echo "remove mc config"
   mc config host remove kubeaniominioserver
@@ -40,25 +48,19 @@ function import_os_packages() {
 
   tar -xvf "$TAR_GZ_FILE_PATH" ## got resources folder
 
-  for bucketName in resources/*; do
-    bucketName=${bucketName//resources\//} ## remove dir prefix
-    if ! mc ls kubeaniominioserver/"$bucketName" >/dev/null 2>&1; then
-      echo "create bucket $bucketName"
-      mc mb kubeaniominioserver/"$bucketName"
-      mc policy set download kubeaniominioserver/"$bucketName"
-    fi
-  done
-
-  for path in $(find resources); do
-    if [ -f "$path" ]; then
-      ## mc cp resources/centos/7/x86_64/x.rpm kubeaniominioserver/centos/7/x86_64/x.rpm
-      minioFileName=${path//resources/kubeaniominioserver}
-      mc cp --no-color "$path" "$minioFileName"
-    fi
+  for dirName in resources/*; do
+    mc cp --no-color --recursive "$dirName" "kubeaniominioserver/kubean/"
   done
 }
 
+start=$(date +%s)
+
 check_mc_cmd
 add_mc_host_conf
+ensure_kubean_bucket
 import_os_packages
 remove_mc_host_conf
+
+end=$(date +%s)
+take=$((end - start))
+echo "Importing OS pkgs spends ${take} seconds"

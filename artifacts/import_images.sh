@@ -57,5 +57,11 @@ function import_images() {
   echo "import completed!"
 }
 
+start=$(date +%s)
+
 check_skopeo_cmd
 import_images
+
+end=$(date +%s)
+take=$((end - start))
+echo "Importing images spends ${take} seconds"

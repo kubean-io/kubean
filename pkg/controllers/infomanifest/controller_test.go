@@ -414,7 +414,7 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 				controller.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Create(context.Background(), global, metav1.CreateOptions{})
 				controller.UpdateLocalAvailableImage()
 			},
-			want: "ghcr.io/kubean-io/spray-job:123",
+			want: "ghcr.m.daocloud.io/kubean-io/spray-job:123",
 		},
 		{
 			name: "update local kubespray image with local registry",
