@@ -16,12 +16,12 @@ import (
 
 // FakeKuBeanClusters implements KuBeanClusterInterface
 type FakeKuBeanClusters struct {
-	Fake *FakeKubeanclusterV1alpha1
+	Fake *FakeKubeanV1alpha1
 }
 
-var kubeanclustersResource = schema.GroupVersionResource{Group: "kubeancluster.kubean.io", Version: "v1alpha1", Resource: "kubeanclusters"}
+var kubeanclustersResource = schema.GroupVersionResource{Group: "kubean.io", Version: "v1alpha1", Resource: "kubeanclusters"}
 
-var kubeanclustersKind = schema.GroupVersionKind{Group: "kubeancluster.kubean.io", Version: "v1alpha1", Kind: "KuBeanCluster"}
+var kubeanclustersKind = schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KuBeanCluster"}
 
 // Get takes name of the kuBeanCluster, and returns the corresponding kuBeanCluster object, and an error if there is any.
 func (c *FakeKuBeanClusters) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.KuBeanCluster, err error) {

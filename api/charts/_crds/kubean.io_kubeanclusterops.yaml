@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.6.2
   creationTimestamp: null
-  name: kubeanclusterops.kubeanclusterops.kubean.io
+  name: kubeanclusterops.kubean.io
 spec:
-  group: kubeanclusterops.kubean.io
+  group: kubean.io
   names:
     kind: KuBeanClusterOps
     listKind: KuBeanClusterOpsList

@@ -45,13 +45,13 @@ func NewFilteredKuBeanClusterInformer(client versioned.Interface, resyncPeriod t
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubeanclusterV1alpha1().KuBeanClusters().List(context.TODO(), options)
+				return client.KubeanV1alpha1().KuBeanClusters().List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.KubeanclusterV1alpha1().KuBeanClusters().Watch(context.TODO(), options)
+				return client.KubeanV1alpha1().KuBeanClusters().Watch(context.TODO(), options)
 			},
 		},
 		&kubeanclusterv1alpha1.KuBeanCluster{},

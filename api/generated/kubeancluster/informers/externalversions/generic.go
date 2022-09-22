@@ -36,9 +36,9 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=kubeancluster.kubean.io, Version=v1alpha1
+	// Group=kubean.io, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("kubeanclusters"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubeancluster().V1alpha1().KuBeanClusters().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Kubean().V1alpha1().KuBeanClusters().Informer()}, nil
 
 	}
 

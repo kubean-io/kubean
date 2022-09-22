@@ -40,7 +40,7 @@ type kuBeanClusterOps struct {
 }
 
 // newKuBeanClusterOps returns a KuBeanClusterOps
-func newKuBeanClusterOps(c *KubeanclusteropsV1alpha1Client) *kuBeanClusterOps {
+func newKuBeanClusterOps(c *KubeanV1alpha1Client) *kuBeanClusterOps {
 	return &kuBeanClusterOps{
 		client: c.RESTClient(),
 	}

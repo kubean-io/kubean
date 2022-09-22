@@ -165,17 +165,17 @@ func CreatCR() {
 	hostsDataRef := apis.ConfigMapRef{Name: hostsConfigMapName, NameSpace: kubeanNamespace}
 	varsDataRef := apis.ConfigMapRef{Name: varsConfigMapName, NameSpace: kubeanNamespace}
 	kubeclusterObj := &kubeancluster.KuBeanCluster{
-		TypeMeta:   metav1.TypeMeta{Kind: "KuBeanCluster", APIVersion: "kubeancluster.kubean.io/v1alpha1"},
+		TypeMeta:   metav1.TypeMeta{Kind: "KuBeanCluster", APIVersion: "kubean.io/v1alpha1"},
 		ObjectMeta: metav1.ObjectMeta{Name: kubeClusterName, Labels: map[string]string{"ClusterName": kubeClusterLabelName}},
 		Spec:       kubeancluster.Spec{HostsConfRef: &hostsDataRef, VarsConfRef: &varsDataRef},
 	}
-	_, err = clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), kubeClusterName, metav1.GetOptions{})
+	_, err = clusterClientSet.KubeanV1alpha1().KuBeanClusters().Get(context.Background(), kubeClusterName, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			fmt.Println(err)
 			return
 		}
-		result, err := clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Create(context.Background(), kubeclusterObj, metav1.CreateOptions{})
+		result, err := clusterClientSet.KubeanV1alpha1().KuBeanClusters().Create(context.Background(), kubeclusterObj, metav1.CreateOptions{})
 		if err != nil {
 			panic(err)
 		}
@@ -197,7 +197,7 @@ func CreatCR() {
 	kubeclusterOpsObj := &kubeanclusterops.KuBeanClusterOps{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "KuBeanClusterOps",
-			APIVersion: "kubeanclusterops.kubean.io/v1alpha1",
+			APIVersion: "kubean.io/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: kubeanClusterOpsName,
@@ -215,7 +215,7 @@ func CreatCR() {
 			PostHook:      postHook,
 		},
 	}
-	result1, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Create(context.Background(), kubeclusterOpsObj, metav1.CreateOptions{})
+	result1, err := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Create(context.Background(), kubeclusterOpsObj, metav1.CreateOptions{})
 	if err != nil {
 		panic(err)
 	}

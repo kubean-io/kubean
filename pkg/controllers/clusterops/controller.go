@@ -151,7 +151,7 @@ func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanC
 }
 
 func (c *Controller) ListClusterOps(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-	list, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
+	list, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
 	if err != nil {
 		return nil, err
 	}
@@ -459,7 +459,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 // GetKuBeanCluster fetch the cluster which clusterOps belongs to.
 func (c *Controller) GetKuBeanCluster(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (*kubeanclusterv1alpha1.KuBeanCluster, error) {
 	// cluster has many clusterOps.
-	return c.KubeanClusterSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), clusterOps.Spec.KuBeanCluster, metav1.GetOptions{})
+	return c.KubeanClusterSet.KubeanV1alpha1().KuBeanClusters().Get(context.Background(), clusterOps.Spec.KuBeanCluster, metav1.GetOptions{})
 }
 
 // CreateEntryPointShellConfigMap create configMap to store entrypoint.sh.

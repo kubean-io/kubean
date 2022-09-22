@@ -10,24 +10,24 @@ import (
 	"kubean.io/api/generated/kubeanclusterops/clientset/versioned/scheme"
 )
 
-type KubeanclusteropsV1alpha1Interface interface {
+type KubeanV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	KuBeanClusterOpsGetter
 }
 
-// KubeanclusteropsV1alpha1Client is used to interact with features provided by the kubeanclusterops.kubean.io group.
-type KubeanclusteropsV1alpha1Client struct {
+// KubeanV1alpha1Client is used to interact with features provided by the kubean.io group.
+type KubeanV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *KubeanclusteropsV1alpha1Client) KuBeanClusterOps() KuBeanClusterOpsInterface {
+func (c *KubeanV1alpha1Client) KuBeanClusterOps() KuBeanClusterOpsInterface {
 	return newKuBeanClusterOps(c)
 }
 
-// NewForConfig creates a new KubeanclusteropsV1alpha1Client for the given config.
+// NewForConfig creates a new KubeanV1alpha1Client for the given config.
 // NewForConfig is equivalent to NewForConfigAndClient(c, httpClient),
 // where httpClient was generated with rest.HTTPClientFor(c).
-func NewForConfig(c *rest.Config) (*KubeanclusteropsV1alpha1Client, error) {
+func NewForConfig(c *rest.Config) (*KubeanV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -39,9 +39,9 @@ func NewForConfig(c *rest.Config) (*KubeanclusteropsV1alpha1Client, error) {
 	return NewForConfigAndClient(&config, httpClient)
 }
 
-// NewForConfigAndClient creates a new KubeanclusteropsV1alpha1Client for the given config and http client.
+// NewForConfigAndClient creates a new KubeanV1alpha1Client for the given config and http client.
 // Note the http client provided takes precedence over the configured transport values.
-func NewForConfigAndClient(c *rest.Config, h *http.Client) (*KubeanclusteropsV1alpha1Client, error) {
+func NewForConfigAndClient(c *rest.Config, h *http.Client) (*KubeanV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -50,12 +50,12 @@ func NewForConfigAndClient(c *rest.Config, h *http.Client) (*KubeanclusteropsV1a
 	if err != nil {
 		return nil, err
 	}
-	return &KubeanclusteropsV1alpha1Client{client}, nil
+	return &KubeanV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new KubeanclusteropsV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new KubeanV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *KubeanclusteropsV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *KubeanV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -63,9 +63,9 @@ func NewForConfigOrDie(c *rest.Config) *KubeanclusteropsV1alpha1Client {
 	return client
 }
 
-// New creates a new KubeanclusteropsV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *KubeanclusteropsV1alpha1Client {
-	return &KubeanclusteropsV1alpha1Client{c}
+// New creates a new KubeanV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *KubeanV1alpha1Client {
+	return &KubeanV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -83,7 +83,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *KubeanclusteropsV1alpha1Client) RESTClient() rest.Interface {
+func (c *KubeanV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

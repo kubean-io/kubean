@@ -1,4 +1,4 @@
-apiVersion: kubeancluster.kubean.io/v1alpha1
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanCluster
 metadata:
   name: cluster1

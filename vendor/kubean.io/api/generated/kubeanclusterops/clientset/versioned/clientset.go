@@ -9,24 +9,24 @@ import (
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	kubeanclusteropsv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1"
+	kubeanv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1"
 )
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	KubeanclusteropsV1alpha1() kubeanclusteropsv1alpha1.KubeanclusteropsV1alpha1Interface
+	KubeanV1alpha1() kubeanv1alpha1.KubeanV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
 // version included in a Clientset.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	kubeanclusteropsV1alpha1 *kubeanclusteropsv1alpha1.KubeanclusteropsV1alpha1Client
+	kubeanV1alpha1 *kubeanv1alpha1.KubeanV1alpha1Client
 }
 
-// KubeanclusteropsV1alpha1 retrieves the KubeanclusteropsV1alpha1Client
-func (c *Clientset) KubeanclusteropsV1alpha1() kubeanclusteropsv1alpha1.KubeanclusteropsV1alpha1Interface {
-	return c.kubeanclusteropsV1alpha1
+// KubeanV1alpha1 retrieves the KubeanV1alpha1Client
+func (c *Clientset) KubeanV1alpha1() kubeanv1alpha1.KubeanV1alpha1Interface {
+	return c.kubeanV1alpha1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -73,7 +73,7 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 
 	var cs Clientset
 	var err error
-	cs.kubeanclusteropsV1alpha1, err = kubeanclusteropsv1alpha1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	cs.kubeanV1alpha1, err = kubeanv1alpha1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.kubeanclusteropsV1alpha1 = kubeanclusteropsv1alpha1.New(c)
+	cs.kubeanV1alpha1 = kubeanv1alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

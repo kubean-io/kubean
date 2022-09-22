@@ -33,7 +33,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		out, _ := tools.DoCmd(*cmd)
 		fmt.Println(out.String())
 		for {
-			clusterOps, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+			clusterOps, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			status := string(clusterOps.Status.Status)
 			ginkgo.GinkgoWriter.Printf("* wait for ops status: %s\n", status)
 			if status == "Running" {
@@ -53,7 +53,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		out, _ = tools.DoCmd(*cmd)
 		fmt.Println(out.String())
 		for {
-			clusterOpsSecond, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsNameSecond, metav1.GetOptions{})
+			clusterOpsSecond, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsNameSecond, metav1.GetOptions{})
 			statusSecond := string(clusterOpsSecond.Status.Status)
 			if statusSecond == "" {
 				time.Sleep(10 * time.Second)
@@ -65,10 +65,10 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 			}
 		}
 		//delete all ops to prepare for the next testcase
-		clusterOpsList, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
+		clusterOpsList, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
 		for _, ops := range clusterOpsList.Items {
 			fmt.Println("delete cluster1 clusterOps: ", ops.Name)
-			clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), ops.Name, metav1.DeleteOptions{})
+			clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Delete(context.Background(), ops.Name, metav1.DeleteOptions{})
 		}
 
 	})
@@ -84,7 +84,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 			time.Sleep(10 * time.Second)
 		}
 		// step2 check cluster1 should exists 5 ops
-		clusterOpsList, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
+		clusterOpsList, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
 		fmt.Println("step2 - clusterOps count in cluster1: ", len(clusterOpsList.Items))
 		ginkgo.It("the cluster1 should exists 5 ops", func() {
 			gomega.Expect(len(clusterOpsList.Items)).Should(gomega.BeNumerically("==", 5))
@@ -98,7 +98,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		fmt.Println(out.String())
 		// step4 check the oldest ops is removed
 		for {
-			_, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), "e2e-cluster1-ops-copies1", metav1.GetOptions{})
+			_, err := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), "e2e-cluster1-ops-copies1", metav1.GetOptions{})
 			if err == nil {
 				time.Sleep(5 * time.Second)
 			} else {
@@ -109,10 +109,10 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		}
 
 		//delete all ops to prepare for the next testcase
-		clusterOpsList, _ = clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
+		clusterOpsList, _ = clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{})
 		for _, ops := range clusterOpsList.Items {
 			fmt.Println("delete cluster1 clusterOps: ", ops.Name)
-			clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), ops.Name, metav1.DeleteOptions{})
+			clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Delete(context.Background(), ops.Name, metav1.DeleteOptions{})
 		}
 	})
 
@@ -126,7 +126,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		out, _ := tools.DoCmd(*cmd)
 		fmt.Println(out.String())
 		for {
-			clusterOps, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+			clusterOps, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			status := string(clusterOps.Status.Status)
 			ginkgo.GinkgoWriter.Printf("* wait for e2e-hasmodified-ops status: %s\n", status)
 			if status == "Running" {
@@ -139,12 +139,12 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 			}
 		}
 	})
-	clusterOps, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+	clusterOps, err := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 	fmt.Println("before patch e2e-hasmodified-ops KuBeanClusterOps.Spec.Action: ", clusterOps.Spec.Action)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check e2e-hasmodified-ops KuBeanClusterOps Spec.hasModified")
 	ginkgo.Context("when fetching e2e-hasmodified-ops KuBeanClusterOps", func() {
 		clusterOps.Spec.Action = "e2e-hasmodified-ops"
-		newClusterOps, err := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Update(context.Background(), clusterOps, metav1.UpdateOptions{})
+		newClusterOps, err := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Update(context.Background(), clusterOps, metav1.UpdateOptions{})
 		time.Sleep(30 * time.Second)
 		fmt.Println(newClusterOps.Spec.Action)
 		ginkgo.It("e2e-hasmodified-ops KuBeanClusterOps.Spec.Action update success", func() {
@@ -152,7 +152,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 			gomega.Expect(string(newClusterOps.Spec.Action)).Should(gomega.ContainSubstring("e2e-hasmodified-ops"))
 		})
 		for {
-			updatedClusterOps, _ := clusterClientOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
+			updatedClusterOps, _ := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			hasModified := updatedClusterOps.Status.HasModified
 			if hasModified {
 				ginkgo.It("KuBeanClusterOps.Status.hasModified should be true", func() {

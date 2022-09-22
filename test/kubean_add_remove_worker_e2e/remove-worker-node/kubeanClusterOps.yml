@@ -1,4 +1,4 @@
-apiVersion: kubeanclusterops.kubean.io/v1alpha1
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
   name: cluster1-remove-worker-ops
