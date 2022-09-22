@@ -9,8 +9,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
-	kubeanclusteropsv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1"
-	fakekubeanclusteropsv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1/fake"
+	kubeanv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1"
+	fakekubeanv1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -63,7 +63,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// KubeanclusteropsV1alpha1 retrieves the KubeanclusteropsV1alpha1Client
-func (c *Clientset) KubeanclusteropsV1alpha1() kubeanclusteropsv1alpha1.KubeanclusteropsV1alpha1Interface {
-	return &fakekubeanclusteropsv1alpha1.FakeKubeanclusteropsV1alpha1{Fake: &c.Fake}
+// KubeanV1alpha1 retrieves the KubeanV1alpha1Client
+func (c *Clientset) KubeanV1alpha1() kubeanv1alpha1.KubeanV1alpha1Interface {
+	return &fakekubeanv1alpha1.FakeKubeanV1alpha1{Fake: &c.Fake}
 }

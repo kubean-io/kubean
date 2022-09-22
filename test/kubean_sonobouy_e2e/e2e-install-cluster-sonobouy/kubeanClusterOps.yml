@@ -1,4 +1,4 @@
-apiVersion: kubeanclusterops.kubean.io/v1alpha1
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
   name: e2e-cluster1-install-sonobouy

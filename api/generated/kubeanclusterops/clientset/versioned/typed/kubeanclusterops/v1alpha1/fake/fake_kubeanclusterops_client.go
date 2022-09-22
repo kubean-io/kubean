@@ -8,17 +8,17 @@ import (
 	v1alpha1 "kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1"
 )
 
-type FakeKubeanclusteropsV1alpha1 struct {
+type FakeKubeanV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeKubeanclusteropsV1alpha1) KuBeanClusterOps() v1alpha1.KuBeanClusterOpsInterface {
+func (c *FakeKubeanV1alpha1) KuBeanClusterOps() v1alpha1.KuBeanClusterOpsInterface {
 	return &FakeKuBeanClusterOps{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeKubeanclusteropsV1alpha1) RESTClient() rest.Interface {
+func (c *FakeKubeanV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

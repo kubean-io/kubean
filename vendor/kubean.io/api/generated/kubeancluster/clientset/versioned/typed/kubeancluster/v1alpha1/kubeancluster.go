@@ -40,7 +40,7 @@ type kuBeanClusters struct {
 }
 
 // newKuBeanClusters returns a KuBeanClusters
-func newKuBeanClusters(c *KubeanclusterV1alpha1Client) *kuBeanClusters {
+func newKuBeanClusters(c *KubeanV1alpha1Client) *kuBeanClusters {
 	return &kuBeanClusters{
 		client: c.RESTClient(),
 	}

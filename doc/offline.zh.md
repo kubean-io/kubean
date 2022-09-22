@@ -176,7 +176,7 @@ sslverify=0
 由于创建源的过程涉及到集群的所有节点, 手动脚本操作相对繁琐, 这里提供了一种 playbook 的解决方式:
 
 ``` yaml
-apiVersion: kubeanclusterops.kubean.io/v1alpha1
+apiVersion: kubean.io/v1alpha1
 kind: KuBeanClusterOps
 metadata:
   name: cluster-ops-01

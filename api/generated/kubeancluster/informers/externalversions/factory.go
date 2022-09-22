@@ -156,9 +156,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Kubeancluster() kubeancluster.Interface
+	Kubean() kubeancluster.Interface
 }
 
-func (f *sharedInformerFactory) Kubeancluster() kubeancluster.Interface {
+func (f *sharedInformerFactory) Kubean() kubeancluster.Interface {
 	return kubeancluster.New(f, f.namespace, f.tweakListOptions)
 }
