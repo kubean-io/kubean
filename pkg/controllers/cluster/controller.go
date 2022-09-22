@@ -73,7 +73,7 @@ func CompareClusterConditions(condAList, condBList []kubeanclusterv1alpha1.Clust
 
 func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) error {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
-	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) 
 // CleanExcessClusterOps clean up excess KuBeanClusterOps.
 func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
-	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
 	if err != nil {
 		return false, err
 	}
@@ -117,7 +117,7 @@ func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBean
 	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
 	for _, item := range excessClusterOpsList {
 		klog.Warningf("Delete KuBeanClusterOps: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
-		c.KubeanClusterOpsSet.KubeanclusteropsV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
+		c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
 	}
 	return true, nil
 }
