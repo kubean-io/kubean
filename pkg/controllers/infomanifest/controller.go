@@ -172,7 +172,7 @@ func (c *Controller) UpdateLocalAvailableImage() {
 		klog.Warningf("ignoring %s", err.Error())
 		return
 	}
-	imageRepo := "ghcr.io"
+	imageRepo := "ghcr.m.daocloud.io"
 	if len(global.Spec.LocalService.RegistryRepo) != 0 {
 		imageRepo = global.Spec.LocalService.RegistryRepo
 	}

@@ -15,6 +15,14 @@ function add_mc_host_conf() {
   fi
 }
 
+function ensure_kubean_bucket() {
+  if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
+    echo "create bucket 'kubean'"
+    mc mb kubeaniominioserver/kubean
+    mc policy set download kubeaniominioserver/kubean
+  fi
+}
+
 function del_mc_host_conf() {
   echo "remove mc config"
   mc config host remove kubeaniominioserver
@@ -35,26 +43,20 @@ function import_files() {
     echo "unzip successfully"
   fi
 
-  for bucketName in offline-files/*; do
-    bucketName=${bucketName//offline-files\//} ## remove dir prefix
-    if ! mc ls kubeaniominioserver/"$bucketName" >/dev/null 2>&1 ; then
-      echo "create bucket $bucketName"
-      mc mb kubeaniominioserver/"$bucketName"
-      mc policy set download kubeaniominioserver/"$bucketName"
-    fi
-  done
-
-  for path in $(find offline-files); do
-    if [ -f "$path" ]; then
-      ## mc cp offline-files/a/b/c/d.txt kubeaniominioserver/a/b/c/d.txt
-      minioFileName=${path//offline-files/kubeaniominioserver}
-      mc cp --no-color "$path" "$minioFileName"
-    fi
+  for dirName in offline-files/*; do
+     mc cp --no-color --recursive "$dirName" "kubeaniominioserver/kubean/"
   done
 
 }
 
+start=$(date +%s)
+
 check_mc_cmd
 add_mc_host_conf
+ensure_kubean_bucket
 import_files
 del_mc_host_conf
+
+end=$(date +%s)
+take=$((end - start))
+echo "Importing files spends ${take} seconds"

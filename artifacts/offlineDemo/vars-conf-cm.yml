@@ -8,7 +8,7 @@ data:
     registry_host: "REGISTRY_HOST:REGISTRY_PORT"
     minio_address: "http://MINIO_API_HOST:MINIO_API_PORT"
 
-    files_repo: "{{ minio_address }}"
+    files_repo: "{{ minio_address }}/kubean"
     container_manager: docker ## containerd
     docker_version: "20.10"
     docker_cli_version: "20.10"

@@ -154,12 +154,12 @@ sslverify=0
 $ ./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
 
 # 执行脚本创建 URL 源配置文件
-$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/centos/\$releasever/os/\$basearch
+$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/kubean/centos/\$releasever/os/\$basearch
 # 查看 URL 源配置文件
 $ cat /etc/yum.repos.d/Kubean-URL.repo
 [kubean-extra]
 name=Kubean Extra Repo
-baseurl=http://10.20.30.40:9000/centos/$releasever/os/$basearch
+baseurl=http://10.20.30.40:9000/kubean/centos/$releasever/os/$basearch
 enabled=1
 gpgcheck=0
 sslverify=0
@@ -192,7 +192,7 @@ spec:
     - actionType: playbook
       action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
       extraArgs: |
-        -e "{yum_repo_url_list: ['http://10.20.30.40:9000/centos/\$releasever/os/\$basearch']}"
+        -e "{yum_repo_url_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
     - actionType: playbook
       action: disable-firewalld.yml
   postHook:
@@ -212,7 +212,7 @@ spec:
 registry_host: "{{ registry_address }}"
 
 ### 配置二进制文件服务的地址
-files_repo: "{{ minio_address }}"
+files_repo: "{{ minio_address }}/kubean"
 
 ### 如果使用 CentOS / RedHat / AlmaLinux / Fedora, 需要配置 yum 源文件服务地址:
 yum_repo: "{{ minio_address }}"

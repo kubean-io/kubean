@@ -116,4 +116,4 @@ remove_mc_host_conf
 
 end=$(date +%s)
 take=$((end - start))
-echo "It spends ${take} seconds"
+echo "Importing ISO spends ${take} seconds"
