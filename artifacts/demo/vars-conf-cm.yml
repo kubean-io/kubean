@@ -20,3 +20,4 @@ data:
     download_force_cache: true
     download_localhost: true
     
+    calico_feature_detect_override: "ChecksumOffloadBroken=true" # FIX https://github.com/kubernetes-sigs/kubespray/pull/9261
