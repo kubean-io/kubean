@@ -3,7 +3,7 @@ package version
 // Base version information.
 //
 // This is the fallback data used when version information from git is not
-// provided via go ldflags. It provides an approximation of the kpanda
+// provided via go ldflags. It provides an approximation of the kubean
 // version for ad-hoc builds (e.g. `go build`) that cannot get the version
 // information from git.
 var (
