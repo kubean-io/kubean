@@ -42,11 +42,11 @@
 
 ### Create cluster with one master and one worker
     1. prepare the config file as basic cluster
-    2. change cluster topology config: 1 master and 1 worker
+    2. set cluster topology config: 1 master and 1 worker
     3. prepare 2 hosts
     4. start setup cluster
     5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
-    6. check hostname of node: the hostname is not changed by kubean
+    6. check the cluster topology is: 1 master and 1 worker
 
 ### Support k8s: 1.23
     1. prepare the config file and set k8s version: 1.23.x

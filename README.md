@@ -1,6 +1,6 @@
 # :seedling: KuBean
 [![main workflow](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml/badge.svg)](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml) [![codecov](https://codecov.io/gh/kubean-io/kubean/branch/main/graph/badge.svg?token=8FX807D3QQ)](https://codecov.io/gh/kubean-io/kubean) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6263/badge)](https://bestpractices.coreinfrastructure.org/projects/6263)
-[![kubean coverage](https://gitlab.daocloud.cn/ndx/qa/e2ecoverage/-/raw/main/badges/kubean/kubeanCoverage.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md) [![kubean coverage](https://gitlab.daocloud.cn/ndx/qa/e2ecoverage/-/raw/main/badges/kubean/kubeanCoverage2.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md)
+[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md) [![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage2.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md)
 # Introduction
 kubean is a cluster lifecycle management tool based on kubespray.
 
