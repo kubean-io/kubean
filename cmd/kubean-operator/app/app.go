@@ -89,7 +89,7 @@ func StartManager(ctx context.Context, opt *Options) error {
 		return err
 	}
 	if err := controllerManager.Start(ctx); err != nil {
-		klog.Errorf("ControllerManager Egress exit ,%s", err)
+		klog.Errorf("KubeanOperator ControllerManager exit ,%s", err)
 		return err
 	}
 	return nil
