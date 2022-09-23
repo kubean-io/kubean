@@ -16,13 +16,13 @@ const (
 
 type Options struct {
 	LeaderElection componentbaseconfig.LeaderElectionConfiguration
-	// KubeAPIQPS is the QPS to use while talking with kpanda-apiserver.
+	// KubeAPIQPS is the QPS to use while talking with kubean-apiserver.
 	BindAddress string
 	// SecurePort is the port that the server serves at.
 	SecurePort int
 
 	KubeAPIQPS float32
-	// KubeAPIBurst is the burst to allow while talking with kpanda-apiserver.
+	// KubeAPIBurst is the burst to allow while talking with kubean-apiserver.
 	KubeAPIBurst int
 }
 
@@ -34,6 +34,8 @@ func NewOptions() *Options {
 			ResourceNamespace: util.GetCurrentNSOrDefault(),
 			ResourceName:      "kubean-controller",
 		},
+		KubeAPIQPS:   100.0,
+		KubeAPIBurst: 100,
 	}
 }
 
@@ -44,8 +46,8 @@ func (o *Options) AddFlags(flags *pflag.FlagSet) {
 		"The secure port on which to serve HTTPS.")
 	flags.BoolVar(&o.LeaderElection.LeaderElect, "leader-elect", true, "Start a leader election client and gain leadership before executing the main loop. Enable this when running replicated components for high availability.")
 	flags.StringVar(&o.LeaderElection.ResourceNamespace, "leader-elect-resource-namespace", "default", "The namespace of resource object that is used for locking during leader election.")
-	flags.Float32Var(&o.KubeAPIQPS, "kube-api-qps", 40.0, "QPS to use while talking with kpanda-apiserver. Doesn't cover events and node heartbeat apis which rate limiting is controlled by a different set of flags.")
-	flags.IntVar(&o.KubeAPIBurst, "kube-api-burst", 60, "Burst to use while talking with kpanda-apiserver. Doesn't cover events and node heartbeat apis which rate limiting is controlled by a different set of flags.")
+	flags.Float32Var(&o.KubeAPIQPS, "kube-api-qps", 100.0, "QPS to use while talking with kubean-apiserver. Doesn't cover events and node heartbeat apis which rate limiting is controlled by a different set of flags.")
+	flags.IntVar(&o.KubeAPIBurst, "kube-api-burst", 100, "Burst to use while talking with kubean-apiserver. Doesn't cover events and node heartbeat apis which rate limiting is controlled by a different set of flags.")
 }
 
 func (o *Options) Validate() field.ErrorList {
