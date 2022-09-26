@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -82,6 +83,19 @@ func DoCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 	return out, stderr
 }
 
+func NewDoCmd(cmd string, args ...string) (bytes.Buffer, bytes.Buffer) {
+	icmd := exec.Command(cmd, args...)
+	fmt.Println("NewDoCmd: ", icmd.String())
+	var out, stderr bytes.Buffer
+	icmd.Stdout = &out
+	icmd.Stderr = &stderr
+	if err := icmd.Run(); err != nil {
+		ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
+	}
+	return out, stderr
+}
+
 func DoErrCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
 	var out, stderr bytes.Buffer
@@ -91,4 +105,9 @@ func DoErrCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 		ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
 	}
 	return out, stderr
+}
+
+func RemoteSSHCmdArray(subCmd []string) []string {
+	var CmdArray = []string{"-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"}
+	return append(CmdArray, subCmd...)
 }

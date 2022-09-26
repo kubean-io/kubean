@@ -48,25 +48,25 @@ cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_functions_e2e/e2e-inst
 sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
-
-# prepare kubean reset job yml
-cp $(pwd)/test/common/hosts-conf-cm.yml $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/
-cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/
-cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/
-sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/hosts-conf-cm.yml
-sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/hosts-conf-cm.yml
-sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_functions_e2e/e2e-reset-cluster/kubeanClusterOps.yml
-
-# prepare kubean install job yml using docker
-cp -r $(pwd)/test/kubean_functions_e2e/e2e-install-cluster $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker
-sed -i "s#e2e-cluster1-install#e2e-install-cluster-docker#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
-sed -i "s/containerd/docker/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
-sed -i "s#  \"10.6.170.10:5000\": \"http://10.6.170.10:5000\"#   - 10.6.170.10:5000#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
-# TBD: kube_network_plugin=cillium; cause' the core version of centos79 is low 3.10.0, cillium require high core version more than 4.x; so such case id pending.
-# sed -i "s#kube_network_plugin: calico#kube_network_plugin: cillium#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
-# override_system_hostname=false
-sed -i "$ a\    override_system_hostname: false" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
-
 # Run cluster function e2e
 ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
 ginkgo -v -race --fail-fast ./test/kubean_functions_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --vmipaddr="${vm_ip_addr}"
+
+# prepare kubean reset job yml
+cp $(pwd)/test/common/hosts-conf-cm.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
+cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
+cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
+sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
+# prepare kubean install job yml using docker
+cp -r $(pwd)/test/kubean_functions_e2e/e2e-install-cluster $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker
+sed -i "s#e2e-cluster1-install#e2e-install-cluster-docker#" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
+sed -i "s/containerd/docker/" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+sed -i "s#  \"10.6.170.10:5000\": \"http://10.6.170.10:5000\"#   - 10.6.170.10:5000#" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+# TBD: kube_network_plugin=cillium; cause' the core version of centos79 is low 3.10.0, cillium require high core version more than 4.x; so such case id pending.
+# sed -i "s#kube_network_plugin: calico#kube_network_plugin: cillium#" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+# override_system_hostname=false
+sed -i "$ a\    override_system_hostname: false" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+
+ginkgo -v -race --fail-fast ./test/kubean_reset_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --vmipaddr="${vm_ip_addr}"
