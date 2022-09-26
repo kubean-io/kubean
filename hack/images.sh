@@ -13,7 +13,7 @@ REPO_PATTERN='.*/.*'
 # Return: All images with repo (if not specified in hack/images.manifest will be the default)
 #         and tags are required in installing kpanda
 function images::manifest() {
-    local kubean_version=$1    # kpanda version was ought to be provided
+    local kubean_version=$1    # kubean version was ought to be provided
     local default_registry=${2:-$DEFAULT_REGISTRY}
 
     manifest=$(cat $IMAGE_MANIFEST_PATH | sed "s/#KUBEAN_VERSION#/${kubean_version}/g")
