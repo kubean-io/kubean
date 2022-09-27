@@ -1,27 +1,63 @@
+# :seedling: kubean
 
-# Quick Start
+[![helm workflow](https://github.com/kubean-io/kubean-helm-chart/actions/workflows/helm-release.yaml/badge.svg)](https://github.com/kubean-io/kubean-helm-chart/actions/workflows/helm-release.yaml)
 
-## Deploy Kubean-Operator
+## Introduction
 
+kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray).
+
+## Features
+
+The Kubean provides the following features.
+
+* Based on the CRD cluster deployment method, all operations can be completed on the kubernetes API-server.
+
+* Supports concurrent deployment of multiple clusters at the same time.
+
+* Support air gap installation.(experimental)
+
+* Support for both AMD64 and ARM64.
+
+## Install
+
+First, add the Kubean chart repo to your local repository.
+``` bash 
+$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+
+$ helm repo list
+NAME          	URL
+kubean-io     	https://kubean-io.github.io/kubean-helm-chart/
 ```
-helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-helm install kubean kubean-io/kubean --create-namespace -n kubean-system
+
+With the repo added, available charts and versions can be viewed.
+``` bash
+$ helm search repo kubean
 ```
 
-Then check kubean-operator status by `kubectl get pods -n kubean-system | grep 'kubean'`.
+You can run the following command to install kubean.
+``` bash
+$ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
+```
 
-## Start KuBeanClusterOps for cluster.yml playbook
+View cluster information.
+``` bash
+$ kubectl get kubeancluster
+```
 
-We cloud use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
+View cluster operation jobs.
+``` bash
+$ kubectl get kubeanclusterops
+```
 
-1. `cd artifacts`
-2. modify `demo/hosts-conf-cm.yml` by replacing `IP1`, `IP2`... with the real ip where we want to install k8s cluster
-3. `kubectl apply -f demo` to start kubeanClusterOps which will start the kubespray job
-4. `kubectl get job -n kubean-system` to check the kubespray job status
+## Uninstall
 
+If kubean's related custom resources already exist, you need to clear.
+``` bash
+$ kubectl delete kubeanclusterops --all
+$ kubectl delete kubeancluster --all
+```
 
-[![quick_start_image](doc/images/quick_start.gif)](https://asciinema.org/a/511386)
-
-# Offline Usage
-
-[offline](doc/offline.md)
+Uninstall kubean's components via helm.
+``` bash
+$ helm -n kubean-system uninstall kubean
+```
