@@ -12,12 +12,15 @@
       stat:
         path: "{{ yum_repo_src_path }}/{{ yum_repo_name }}.repo"
       register: file_data
+      when:
+        - ansible_facts['os_family'] == "RedHat"
 
-    - name: Backup original yum repo if "{{ yum_repo_name }}" not exist
+    - name: Move(Backup) original yum repo if "{{ yum_repo_name }}" not exist
       shell: >-
         mkdir -p {{ yum_repo_bak_path }}/ &&
         mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/
       when: 
+        - ansible_facts['os_family'] == "RedHat"
         - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
 
     - name: Enable "{{ yum_repo_name }}" yum repositories
@@ -32,4 +35,4 @@
         loop_var: url_item
         index_var: url_index
       when:
-        - ansible_distribution == "CentOS"
+        - ansible_facts['os_family'] == "RedHat"
