@@ -37,7 +37,7 @@ jobs:
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
-  
+
   sync-charts-and-api:
     needs: [call-images-build,call-offline-build]
     runs-on: ubuntu-latest
@@ -63,6 +63,13 @@ jobs:
           sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
           # example =>  tag: v0.1.0
           sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
+
+      - name: helm checkout
+        run: |
+             pushd charts
+             tar zcvf kubean.tar.gz kubean
+             bash ../hack/verify_helm_standard.sh kubean.tar.gz
+             popd
 
       - name: Pushes charts to another repository
         id: push_directory
