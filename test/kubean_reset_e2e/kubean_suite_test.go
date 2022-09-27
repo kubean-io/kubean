@@ -1,4 +1,4 @@
-package kubean_functions_e2e
+package kubean_reset_e2e
 
 import (
 	"testing"
