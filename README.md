@@ -29,4 +29,3 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 
 # Offline Usage
 
-[offline](doc/offline.md)
