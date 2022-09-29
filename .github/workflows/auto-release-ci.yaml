@@ -69,6 +69,7 @@ jobs:
              pushd charts
              tar zcvf kubean.tar.gz kubean
              bash ../hack/verify_helm_standard.sh kubean.tar.gz
+             rm -rf kubean.tar.gz
              popd
 
       - name: Pushes charts to another repository
