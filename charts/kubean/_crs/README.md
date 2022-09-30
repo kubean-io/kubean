@@ -1,0 +1,1 @@
+* kubeaninfomanifest.cr.yaml

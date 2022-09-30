@@ -14,10 +14,10 @@ ARTIFACTS_TEMPLATE_DIR=artifacts/template
 KUBEAN_OFFLINE_VERSION_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/kubeanofflineversion.template.yml
 KUBEAN_INFO_MANIFEST_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/kubeaninfomanifest.template.yml
 
-CHARTS_TEMPLATE_DIR=charts/kubean/templates
+CHARTS_CRS_DIR=charts/kubean/_crs
 OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}
 KUBEAN_OFFLINE_VERSION_CR=${OFFLINE_PACKAGE_DIR}/kubeanofflineversion.cr.yaml
-KUBEAN_INFO_MANIFEST_CR=${CHARTS_TEMPLATE_DIR}/kubeaninfomanifest.cr.yaml
+KUBEAN_INFO_MANIFEST_CR=${CHARTS_CRS_DIR}/kubeaninfomanifest.cr.yaml
 
 KUBESPRAY_DIR=kubespray
 KUBESPRAY_OFFLINE_DIR=${KUBESPRAY_DIR}/contrib/offline

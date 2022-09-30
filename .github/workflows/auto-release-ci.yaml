@@ -53,7 +53,7 @@ jobs:
       - name: Download InfoManifest CR
         uses: actions/download-artifact@v3
         with:
-          path: charts/kubean/templates/
+          path: charts/kubean/_crs/
           name: info-manifest-cr-file
 
       - name: update helm version and image tag
