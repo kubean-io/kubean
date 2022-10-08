@@ -2,7 +2,9 @@ package clusterops
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -704,6 +706,248 @@ func TestCreateKubeSprayJob(t *testing.T) {
 				needRequeue, err := controller.CreateKubeSprayJob(clusterOps)
 				return needRequeue && err == nil
 			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CheckConfigMapExist(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "not exist configMap data",
+			args: func() bool {
+				return controller.CheckConfigMapExist("my_namespace_cm", "my_name_cm")
+			},
+			want: false,
+		},
+		{
+			name: "configMap data exists",
+			args: func() bool {
+				cm := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "my_namespace_cm_1",
+						Name:      "my_name_cm_1",
+					},
+					Data: map[string]string{"ok": "ok123"},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("my_namespace_cm_1").Create(context.Background(), cm, metav1.CreateOptions{})
+				return controller.CheckConfigMapExist("my_namespace_cm_1", "my_name_cm_1")
+			},
+			want: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CheckSecretExist(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "secret data not exist",
+			args: func() bool {
+				return controller.CheckSecretExist("my_namespace_secret", "my_name_secret")
+			},
+			want: false,
+		},
+		{
+			name: "secret data exist",
+			args: func() bool {
+				secret := &corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "my_namespace_secret_1",
+						Name:      "my_name_secret_1",
+					},
+					Data: map[string][]byte{"ok": []byte(base64.StdEncoding.EncodeToString([]byte("ok123")))},
+				}
+				controller.ClientSet.CoreV1().Secrets("my_namespace_secret_1").Create(context.Background(), secret, metav1.CreateOptions{})
+				return controller.CheckSecretExist("my_namespace_secret_1", "my_name_secret_1")
+			},
+			want: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CheckClusterDataRef(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+	}
+	cluster := &kubeanclusterv1alpha1.KuBeanCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my_kubean_cluster",
+		},
+	}
+	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my_kubean_ops_cluster",
+		},
+	}
+	secret := &corev1.Secret{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Secret",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "my_namespace",
+			Name:      "my_name_secret_1",
+		},
+		Data: map[string][]byte{"ok": []byte(base64.StdEncoding.EncodeToString([]byte("ok123")))},
+	}
+	cmHosts := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "my_namespace",
+			Name:      "my_name_cm_1",
+		},
+		Data: map[string]string{"ok": "ok123"},
+	}
+	cmVars := &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ConfigMap",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "my_namespace",
+			Name:      "my_name_cm_2",
+		},
+		Data: map[string]string{"ok": "ok123"},
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "cluster.hostConf empty",
+			args: func() bool {
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				return err != nil && strings.Contains(err.Error(), "hostsConfRef is empty")
+			},
+			want: true,
+		},
+		{
+			name: "cluster.hostConf not exist",
+			args: func() bool {
+				cluster.Spec.HostsConfRef = &apis.ConfigMapRef{
+					NameSpace: cmHosts.Namespace,
+					Name:      cmHosts.Name,
+				}
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				return err != nil && strings.Contains(err.Error(), "hostsConfRef my_namespace,my_name_cm_1 not found")
+			},
+			want: true,
+		},
+		{
+			name: "cluster.varsConf empty",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ConfigMaps(cmHosts.Namespace).Create(context.Background(), cmHosts, metav1.CreateOptions{})
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				return err != nil && strings.Contains(err.Error(), "varsConfRef is empty")
+			},
+			want: true,
+		},
+		{
+			name: "cluster.varsConf not exist",
+			args: func() bool {
+				cluster.Spec.VarsConfRef = &apis.ConfigMapRef{
+					NameSpace: cmVars.Namespace,
+					Name:      cmVars.Name,
+				}
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				fmt.Println(err)
+				return err != nil && strings.Contains(err.Error(), "varsConfRef my_namespace,my_name_cm_2 not found")
+			},
+			want: true,
+		},
+		{
+			name: "cluster.SSHAuthRef not exist",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ConfigMaps(cmVars.Namespace).Create(context.Background(), cmVars, metav1.CreateOptions{})
+				cluster.Spec.SSHAuthRef = &apis.SecretRef{
+					NameSpace: secret.Namespace,
+					Name:      secret.Name,
+				}
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				fmt.Println(err)
+				return err != nil && strings.Contains(err.Error(), "sshAuthRef my_namespace,my_name_secret_1 not found")
+			},
+			want: true,
+		},
+		{
+			name: "ok",
+			args: func() bool {
+				controller.ClientSet.CoreV1().Secrets(secret.Namespace).Create(context.Background(), secret, metav1.CreateOptions{})
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				return err == nil
+			},
+			want: true,
+		},
+		{
+			name: "multi namespace",
+			args: func() bool {
+				secret.Namespace = "other_namespace"
+				cluster.Spec.SSHAuthRef = &apis.SecretRef{
+					NameSpace: secret.Namespace,
+					Name:      secret.Name,
+				}
+				controller.ClientSet.CoreV1().Secrets(secret.Namespace).Create(context.Background(), secret, metav1.CreateOptions{})
+				err := controller.CheckClusterDataRef(cluster, clusterOps)
+				return err != nil && strings.Contains(err.Error(), "hostsConfRef varsConfRef or sshAuthRef not in the same namespace")
+			},
+			want: true,
 		},
 	}
 	for _, test := range tests {
