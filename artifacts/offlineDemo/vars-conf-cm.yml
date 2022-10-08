@@ -32,6 +32,12 @@ data:
     docker_image_repo: "{{ registry_host }}"
     quay_image_repo: "{{ registry_host }}"
 
+    additional_sysctl:
+    - { name: kernel.pid_max, value: 4194304 }
+    
+    calico_cni_name: calico
+    calico_felix_premetheusmetricsenabled: true
+
     docker_rh_repo_base_url: "{{ files_repo }}/centos/$releasever/os/$basearch"
     docker_rh_repo_gpgkey: ""
 
