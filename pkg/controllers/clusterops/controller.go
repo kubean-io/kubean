@@ -205,6 +205,12 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{Requeue: false}, nil
 	}
 
+	cluster, err := c.GetKuBeanCluster(clusterOps)
+	if err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	}
+
 	if !IsValidImageName(clusterOps.Spec.Image) {
 		klog.Errorf("clusterOps %s has wrong image format and update status Failed", clusterOps.Name)
 		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
@@ -214,11 +220,15 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{Requeue: false}, nil
 	}
 
-	cluster, err := c.GetKuBeanCluster(clusterOps)
-	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+	if err := c.CheckClusterDataRef(cluster, clusterOps); err != nil {
+		klog.Error(err.Error())
+		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
+			klog.Error(err)
+		}
+		return controllerruntime.Result{Requeue: false}, nil
 	}
+
 	needRequeue, err := c.UpdateClusterOpsStatusDigest(clusterOps)
 	if err != nil {
 		klog.Error(err)
@@ -627,4 +637,55 @@ func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 		controllerruntime.NewControllerManagedBy(mgr).For(&kubeanclusteropsv1alpha1.KuBeanClusterOps{}).Complete(c),
 		mgr.Add(c),
 	})
+}
+
+func (c *Controller) CheckConfigMapExist(namespace, name string) bool {
+	if _, err := c.ClientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{}); err != nil && apierrors.IsNotFound(err) {
+		return false
+	}
+	return true
+}
+
+func (c *Controller) CheckSecretExist(namespace, name string) bool {
+	if _, err := c.ClientSet.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{}); err != nil && apierrors.IsNotFound(err) {
+		return false
+	}
+	return true
+}
+
+func (c *Controller) CheckClusterDataRef(cluster *kubeanclusterv1alpha1.KuBeanCluster, clusterOPS *kubeanclusteropsv1alpha1.KuBeanClusterOps) error {
+	namespaceSet := map[string]struct{}{}
+	if clusterOPS.Spec.HostsConfRef.IsEmpty() {
+		// check HostsConfRef in cluster before clusterSpec is not assigned backup data.
+		hostsConfRef := cluster.Spec.HostsConfRef
+		if hostsConfRef.IsEmpty() {
+			return fmt.Errorf("kubeanCluster %s hostsConfRef is empty", cluster.Name)
+		}
+		if !c.CheckConfigMapExist(hostsConfRef.NameSpace, hostsConfRef.Name) {
+			return fmt.Errorf("kubeanCluster %s hostsConfRef %s,%s not found", cluster.Name, hostsConfRef.NameSpace, hostsConfRef.Name)
+		}
+		namespaceSet[hostsConfRef.NameSpace] = struct{}{}
+	}
+	if clusterOPS.Spec.VarsConfRef.IsEmpty() {
+		varsConfRef := cluster.Spec.VarsConfRef
+		if varsConfRef.IsEmpty() {
+			return fmt.Errorf("kubeanCluster %s varsConfRef is empty", cluster.Name)
+		}
+		if !c.CheckConfigMapExist(varsConfRef.NameSpace, varsConfRef.Name) {
+			return fmt.Errorf("kubeanCluster %s varsConfRef %s,%s not found", cluster.Name, varsConfRef.NameSpace, varsConfRef.Name)
+		}
+		namespaceSet[varsConfRef.NameSpace] = struct{}{}
+	}
+	if clusterOPS.Spec.SSHAuthRef.IsEmpty() && !cluster.Spec.SSHAuthRef.IsEmpty() {
+		// check SSHAuthRef optionally.
+		sshAuthRef := cluster.Spec.SSHAuthRef
+		if !c.CheckSecretExist(sshAuthRef.NameSpace, sshAuthRef.Name) {
+			return fmt.Errorf("kubeanCluster %s sshAuthRef %s,%s not found", cluster.Name, sshAuthRef.NameSpace, sshAuthRef.Name)
+		}
+		namespaceSet[sshAuthRef.NameSpace] = struct{}{}
+	}
+	if len(namespaceSet) > 1 {
+		return fmt.Errorf("kubeanCluster %s hostsConfRef varsConfRef or sshAuthRef not in the same namespace", cluster.Name)
+	}
+	return nil
 }
