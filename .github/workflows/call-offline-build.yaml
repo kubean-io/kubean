@@ -58,7 +58,7 @@ jobs:
         echo "kubeanofflineversion cr output:"
         cat ${GITHUB_REF_NAME}/kubeanofflineversion.cr.yaml
         echo "kubeaninfomanifest cr output:"
-        cat charts/kubean/_crs/kubeaninfomanifest.cr.yaml
+        cat charts/kubean/templates/kubeaninfomanifest.cr.yaml
 
         bash artifacts/generate_offline_package.sh all
         cd ${{ github.ref_name }}/
@@ -88,5 +88,5 @@ jobs:
     - name: Upload InfoManifest CR
       uses: actions/upload-artifact@v3
       with:
-        path: charts/kubean/_crs/kubeaninfomanifest.cr.yaml
+        path: charts/kubean/templates/kubeaninfomanifest.cr.yaml
         name: info-manifest-cr-file
