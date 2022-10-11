@@ -55,9 +55,15 @@ If kubean's related custom resources already exist, you need to clear.
 ``` bash
 $ kubectl delete kubeanclusterops --all
 $ kubectl delete kubeancluster --all
+$ kubectl delete kubeaninfomanifest --all
+$ kubectl delete kubeanofflineversion --all
 ```
 
 Uninstall kubean's components via helm.
 ``` bash
 $ helm -n kubean-system uninstall kubean
+$ kubectl delete crd kubeanclusterops.kubean.io
+$ kubectl delete crd kubeanclusters.kubean.io
+$ kubectl delete crd kubeaninfomanifests.kubean.io
+$ kubectl delete crd kubeanofflineversions.kubean.io
 ```

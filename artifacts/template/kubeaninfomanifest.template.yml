@@ -2,8 +2,6 @@ apiVersion: kubean.io/v1alpha1
 kind: KubeanInfoManifest
 metadata:
   name: KubeanInfoManifestNAME
-  annotations:
-    "helm.sh/hook": "post-install"
 spec:
   kubesprayVersion: ""
   kubeanVersion: ""
