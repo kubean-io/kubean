@@ -24,7 +24,7 @@ KUBEAN_CHART_VERSION := $(shell echo ${KUBEAN_VERSION} |sed  's/^v//g' )
 REGISTRY_SERVER_ADDRESS?=container.io
 REGISTRY_REPO?=$(REGISTRY_SERVER_ADDRESS)/kubean-ci
 
-SPRAY_TAG?="master"
+SPRAY_TAG?="latest"
 
 
 .PHONY: test
@@ -60,7 +60,7 @@ spray-job: $(SOURCES)
 	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
 	! ( docker buildx ls | grep spray-job-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name spray-job-multi-platform-builder ;\
 	docker buildx build \
-			--build-arg spray_tag=$(SPRAY_TAG) \
+			--build-arg SPRAY_TAG=$(SPRAY_TAG) \
 			--builder spray-job-multi-platform-builder \
 			--platform $(BUILD_ARCH) \
 			--tag $(REGISTRY_REPO)/spray-job:$(KUBEAN_IMAGE_VERSION)  \

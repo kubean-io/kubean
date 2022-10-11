@@ -17,4 +17,6 @@ spec:
       action: disable-firewalld.yml
   postHook:
     - actionType: playbook
+      action: kubeconfig.yml
+    - actionType: playbook
       action: cluster-info.yml

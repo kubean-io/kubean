@@ -104,21 +104,21 @@ var testData = `
   input:
     actionType: playbook
     action: remove-node.yml
-  matchString: "remove-node.yml"
+  matchString: "-e \"skip_confirmation=true\" /kubespray/remove-node.yml"
   output: true
 
 - message: "Check kubespray upgrade-cluster"
   input:
     actionType: playbook
     action: upgrade-cluster.yml
-  matchString: "upgrade-cluster.yml"
+  matchString: "/kubespray/upgrade-cluster.yml"
   output: true
 
 - message: "Check kubespray scale"
   input:
     actionType: playbook
     action: scale.yml
-  matchString: "scale.yml"
+  matchString: "/kubespray/scale.yml"
   output: true
 
 - message: "Check scale parameter 'extraArgs'"
@@ -126,7 +126,7 @@ var testData = `
     actionType: playbook
     action: scale.yml
     extraArgs: "--limit=node3,node4"
-  matchString: "--limit=node3,node4"
+  matchString: "/kubespray/scale.yml --limit=node3,node4"
   output: true
 
 - message: "Check remove node parameter 'extraArgs'"
@@ -134,22 +134,23 @@ var testData = `
     actionType: playbook
     action: remove-node.yml
     extraArgs: "-e node=node3"
-  matchString: "-e node=node3"
+  matchString: "-e \"skip_confirmation=true\" /kubespray/remove-node.yml -e node=node3"
   output: true
 
 - message: "Check postback kubeconf when the cluster is installed"
   input:
     actionType: playbook
-    action: cluster.yml
+    action: kubeconfig.yml
     isPrivateKey: true
-  matchString: "ansible -i $inventory_file $first_master -m fetch"
+  matchString: "--private-key /auth/ssh-privatekey /kubespray/kubeconfig.yml"
   output: true
 
 - message: "Check clean up kubeconf after cluster reset"
   input:
     actionType: playbook
-    action: reset.yml
-  matchString: "{\"spec\": {\"kubeconfRef\": null}}"
+    action: kubeconfig.yml
+    extraArgs: "-e postback_undo=true"
+  matchString: "/kubespray/kubeconfig.yml -e postback_undo=true"
   output: true
 
 - message: "Check entrypoint script cmd concatenation"

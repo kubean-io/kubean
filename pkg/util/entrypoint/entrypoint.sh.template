@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+# preinstall
+{{ range $preCMD := .PreHookCMDs }}
+{{- $preCMD }}
+{{ end }}
+
+# run kubespray
+{{ .SprayCMD }}
+
+# postinstall
+{{ range $postCMD := .PostHookCMDs }}
+{{- $postCMD }}
+{{ end }}
