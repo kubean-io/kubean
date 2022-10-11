@@ -35,6 +35,7 @@ jobs:
 
   get-spray-ref:
     runs-on: ubuntu-latest
+    needs: unit-test
     outputs:
       sha: ${{ steps.get_ref.outputs.sha }}
     steps:
@@ -47,9 +48,9 @@ jobs:
   call-images-build:
     uses: ./.github/workflows/call-images-build.yaml
     secrets: inherit
-    needs: [get-spray-ref, unit-test]
+    needs: get-spray-ref
     with:
-      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+      SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
 
   get-environment:
     runs-on: ubuntu-latest

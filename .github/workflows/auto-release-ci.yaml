@@ -26,14 +26,14 @@ jobs:
     uses: ./.github/workflows/call-offline-build.yaml
     needs: get-spray-ref
     with:
-      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+      SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
 
   call-images-build:
     uses: ./.github/workflows/call-images-build.yaml
     secrets: inherit
     needs: get-spray-ref
     with:
-      spray_ref: ${{ needs.get-spray-ref.outputs.sha }}
+      SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
