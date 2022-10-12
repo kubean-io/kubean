@@ -176,8 +176,14 @@ func (in *LocalService) DeepCopyInto(out *LocalService) {
 	}
 	if in.HostsMap != nil {
 		in, out := &in.HostsMap, &out.HostsMap
-		*out = make([]HostsMap, len(*in))
-		copy(*out, *in)
+		*out = make([]*HostsMap, len(*in))
+		for i := range *in {
+			if (*in)[i] != nil {
+				in, out := &(*in)[i], &(*out)[i]
+				*out = new(HostsMap)
+				**out = **in
+			}
+		}
 	}
 	return
 }
