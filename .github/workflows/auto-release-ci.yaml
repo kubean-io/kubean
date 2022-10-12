@@ -37,6 +37,7 @@ jobs:
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
+    secrets: inherit
 
   sync-charts-and-api:
     needs: [call-images-build,call-offline-build]
