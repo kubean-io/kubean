@@ -54,19 +54,20 @@ function create_images() {
   IMG_LIST=$CURRENT_DIR/kubespray/contrib/offline/temp/images.list
 
   echo "begin to download images"
+  images_list_content=$(cat "$IMG_LIST")
 
   if [ ! -d "offline-images" ]; then
     echo "create dir offline-images"
     mkdir offline-images
   fi
 
-  while read image_name; do
+  while read -r image_name; do
     ## quay.io/metallb/controller:v0.12.1 => dir:somedir/metallb%controller:v0.12.1
     new_dir_name=${image_name#*/}     ## remote host
     new_dir_name=${new_dir_name//\//%} ## replace all / with %
     echo "download image $image_name to local $new_dir_name"
-    skopeo copy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$image_name" dir:offline-images/"$new_dir_name"
-  done <"$IMG_LIST"
+    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$image_name" dir:offline-images/"$new_dir_name"
+  done <<< "$images_list_content"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
 
@@ -90,6 +91,14 @@ all)
 
 list)
   generate_temp_list
+  ;;
+
+offline_dir)
+  generate_offline_dir
+  ;;
+
+copy_import_sh)
+  copy_import_sh
   ;;
 
 files)
