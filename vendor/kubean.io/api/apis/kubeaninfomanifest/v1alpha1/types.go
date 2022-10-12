@@ -49,7 +49,7 @@ type LocalService struct {
 	// +optional
 	YumRepo []string `json:"yumRepo,omitempty" yaml:"yumRepo,omitempty"`
 	// +optional
-	HostsMap []HostsMap `json:"hostsMap,omitempty" yaml:"hostsMap,omitempty"`
+	HostsMap []*HostsMap `json:"hostsMap,omitempty" yaml:"hostsMap,omitempty"`
 }
 
 type HostsMap struct {
