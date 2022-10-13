@@ -1,0 +1,28 @@
+FROM redhat/ubi8:8.6 as os-redhat8
+ARG OS_VERSION=8
+ARG BUILD_TOOLS="yum-utils createrepo wget"
+ARG RHEL_REG_USER
+ARG RHEL_REG_PASS
+
+RUN subscription-manager register --username ${RHEL_REG_USER} --password ${RHEL_REG_PASS} --auto-attach
+
+RUN ARCH=$(uname -m) \ 
+    && yum install -q -y ${BUILD_TOOLS} \
+    && yum install -q -y http://mirror.centos.org/centos/8-stream/extras/${ARCH}/os/Packages/epel-release-8-11.el8.noarch.rpm \
+    && yum install -q -y http://mirror.centos.org/centos/8-stream/AppStream/${ARCH}/os/Packages/modulemd-tools-0.7-6.el8.noarch.rpm \
+    && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
+    && yum makecache
+
+WORKDIR /redhat/$OS_VERSION/os
+COPY build/os-packages/packages.yml .
+COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.base[],.extras[],.docker.redhat8[]' packages.yml > packages.list
+
+RUN ARCH=$(uname -m) \
+    && while read -r line; do yum install -y --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
+    && createrepo_c ${ARCH} \
+    && repo2module -s stable ${ARCH} ${ARCH}/modules.yaml \
+    && modifyrepo_c --mdtype=modules ${ARCH}/modules.yaml ${ARCH}/repodata
+
+FROM scratch
+COPY --from=os-redhat8 /redhat /resources/redhat

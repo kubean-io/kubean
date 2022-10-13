@@ -11,8 +11,8 @@ jobs:
         include:
           - name: centos7
             dockerfile: build/os-packages/Dockerfile.centos7
-          # - name: centos8
-          #   dockerfile: build/os-packages/Dockerfile.centos8
+          - name: redhat8
+            dockerfile: build/os-packages/Dockerfile.redhat8
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,6 +32,9 @@ jobs:
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
           outputs: type=local,dest=./
+          build-args: |
+            RHEL_REG_USER=${{ secrets.RHEL_REG_USER }}
+            RHEL_REG_PASS=${{ secrets.RHEL_REG_PASS }}
 
       - name: Make OS packages into Tar files
         shell: bash
