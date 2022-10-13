@@ -297,3 +297,64 @@ function util::check_clusters_ready() {
 
 	util::wait_for_condition 'ok' "kubectl --kubeconfig ${kubeconfig_path} --context ${context_name} get --raw=/healthz &> /dev/null" 300
 }
+
+###### to get k8 cluster single node ip address based on actions-runner #######
+function utils:runner_ip(){
+    echo "RUNNER_NAME: "$RUNNER_NAME
+    if [ "${RUNNER_NAME}" == "kubean-actions-runner1" ]; then
+        vm_ip_addr1="10.6.127.33"
+        vm_ip_addr2="10.6.127.36"
+    fi
+    if [ "${RUNNER_NAME}" == "kubean-actions-runner2" ]; then
+        vm_ip_addr1="10.6.127.35"
+        vm_ip_addr2="10.6.127.37"
+    fi
+    if [ "${RUNNER_NAME}" == "kubean-actions-runner3" ]; then
+        vm_ip_addr1="10.6.127.39"
+        vm_ip_addr2="10.6.127.40"
+    fi
+    if [ "${RUNNER_NAME}" == "kubean-actions-runner4" ]; then
+        vm_ip_addr1="10.6.127.42"
+        vm_ip_addr2="10.6.127.43"
+    fi
+    if [ "${RUNNER_NAME}" == "debug" ]; then
+        vm_ip_addr1="10.6.127.45"
+        vm_ip_addr2="10.6.127.46"
+    fi
+}
+
+###### Clean Up #######
+function utils::clean_up(){
+    echo "======= cluster prefix: ${CLUSTER_PREFIX}"
+    local auto_cleanup="true"
+    if [ "$auto_cleanup" == "true" ];then
+        ./hack/delete-cluster.sh "${CLUSTER_PREFIX}"-host
+    fi
+    if [ "$EXIT_CODE" == "0" ];then
+        exit $EXIT_CODE
+    fi
+    exit $EXIT_CODE
+}
+
+function utils::create_os_e2e_vms(){
+    # create 1master+1worker cluster
+    if [ -f $(pwd)/Vagrantfile ]; then
+        rm -f $(pwd)/Vagrantfile
+    fi
+    cp $(pwd)/hack/os_vagrantfiles/"${1}" $(pwd)/Vagrantfile
+    sed -i "s/sonobouyDefault_ip/${2}/" Vagrantfile
+    sed -i "s/sonobouyDefault2_ip/${3}/" Vagrantfile
+    vagrant up
+    vagrant status
+    ATTEMPTS=0
+    pingOK=0
+    ping -w 2 -c 1 $2|grep "0%" && pingOK=true || pingOK=false
+    until [ "${pingOK}" == "true" ] || [ $ATTEMPTS -eq 10 ]; do
+    ping -w 2 -c 1 $2|grep "0%" && pingOK=true || pingOK=false
+    echo "==> ping "$2 $pingOK
+    ATTEMPTS=$((ATTEMPTS + 1))
+    sleep 10
+    done
+    ping -c 5 ${2}
+    ping -c 5 ${3}
+}
