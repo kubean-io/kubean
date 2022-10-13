@@ -77,3 +77,11 @@ GIT_VERSION ?= $(shell git describe --tags --abbrev=8)
 .PHONY: local-chart-to-deploy
 local-chart-to-deploy:
 	bash hack/local-chart-to-deploy.sh ${IMAGE_REPO} ${RELEASE_NAME} ${TARGET_NS} ${KUBECONFIG_PATH} ${GIT_VERSION}
+
+
+.PHONY: security-scanning
+security-scanning:
+	bash hack/trivy.sh \
+	${REGISTRY}/${REPO}/spray-job:${IMAGE_TAG} \
+	${REGISTRY}/${REPO}/kubean-operator:${IMAGE_TAG} \
+	${REGISTRY}/${REPO}/kubespray:${SPRAY_IMAGE_TAG_SHORT_SHA}
