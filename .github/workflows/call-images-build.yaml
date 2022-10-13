@@ -18,19 +18,20 @@ jobs:
       repo: ${{ steps.output_variables.outputs.repo }}
       online_register: ${{ steps.output_variables.outputs.online_register }}
       build_plateform: ${{ steps.output_variables.outputs.build_plateform }}
+      image_tag_short_sha: ${{ steps.output_variables.outputs.image_tag_short_sha }}
 
     steps:
-      - name: set environment variable
-        run: |
-          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
-          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
-
       - name: output environment variable
         id: output_variables
         run: |
-          echo ::set-output name=repo::${{ env.REPO }}
+          IMAGE_TAG_SHORT_SHA=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)
+          echo ::set-output name=image_tag_short_sha::${IMAGE_TAG_SHORT_SHA}
+          
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo ::set-output name=repo::${ORGANIZATION_NAME}
           echo ::set-output name=online_register::${{ env.ONLINE_REGISTER }}
           echo ::set-output name=build_plateform::${{ env.BUILD_PLATFORM }}
+
 
   build-push-kubespray:
     needs: output-variable
@@ -78,7 +79,7 @@ jobs:
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:${{ github.ref_name }}
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:latest
           build-args: |
-            SPRAY_TAG=${{ needs.output-variable.outputs.spray_sha_short }}
+            SPRAY_TAG=${{ needs.output-variable.outputs.image_tag_short_sha }}
             REPO=${{ needs.output-variable.outputs.repo }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -96,3 +97,18 @@ jobs:
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/kubean-operator:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  security-scanning:
+    runs-on: ubuntu-latest
+    needs: build-push-sprayjob-and-kubean-operator
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: set environment variable
+        run: |
+          export REGISTRY=${{ inputs.ONLINE_REGISTER }}
+          export REPO=${{ needs.output-variable.outputs.repo }}
+          export IMAGE_TAG=${{ github.ref_name }}
+          export SPRAY_IMAGE_TAG_SHORT_SHA=${{ needs.output-variable.outputs.image_tag_short_sha }}
+          make security-scanning
