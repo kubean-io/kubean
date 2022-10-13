@@ -26,7 +26,7 @@ jobs:
         run: |
           IMAGE_TAG_SHORT_SHA=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)
           echo ::set-output name=image_tag_short_sha::${IMAGE_TAG_SHORT_SHA}
-          
+
           ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
           echo ::set-output name=repo::${ORGANIZATION_NAME}
           echo ::set-output name=online_register::${{ env.ONLINE_REGISTER }}
@@ -100,14 +100,14 @@ jobs:
 
   security-scanning:
     runs-on: ubuntu-latest
-    needs: build-push-sprayjob-and-kubean-operator
+    needs: [build-push-sprayjob-and-kubean-operator,output-variable]
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: set environment variable
         run: |
-          export REGISTRY=${{ inputs.ONLINE_REGISTER }}
+          export REGISTRY=${{ env.ONLINE_REGISTER }}
           export REPO=${{ needs.output-variable.outputs.repo }}
           export IMAGE_TAG=${{ github.ref_name }}
           export SPRAY_IMAGE_TAG_SHORT_SHA=${{ needs.output-variable.outputs.image_tag_short_sha }}
