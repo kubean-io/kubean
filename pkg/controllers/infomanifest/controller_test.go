@@ -173,7 +173,7 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 				RegistryRepo: "temp-registry.daocloud.io:5000",
 				FilesRepo:    "http://temp-registry.daocloud.io:9000",
 				YumRepo:      []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
-				HostsMap: []kubeaninfomanifestv1alpha1.HostsMap{
+				HostsMap: []*kubeaninfomanifestv1alpha1.HostsMap{
 					{Domain: "temp-registry.daocloud.io", Address: "a.b.c.d"},
 				},
 			},
@@ -319,7 +319,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 				RegistryRepo: "temp-registry.daocloud.io:5000",
 				FilesRepo:    "http://temp-registry.daocloud.io:9000",
 				YumRepo:      []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
-				HostsMap: []kubeaninfomanifestv1alpha1.HostsMap{
+				HostsMap: []*kubeaninfomanifestv1alpha1.HostsMap{
 					{
 						Domain:  "temp-registry.daocloud.io",
 						Address: "a.b.c.d",
@@ -359,7 +359,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 				RegistryRepo: "temp-registry.daocloud.io:5000",
 				FilesRepo:    "http://temp-registry.daocloud.io:9000",
 				YumRepo:      []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
-				HostsMap: []kubeaninfomanifestv1alpha1.HostsMap{
+				HostsMap: []*kubeaninfomanifestv1alpha1.HostsMap{
 					{
 						Domain:  "temp-registry.daocloud.io",
 						Address: "a.b.c.d1",
