@@ -3,7 +3,7 @@ name: Offline Build
 on:
   workflow_call:
     inputs:
-      spray_ref:
+      SPRAY_REF:
         required: true
         type: string
 
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set env
-      run: echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.spray_ref }} | cut -c 1-7)" >> ${GITHUB_ENV}
+      run: echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)" >> ${GITHUB_ENV}
 
     - name: Echo env
       run: echo ${SPRAY_SHA_SHORT}
@@ -26,7 +26,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: kubernetes-sigs/kubespray
-        ref: ${{ inputs.spray_ref }}
+        ref: ${{ inputs.SPRAY_REF }}
         path: ./kubespray
 
     - name: install yq tool
