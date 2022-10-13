@@ -1,0 +1,20 @@
+apiVersion: kubean.io/v1alpha1
+kind: KuBeanClusterOps
+metadata:
+  name: e2e-install-calico-cluster
+  labels:
+    clusterName: cluster1
+spec:
+  kuBeanCluster: cluster1
+  image:
+  backoffLimit: 0
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
