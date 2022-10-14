@@ -13,5 +13,5 @@ fi
 
 for i in $*
 do
-  trivy image --ignore-unfixed --exit-code 1 --severity MEDIUM,HIGH,CRITICAL ${i}
+  trivy image --ignore-unfixed --exit-code 0 --severity MEDIUM,HIGH,CRITICAL ${i}
 done
