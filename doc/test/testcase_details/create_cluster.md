@@ -152,3 +152,96 @@
     1. prepare the config file, and set all the node name with same name in host-conf-cm.yml(ex set both nodes name as "master1")
     2. start create cluster
     3. after creation, check the job-related pod status is "Error"
+
+### Create cluster with calico IPIP_Always tuning mode
+    1. prepare the config file as basic cluster
+    2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+    3. set calico tunning mode to IPIP_Always:
+            calico_ipip_mode: Always
+            calico_vxlan_mode: Never
+            calico_network_backend: bird
+    4. set cluster topology: 1 master + 1 worker
+    5. start setup cluster
+    6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    7. check tunning mode:
+            7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+            7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+            7.3 check point:
+                    spec.ipipMode=Always;
+                    spec.vxlanMode=Never
+    8. create pod1 on master, on namespace1
+    9. create pod2 on worker, on namespace2
+    10. login master node, ping pod2; login worker, ping pod1
+    11. login pod2, ping pod1
+
+
+### Create cluster with calico IPIP_Always tuning mode
+    1. prepare the config file as basic cluster
+    2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+    3. set calico tunning mode to IPIP_Always:
+        calico_ipip_mode: CrossSubnet
+        calico_vxlan_mode: Never
+        calico_network_backend: bird
+    4. set cluster topology: 1 master + 1 worker
+    5. start setup cluster
+    6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    7. check tunning mode:
+        7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+        7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+        7.3 check point:
+                spec.ipipMode=CrossSubnet
+                spec.vxlanMode=Never
+    8. create pod1 on master, on namespace1
+    9. create pod2 on worker, on namespace2
+    10. login master node, ping pod2; login worker, ping pod1
+    11. login pod2, ping pod1
+
+### Create cluster with calico Vxlan_Always tuning mode
+    1. prepare the config file as basic cluster
+    2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+    3. set calico tunning mode to IPIP_CrossSubnet:
+        calico_ipip_mode: Never
+        calico_vxlan_mode: Always
+    4. set cluster topology: 1 master + 1 worker
+    5. start setup cluster
+    6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    7. check tunning mode:
+            7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+            7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+            7.3 check point:
+                    spec.ipipMode=Never
+                    spec.vxlanMode=Always
+    8. create pod1 on master, on namespace1
+    9. create pod2 on worker, on namespace2
+    10. login master node, ping pod2; login worker, ping pod1
+    11. login pod2, ping pod1
+
+### Create cluster with calico Vxlan_Always tuning mode
+    1. prepare the config file as basic cluster
+    2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+    3. set calico tunning mode to IPIP_CrossSubnet:
+        calico_ipip_mode: Never
+        calico_vxlan_mode: CrossSubnet
+    4. set cluster topology: 1 master + 1 worker
+    5. start setup cluster
+    6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    7. check tunning mode:
+        7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+        7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+        7.3 check point:
+                spec.ipipMode=Never
+                spec.vxlanMode=CrossSubnet
+    8. create pod1 on master, on namespace1
+    9. create pod2 on worker, on namespace2
+    10. login master node, ping pod2; login worker, ping pod1
+    11. login pod2, ping pod1
+
+### Redhat84 OS Compitable
+    1. prepare the config file as basic cluster
+    2. set cluster topology: 1 master + 1 worker
+    3. start setup cluster
+    4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    5. create pod1 on master, on namespace1
+    6. create pod2 on worker, on namespace2
+    7. login master node, ping pod2; login worker, ping pod1
+    8. login pod2, ping pod1
