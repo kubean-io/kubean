@@ -6,7 +6,8 @@ OPTION=${1:-'all'}
 KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}
 
 CURRENT_DIR=$(pwd)
-OFFLINE_PACKAGE_DIR=${CURRENT_DIR}/${KUBEAN_TAG}
+ARCH=${ARCH:-"amd64"}
+OFFLINE_PACKAGE_DIR=${CURRENT_DIR}/${KUBEAN_TAG}/${ARCH}
 OFFLINE_FILES_DIR=${OFFLINE_PACKAGE_DIR}/files
 OFFLINE_IMAGES_DIR=${OFFLINE_PACKAGE_DIR}/images
 OFFLINE_OSPKGS_DIR=${OFFLINE_PACKAGE_DIR}/os-pkgs
@@ -24,11 +25,12 @@ function generate_temp_list() {
   fi
   echo "$CURRENT_DIR/kubespray"
   cd $CURRENT_DIR/kubespray
-  bash contrib/offline/generate_list.sh
+  bash contrib/offline/generate_list.sh -e"image_arch=${ARCH}"
 
   # Clean up unused images
+  remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|local-path-provisioner|kubernetesui|flannel"
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
-  cat contrib/offline/temp/images.list.old | egrep -v 'aws-alb|aws-ebs|cert-manager|netchecker|weave' > contrib/offline/temp/images.list
+  cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
 
   cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
 }
@@ -63,7 +65,7 @@ function create_images() {
     new_dir_name=${image_name#*/}     ## remote host
     new_dir_name=${new_dir_name//\//%} ## replace all / with %
     echo "download image $image_name to local $new_dir_name"
-    skopeo copy --retry-times=3 --override-os linux --override-arch amd64 docker://"$image_name" dir:offline-images/"$new_dir_name"
+    skopeo copy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$image_name" dir:offline-images/"$new_dir_name"
   done <"$IMG_LIST"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images

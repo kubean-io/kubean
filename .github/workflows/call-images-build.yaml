@@ -27,7 +27,7 @@ jobs:
           IMAGE_TAG_SHORT_SHA=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)
           echo ::set-output name=image_tag_short_sha::${IMAGE_TAG_SHORT_SHA}
 
-          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
           echo ::set-output name=repo::${ORGANIZATION_NAME}
           echo ::set-output name=online_register::${{ env.ONLINE_REGISTER }}
           echo ::set-output name=build_plateform::${{ env.BUILD_PLATFORM }}
