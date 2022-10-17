@@ -7,3 +7,4 @@ dist/
 /coverage.txt
 kubespray/
 /kubespray/generate_list.yml
+venv

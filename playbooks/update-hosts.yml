@@ -1,0 +1,15 @@
+---
+- hosts: k8s_cluster
+  vars:
+    ip: ''
+    host: ''
+  gather_facts: false
+  become: yes
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: 'Update {{ ip }} {{ host }} into /etc/hosts if necessary'
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        regexp: "^.* {{ host | trim |  replace('.','\\.') }}$"
+        line: '{{ ip }} {{ host }}'
+      when: (ip | trim | length > 0) and (host | trim | length > 0)
