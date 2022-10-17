@@ -20,7 +20,7 @@ jobs:
         id: get_ref
         run: |
           COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
-          echo ::set-output name=sha::${COMMIT_SHA}
+          echo name=sha=${COMMIT_SHA}  >> $GITHUB_OUTPUT
 
   call-offline-build:
     uses: ./.github/workflows/call-offline-build.yaml
@@ -105,8 +105,8 @@ jobs:
       - name: Get environment variable
         id: get_variables
         run: |
-          echo ::set-output name=environment_runs_on::${{ env.ENVIRONMENT_RUNS_ON }}
-          echo ::set-output name=enviroment_cd::${{ env.ENVIRONMENT_CD }}
+          echo environment_runs_on=${{ env.ENVIRONMENT_RUNS_ON }} >> $GITHUB_OUTPUT
+          echo enviroment_cd=${{ env.ENVIRONMENT_CD }} >> $GITHUB_OUTPUT
 
   call-cd:
     uses: ./.github/workflows/call-cd.yaml

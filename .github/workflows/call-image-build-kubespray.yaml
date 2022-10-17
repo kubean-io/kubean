@@ -53,7 +53,7 @@ jobs:
             fi
 
             IMAGE_TAG_SHORT_SHA=$(echo ${SPRAY_SHA} | cut -c 1-7)
-            echo ::set-output name=image_tag_short_sha::${IMAGE_TAG_SHORT_SHA}
+            echo image_tag_short_sha=${IMAGE_TAG_SHORT_SHA} >> $GITHUB_OUTPUT
   build-kubespray-image:
     needs: output-variable
     runs-on: ubuntu-latest
