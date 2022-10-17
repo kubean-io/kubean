@@ -22,7 +22,7 @@ jobs:
       - name: Get Ref
         id: result
         run: |
-          echo ::set-output name=ref::${{ github.event.pull_request.head.sha }}
+          echo ref=${{ github.event.pull_request.head.sha }} >> $GITHUB_OUTPUT
 
   static-check:
     needs: get_ref
