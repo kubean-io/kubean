@@ -24,6 +24,7 @@ const (
 	FirewallPB    = "disable-firewalld.yml"
 	KubeconfigPB  = "kubeconfig.yml"
 	ClusterInfoPB = "cluster-info.yml"
+	UpdateHostsPB = "update-hosts.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -49,7 +50,7 @@ func NewActions() *Actions {
 	actions.Playbooks = &Playbooks{}
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
-		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB,
+		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
