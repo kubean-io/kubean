@@ -28,7 +28,7 @@ function generate_temp_list() {
   bash contrib/offline/generate_list.sh -e"image_arch=${ARCH}"
 
   # Clean up unused images
-  remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|local-path-provisioner|kubernetesui|flannel"
+  remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui|flannel"
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
   cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
 
