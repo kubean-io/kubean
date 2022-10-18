@@ -6,11 +6,11 @@ import (
 	"os"
 	"strings"
 
-	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
+	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 
-	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
-	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -23,10 +23,10 @@ var aggregatedScheme = runtime.NewScheme()
 
 func init() {
 	_ = scheme.AddToScheme(aggregatedScheme)                   // add Kubernetes schemes
-	_ = kubeanclusteropsv1alpha1.AddToScheme(aggregatedScheme) // add clusterOps schemes
-	_ = kubeanclusterv1alpha1.AddToScheme(aggregatedScheme)    // add cluster schemes
-	_ = kubeanofflineversionv1alpha1.AddToScheme(aggregatedScheme)
-	_ = kubeaninfomanifestv1alpha1.AddToScheme(aggregatedScheme)
+	_ = clusteroperationv1alpha1.AddToScheme(aggregatedScheme) // add clusterOps schemes
+	_ = clusterv1alpha1.AddToScheme(aggregatedScheme)          // add cluster schemes
+	_ = localartifactsetv1alpha1.AddToScheme(aggregatedScheme)
+	_ = manifestv1alpha1.AddToScheme(aggregatedScheme)
 }
 
 // NewSchema returns a singleton schema set which aggregated Kubernetes's schemes and extended schemes.

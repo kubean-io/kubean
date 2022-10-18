@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
 
 	"gopkg.in/yaml.v2"
 )
@@ -239,10 +239,10 @@ func TestEntrypoint(t *testing.T) {
 }
 
 func TestPBActionValue(t *testing.T) {
-	if kubeanclusteropsv1alpha1.PlaybookActionType != PBAction {
+	if clusteroperationv1alpha1.PlaybookActionType != PBAction {
 		t.Fatal()
 	}
-	if kubeanclusteropsv1alpha1.ShellActionType != SHAction {
+	if clusteroperationv1alpha1.ShellActionType != SHAction {
 		t.Fatal()
 	}
 }

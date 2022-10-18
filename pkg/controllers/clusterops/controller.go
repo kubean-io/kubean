@@ -20,11 +20,11 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
 	"kubean.io/api/apis"
-	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
+	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
 	"kubean.io/api/constants"
-	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
+	clusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
+	clusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -37,22 +37,22 @@ const (
 type Controller struct {
 	client.Client
 	ClientSet           kubernetes.Interface
-	KubeanClusterSet    kubeanClusterClientSet.Interface
-	KubeanClusterOpsSet kubeanClusterOpsClientSet.Interface
+	KubeanClusterSet    clusterClientSet.Interface
+	KubeanClusterOpsSet clusterOperationClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
-	klog.Warningf("KuBeanClusterOps Controller Start")
+	klog.Warningf("ClusterOperation Controller Start")
 	<-ctx.Done()
 	return nil
 }
 
 const BaseSlat = "kubean"
 
-func (c *Controller) CalSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+func (c *Controller) CalSalt(clusterOps *clusteroperationv1alpha1.ClusterOperation) string {
 	summaryStr := ""
 	summaryStr += BaseSlat
-	summaryStr += clusterOps.Spec.KuBeanCluster
+	summaryStr += clusterOps.Spec.Cluster
 	summaryStr += string(clusterOps.Spec.ActionType)
 	summaryStr += strings.TrimSpace(clusterOps.Spec.Action)
 	summaryStr += strconv.Itoa(clusterOps.Spec.BackoffLimit)
@@ -68,7 +68,7 @@ func (c *Controller) CalSalt(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterO
 	return fmt.Sprintf("%x", md5.Sum([]byte(summaryStr)))
 }
 
-func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
 	if len(clusterOps.Status.Digest) != 0 {
 		// already has value.
 		return false, nil
@@ -81,11 +81,11 @@ func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *kubeanclusteropsv1
 	return true, nil
 }
 
-func (c *Controller) compareDigest(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+func (c *Controller) compareDigest(clusterOps *clusteroperationv1alpha1.ClusterOperation) bool {
 	return clusterOps.Status.Digest == c.CalSalt(clusterOps)
 }
 
-func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+func (c *Controller) UpdateStatusHasModified(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
 	if len(clusterOps.Status.Digest) == 0 {
 		return false, nil
 	}
@@ -105,14 +105,14 @@ func (c *Controller) UpdateStatusHasModified(clusterOps *kubeanclusteropsv1alpha
 	return false, nil
 }
 
-func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, fetchJobStatus func(*kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error)) (bool, error) {
-	if clusterOps.Status.Status == kubeanclusteropsv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
+func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.ClusterOperation, fetchJobStatus func(*clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error)) (bool, error) {
+	if clusterOps.Status.Status == clusteroperationv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
 		// need fetch jobStatus again when the last status of job is running
 		jobStatus, err := fetchJobStatus(clusterOps)
 		if err != nil {
 			return false, err
 		}
-		if jobStatus == kubeanclusteropsv1alpha1.RunningStatus {
+		if jobStatus == clusteroperationv1alpha1.RunningStatus {
 			// still running
 			return true, nil // requeue for loop ask for status
 		}
@@ -128,7 +128,7 @@ func (c *Controller) UpdateStatusLoop(clusterOps *kubeanclusteropsv1alpha1.KuBea
 	return false, nil
 }
 
-func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
+func (c *Controller) FetchJobStatus(clusterOps *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
 	if clusterOps.Status.JobRef.IsEmpty() {
 		return "", fmt.Errorf("clusterOps %s no job", clusterOps.Name)
 	}
@@ -136,41 +136,41 @@ func (c *Controller) FetchJobStatus(clusterOps *kubeanclusteropsv1alpha1.KuBeanC
 	if apierrors.IsNotFound(err) {
 		// maybe the job is removed.
 		klog.Errorf("clusterOps %s  job %s not found", clusterOps.Name, clusterOps.Status.JobRef.Name)
-		return kubeanclusteropsv1alpha1.FailedStatus, nil
+		return clusteroperationv1alpha1.FailedStatus, nil
 	}
 	if err != nil {
 		return "", err
 	}
 	if targetJob.Status.Failed > 0 {
-		return kubeanclusteropsv1alpha1.FailedStatus, nil
+		return clusteroperationv1alpha1.FailedStatus, nil
 	}
 	if targetJob.Status.Succeeded > 0 {
-		return kubeanclusteropsv1alpha1.SucceededStatus, nil
+		return clusteroperationv1alpha1.SucceededStatus, nil
 	}
-	return kubeanclusteropsv1alpha1.RunningStatus, nil
+	return clusteroperationv1alpha1.RunningStatus, nil
 }
 
-func (c *Controller) ListClusterOps(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-	list, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
+func (c *Controller) ListClusterOps(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+	list, err := c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
 	if err != nil {
 		return nil, err
 	}
 	return list.Items, nil
 }
 
-func (c *Controller) CurrentJobNeedBlock(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, listClusterOps func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error)) (bool, error) {
-	clusterOpsList, err := listClusterOps(clusterOps.Spec.KuBeanCluster)
+func (c *Controller) CurrentJobNeedBlock(clusterOps *clusteroperationv1alpha1.ClusterOperation, listClusterOps func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error)) (bool, error) {
+	clusterOpsList, err := listClusterOps(clusterOps.Spec.Cluster)
 	if err != nil {
 		return false, err
 	}
-	filter := func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+	filter := func(ops clusteroperationv1alpha1.ClusterOperation) bool {
 		// todo: clusterOps has the group label and number label, first find the early group and then find the before number in the same group if possible
 		// try to find the early running clusterOps job in the same cluster
 		return ops.Name != clusterOps.Name &&
 			ops.CreationTimestamp.UnixMilli() < clusterOps.CreationTimestamp.UnixMilli() && // <= or < ? , use "<" to avoid two jobs with the same createTime waiting for each others(blocked by each others) ,createTimes is base on second not mills.
-			(ops.Status.Status == kubeanclusteropsv1alpha1.RunningStatus || ops.Status.JobRef.IsEmpty()) // Empty jobRef means the job is blocked or ready to run.
+			(ops.Status.Status == clusteroperationv1alpha1.RunningStatus || ops.Status.JobRef.IsEmpty()) // Empty jobRef means the job is blocked or ready to run.
 	}
-	runningClusterOpsList := make([]kubeanclusteropsv1alpha1.KuBeanClusterOps, 0)
+	runningClusterOpsList := make([]clusteroperationv1alpha1.ClusterOperation, 0)
 	for i := range clusterOpsList {
 		if filter(clusterOpsList[i]) {
 			runningClusterOpsList = append(runningClusterOpsList, clusterOpsList[i])
@@ -191,7 +191,7 @@ func IsValidImageName(image string) bool {
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
-	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
 		if apierrors.IsNotFound(err) {
 			return controllerruntime.Result{Requeue: false}, nil
@@ -200,7 +200,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 	}
 
-	if clusterOps.Status.Status == kubeanclusteropsv1alpha1.FailedStatus || clusterOps.Status.Status == kubeanclusteropsv1alpha1.SucceededStatus {
+	if clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus || clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus {
 		// return early
 		return controllerruntime.Result{Requeue: false}, nil
 	}
@@ -213,7 +213,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	if !IsValidImageName(clusterOps.Spec.Image) {
 		klog.Errorf("clusterOps %s has wrong image format and update status Failed", clusterOps.Name)
-		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		clusterOps.Status.Status = clusteroperationv1alpha1.FailedStatus
 		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
 			klog.Error(err)
 		}
@@ -222,7 +222,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	if err := c.CheckClusterDataRef(cluster, clusterOps); err != nil {
 		klog.Error(err.Error())
-		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		clusterOps.Status.Status = clusteroperationv1alpha1.FailedStatus
 		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
 			klog.Error(err)
 		}
@@ -258,7 +258,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	if argsErr, ok := err.(entrypoint.ArgsError); ok {
 		// preHook or postHook or action error args
 		klog.Errorf("clusterOps %s wrong args %s and update status Failed", clusterOps.Name, argsErr.Error())
-		clusterOps.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+		clusterOps.Status.Status = clusteroperationv1alpha1.FailedStatus
 		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
 			klog.Error(err)
 		}
@@ -280,8 +280,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	if needBlock {
 		klog.Infof("clusterOps %s is blocked and waiting for other clusterOps completed", clusterOps.Name)
-		if clusterOps.Status.Status != kubeanclusteropsv1alpha1.BlockedStatus {
-			clusterOps.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
+		if clusterOps.Status.Status != clusteroperationv1alpha1.BlockedStatus {
+			clusterOps.Status.Status = clusteroperationv1alpha1.BlockedStatus
 			if err := c.Status().Update(context.Background(), clusterOps); err != nil {
 				klog.Warningf("clusterOps %s update Status to Blocked but %s", clusterOps.Name, err.Error())
 				return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
@@ -310,7 +310,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
-func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) *batchv1.Job {
+func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation) *batchv1.Job {
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
@@ -339,7 +339,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 							Env: []corev1.EnvVar{
 								{
 									Name:  "CLUSTER_NAME",
-									Value: clusterOps.Spec.KuBeanCluster,
+									Value: clusterOps.Spec.Cluster,
 								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
@@ -424,11 +424,11 @@ func (c *Controller) NewKubesprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBean
 	return job
 }
 
-func (c *Controller) GenerateJobName(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+func (c *Controller) GenerateJobName(clusterOps *clusteroperationv1alpha1.ClusterOperation) string {
 	return fmt.Sprintf("kubean-%s-job", clusterOps.Name)
 }
 
-func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+func (c *Controller) CreateKubeSprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
 	if !clusterOps.Status.JobRef.IsEmpty() {
 		return false, nil
 	}
@@ -457,7 +457,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 		Name:      job.Name,
 	}
 	clusterOps.Status.StartTime = &metav1.Time{Time: time.Now()}
-	clusterOps.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+	clusterOps.Status.Status = clusteroperationv1alpha1.RunningStatus
 	clusterOps.Status.Action = clusterOps.Spec.Action
 
 	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
@@ -467,13 +467,13 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *kubeanclusteropsv1alpha1.KuB
 }
 
 // GetKuBeanCluster fetch the cluster which clusterOps belongs to.
-func (c *Controller) GetKuBeanCluster(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (*kubeanclusterv1alpha1.KuBeanCluster, error) {
+func (c *Controller) GetKuBeanCluster(clusterOps *clusteroperationv1alpha1.ClusterOperation) (*clusterv1alpha1.Cluster, error) {
 	// cluster has many clusterOps.
-	return c.KubeanClusterSet.KubeanV1alpha1().KuBeanClusters().Get(context.Background(), clusterOps.Spec.KuBeanCluster, metav1.GetOptions{})
+	return c.KubeanClusterSet.KubeanV1alpha1().Clusters().Get(context.Background(), clusterOps.Spec.Cluster, metav1.GetOptions{})
 }
 
 // CreateEntryPointShellConfigMap create configMap to store entrypoint.sh.
-func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) (bool, error) {
+func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
 	}
@@ -522,11 +522,11 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *kubeanclusterops
 	return true, nil
 }
 
-func (c *Controller) SetOwnerReferences(objectMetaData *metav1.ObjectMeta, clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps) {
-	objectMetaData.OwnerReferences = []metav1.OwnerReference{*metav1.NewControllerRef(clusterOps, kubeanclusteropsv1alpha1.SchemeGroupVersion.WithKind("KuBeanClusterOps"))}
+func (c *Controller) SetOwnerReferences(objectMetaData *metav1.ObjectMeta, clusterOps *clusteroperationv1alpha1.ClusterOperation) {
+	objectMetaData.OwnerReferences = []metav1.OwnerReference{*metav1.NewControllerRef(clusterOps, clusteroperationv1alpha1.SchemeGroupVersion.WithKind("ClusterOperation"))}
 }
 
-func (c *Controller) CopyConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
+func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
 	oldConfigMap, err := c.ClientSet.CoreV1().ConfigMaps(oldConfigMapRef.NameSpace).Get(context.Background(), oldConfigMapRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -550,7 +550,7 @@ func (c *Controller) CopyConfigMap(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 	return newConfigMap, nil
 }
 
-func (c *Controller) CopySecret(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, oldSecretRef *apis.SecretRef, newName string) (*corev1.Secret, error) {
+func (c *Controller) CopySecret(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldSecretRef *apis.SecretRef, newName string) (*corev1.Secret, error) {
 	oldSecret, err := c.ClientSet.CoreV1().Secrets(oldSecretRef.NameSpace).Get(context.Background(), oldSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -575,7 +575,7 @@ func (c *Controller) CopySecret(clusterOps *kubeanclusteropsv1alpha1.KuBeanClust
 }
 
 // BackUpDataRef perform the backup of configRef and secretRef and return (needRequeue,error).
-func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanClusterOps, cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
+func (c *Controller) BackUpDataRef(clusterOps *clusteroperationv1alpha1.ClusterOperation, cluster *clusterv1alpha1.Cluster) (bool, error) {
 	timestamp := fmt.Sprintf("-%d", time.Now().UnixMilli())
 	if cluster.Spec.HostsConfRef.IsEmpty() || cluster.Spec.VarsConfRef.IsEmpty() {
 		// cluster.Spec.SSHAuthRef.IsEmpty()
@@ -634,7 +634,7 @@ func (c *Controller) BackUpDataRef(clusterOps *kubeanclusteropsv1alpha1.KuBeanCl
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&kubeanclusteropsv1alpha1.KuBeanClusterOps{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&clusteroperationv1alpha1.ClusterOperation{}).Complete(c),
 		mgr.Add(c),
 	})
 }
@@ -653,7 +653,7 @@ func (c *Controller) CheckSecretExist(namespace, name string) bool {
 	return true
 }
 
-func (c *Controller) CheckClusterDataRef(cluster *kubeanclusterv1alpha1.KuBeanCluster, clusterOPS *kubeanclusteropsv1alpha1.KuBeanClusterOps) error {
+func (c *Controller) CheckClusterDataRef(cluster *clusterv1alpha1.Cluster, clusterOPS *clusteroperationv1alpha1.ClusterOperation) error {
 	namespaceSet := map[string]struct{}{}
 	if clusterOPS.Spec.HostsConfRef.IsEmpty() {
 		// check HostsConfRef in cluster before clusterSpec is not assigned backup data.

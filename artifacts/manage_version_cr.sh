@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-OPTION=${1:-'create_offlineversion'} ## create_offlineversion  create_infomanifest
+OPTION=${1:-'create_localartifactset'} ## create_localartifactset  create_manifest
 
 KUBESPRAY_TAG=${KUBESPRAY_TAG:-"v2.19.0"} ## env from github action
 KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}        ## env from github action
@@ -11,13 +11,13 @@ CURRENT_DIR=$(cd $(dirname $0); pwd) ## artifacts dir
 CURRENT_DATE=$(date +%Y%m%d)
 
 ARTIFACTS_TEMPLATE_DIR=artifacts/template
-KUBEAN_OFFLINE_VERSION_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/kubeanofflineversion.template.yml
-KUBEAN_INFO_MANIFEST_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/kubeaninfomanifest.template.yml
+KUBEAN_OFFLINE_VERSION_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/localartifactset.template.yml
+KUBEAN_INFO_MANIFEST_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/manifest.template.yml
 
 CHARTS_TEMPLATE_DIR=charts/kubean/templates
 OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}
-KUBEAN_OFFLINE_VERSION_CR=${OFFLINE_PACKAGE_DIR}/kubeanofflineversion.cr.yaml
-KUBEAN_INFO_MANIFEST_CR=${CHARTS_TEMPLATE_DIR}/kubeaninfomanifest.cr.yaml
+KUBEAN_OFFLINE_VERSION_CR=${OFFLINE_PACKAGE_DIR}/localartifactset.cr.yaml
+KUBEAN_INFO_MANIFEST_CR=${CHARTS_TEMPLATE_DIR}/manifest.cr.yaml
 
 KUBESPRAY_DIR=kubespray
 KUBESPRAY_OFFLINE_DIR=${KUBESPRAY_DIR}/contrib/offline
@@ -179,12 +179,12 @@ function create_info_manifest_cr() {
 }
 
 case $OPTION in
-create_offlineversion)
+create_localartifactset)
   check_dependencies
   create_offline_version_cr
   ;;
 
-create_infomanifest)
+create_manifest)
   check_dependencies
   create_info_manifest_cr
   ;;

@@ -15,7 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
+	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 )
 
 var preCmdArray = []string{"-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"}
@@ -166,10 +166,10 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 		clusterClientSet, err := kubeanClusterClientSet.NewForConfig(config)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-		// from KuBeanCluster: cluster1 get kubeconfRef: name: cluster1-kubeconf namespace: kubean-system
-		cluster1, err := clusterClientSet.KubeanclusterV1alpha1().KuBeanClusters().Get(context.Background(), "cluster1", metav1.GetOptions{})
+		// from Cluster: cluster1 get kubeconfRef: name: cluster1-kubeconf namespace: kubean-system
+		cluster1, err := clusterClientSet.KubeanV1alpha1().Clusters().Get(context.Background(), "cluster1", metav1.GetOptions{})
 		fmt.Println("Name:", cluster1.Spec.KubeConfRef.Name, "NameSpace:", cluster1.Spec.KubeConfRef.NameSpace)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get KuBeanCluster")
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get Cluster")
 
 		// get configmap
 		kubeClient, _ := kubernetes.NewForConfig(config)

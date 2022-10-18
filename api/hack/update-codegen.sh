@@ -39,16 +39,14 @@ client-gen \
   --input-base="" \
   --input=kubean.io/api/apis/$SubDirName/v1alpha1 \
   --output-package=kubean.io/api/generated/$SubDirName/clientset \
-  --clientset-name=versioned \
-  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps"
+  --clientset-name=versioned
 
 echo "Generating with lister-gen"
 GO111MODULE=on go install k8s.io/code-generator/cmd/lister-gen
 lister-gen \
   --go-header-file hack/boilerplate/boilerplate.go.txt \
   --input-dirs=kubean.io/api/apis/$SubDirName/v1alpha1 \
-  --output-package=kubean.io/api/generated/$SubDirName/listers \
-  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps"
+  --output-package=kubean.io/api/generated/$SubDirName/listers
 
 echo "Generating with informer-gen"
 GO111MODULE=on go install k8s.io/code-generator/cmd/informer-gen
@@ -57,8 +55,7 @@ informer-gen \
   --input-dirs=kubean.io/api/apis/$SubDirName/v1alpha1 \
   --versioned-clientset-package=kubean.io/api/generated/$SubDirName/clientset/versioned \
   --listers-package=kubean.io/api/generated/$SubDirName/listers \
-  --output-package=kubean.io/api/generated/$SubDirName/informers \
-  --plural-exceptions="KuBeanClusterOps:KuBeanClusterOps"
+  --output-package=kubean.io/api/generated/$SubDirName/informers
 
 if ls "$GOPATH"/src | grep kubean.io; then
   cp -r "$GOPATH"/src/kubean.io/api/apis/$SubDirName/v1alpha1/*.go apis/$SubDirName/v1alpha1/

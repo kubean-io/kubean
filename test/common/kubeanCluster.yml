@@ -1,5 +1,5 @@
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanCluster
+kind: Cluster
 metadata:
   name: cluster1
   labels:

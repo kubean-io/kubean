@@ -6,10 +6,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
-	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
-	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
+	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 )
 
 func TestNewSchema(t *testing.T) {
@@ -21,23 +21,23 @@ func TestNewSchema(t *testing.T) {
 	}{
 		{
 			name:    "KuBeanInfoManifest gvk",
-			obj:     &kubeaninfomanifestv1alpha1.KubeanInfoManifest{},
-			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KubeanInfoManifest"},
+			obj:     &manifestv1alpha1.Manifest{},
+			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "Manifest"},
 		},
 		{
-			name:    "KuBeanOfflineVersion gvk",
-			obj:     &kubeanofflineversionv1alpha1.KuBeanOfflineVersion{},
-			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KuBeanOfflineVersion"},
+			name:    "LocalArtifactSet gvk",
+			obj:     &localartifactsetv1alpha1.LocalArtifactSet{},
+			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "LocalArtifactSet"},
 		},
 		{
-			name:    "KuBeanCluster gvk",
-			obj:     &kubeanclusterv1alpha1.KuBeanCluster{},
-			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KuBeanCluster"},
+			name:    "Cluster gvk",
+			obj:     &clusterv1alpha1.Cluster{},
+			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "Cluster"},
 		},
 		{
-			name:    "KuBeanClusterOps gvk",
-			obj:     &kubeanclusteropsv1alpha1.KuBeanClusterOps{},
-			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "KuBeanClusterOps"},
+			name:    "ClusterOperation gvk",
+			obj:     &clusteroperationv1alpha1.ClusterOperation{},
+			wantGVK: schema.GroupVersionKind{Group: "kubean.io", Version: "v1alpha1", Kind: "ClusterOperation"},
 		},
 	}
 	for _, test := range tests {

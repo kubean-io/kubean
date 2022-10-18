@@ -1,11 +1,11 @@
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanClusterOps
+kind: ClusterOperation
 metadata:
   name: e2e-cluster1-install-sonobouy
   labels:
     clusterName: cluster1
 spec:
-  kuBeanCluster: cluster1
+  cluster: cluster1
   image:
   backoffLimit: 0
   actionType: playbook

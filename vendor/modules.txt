@@ -999,31 +999,31 @@ k8s.io/utils/trace
 # kubean.io/api v0.0.0 => ./api
 ## explicit; go 1.17
 kubean.io/api/apis
-kubean.io/api/apis/kubeancluster/v1alpha1
-kubean.io/api/apis/kubeanclusterops/v1alpha1
-kubean.io/api/apis/kubeaninfomanifest/v1alpha1
-kubean.io/api/apis/kubeanofflineversion/v1alpha1
+kubean.io/api/apis/cluster/v1alpha1
+kubean.io/api/apis/clusteroperation/v1alpha1
+kubean.io/api/apis/localartifactset/v1alpha1
+kubean.io/api/apis/manifest/v1alpha1
 kubean.io/api/constants
-kubean.io/api/generated/kubeancluster/clientset/versioned
-kubean.io/api/generated/kubeancluster/clientset/versioned/fake
-kubean.io/api/generated/kubeancluster/clientset/versioned/scheme
-kubean.io/api/generated/kubeancluster/clientset/versioned/typed/kubeancluster/v1alpha1
-kubean.io/api/generated/kubeancluster/clientset/versioned/typed/kubeancluster/v1alpha1/fake
-kubean.io/api/generated/kubeanclusterops/clientset/versioned
-kubean.io/api/generated/kubeanclusterops/clientset/versioned/fake
-kubean.io/api/generated/kubeanclusterops/clientset/versioned/scheme
-kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1
-kubean.io/api/generated/kubeanclusterops/clientset/versioned/typed/kubeanclusterops/v1alpha1/fake
-kubean.io/api/generated/kubeaninfomanifest/clientset/versioned
-kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/fake
-kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/scheme
-kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/typed/kubeaninfomanifest/v1alpha1
-kubean.io/api/generated/kubeaninfomanifest/clientset/versioned/typed/kubeaninfomanifest/v1alpha1/fake
-kubean.io/api/generated/kubeanofflineversion/clientset/versioned
-kubean.io/api/generated/kubeanofflineversion/clientset/versioned/fake
-kubean.io/api/generated/kubeanofflineversion/clientset/versioned/scheme
-kubean.io/api/generated/kubeanofflineversion/clientset/versioned/typed/kubeanofflineversion/v1alpha1
-kubean.io/api/generated/kubeanofflineversion/clientset/versioned/typed/kubeanofflineversion/v1alpha1/fake
+kubean.io/api/generated/cluster/clientset/versioned
+kubean.io/api/generated/cluster/clientset/versioned/fake
+kubean.io/api/generated/cluster/clientset/versioned/scheme
+kubean.io/api/generated/cluster/clientset/versioned/typed/cluster/v1alpha1
+kubean.io/api/generated/cluster/clientset/versioned/typed/cluster/v1alpha1/fake
+kubean.io/api/generated/clusteroperation/clientset/versioned
+kubean.io/api/generated/clusteroperation/clientset/versioned/fake
+kubean.io/api/generated/clusteroperation/clientset/versioned/scheme
+kubean.io/api/generated/clusteroperation/clientset/versioned/typed/clusteroperation/v1alpha1
+kubean.io/api/generated/clusteroperation/clientset/versioned/typed/clusteroperation/v1alpha1/fake
+kubean.io/api/generated/localartifactset/clientset/versioned
+kubean.io/api/generated/localartifactset/clientset/versioned/fake
+kubean.io/api/generated/localartifactset/clientset/versioned/scheme
+kubean.io/api/generated/localartifactset/clientset/versioned/typed/localartifactset/v1alpha1
+kubean.io/api/generated/localartifactset/clientset/versioned/typed/localartifactset/v1alpha1/fake
+kubean.io/api/generated/manifest/clientset/versioned
+kubean.io/api/generated/manifest/clientset/versioned/fake
+kubean.io/api/generated/manifest/clientset/versioned/scheme
+kubean.io/api/generated/manifest/clientset/versioned/typed/manifest/v1alpha1
+kubean.io/api/generated/manifest/clientset/versioned/typed/manifest/v1alpha1/fake
 # sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30
 ## explicit; go 1.17
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client/pkg/client

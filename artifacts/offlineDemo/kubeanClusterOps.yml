@@ -1,11 +1,11 @@
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanClusterOps
+kind: ClusterOperation
 metadata:
   name: cluster1-offline-demo-ops-1
   labels:
     clusterName: cluster1-offline-demo
 spec:
-  kuBeanCluster: cluster1-offline-demo
+  cluster: cluster1-offline-demo
   image: ghcr.io/kubean-io/spray-job:latest # or change image to kubespray origin image version
   backoffLimit: 0
   actionType: playbook

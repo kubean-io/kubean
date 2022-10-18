@@ -39,11 +39,11 @@ type KubeanOpsYml struct {
 		}
 	}
 	Spec struct {
-		KuBeanCluster string `yaml:"kuBeanCluster"`
-		Image         string `yaml:"image"`
-		BackoffLimit  int    `yaml:"backoffLimit"`
-		ActionType    string `yaml:"actionType"`
-		Action        string `yaml:"action"`
+		Cluster      string `yaml:"cluster"`
+		Image        string `yaml:"image"`
+		BackoffLimit int    `yaml:"backoffLimit"`
+		ActionType   string `yaml:"actionType"`
+		Action       string `yaml:"action"`
 	}
 }
 

@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
-	kubeanofflineversionv1alpha1 "kubean.io/api/apis/kubeanofflineversion/v1alpha1"
+	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
-	kubeaninfomanifestClientSet "kubean.io/api/generated/kubeaninfomanifest/clientset/versioned"
-	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
+	localartifactsetClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
+	manifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,8 +24,8 @@ const Loop = time.Second * 15
 type Controller struct {
 	client.Client
 	ClientSet               kubernetes.Interface
-	InfoManifestClientSet   kubeaninfomanifestClientSet.Interface
-	OfflineversionClientSet kubeanofflineversionClientSet.Interface
+	InfoManifestClientSet   manifestClientSet.Interface
+	OfflineversionClientSet localartifactsetClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -34,15 +34,15 @@ func (c *Controller) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *Controller) FetchGlobalKubeanClusterConfig() (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
-	infoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+func (c *Controller) FetchGlobalKubeanClusterConfig() (*manifestv1alpha1.Manifest, error) {
+	infoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return infoManifest, nil
 }
 
-func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflineversionv1alpha1.KuBeanOfflineVersion, clusterConfig *kubeaninfomanifestv1alpha1.KubeanInfoManifest) (bool, *kubeaninfomanifestv1alpha1.KubeanInfoManifest) {
+func (c *Controller) MergeOfflineVersionStatus(offlineVersion *localartifactsetv1alpha1.LocalArtifactSet, clusterConfig *manifestv1alpha1.Manifest) (bool, *manifestv1alpha1.Manifest) {
 	updated := false
 	for _, dockerInfo := range offlineVersion.Spec.Docker {
 		if clusterConfig.Status.LocalAvailable.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
@@ -58,7 +58,7 @@ func (c *Controller) MergeOfflineVersionStatus(offlineVersion *kubeanofflinevers
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
-	offlineVersion := &kubeanofflineversionv1alpha1.KuBeanOfflineVersion{}
+	offlineVersion := &localartifactsetv1alpha1.LocalArtifactSet{}
 	if err := c.Client.Get(context.Background(), req.NamespacedName, offlineVersion); err != nil {
 		if apierrors.IsNotFound(err) {
 			return controllerruntime.Result{Requeue: false}, nil
@@ -73,7 +73,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	if needUpdate, newGlobalInfoManifest := c.MergeOfflineVersionStatus(offlineVersion, globalInfoManifest); needUpdate {
 		klog.Info("Update componentsVersion")
-		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().UpdateStatus(context.Background(), newGlobalInfoManifest, metav1.UpdateOptions{}); err != nil {
+		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), newGlobalInfoManifest, metav1.UpdateOptions{}); err != nil {
 			klog.Error(err)
 		}
 	}
@@ -82,7 +82,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&kubeanofflineversionv1alpha1.KuBeanOfflineVersion{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&localartifactsetv1alpha1.LocalArtifactSet{}).Complete(c),
 		mgr.Add(c),
 	})
 }

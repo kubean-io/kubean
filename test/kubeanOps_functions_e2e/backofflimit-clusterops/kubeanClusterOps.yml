@@ -1,11 +1,11 @@
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanClusterOps
+kind: ClusterOperation
 metadata:
   name: backofflimit0-clusterops-test
   labels:
     clusterName: cluster2
 spec:
-  kuBeanCluster: cluster2
+  cluster: cluster2
   image: ghcr.io/kubean-io/spray-job:latest
   backoffLimit: 0
   actionType: shell

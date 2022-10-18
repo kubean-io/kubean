@@ -19,10 +19,10 @@ import (
 	rest "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
-	kubeaninfomanifestClientSet "kubean.io/api/generated/kubeaninfomanifest/clientset/versioned"
-	kubeanofflineversionClientSet "kubean.io/api/generated/kubeanofflineversion/clientset/versioned"
+	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
+	kubeanClusterOpsClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	kubeanofflineversionClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
+	kubeaninfomanifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )
@@ -31,7 +31,7 @@ func NewCommand(ctx context.Context) *cobra.Command {
 	opts := NewOptions()
 	cmd := &cobra.Command{
 		Use:  "kubean-operator",
-		Long: "run operator for KuBeanCluster and KuBeanClusterOps",
+		Long: "run operator for Cluster and ClusterOperation",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if errs := opts.Validate(); len(errs) != 0 {
 				return errs.ToAggregate()

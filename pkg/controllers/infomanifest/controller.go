@@ -16,9 +16,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
-	kubeaninfomanifestv1alpha1 "kubean.io/api/apis/kubeaninfomanifest/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
-	kubeaninfomanifestClientSet "kubean.io/api/generated/kubeaninfomanifest/clientset/versioned"
+	manifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -31,7 +31,7 @@ const LocalServiceConfigMap = "kubean-localservice"
 
 type Controller struct {
 	client.Client
-	InfoManifestClientSet kubeaninfomanifestClientSet.Interface
+	InfoManifestClientSet manifestClientSet.Interface
 	ClientSet             kubernetes.Interface
 }
 
@@ -42,12 +42,12 @@ func (c *Controller) Start(ctx context.Context) error {
 }
 
 // FetchLatestInfoManifest , get infomanifest exclude the global-infomanifest.
-func (c *Controller) FetchLatestInfoManifest() (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
-	result, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().List(context.Background(), metav1.ListOptions{})
+func (c *Controller) FetchLatestInfoManifest() (*manifestv1alpha1.Manifest, error) {
+	result, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*kubeaninfomanifestv1alpha1.KubeanInfoManifest, 0)
+	items := make([]*manifestv1alpha1.Manifest, 0)
 	for i := range result.Items {
 		item := result.Items[i]
 		if item.Name == constants.InfoManifestGlobal {
@@ -64,10 +64,10 @@ func (c *Controller) FetchLatestInfoManifest() (*kubeaninfomanifestv1alpha1.Kube
 	return items[0], nil
 }
 
-func NewGlobalInfoManifest(latestInfoManifest *kubeaninfomanifestv1alpha1.KubeanInfoManifest) *kubeaninfomanifestv1alpha1.KubeanInfoManifest {
-	return &kubeaninfomanifestv1alpha1.KubeanInfoManifest{
+func NewGlobalInfoManifest(latestInfoManifest *manifestv1alpha1.Manifest) *manifestv1alpha1.Manifest {
+	return &manifestv1alpha1.Manifest{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "KubeanInfoManifest",
+			Kind:       "Manifest",
 			APIVersion: "kubean.io/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -78,19 +78,19 @@ func NewGlobalInfoManifest(latestInfoManifest *kubeaninfomanifestv1alpha1.Kubean
 	}
 }
 
-func (c *Controller) FetchGlobalInfoManifest() (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
-	global, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+func (c *Controller) FetchGlobalInfoManifest() (*manifestv1alpha1.Manifest, error) {
+	global, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
 	return global, err
 }
 
-func (c *Controller) EnsureGlobalInfoManifestBeingLatest(latestInfoManifest *kubeaninfomanifestv1alpha1.KubeanInfoManifest) (*kubeaninfomanifestv1alpha1.KubeanInfoManifest, error) {
-	currentGlobalInfoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+func (c *Controller) EnsureGlobalInfoManifestBeingLatest(latestInfoManifest *manifestv1alpha1.Manifest) (*manifestv1alpha1.Manifest, error) {
+	currentGlobalInfoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 	if err != nil && apierrors.IsNotFound(err) {
 		// create global-infomanifest
-		global, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Create(context.Background(), NewGlobalInfoManifest(latestInfoManifest), metav1.CreateOptions{})
+		global, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), NewGlobalInfoManifest(latestInfoManifest), metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func (c *Controller) EnsureGlobalInfoManifestBeingLatest(latestInfoManifest *kub
 	if currentGlobalInfoManifest.Labels == nil || len(currentGlobalInfoManifest.Labels) == 0 || currentGlobalInfoManifest.Labels[OriginLabel] != latestInfoManifest.Name {
 		currentGlobalInfoManifest.Labels = map[string]string{OriginLabel: latestInfoManifest.Name}
 		currentGlobalInfoManifest.Spec = latestInfoManifest.Spec
-		global, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Update(context.Background(), currentGlobalInfoManifest, metav1.UpdateOptions{})
+		global, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), currentGlobalInfoManifest, metav1.UpdateOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -125,8 +125,8 @@ func (c *Controller) FetchLocalServiceCM(namespace string) (*corev1.ConfigMap, e
 	return nil, fmt.Errorf("not found kubean localService ConfigMap")
 }
 
-func (c *Controller) ParseConfigMapToLocalService(localServiceConfigMap *corev1.ConfigMap) (*kubeaninfomanifestv1alpha1.LocalService, error) {
-	localService := &kubeaninfomanifestv1alpha1.LocalService{}
+func (c *Controller) ParseConfigMapToLocalService(localServiceConfigMap *corev1.ConfigMap) (*manifestv1alpha1.LocalService, error) {
+	localService := &manifestv1alpha1.LocalService{}
 	if len(localServiceConfigMap.Data) == 0 {
 		return localService, fmt.Errorf("kubean localService ConfigMap not found data")
 	}
@@ -159,7 +159,7 @@ func (c *Controller) UpdateGlobalLocalService() {
 	if !reflect.DeepEqual(&global.Spec.LocalService, localService) {
 		global.Spec.LocalService = *localService
 		klog.Warningf("update the global InfoManifest LocalService")
-		_, err = c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().Update(context.Background(), global, metav1.UpdateOptions{})
+		_, err = c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), global, metav1.UpdateOptions{})
 		if err != nil {
 			klog.Warningf("ignoring %s", err.Error())
 		}
@@ -179,7 +179,7 @@ func (c *Controller) UpdateLocalAvailableImage() {
 	newImageName := fmt.Sprintf("%s/kubean-io/spray-job:%s", imageRepo, global.Spec.KubeanVersion)
 	if global.Status.LocalAvailable.KubesprayImage != newImageName {
 		global.Status.LocalAvailable.KubesprayImage = newImageName
-		_, err := c.InfoManifestClientSet.KubeanV1alpha1().KubeanInfoManifests().UpdateStatus(context.Background(), global, metav1.UpdateOptions{})
+		_, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), global, metav1.UpdateOptions{})
 		if err != nil {
 			klog.Warningf("ignoring %s", err.Error())
 			return
@@ -209,7 +209,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&kubeaninfomanifestv1alpha1.KubeanInfoManifest{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&manifestv1alpha1.Manifest{}).Complete(c),
 		mgr.Add(c),
 	})
 }

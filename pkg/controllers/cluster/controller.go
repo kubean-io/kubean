@@ -6,9 +6,9 @@ import (
 	"sort"
 	"time"
 
-	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
+	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
+	clusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,17 +27,17 @@ const (
 type Controller struct {
 	client.Client
 	ClientSet           *kubernetes.Clientset
-	KubeanClusterSet    *kubeanClusterClientSet.Clientset
-	KubeanClusterOpsSet *kubeanClusterOpsClientSet.Clientset
+	KubeanClusterSet    *clusterClientSet.Clientset
+	KubeanClusterOpsSet *clusterOperationClientSet.Clientset
 }
 
 func (c *Controller) Start(ctx context.Context) error {
-	klog.Warningf("KuBeanCluster Controller Start")
+	klog.Warningf("Cluster Controller Start")
 	<-ctx.Done()
 	return nil
 }
 
-func CompareClusterCondition(conditionA, conditionB kubeanclusterv1alpha1.ClusterCondition) bool {
+func CompareClusterCondition(conditionA, conditionB clusterv1alpha1.ClusterCondition) bool {
 	unixMilli := func(t *metav1.Time) int64 {
 		if t == nil {
 			return -1
@@ -59,7 +59,7 @@ func CompareClusterCondition(conditionA, conditionB kubeanclusterv1alpha1.Cluste
 	return true
 }
 
-func CompareClusterConditions(condAList, condBList []kubeanclusterv1alpha1.ClusterCondition) bool {
+func CompareClusterConditions(condAList, condBList []clusterv1alpha1.ClusterCondition) bool {
 	if len(condAList) != len(condBList) {
 		return false
 	}
@@ -71,9 +71,9 @@ func CompareClusterConditions(condAList, condBList []kubeanclusterv1alpha1.Clust
 	return true
 }
 
-func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) error {
+func (c *Controller) UpdateStatus(cluster *clusterv1alpha1.Cluster) error {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
-	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), listOpt)
 	if err != nil {
 		return err
 	}
@@ -81,11 +81,11 @@ func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) 
 	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
 		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
 	})
-	newConditions := make([]kubeanclusterv1alpha1.ClusterCondition, 0)
+	newConditions := make([]clusterv1alpha1.ClusterCondition, 0)
 	for _, item := range clusterOpsList.Items {
-		newConditions = append(newConditions, kubeanclusterv1alpha1.ClusterCondition{
+		newConditions = append(newConditions, clusterv1alpha1.ClusterCondition{
 			ClusterOps: item.Name,
-			Status:     kubeanclusterv1alpha1.ClusterConditionType(item.Status.Status),
+			Status:     clusterv1alpha1.ClusterConditionType(item.Status.Status),
 			StartTime:  item.Status.StartTime,
 			EndTime:    item.Status.EndTime,
 		})
@@ -99,10 +99,10 @@ func (c *Controller) UpdateStatus(cluster *kubeanclusterv1alpha1.KuBeanCluster) 
 	return nil
 }
 
-// CleanExcessClusterOps clean up excess KuBeanClusterOps.
-func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBeanCluster) (bool, error) {
+// CleanExcessClusterOps clean up excess ClusterOperation.
+func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster) (bool, error) {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
-	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().List(context.Background(), listOpt)
+	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), listOpt)
 	if err != nil {
 		return false, err
 	}
@@ -116,14 +116,14 @@ func (c *Controller) CleanExcessClusterOps(cluster *kubeanclusterv1alpha1.KuBean
 	})
 	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
 	for _, item := range excessClusterOpsList {
-		klog.Warningf("Delete KuBeanClusterOps: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
-		c.KubeanClusterOpsSet.KubeanV1alpha1().KuBeanClusterOps().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
+		klog.Warningf("Delete ClusterOperation: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
+		c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
 	}
 	return true, nil
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
-	cluster := &kubeanclusterv1alpha1.KuBeanCluster{}
+	cluster := &clusterv1alpha1.Cluster{}
 	if err := c.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
 			return controllerruntime.Result{Requeue: false}, nil
@@ -149,7 +149,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&kubeanclusterv1alpha1.KuBeanCluster{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&clusterv1alpha1.Cluster{}).Complete(c),
 		mgr.Add(c),
 	})
 }
