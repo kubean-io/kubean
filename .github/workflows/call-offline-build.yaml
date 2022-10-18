@@ -40,10 +40,10 @@ jobs:
         bash artifacts/manage_version_cr.sh create_manifest
         bash artifacts/manage_version_cr.sh create_localartifactset
 
-        echo "kubeanofflineversion cr output:"
-        cat ${KUBEAN_TAG}/kubeanofflineversion.cr.yaml
-        echo "kubeaninfomanifest cr output:"
-        cat charts/kubean/templates/kubeaninfomanifest.cr.yaml
+        echo "localartifactset cr output:"
+        cat ${KUBEAN_TAG}/localartifactset.cr.yaml
+        echo "manifest cr output:"
+        cat charts/kubean/templates/manifest.cr.yaml
 
     - name: Preparing the python environment
       uses: actions/setup-python@v4
@@ -100,5 +100,5 @@ jobs:
     - name: Upload InfoManifest CR
       uses: actions/upload-artifact@v3
       with:
-        path: charts/kubean/templates/kubeaninfomanifest.cr.yaml
+        path: charts/kubean/templates/manifest.cr.yaml
         name: info-manifest-cr-file
