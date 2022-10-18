@@ -17,7 +17,7 @@ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 
 Then check kubean-operator status by `kubectl get pods -n kubean-system | grep 'kubean'`.
 
-## Start KuBeanClusterOps for cluster.yml playbook
+## Start ClusterOperation for cluster.yml playbook
 
 We cloud use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
 

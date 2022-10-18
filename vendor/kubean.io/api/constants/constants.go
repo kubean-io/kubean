@@ -1,6 +1,6 @@
 package constants
 
-const InfoManifestGlobal = "infomanifest-global"
+const InfoManifestGlobal = "manifest-global"
 
 const KubeanClusterLabelKey = "clusterName"
 

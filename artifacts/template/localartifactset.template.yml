@@ -1,36 +1,27 @@
 apiVersion: kubean.io/v1alpha1
-kind: KubeanInfoManifest
+kind: LocalArtifactSet
 metadata:
-  name: KubeanInfoManifestNAME
+  name: KuBeanOfflineVersionNAME
 spec:
-  kubesprayVersion: ""
-  kubeanVersion: ""
+  arch: [ "x86_64" ]
+  kubespray: ""
   docker:
     - os: "redhat-7"
-      defaultVersion: ""
       versionRange: [ ]
     - os: "debian"
-      defaultVersion: ""
       versionRange: [ ]
     - os: "ubuntu"
-      defaultVersion: ""
       versionRange: [ ]
-  components:
+  items:
     - name: "cni"
-      defaultVersion: ""
       versionRange: [ ]
     - name: "containerd"
-      defaultVersion: ""
       versionRange: [ ]
     - name: "kube"
-      defaultVersion: ""
       versionRange: [ ]
     - name: "calico"
-      defaultVersion: ""
       versionRange: [ ]
     - name: "cilium"
-      defaultVersion: ""
       versionRange: [ ]
     - name: "etcd"
-      defaultVersion: ""
       versionRange: [ ]

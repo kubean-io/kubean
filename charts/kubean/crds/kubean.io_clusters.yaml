@@ -97,7 +97,7 @@ spec:
                 items:
                   properties:
                     clusterOps:
-                      description: ClusterOps refers to the name of KuBeanClusterOps.
+                      description: ClusterOps refers to the name of ClusterOperation.
                       type: string
                     endTime:
                       format: date-time

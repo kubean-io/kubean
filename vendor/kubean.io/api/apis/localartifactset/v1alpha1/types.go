@@ -42,7 +42,7 @@ type LocalArtifactSetList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
-	// Items holds a list of KuBeanClusterOps.
+	// Items holds a list of ClusterOperation.
 	Items []LocalArtifactSet `json:"items"`
 }
 

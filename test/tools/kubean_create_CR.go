@@ -11,10 +11,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"kubean.io/api/apis"
-	kubeancluster "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanclusterops "kubean.io/api/apis/kubeanclusterops/v1alpha1"
-	kubeanClusterClientSet "kubean.io/api/generated/kubeancluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/kubeanclusterops/clientset/versioned"
+	kubeancluster "kubean.io/api/apis/cluster/v1alpha1"
+	kubeanclusterops "kubean.io/api/apis/clusteroperation/v1alpha1"
+	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
+	kubeanClusterOpsClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 )
 
 var hostsYaml = `
@@ -159,23 +159,23 @@ func CreatCR() {
 		fmt.Printf("Created varsConfigMapName %q.\n", result.GetObjectMeta().GetName())
 	}
 
-	// 3 create KuBeanCluster
+	// 3 create Cluster
 	clusterClientSet, err := kubeanClusterClientSet.NewForConfig(config)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 	hostsDataRef := apis.ConfigMapRef{Name: hostsConfigMapName, NameSpace: kubeanNamespace}
 	varsDataRef := apis.ConfigMapRef{Name: varsConfigMapName, NameSpace: kubeanNamespace}
-	kubeclusterObj := &kubeancluster.KuBeanCluster{
-		TypeMeta:   metav1.TypeMeta{Kind: "KuBeanCluster", APIVersion: "kubean.io/v1alpha1"},
+	kubeclusterObj := &kubeancluster.Cluster{
+		TypeMeta:   metav1.TypeMeta{Kind: "Cluster", APIVersion: "kubean.io/v1alpha1"},
 		ObjectMeta: metav1.ObjectMeta{Name: kubeClusterName, Labels: map[string]string{"ClusterName": kubeClusterLabelName}},
 		Spec:       kubeancluster.Spec{HostsConfRef: &hostsDataRef, VarsConfRef: &varsDataRef},
 	}
-	_, err = clusterClientSet.KubeanV1alpha1().KuBeanClusters().Get(context.Background(), kubeClusterName, metav1.GetOptions{})
+	_, err = clusterClientSet.KubeanV1alpha1().Clusters().Get(context.Background(), kubeClusterName, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			fmt.Println(err)
 			return
 		}
-		result, err := clusterClientSet.KubeanV1alpha1().KuBeanClusters().Create(context.Background(), kubeclusterObj, metav1.CreateOptions{})
+		result, err := clusterClientSet.KubeanV1alpha1().Clusters().Create(context.Background(), kubeclusterObj, metav1.CreateOptions{})
 		if err != nil {
 			panic(err)
 		}
@@ -183,7 +183,7 @@ func CreatCR() {
 
 	}
 
-	// 4 create KuBeanClusterOps
+	// 4 create ClusterOperation
 	clusterClientOpsSet, err := kubeanClusterOpsClientSet.NewForConfig(config)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 	preHookAction :=
@@ -194,9 +194,9 @@ func CreatCR() {
 
 	preHook := []kubeanclusterops.HookAction{{ActionType: kubeanclusterops.ShellActionType, Action: preHookAction}}
 	postHook := []kubeanclusterops.HookAction{{ActionType: kubeanclusterops.ShellActionType, Action: postHookAction}}
-	kubeclusterOpsObj := &kubeanclusterops.KuBeanClusterOps{
+	kubeclusterOpsObj := &kubeanclusterops.ClusterOperation{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "KuBeanClusterOps",
+			Kind:       "ClusterOperation",
 			APIVersion: "kubean.io/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -206,16 +206,16 @@ func CreatCR() {
 			},
 		},
 		Spec: kubeanclusterops.Spec{
-			KuBeanCluster: kubeClusterName,
-			Image:         "ghcr.io/kubean-io/spray-job:v0.0.1",
-			BackoffLimit:  0,
-			ActionType:    kubeanclusterops.PlaybookActionType,
-			Action:        "cluster.yaml",
-			PreHook:       preHook,
-			PostHook:      postHook,
+			Cluster:      kubeClusterName,
+			Image:        "ghcr.io/kubean-io/spray-job:v0.0.1",
+			BackoffLimit: 0,
+			ActionType:   kubeanclusterops.PlaybookActionType,
+			Action:       "cluster.yaml",
+			PreHook:      preHook,
+			PostHook:     postHook,
 		},
 	}
-	result1, err := clusterClientOpsSet.KubeanV1alpha1().KuBeanClusterOps().Create(context.Background(), kubeclusterOpsObj, metav1.CreateOptions{})
+	result1, err := clusterClientOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), kubeclusterOpsObj, metav1.CreateOptions{})
 	if err != nil {
 		panic(err)
 	}

@@ -9,10 +9,10 @@ import (
 	"time"
 
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
-	kubeanclusterv1alpha1 "kubean.io/api/apis/kubeancluster/v1alpha1"
-	kubeanclusteropsv1alpha1 "kubean.io/api/apis/kubeanclusterops/v1alpha1"
-	kubeanclusterv1alpha1fake "kubean.io/api/generated/kubeancluster/clientset/versioned/fake"
-	kubeanclusteropsv1alpha1fake "kubean.io/api/generated/kubeanclusterops/clientset/versioned/fake"
+	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	clusterv1alpha1fake "kubean.io/api/generated/cluster/clientset/versioned/fake"
+	clusteroperationv1alpha1fake "kubean.io/api/generated/clusteroperation/clientset/versioned/fake"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,32 +24,32 @@ import (
 
 func newFakeClient() client.Client {
 	sch := scheme.Scheme
-	if err := kubeanclusteropsv1alpha1.AddToScheme(sch); err != nil {
+	if err := clusteroperationv1alpha1.AddToScheme(sch); err != nil {
 		panic(err)
 	}
-	if err := kubeanclusterv1alpha1.AddToScheme(sch); err != nil {
+	if err := clusterv1alpha1.AddToScheme(sch); err != nil {
 		panic(err)
 	}
-	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&kubeanclusteropsv1alpha1.KuBeanClusterOps{}).WithRuntimeObjects(&kubeanclusterv1alpha1.KuBeanCluster{}).Build()
+	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&clusteroperationv1alpha1.ClusterOperation{}).WithRuntimeObjects(&clusterv1alpha1.Cluster{}).Build()
 	return client
 }
 
 func TestUpdateStatusLoop(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
-	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	ops.Spec.BackoffLimit = 12
 	tests := []struct {
 		name string
-		args func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool
+		args func(ops *clusteroperationv1alpha1.ClusterOperation) bool
 		want bool
 	}{
 		{
 			name: "the status is Succeeded",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
-				ops.Status.Status = kubeanclusteropsv1alpha1.SucceededStatus
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
+				ops.Status.Status = clusteroperationv1alpha1.SucceededStatus
 				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
 				return err == nil && !needRequeue
 			},
@@ -57,8 +57,8 @@ func TestUpdateStatusLoop(t *testing.T) {
 		},
 		{
 			name: "the status is Failed",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
-				ops.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
+				ops.Status.Status = clusteroperationv1alpha1.FailedStatus
 				needRequeue, err := controller.UpdateStatusLoop(ops, nil)
 				return err == nil && !needRequeue
 			},
@@ -66,9 +66,9 @@ func TestUpdateStatusLoop(t *testing.T) {
 		},
 		{
 			name: "the status is Running and the result of fetchJobStatus is err",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
-				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
+				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
 					return "", fmt.Errorf("one error")
 				})
 				return err != nil && err.Error() == "one error" && !needRequeue
@@ -77,10 +77,10 @@ func TestUpdateStatusLoop(t *testing.T) {
 		},
 		{
 			name: "the status is Running and the result of fetchJobStatus is still Running",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
-				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
-					return kubeanclusteropsv1alpha1.RunningStatus, nil
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
+				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
+					return clusteroperationv1alpha1.RunningStatus, nil
 				})
 				return err == nil && needRequeue
 			},
@@ -88,31 +88,31 @@ func TestUpdateStatusLoop(t *testing.T) {
 		},
 		{
 			name: "the status is Running and the result of fetchJobStatus is still Succeed",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
-				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
+				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
-					return kubeanclusteropsv1alpha1.SucceededStatus, nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
+					return clusteroperationv1alpha1.SucceededStatus, nil
 				})
-				resultOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				resultOps := &clusteroperationv1alpha1.ClusterOperation{}
 				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
-				if resultOps.Status.Status != kubeanclusteropsv1alpha1.SucceededStatus {
+				if resultOps.Status.Status != clusteroperationv1alpha1.SucceededStatus {
 					return false
 				}
-				return err == nil && !needRequeue && ops.Status.Status == kubeanclusteropsv1alpha1.SucceededStatus && ops.Status.EndTime != nil
+				return err == nil && !needRequeue && ops.Status.Status == clusteroperationv1alpha1.SucceededStatus && ops.Status.EndTime != nil
 			},
 			want: true,
 		},
 		{
 			name: "the status is Running and the result of fetchJobStatus is still Failed",
-			args: func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) bool {
+			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
 				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
-				ops.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
+				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *kubeanclusteropsv1alpha1.KuBeanClusterOps) (kubeanclusteropsv1alpha1.OpsStatus, error) {
-					return kubeanclusteropsv1alpha1.FailedStatus, nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
+					return clusteroperationv1alpha1.FailedStatus, nil
 				})
-				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == kubeanclusteropsv1alpha1.FailedStatus
+				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == clusteroperationv1alpha1.FailedStatus
 			},
 			want: true,
 		},
@@ -130,7 +130,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 func TestCompareSalt(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
-	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	ops.Spec.BackoffLimit = 12
@@ -177,7 +177,7 @@ func TestCompareSalt(t *testing.T) {
 func TestUpdateClusterOpsStatusSalt(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
-	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	ops.Spec.BackoffLimit = 12
@@ -225,7 +225,7 @@ func TestUpdateClusterOpsStatusSalt(t *testing.T) {
 func TestUpdateStatusHasModified(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
-	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	ops.Spec.BackoffLimit = 12
@@ -294,13 +294,13 @@ func TestUpdateStatusHasModified(t *testing.T) {
 
 func TestCalSalt(t *testing.T) {
 	controller := Controller{}
-	ops := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
-	ops.Spec.KuBeanCluster = "123456789"
+	ops := clusteroperationv1alpha1.ClusterOperation{}
+	ops.Spec.Cluster = "123456789"
 	ops.Spec.ActionType = "1"
 	ops.Spec.Action = "2"
 	ops.Spec.BackoffLimit = 3
 	ops.Spec.Image = "4"
-	ops.Spec.PreHook = []kubeanclusteropsv1alpha1.HookAction{
+	ops.Spec.PreHook = []clusteroperationv1alpha1.HookAction{
 		{
 			ActionType: "11",
 			Action:     "22",
@@ -310,7 +310,7 @@ func TestCalSalt(t *testing.T) {
 			Action:     "33",
 		},
 	}
-	ops.Spec.PostHook = []kubeanclusteropsv1alpha1.HookAction{
+	ops.Spec.PostHook = []clusteroperationv1alpha1.HookAction{
 		{
 			ActionType: "55",
 			Action:     "66",
@@ -319,20 +319,20 @@ func TestCalSalt(t *testing.T) {
 	targetSaltValue := controller.CalSalt(&ops)
 	tests := []struct {
 		name string
-		args func(kubeanclusteropsv1alpha1.KuBeanClusterOps) string
+		args func(clusteroperationv1alpha1.ClusterOperation) string
 		want bool
 	}{
 		{
 			name: "change clusterName",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
-				ops.Spec.KuBeanCluster = "ok1"
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
+				ops.Spec.Cluster = "ok1"
 				return controller.CalSalt(&ops)
 			},
 			want: false,
 		},
 		{
 			name: "change actionType",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.ActionType = "luck"
 				return controller.CalSalt(&ops)
 			},
@@ -340,7 +340,7 @@ func TestCalSalt(t *testing.T) {
 		},
 		{
 			name: "change action",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.Action = "ok123"
 				return controller.CalSalt(&ops)
 			},
@@ -348,7 +348,7 @@ func TestCalSalt(t *testing.T) {
 		},
 		{
 			name: "change backoff",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.BackoffLimit = 100
 				return controller.CalSalt(&ops)
 			},
@@ -356,7 +356,7 @@ func TestCalSalt(t *testing.T) {
 		},
 		{
 			name: "change image",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.Image = "image123"
 				return controller.CalSalt(&ops)
 			},
@@ -364,14 +364,14 @@ func TestCalSalt(t *testing.T) {
 		},
 		{
 			name: "unchanged",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				return controller.CalSalt(&ops)
 			},
 			want: true,
 		},
 		{
 			name: "change postHook",
-			args: func(ops kubeanclusteropsv1alpha1.KuBeanClusterOps) string {
+			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.PostHook[0].ActionType = "ok12qaz"
 				return controller.CalSalt(&ops)
 			},
@@ -390,7 +390,7 @@ func TestCalSalt(t *testing.T) {
 
 func TestController_SetOwnerReferences(t *testing.T) {
 	cm := corev1.ConfigMap{}
-	ops := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	ops := &clusteroperationv1alpha1.ClusterOperation{}
 	ops.UID = "this is uid"
 	controller := Controller{}
 	controller.SetOwnerReferences(&cm.ObjectMeta, ops)
@@ -404,7 +404,7 @@ func TestController_SetOwnerReferences(t *testing.T) {
 
 func TestNewKubesprayJob(t *testing.T) {
 	controller := Controller{}
-	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
 	clusterOps.Spec.Image = "myimage"
@@ -457,7 +457,7 @@ func TestNewKubesprayJob(t *testing.T) {
 
 func TestCurrentJobNeedBlock(t *testing.T) {
 	controller := Controller{}
-	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	clusterOps.Name = "the target one clusterOps"
 	clusterOps.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
 	testCases := []struct {
@@ -468,7 +468,7 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it occurs error",
 			args: func() bool {
-				_, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+				_, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
 					return nil, fmt.Errorf("error")
 				})
 				return err == nil
@@ -478,7 +478,7 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns none jobs running before the target clusterOps",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
 					return nil, nil
 				})
 				return err == nil && !needBlock
@@ -488,14 +488,14 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns none jobs running before the target clusterOps again",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -504,14 +504,14 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs running before the target clusterOps",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && needBlock
 			},
@@ -520,15 +520,15 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs running before the target clusterOps with the same createTime",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
-					ops1.Status.Status = kubeanclusteropsv1alpha1.RunningStatus
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Status.Status = clusteroperationv1alpha1.RunningStatus
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -537,16 +537,16 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs completed before the target clusterOps",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
-					ops1.Status.Status = kubeanclusteropsv1alpha1.SucceededStatus
+					ops1.Status.Status = clusteroperationv1alpha1.SucceededStatus
 					ops1.Status.JobRef = &apis.JobRef{Name: "ok", NameSpace: "ok"}
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -555,16 +555,16 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs failed before the target clusterOps",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
-					ops1.Status.Status = kubeanclusteropsv1alpha1.FailedStatus
+					ops1.Status.Status = clusteroperationv1alpha1.FailedStatus
 					ops1.Status.JobRef = &apis.JobRef{Name: "ok", NameSpace: "ok"}
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -573,15 +573,15 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs blocked before the target clusterOps",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(0)}
-					ops1.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Status.Status = clusteroperationv1alpha1.BlockedStatus
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && needBlock
 			},
@@ -590,15 +590,15 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 		{
 			name: "it returns some jobs blocked at the same createTime",
 			args: func() bool {
-				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]kubeanclusteropsv1alpha1.KuBeanClusterOps, error) {
-					ops1 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+				needBlock, err := controller.CurrentJobNeedBlock(clusterOps, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					ops1 := clusteroperationv1alpha1.ClusterOperation{}
 					ops1.Name = "ops1"
 					ops1.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000)}
-					ops1.Status.Status = kubeanclusteropsv1alpha1.BlockedStatus
-					ops2 := kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+					ops1.Status.Status = clusteroperationv1alpha1.BlockedStatus
+					ops2 := clusteroperationv1alpha1.ClusterOperation{}
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
-					return []kubeanclusteropsv1alpha1.KuBeanClusterOps{ops1, ops2}, nil
+					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -675,10 +675,10 @@ func TestCreateKubeSprayJob(t *testing.T) {
 	controller := Controller{
 		Client:              newFakeClient(),
 		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
 	}
-	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
 	clusterOps.Spec.Image = "myimage"
@@ -721,8 +721,8 @@ func Test_CheckConfigMapExist(t *testing.T) {
 	controller := Controller{
 		Client:              newFakeClient(),
 		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -770,8 +770,8 @@ func Test_CheckSecretExist(t *testing.T) {
 	controller := Controller{
 		Client:              newFakeClient(),
 		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -819,15 +819,15 @@ func Test_CheckClusterDataRef(t *testing.T) {
 	controller := Controller{
 		Client:              newFakeClient(),
 		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    kubeanclusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: kubeanclusteropsv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
 	}
-	cluster := &kubeanclusterv1alpha1.KuBeanCluster{
+	cluster := &clusterv1alpha1.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my_kubean_cluster",
 		},
 	}
-	clusterOps := &kubeanclusteropsv1alpha1.KuBeanClusterOps{
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "my_kubean_ops_cluster",
 		},

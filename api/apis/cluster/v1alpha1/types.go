@@ -53,7 +53,7 @@ const (
 )
 
 type ClusterCondition struct {
-	// ClusterOps refers to the name of KuBeanClusterOps.
+	// ClusterOps refers to the name of ClusterOperation.
 	// +required
 	ClusterOps string `json:"clusterOps"`
 	// +optional
@@ -77,6 +77,6 @@ type ClusterList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
-	// Items holds a list of KuBeanCluster.
+	// Items holds a list of Cluster.
 	Items []Cluster `json:"items"`
 }

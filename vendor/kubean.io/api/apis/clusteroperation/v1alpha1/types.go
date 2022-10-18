@@ -34,9 +34,9 @@ const (
 
 // Spec defines the desired state of a member cluster.
 type Spec struct {
-	// KuBeanCluster the name of KuBeanCluster.
+	// Cluster the name of Cluster.kubean.io.
 	// +required
-	KuBeanCluster string `json:"kuBeanCluster"`
+	Cluster string `json:"cluster"`
 	// HostsConfRef will be filled by operator when it performs backup.
 	// +optional
 	HostsConfRef *apis.ConfigMapRef `json:"hostsConfRef"`
@@ -114,6 +114,6 @@ type ClusterOperationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
-	// Items holds a list of KuBeanClusterOps.
+	// Items holds a list of ClusterOperation.
 	Items []ClusterOperation `json:"items"`
 }

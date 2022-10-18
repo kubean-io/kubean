@@ -47,6 +47,9 @@ spec:
                 type: string
               backoffLimit:
                 type: integer
+              cluster:
+                description: Cluster the name of Cluster.kubean.io.
+                type: string
               entrypointSHRef:
                 description: EntrypointSHRef will be filled by operator when it renders
                   entrypoint.sh.
@@ -74,9 +77,6 @@ spec:
                 - namespace
                 type: object
               image:
-                type: string
-              kuBeanCluster:
-                description: KuBeanCluster the name of KuBeanCluster.
                 type: string
               postHook:
                 items:
@@ -134,8 +134,8 @@ spec:
             - action
             - actionType
             - backoffLimit
+            - cluster
             - image
-            - kuBeanCluster
             type: object
           status:
             description: Status contains information about the current status of a

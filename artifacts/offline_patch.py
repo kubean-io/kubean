@@ -16,7 +16,7 @@ MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
 
 OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
-                                                     "artifacts/template/kubeanofflineversion.template.yml"))
+                                                     "artifacts/template/localartifactset.template.yml"))
 
 FILE_LIST_TEMP_PATH = os.path.join(KUBESPRAY_DIR, "contrib/offline/temp/files.list")
 IMAGE_LIST_TEMP_PATH = os.path.join(KUBESPRAY_DIR, "contrib/offline/temp/images.list")

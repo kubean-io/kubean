@@ -177,11 +177,11 @@ sslverify=0
 
 ``` yaml
 apiVersion: kubean.io/v1alpha1
-kind: KuBeanClusterOps
+kind: ClusterOperation
 metadata:
   name: cluster-ops-01
 spec:
-  kuBeanCluster: sample
+  cluster: sample
   image: ghcr.io/kubean-io/spray-job:latest
   backoffLimit: 0
   actionType: playbook
