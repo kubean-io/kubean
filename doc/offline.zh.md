@@ -169,7 +169,7 @@ sslverify=0
 
 > 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
 
-### 3. KubeanClusterOps 结合 playbook 创建源配置文件
+### 3. ClusterOperation 结合 playbook 创建源配置文件
 
 > 当前仅支持 Centos yum repo 的添加
 
@@ -281,4 +281,4 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 同时我们还需要修改 `artifacts/offlineDemo/hosts-conf-cm.yml` 中的集群节点 IP 及用户名密码,
 
-最终, 通过 `kubectl apply -f artifacts/offlineDemo` 启动 kubeanClusterOps 任务来安装 k8s 集群.
+最终, 通过 `kubectl apply -f artifacts/offlineDemo` 启动 ClusterOperation 任务来安装 k8s 集群.
