@@ -102,9 +102,6 @@ type Status struct {
 	// HasModified indicates the spec has been modified by others after created.
 	// +optional
 	HasModified bool `json:"hasModified,omitempty"`
-	// KubeConfig will be modified by the job completed successfully and operator fetch the kubeconfig of the new k8s cluster.
-	// +optional
-	KubeConfig string `json:"kubeConfig,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
