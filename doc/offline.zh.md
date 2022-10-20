@@ -3,7 +3,11 @@
 ## 准备事项
 
 1. 需要预先部署的服务:
-
+* 通过helm提前部署好kubean
+```
+  helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+  helm install kubean kubean-io/kubean --create-namespace -n kubean-system
+```
 * 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
 * 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)
   或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
