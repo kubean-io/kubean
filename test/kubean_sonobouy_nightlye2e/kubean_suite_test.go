@@ -1,4 +1,4 @@
-package kubean_add_remove_worker_e2e
+package kubean_sonobouy_nightlye2e
 
 import (
 	"testing"

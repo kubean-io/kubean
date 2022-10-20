@@ -1,4 +1,4 @@
-package kubean_sonobouy_e2e
+package kubean_sonobouy_nightlye2e
 
 import (
 	"context"

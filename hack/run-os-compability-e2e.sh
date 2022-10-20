@@ -1,32 +1,24 @@
-#!/bin/bash -ex
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
 set -e
 
-TARGET_VERSION=${1:-v0.0.0}
-IMAGE_VERSION=${2:-latest}
-HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
-IMG_REPO=${4:-"ghcr.io/kubean-io"}
-SPRAY_JOB_VERSION=${5:-latest}
-RUNNER_NAME=${6:-"kubean-actions-runner1"}
+KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
+HOST_CLUSTER_NAME=${1:-"kubean-host"}
+SPRAY_JOB_VERSION=${2:-latest}
+vm_ip_addr1=${3:-"10.6.127.33"}
+vm_ip_addr2=${4:-"10.6.127.36"}
+MAIN_KUBECONFIG=${MAIN_KUBECONFIG:-"${KUBECONFIG_PATH}/${HOST_CLUSTER_NAME}.config"}
 EXIT_CODE=0
 
-CLUSTER_PREFIX=kubean-"${IMAGE_VERSION}"-$RANDOM
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 source "${REPO_ROOT}"/hack/util.sh
 
-local_helm_repo_alias="kubean_release"
-# add kubean repo locally
-repoCount=$(helm repo list | grep "${local_helm_repo_alias}" && repoCount=true || repoCount=false)
-if [ "$repoCount" == "true" ]; then
-    helm repo remove ${local_helm_repo_alias}
-else
-    echo "repoCount:" $repoCount
-fi
-helm repo add ${local_helm_repo_alias} ${HELM_REPO}
-helm repo update
-helm repo list
-
-chmod +x ./hack/delete-cluster.sh
-chmod +x ./hack/local-up-kindcluster.sh
+echo "==> current dir: "$(pwd)
+GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
+export PATH=$PATH:$GOPATH/bin
 
 # prepare vagrant vm as k8 cluster single node
 vm_clean_up(){
@@ -34,21 +26,7 @@ vm_clean_up(){
     exit $EXIT_CODE
 }
 
-install_sshpass(){
-    local CMD=$(command -v ${1})
-    if [[ ! -x ${CMD} ]]; then
-        echo "Installing sshpass: "
-        wget --no-check-certificate  http://sourceforge.net/projects/sshpass/files/sshpass/1.05/sshpass-1.05.tar.gz
-        tar xvzf sshpass-1.05.tar.gz
-        cd sshpass-1.05
-        ./configure
-        make
-        echo "root" | sudo make install
-        cd ..
-    fi
-}
-
-os_compitable_e2e(){
+os_compability_e2e(){
     KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
     HOST_CLUSTER_NAME="${CLUSTER_PREFIX}"-host
     vagrantfile=${1}
@@ -64,7 +42,7 @@ os_compitable_e2e(){
     utils::create_os_e2e_vms $vagrantfile $vm_ip_addr1 $vm_ip_addr2
 
     echo "==> scp sonobuoy bin to master: "
-    sshpass -p root scp  -o StrictHostKeyChecking=no $(pwd)/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+    sshpass -p root scp -o StrictHostKeyChecking=no $(pwd)/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
     sshpass -p root ssh root@$vm_ip_addr1 "chmod +x /usr/bin/sonobuoy"
 
     # prepare kubean install job yml using containerd
@@ -80,22 +58,13 @@ os_compitable_e2e(){
 
 
 ###### OS compitable e2e logic ########
-trap utils::clean_up EXIT
-./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "kindest/node:v1.21.1" "${CLUSTER_PREFIX}"-host
-utils:runner_ip
-install_sshpass
+utils::install_sshpass sshpass
 os_array=("Vagrantfile_rhel84")
-for (( i=0; i<${#os_array[@]};i++));
-do
-os_compitable_e2e ${os_array[$i]}
-vagrant destroy -f sonobouyDefault
-vagrant destroy -f sonobouyDefault2
+for (( i=0; i<${#os_array[@]};i++)); do
+    os_compability_e2e ${os_array[$i]}
+    vagrant destroy -f sonobouyDefault
+    vagrant destroy -f sonobouyDefault2
 done
-
-ret=$?
-if [ ${ret} -ne 0 ]; then
-  EXIT_CODE=1
-fi
 
 
 

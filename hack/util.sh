@@ -358,3 +358,17 @@ function utils::create_os_e2e_vms(){
     ping -c 5 ${2}
     ping -c 5 ${3}
 }
+
+function utils::install_sshpass(){
+    local CMD=$(command -v ${1})
+    if [[ ! -x ${CMD} ]]; then
+        echo "Installing sshpass: "
+        wget --no-check-certificate http://sourceforge.net/projects/sshpass/files/sshpass/1.05/sshpass-1.05.tar.gz
+        tar xvzf sshpass-1.05.tar.gz
+        cd sshpass-1.05
+        ./configure
+        make
+        echo "root" | sudo make install
+        cd ..
+    fi
+}
