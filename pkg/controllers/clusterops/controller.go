@@ -188,8 +188,12 @@ func IsValidImageName(image string) bool {
 	if len(image) == 0 || strings.Contains(image, " ") {
 		return false
 	}
-	runeSlice := []rune(image)
-	return isNumberOrLetter(runeSlice[0]) && isNumberOrLetter(runeSlice[len(runeSlice)-1])
+	if strings.Contains(image, "/kubespray/") || strings.Contains(image, "/kubean-io/") {
+		//the job image must be kubean offical image: ghcr.io/kubean-io/spray-job or kubespary offical image: quay.io/kubespray/kubespray
+		runeSlice := []rune(image)
+		return isNumberOrLetter(runeSlice[0]) && isNumberOrLetter(runeSlice[len(runeSlice)-1])
+	}
+	return false
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
