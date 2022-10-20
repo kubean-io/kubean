@@ -164,10 +164,6 @@ spec:
                 - name
                 - namespace
                 type: object
-              kubeConfig:
-                description: KubeConfig will be modified by the job completed successfully
-                  and operator fetch the kubeconfig of the new k8s cluster.
-                type: string
               startTime:
                 format: date-time
                 type: string
