@@ -1,4 +1,4 @@
-package kubean_sonobouy_e2e
+package kubean_calico_nightlye2e
 
 import (
 	"testing"

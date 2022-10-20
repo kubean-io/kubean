@@ -35,7 +35,7 @@ sed -i "$ i\  config.vm.network \"public_network\", ip: \"${vm_ip_addr}\", bridg
 vagrant up
 vagrant status
 ping -c 5 ${vm_ip_addr}
-sshpass -p root ssh -o StrictHostKeyChecking=no  root@${vm_ip_addr} cat /proc/version
+sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr} cat /proc/version
 # print vm origin hostname
 echo "before deploy display hostname: "
 sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr} hostname

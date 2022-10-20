@@ -1,4 +1,4 @@
-package kubeanOps_functions_e2e
+package kubeanOps_functions_nightlye2e
 
 import (
 	"context"
