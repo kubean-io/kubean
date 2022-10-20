@@ -43,7 +43,7 @@ jobs:
         id: get_ref
         run: |
           COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
-          echo name=sha=${COMMIT_SHA} >> $GITHUB_OUTPUT
+          echo sha=${COMMIT_SHA} >> $GITHUB_OUTPUT
 
   call-images-build:
     uses: ./.github/workflows/call-images-build.yaml
