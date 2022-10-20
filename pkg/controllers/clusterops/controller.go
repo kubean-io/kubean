@@ -32,6 +32,8 @@ import (
 const (
 	RequeueAfter     = time.Millisecond * 500
 	LoopForJobStatus = time.Second * 3
+	RetryInterval    = time.Millisecond * 200
+	RetryCount       = 3
 )
 
 type Controller struct {
@@ -639,18 +641,40 @@ func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	})
 }
 
-func (c *Controller) CheckConfigMapExist(namespace, name string) bool {
+func (c *Controller) Retry(f func() bool) bool {
+	for i := 0; i < RetryCount; i++ {
+		if f() {
+			return true
+		}
+		time.Sleep(RetryInterval)
+	}
+	return false
+}
+
+func (c *Controller) checkConfigMapExist(namespace, name string) bool {
 	if _, err := c.ClientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{}); err != nil && apierrors.IsNotFound(err) {
 		return false
 	}
 	return true
 }
 
-func (c *Controller) CheckSecretExist(namespace, name string) bool {
+func (c *Controller) CheckConfigMapExist(namespace, name string) bool {
+	return c.Retry(func() bool {
+		return c.checkConfigMapExist(namespace, name)
+	})
+}
+
+func (c *Controller) checkSecretExist(namespace, name string) bool {
 	if _, err := c.ClientSet.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{}); err != nil && apierrors.IsNotFound(err) {
 		return false
 	}
 	return true
+}
+
+func (c *Controller) CheckSecretExist(namespace, name string) bool {
+	return c.Retry(func() bool {
+		return c.checkSecretExist(namespace, name)
+	})
 }
 
 func (c *Controller) CheckClusterDataRef(cluster *clusterv1alpha1.Cluster, clusterOPS *clusteroperationv1alpha1.ClusterOperation) error {

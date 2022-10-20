@@ -958,3 +958,103 @@ func Test_CheckClusterDataRef(t *testing.T) {
 		})
 	}
 }
+
+func Test_GetKuBeanCluster(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "no data",
+			args: func() bool {
+				data, err := controller.GetKuBeanCluster(&clusteroperationv1alpha1.ClusterOperation{Spec: clusteroperationv1alpha1.Spec{Cluster: "cluster1"}})
+				return data == nil && err != nil
+			},
+			want: true,
+		},
+		{
+			name: "data exists",
+			args: func() bool {
+				cluster := &clusterv1alpha1.Cluster{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster2",
+					},
+				}
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), cluster, metav1.CreateOptions{})
+				data, _ := controller.GetKuBeanCluster(&clusteroperationv1alpha1.ClusterOperation{Spec: clusteroperationv1alpha1.Spec{Cluster: "cluster2"}})
+				return data != nil && data.Name == "cluster2"
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CreateEntryPointShellConfigMap(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "EntrypointSHRef not empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Spec.EntrypointSHRef = &apis.ConfigMapRef{
+					NameSpace: "a",
+					Name:      "b",
+				}
+				result, err := controller.CreateEntryPointShellConfigMap(clusterOps)
+				return !result && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "generate new EntrypointSHRef",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Name = "cluster1"
+				clusterOps.Spec.Action = "ping.yml"
+				clusterOps.Spec.ActionType = "playbook"
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{
+					{ActionType: "playbook", Action: "update-hosts.yml", ExtraArgs: "-e ip=\"111.221.33.441123\" -e host=\"my-1.host.jh.com\""},
+				}
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
+					NameSpace: "a",
+					Name:      "abc",
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				result, err := controller.CreateEntryPointShellConfigMap(clusterOps)
+				return result && err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
