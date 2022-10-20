@@ -38,7 +38,7 @@ install_sshpass(){
     local CMD=$(command -v ${1})
     if [[ ! -x ${CMD} ]]; then
         echo "Installing sshpass: "
-        wget http://sourceforge.net/projects/sshpass/files/sshpass/1.05/sshpass-1.05.tar.gz
+        wget --no-check-certificate  http://sourceforge.net/projects/sshpass/files/sshpass/1.05/sshpass-1.05.tar.gz
         tar xvzf sshpass-1.05.tar.gz
         cd sshpass-1.05
         ./configure
@@ -62,16 +62,20 @@ os_compitable_e2e(){
     trap vm_clean_up EXIT
     #prepare master vm
     utils::create_os_e2e_vms $vagrantfile $vm_ip_addr1 $vm_ip_addr2
+
+    echo "==> scp sonobuoy bin to master: "
+    sshpass -p root scp  -o StrictHostKeyChecking=no $(pwd)/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+    sshpass -p root ssh root@$vm_ip_addr1 "chmod +x /usr/bin/sonobuoy"
+
     # prepare kubean install job yml using containerd
     SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
-    cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/
-    cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/
-    cp $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/
-    sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/hosts-conf-cm.yml
-    sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/hosts-conf-cm.yml
-    sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_oscompitable_e2e/e2e-install-cluster/kubeanClusterOps.yml
+    cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_oscompability_e2e/e2e-install-cluster/
+    cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_oscompability_e2e/e2e-install-cluster/
+    sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" $(pwd)/test/kubean_oscompability_e2e/e2e-install-cluster/hosts-conf-cm.yml
+    sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" $(pwd)/test/kubean_oscompability_e2e/e2e-install-cluster/hosts-conf-cm.yml
+    sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_oscompability_e2e/e2e-install-cluster/kubeanClusterOps.yml
     # Run cluster function e2e
-    ginkgo -v -race --fail-fast ./test/kubean_oscompitable_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
+    ginkgo -v -timeout=10h -race --fail-fast ./test/kubean_oscompability_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
 }
 
 

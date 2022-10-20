@@ -1,4 +1,4 @@
-package kubean_oscompitable_e2e
+package kubean_oscompability_e2e
 
 import (
 	"testing"
