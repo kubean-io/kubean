@@ -15,3 +15,8 @@ spec:
       action: ping.yml
     - actionType: playbook
       action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: kubeconfig.yml
+    - actionType: playbook
+      action: cluster-info.yml

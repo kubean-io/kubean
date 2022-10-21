@@ -8,8 +8,6 @@ data:
     # k8s-cluster
     kube_version: "v1.23.7"
     container_manager: containerd
-    containerd_insecure_registries:
-      "10.6.170.10:5000": "http://10.6.170.10:5000"
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico
     kube_network_plugin_multus: false
@@ -35,27 +33,57 @@ data:
     download_force_cache: true
     download_localhost: true
      
-    # offline
-    registry_host: "10.6.170.10:5000"
-    files_repo: "http://10.6.170.10:8080"
-    kube_image_repo: "{{ registry_host }}"
-    gcr_image_repo: "{{ registry_host }}"
-    github_image_repo: "{{ registry_host }}"
-    docker_image_repo: "{{ registry_host }}"
-    quay_image_repo: "{{ registry_host }}"
+    # gcr and kubernetes image repo define
+    gcr_image_repo: "gcr.m.daocloud.io"
+    kube_image_repo: "k8s.m.daocloud.io"
+
+    # docker image repo define
+    docker_image_repo: "docker.m.daocloud.io"
+
+    # quay image repo define
+    quay_image_repo: "quay.m.daocloud.io"
+
+    # github image repo define (ex multus only use that)
+    github_image_repo: "ghcr.m.daocloud.io"
+
+    files_repo: "https://files.m.daocloud.io"
+
+    ## Kubernetes components
     kubeadm_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
     kubectl_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
     kubelet_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
+
+    ## CNI Plugins
     cni_download_url: "{{ files_repo }}/github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
+
+    ## cri-tools
     crictl_download_url: "{{ files_repo }}/github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+
+    ## [Optional] etcd: only if you **DON'T** use etcd_deployment=host
     etcd_download_url: "{{ files_repo }}/github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
+
+    # [Optional] Calico: If using Calico network plugin
     calicoctl_download_url: "{{ files_repo }}/github.com/projectcalico/calico/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
     calicoctl_alternate_download_url: "{{ files_repo }}/github.com/projectcalico/calicoctl/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
-    calico_crds_download_url: "https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
+    # [Optional] Calico with kdd: If using Calico network plugin with kdd datastore
+    calico_crds_download_url: "{{ files_repo }}/github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
+
+    # [Optional] Flannel: If using Falnnel network plugin
+    flannel_cni_download_url: "{{ files_repo }}/kubernetes/flannel/{{ flannel_cni_version }}/flannel-{{ image_arch }}"
+
+    # [Optional] helm: only if you set helm_enabled: true
     helm_download_url: "{{ files_repo }}/get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
+
+    # [Optional] crun: only if you set crun_enabled: true
     crun_download_url: "{{ files_repo }}/github.com/containers/crun/releases/download/{{ crun_version }}/crun-{{ crun_version }}-linux-{{ image_arch }}"
+
+    # [Optional] kata: only if you set kata_containers_enabled: true
     kata_containers_download_url: "{{ files_repo }}/github.com/kata-containers/kata-containers/releases/download/{{ kata_containers_version }}/kata-static-{{ kata_containers_version }}-{{ ansible_architecture }}.tar.xz"
+
+    # [Optional] cri-dockerd: only if you set container_manager: docker
+    cri_dockerd_download_url: "{{ files_repo }}/github.com/Mirantis/cri-dockerd/releases/download/v{{ cri_dockerd_version }}/cri-dockerd-{{ cri_dockerd_version }}.{{ image_arch }}.tgz"
+
+    # [Optional] runc,containerd: only if you set container_runtime: containerd
     runc_download_url: "{{ files_repo }}/github.com/opencontainers/runc/releases/download/{{ runc_version }}/runc.{{ image_arch }}"
     containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ image_arch }}.tar.gz"
     nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
-    cri_dockerd_download_url: "{{ files_repo }}/github.com/Mirantis/cri-dockerd/releases/download/v{{ cri_dockerd_version }}/cri-dockerd-{{ cri_dockerd_version }}.{{ image_arch }}.tgz"
