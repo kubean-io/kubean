@@ -189,7 +189,8 @@ func IsValidImageName(image string) bool {
 		return false
 	}
 
-	// the job image must be kubean official image: ghcr.io/kubean-io/spray-job or kubespary official image: quay.io/kubespray/kubespray
+	// the job image must be kubean official image: ghcr.io/kubean-io/spray-job
+	// or kubespary official image: quay.io/kubespray/kubespray
 	if strings.Contains(image, "/kubespray/") || strings.Contains(image, "/kubean-io/") {
 		runeSlice := []rune(image)
 		return isNumberOrLetter(runeSlice[0]) && isNumberOrLetter(runeSlice[len(runeSlice)-1])
