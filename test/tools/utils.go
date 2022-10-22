@@ -19,6 +19,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog/v2"
 )
 
 func GetKuBeanPath() string {
@@ -346,4 +347,14 @@ func CreatVarsCMFile(subStr string) string {
 
 	var groupVarsYamlString = fmt.Sprintf(varsConfCMYml, "v1.23.7", "calico", kubeServiceAddresses, kubePodsSubnet, 24, subStr, internalSource)
 	return groupVarsYamlString
+}
+
+func CheckErr(err error, explain ...string) {
+	if err != nil {
+		if len(explain) > 0 {
+			klog.Fatalf("%s:%s", explain[0], err.Error())
+		} else {
+			klog.Fatal(err)
+		}
+	}
 }
