@@ -3,11 +3,6 @@
 ## 准备事项
 
 1. 需要预先部署的服务:
-* 通过helm提前部署好kubean
-```
-  helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-  helm install kubean kubean-io/kubean --create-namespace -n kubean-system
-```
 * 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
 * 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)
   或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
@@ -16,6 +11,9 @@
 
 * 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)
 * 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
+
+3. 通过Helm部署[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
+
 
 ## 下载离线资源
 
