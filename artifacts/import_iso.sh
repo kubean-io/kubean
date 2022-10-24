@@ -39,7 +39,7 @@ function ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
     mc mb kubeaniominioserver/kubean
-    mc policy set download kubeaniominioserver/kubean
+    mc anonymous set download kubeaniominioserver/kubean
   fi
 }
 
