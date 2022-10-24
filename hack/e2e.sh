@@ -55,14 +55,14 @@ if [ "${E2E_TYPE}" == "PR" ]; then
     if [[ -n $DIFF_NIGHTLYE2E ]] ; then
         ./hack/run-sonobouy-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
     fi
-    # Judge whether to change the compitable case
+    # Judge whether to change the compatibility case
     if [[ -n $DIFF_COMPATIBILE ]] ; then
-        ./hack/run-os-compitable-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
+        ./hack/run-os-compatibility-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
     fi
 elif [ "${E2E_TYPE}" == "NIGHTLY" ]; then
     ./hack/run-sonobouy-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
 else
-    ./hack/run-os-compitable-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
+    ./hack/run-os-compatibility-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
 fi
 
 ret=$?

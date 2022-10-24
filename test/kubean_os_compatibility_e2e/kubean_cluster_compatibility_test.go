@@ -1,4 +1,4 @@
-package kubean_oscompability_e2e
+package kubean_os_compatibility_e2e
 
 import (
 	"context"
