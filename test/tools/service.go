@@ -18,6 +18,13 @@ import (
 	"time"
 )
 
+func CreateClusterByApply(installYamlPath string) {
+	cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", installYamlPath)
+	out, _ := DoCmd(*cmd)
+	klog.Info("create cluster result:", out.String())
+
+}
+
 func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, podName, expectedStatus string) {
 	klog.Info("---- Waiting kubean job-related pod ", podName, " success ----")
 	klog.Info("podName: ", podName)
@@ -137,7 +144,7 @@ func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Dur
 }
 
 func DoSonoBuoyCheck(masterSSH string) {
-	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "10.6.170.10:5000/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
+	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
 		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
 	klog.Info("sonobuoy check cmd: ", subCmd)
 	cmd := RemoteSSHCmdArray(subCmd)
