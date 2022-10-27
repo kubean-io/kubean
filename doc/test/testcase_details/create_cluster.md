@@ -175,7 +175,7 @@
     11. login pod2, ping pod1
 
 
-### Create cluster with calico IPIP_Always tuning mode
+### Create cluster with calico IPIP_CrossSubnet tuning mode
     1. prepare the config file as basic cluster
     2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
     3. set calico tunning mode to IPIP_Always:
@@ -216,7 +216,7 @@
     10. login master node, ping pod2; login worker, ping pod1
     11. login pod2, ping pod1
 
-### Create cluster with calico Vxlan_Always tuning mode
+### Create cluster with calico Vxlan_CrossSubnet tuning mode
     1. prepare the config file as basic cluster
     2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
     3. set calico tunning mode to IPIP_CrossSubnet:

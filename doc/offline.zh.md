@@ -3,7 +3,6 @@
 ## 准备事项
 
 1. 需要预先部署的服务:
-
 * 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
 * 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)
   或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
@@ -12,6 +11,9 @@
 
 * 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)
 * 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
+
+3. 通过Helm部署[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
+
 
 ## 下载离线资源
 
@@ -95,7 +97,8 @@ $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_addre
 
 ### 1. 建立本地 ISO 镜像源
 
-OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地 ISO 镜像源.
+OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地
+ISO 镜像源.
 
 > 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前仅支持 Centos 发行版的 ISO 镜像源创建;
 
@@ -122,7 +125,8 @@ sslverify=0
 
 #### 1.1. 建立在线 ISO 镜像源
 
-将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到 minio server 中
+将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到
+minio server 中
 
 ```bash
 MINIO_USER=${username} MINIO_PASS=${password} ./import_iso.sh ${minio_address} Centos-XXXX.ISO
@@ -145,7 +149,8 @@ sslverify=0
 
 > 当前仅支持 Centos 发行版
 
-在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供. 对此 OS packages 离线包已对其进行了补充, 其在导入 minio 之后,
+在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供. 对此 OS
+packages 离线包已对其进行了补充, 其在导入 minio 之后,
 我们还需要向各个节点创建 extra repo 配置文件.
 
 同样可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
@@ -282,3 +287,60 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 同时我们还需要修改 `artifacts/offlineDemo/hosts-conf-cm.yml` 中的集群节点 IP 及用户名密码,
 
 最终, 通过 `kubectl apply -f artifacts/offlineDemo` 启动 ClusterOperation 任务来安装 k8s 集群.
+
+## 增量离线包
+
+为了满足用户对于某些软件特定版本的需要，kubean提供脚本`artifacts/offline_patch.py`用来根据配置文件`manifest.yml`来生成对应版本的离线包。
+
+### 脚本使用前提:
+TODO: 后续提供docker镜像
+
+* python3 + ansible环境
+* skopeo wget git vim 命令行工具
+
+### 使用步骤:
+
+1. 下载kubean代码 `git clone https://github.com/kubean-io/kubean.git`
+2. `cd kubean`，`git clone https://github.com/kubernetes-sigs/kubespray.git`
+3. 编写`manifest.yml`文件，内容如下:
+
+```yaml
+image_arch:
+  - "amd64"
+  - "arm64"
+kube_version:
+  - "v1.24.6"
+  - "v1.24.4"
+calico_version:
+  - "v3.23.3"
+cni_version:
+  - "v1.1.1"
+containerd_version:
+  - "1.6.8"
+cilium_version:
+  - "v1.12.1"
+etcd_version:
+  - "v3.5.3"
+```
+
+4. 使用`artifacts/offline_patch.py`脚本，执行 `MANIFEST_CONF=manifest.yml  python3 artifacts/offline_patch.py`
+5. 查看增量离线包`v_offline_patch`
+
+```yaml
+v_offline_patch
+├── amd64
+│   ├── files
+│   │   ├── import_files.sh
+│   │   └── offline-files.tar.gz
+│   ├── images
+│   │   ├── import_images.sh
+│   │   └── offline-images.tar.gz
+├── arm64
+│   ├── files
+│   │   ├── import_files.sh
+│   │   └── offline-files.tar.gz
+│   ├── images
+│   │   ├── import_images.sh
+│   │   └── offline-images.tar.gz
+└── kubeanofflineversion.cr.patch.yaml
+```

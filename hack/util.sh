@@ -373,17 +373,17 @@ function utils::install_sshpass(){
     fi
 }
 
-
 function vm_clean_up_by_name(){
-  echo "$# vm to destroy"
-  for ((i=0;i<$#;i++));do
-      echo "destroy vagrant by name list ${1}"
-      vm_id=`vagrant global-status |grep ${1} -w|grep virtualbox|awk '{print $1}'`
-      if [[ -n ${vm_id} ]]; then
-          echo "vmid:" ${vm_id}
-          vagrant destroy -f $vm_id
-      else
-          echo "$1 not exists"
-      fi
-   done
+    echo "$# vm to destroy"
+    for ((i=0;i<$#;i++));do
+        vm=${i}
+        vm_id=`vagrant global-status |grep ${vm} -w|grep virtualbox|awk '{print $1}'`
+        if [[ -n ${vm_id} ]]; then
+            echo "destroy vm: ${vm}  ${vm_id}"
+            vagrant destroy -f $vm_id
+        else
+            echo "${vm} not exists"
+        fi
+     done
+   echo "destroy vagrant vm end."
 }

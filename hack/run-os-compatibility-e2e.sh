@@ -21,7 +21,7 @@ GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 
 # destroy the vm if exist
-vm_clean_up_by_name sonobouyDefault sonobouyDefault2
+trap "vm_clean_up_by_name sonobouyDefault sonobouyDefault2" EXIT
 
 os_compability_e2e(){
     vagrantfile=${1}
