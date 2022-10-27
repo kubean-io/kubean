@@ -246,3 +246,249 @@ func TestPBActionValue(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestEntryPoint_buildPlaybookCmd(t *testing.T) {
+	type fields struct {
+		PreHookCMDs  []string
+		SprayCMD     string
+		PostHookCMDs []string
+		Actions      *Actions
+	}
+	type args struct {
+		action       string
+		extraArgs    string
+		isPrivateKey bool
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "test action not found in playbook.dict",
+			fields: fields{
+				Actions: &Actions{
+					Playbooks: &Playbooks{
+						Dict: map[string]void{},
+					},
+				},
+			},
+			args: args{
+				action: ResetPB,
+			},
+			wantErr: true,
+		},
+		{
+			name:    "test private key case",
+			wantErr: false,
+			fields: fields{
+				Actions: &Actions{
+					Playbooks: &Playbooks{
+						Dict: map[string]void{
+							ResetPB: {},
+						},
+					},
+				},
+			},
+			args: args{
+				action:       ResetPB,
+				isPrivateKey: true,
+			},
+			want: "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
+		},
+		{
+			name:    "test extra args case",
+			wantErr: false,
+			fields: fields{
+				Actions: &Actions{
+					Playbooks: &Playbooks{
+						Dict: map[string]void{
+							ResetPB: {},
+						},
+					},
+				},
+			},
+			args: args{
+				isPrivateKey: true,
+				action:       ResetPB,
+				extraArgs:    "-e \"reset_confirmation=yes\"",
+			},
+			want: "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml -e \"reset_confirmation=yes\"",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ep := &EntryPoint{
+				PreHookCMDs:  tt.fields.PreHookCMDs,
+				SprayCMD:     tt.fields.SprayCMD,
+				PostHookCMDs: tt.fields.PostHookCMDs,
+				Actions:      tt.fields.Actions,
+			}
+			got, err := ep.buildPlaybookCmd(tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("buildPlaybookCmd() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("buildPlaybookCmd() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_entryPoint_hookRunPart(t *testing.T) {
+	type fields struct {
+		PreHookCMDs  []string
+		SprayCMD     string
+		PostHookCMDs []string
+		Actions      *Actions
+	}
+	type args struct {
+		actionType   string
+		action       string
+		extraArgs    string
+		isPrivateKey bool
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "test build playbook cmd failed",
+			fields: fields{
+				Actions: &Actions{
+					Playbooks: &Playbooks{
+						Dict: map[string]void{},
+					},
+				},
+			},
+			args: args{
+				actionType: PBAction,
+				action:     ResetPB,
+			},
+			wantErr: true,
+		},
+		{
+			name: "test build playbook cmd success",
+			fields: fields{
+				Actions: &Actions{
+					Playbooks: &Playbooks{
+						Dict: map[string]void{
+							ResetPB: {},
+						},
+					},
+				},
+			},
+			args: args{
+				actionType:   PBAction,
+				action:       ResetPB,
+				isPrivateKey: true,
+			},
+			wantErr: false,
+			want:    "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
+		},
+		{
+			name: "test shell action case",
+			args: args{
+				actionType: SHAction,
+				action:     ResetPB,
+			},
+			want:    "reset.yml",
+			wantErr: false,
+		},
+		{
+			name: "test unsupported action",
+			fields: fields{
+				Actions: &Actions{},
+			},
+			args: args{
+				actionType: "unknown",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ep := &EntryPoint{
+				PreHookCMDs:  tt.fields.PreHookCMDs,
+				SprayCMD:     tt.fields.SprayCMD,
+				PostHookCMDs: tt.fields.PostHookCMDs,
+				Actions:      tt.fields.Actions,
+			}
+			got, err := ep.hookRunPart(tt.args.actionType, tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("hookRunPart() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("hookRunPart() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntryPoint_Render(t *testing.T) {
+	type fields struct {
+		PreHookCMDs  []string
+		SprayCMD     string
+		PostHookCMDs []string
+		Actions      *Actions
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "test PreHookCMDs not empty case",
+			fields: fields{
+				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
+			},
+			wantErr: false,
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\n\n\n# postinstall\n\n",
+		},
+		{
+			name: "test SprayCMD not empty case",
+			fields: fields{
+				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
+				SprayCMD:    "echo $TEST",
+			},
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\n\n",
+			wantErr: false,
+		},
+		{
+			name: "test PostHookCMDs not empty case",
+			fields: fields{
+				PreHookCMDs:  []string{"cmd1", "cmd2", "cmd3"},
+				SprayCMD:     "echo $TEST",
+				PostHookCMDs: []string{"cmd4"},
+			},
+			wantErr: false,
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\ncmd4\n\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ep := &EntryPoint{
+				PreHookCMDs:  tt.fields.PreHookCMDs,
+				SprayCMD:     tt.fields.SprayCMD,
+				PostHookCMDs: tt.fields.PostHookCMDs,
+				Actions:      tt.fields.Actions,
+			}
+			got, err := ep.Render()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Render() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
