@@ -143,12 +143,15 @@ func (c *Controller) FetchJobStatus(clusterOps *clusteroperationv1alpha1.Cluster
 	if err != nil {
 		return "", err
 	}
-	if targetJob.Status.Failed > 0 {
-		return clusteroperationv1alpha1.FailedStatus, nil
+	// according the job condtions, return success or failed
+	for _, contion := range targetJob.Status.Conditions {
+		if contion.Type == batchv1.JobComplete && contion.Status == corev1.ConditionTrue {
+			return clusteroperationv1alpha1.SucceededStatus, nil
+		} else if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
+			return clusteroperationv1alpha1.FailedStatus, nil
+		}
 	}
-	if targetJob.Status.Succeeded > 0 {
-		return clusteroperationv1alpha1.SucceededStatus, nil
-	}
+
 	return clusteroperationv1alpha1.RunningStatus, nil
 }
 
