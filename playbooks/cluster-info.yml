@@ -10,7 +10,7 @@
         kubectl -n kube-system get pod
         kubectl get --raw='/readyz?verbose'
       register: clusterinfo
-      retries: 3
-      delay: 10
+      retries: 5
+      delay: 30
       until: clusterinfo.rc == 0
     - debug: var=clusterinfo.stdout_lines
