@@ -37,18 +37,25 @@ jobs:
               chmod o-r kubeconfig
               chmod g-r kubeconfig
 
+              # cd to dev
+              make local-chart-to-deploy
+
             elif [ ${{ inputs.ENRIRONMENT_CD }} == 'alpha' ]; then
 
-              # kubeconfig init
               echo 'cd to ${{ inputs.ENRIRONMENT_CD }} '
               echo "${{ secrets.ALPHA_KUBECONFIG }}" > kubeconfig
               chmod o-r kubeconfig
               chmod g-r kubeconfig
 
+              # cd to alpha
+              make local-chart-to-deploy
+
+              echo "${{ secrets.ALPHA_ARM_KUBECONFIG }}" > kubeconfig
+
+              # cd to alpha-arm
+              make local-chart-to-deploy
+              
             else
               echo 'enviroment not exist'
               exit 1
             fi
-
-            # cd
-            make local-chart-to-deploy
