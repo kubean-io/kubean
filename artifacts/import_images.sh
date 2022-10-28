@@ -37,7 +37,7 @@ function import_images() {
   check_local_image_files
 
   for dir_name in offline-images/*; do
-    copy_cmd="skopeo copy -a "
+    copy_cmd="skopeo copy --insecure-policy -a "
     if [ "$DEST_TLS_VERIFY" = false ]; then
       copy_cmd=$copy_cmd" --dest-tls-verify=false "
     fi
