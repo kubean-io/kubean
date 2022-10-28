@@ -32,8 +32,8 @@ import (
 const (
 	RequeueAfter     = time.Millisecond * 500
 	LoopForJobStatus = time.Second * 3
-	RetryInterval    = time.Millisecond * 200
-	RetryCount       = 3
+	RetryInterval    = time.Millisecond * 300
+	RetryCount       = 5
 )
 
 type Controller struct {
