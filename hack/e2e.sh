@@ -39,9 +39,10 @@ chmod +x ./hack/delete-cluster.sh
 chmod +x ./hack/local-up-kindcluster.sh
 chmod +x ./hack/run-e2e.sh
 chmod +x ./hack/run-sonobouy-e2e.sh
+chmod +x ./hack/run-os-compatibility-e2e.sh
 
 DIFF_NIGHTLYE2E=`git show -- '/test/*' | grep nightlye2e || true`
-DIFF_COMPATIBILE=`git show | grep /test/kubean_oscompability_e2e || true`
+DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 
 ####### e2e logic ########
 trap utils::clean_up EXIT
@@ -55,14 +56,14 @@ if [ "${E2E_TYPE}" == "PR" ]; then
     if [[ -n $DIFF_NIGHTLYE2E ]] ; then
         ./hack/run-sonobouy-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
     fi
-    # Judge whether to change the compitable case
+    # Judge whether to change the compatibility case
     if [[ -n $DIFF_COMPATIBILE ]] ; then
-        ./hack/run-os-compitable-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
+        ./hack/run-os-compatibility-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
     fi
 elif [ "${E2E_TYPE}" == "NIGHTLY" ]; then
     ./hack/run-sonobouy-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
 else
-    ./hack/run-os-compitable-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
+    ./hack/run-os-compatibility-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION $vm_ip_addr1 $vm_ip_addr2
 fi
 
 ret=$?

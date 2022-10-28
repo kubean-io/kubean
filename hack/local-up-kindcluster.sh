@@ -2,7 +2,6 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-
 # This script starts a local kubean control plane based on current codebase and with a certain number of clusters joined.
 # Parameters:
 #[KUBEAN_VERSION] kubean helm-chart evision( image and helm versions should be the same)

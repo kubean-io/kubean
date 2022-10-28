@@ -1,10 +1,11 @@
-package kubean_oscompability_e2e
+package kubean_os_compatibility_e2e
 
 import (
 	"context"
 	"fmt"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -30,7 +31,7 @@ var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", f
 	ginkgo.Context("when install a redhat84 cluster using docker", func() {
 
 		clusterInstallYamlsPath := "e2e-install-cluster"
-		kubeanClusterOpsName := "e2e-cluster1-install"
+		kubeanClusterOpsName := tools.ClusterOperationName
 		testClusterName := "cluster1"
 		ginkgo.It("Start create RedHat85 K8S cluster", func() {
 
@@ -42,10 +43,20 @@ var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", f
 			time.Sleep(10 * time.Second)
 
 			// wait kubean create-cluster pod to success.
-			pods, _ := kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-				LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
-			})
-			gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
+			pods := &v1.PodList{}
+			klog.Info("Wait job related pod to be created")
+			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
+			klog.Info("label is: ", labelStr)
+			gomega.Eventually(func() bool {
+				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
+					LabelSelector: labelStr,
+				})
+				if len(pods.Items) > 0 {
+					return true
+				}
+				return false
+			}, 60*time.Second, 5*time.Second).Should(gomega.BeTrue())
+
 			jobPodName := pods.Items[0].Name
 			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
 
