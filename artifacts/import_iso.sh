@@ -55,8 +55,16 @@ function iso_os_version_arch() {
         echo "/centos-iso/7/os/x86_64"
         return
       fi
+      if echo "$path" | grep 'el7.aarch64.rpm' >/dev/null 2>&1; then
+        echo "/centos-iso/7/os/aarch64"
+        return
+      fi
       if echo "$path" | grep 'el8.x86_64.rpm' >/dev/null 2>&1; then
         echo "/centos-iso/8/os/x86_64"
+        return
+      fi
+      if echo "$path" | grep 'el8.aarch64.rpm' >/dev/null 2>&1; then
+        echo "/centos-iso/8/os/aarch64"
         return
       fi
     fi
@@ -80,6 +88,7 @@ function mount_iso_file() {
 }
 
 function import_iso_data() {
+  echo "start push ISO data into minio"
   Minio_Server_PATH=$(iso_os_version_arch)
 
   if [ -z "$Minio_Server_PATH" ]; then
