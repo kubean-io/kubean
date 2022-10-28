@@ -1,4 +1,4 @@
-package kubean_oscompability_e2e
+package kubean_os_compatibility_e2e
 
 import (
 	"context"
@@ -15,24 +15,23 @@ import (
 	"github.com/kubean-io/kubean/test/tools"
 )
 
-var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", func() {
-
-	kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "clientcmd.BuildConfigFromFlags error")
-	kindClient, err := kubernetes.NewForConfig(kindConfig)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "kubernetes.NewForConfig error")
-	localKubeConfigPath := "cluster1-config"
-
-	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
-	var workerSSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
+var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 
 	// do cluster installation within docker
-	ginkgo.Context("when install a redhat84 cluster using docker", func() {
+	ginkgo.Context("when install cluster using docker", func() {
+		kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "clientcmd.BuildConfigFromFlags error")
+		kindClient, err := kubernetes.NewForConfig(kindConfig)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "kubernetes.NewForConfig error")
+		localKubeConfigPath := "cluster1-config"
 
+		var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
+		var workerSSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
 		clusterInstallYamlsPath := "e2e-install-cluster"
-		kubeanClusterOpsName := "e2e-cluster1-install"
+		kubeanClusterOpsName := tools.ClusterOperationName
+
 		testClusterName := "cluster1"
-		ginkgo.It("Start create RedHat85 K8S cluster", func() {
+		ginkgo.It("Start create K8S cluster", func() {
 
 			//Create cluster by apply yaml
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
