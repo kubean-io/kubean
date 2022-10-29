@@ -18,6 +18,17 @@ function generate_offline_dir() {
   mkdir -p $OFFLINE_OSPKGS_DIR
 }
 
+function add_pause_image_addr() {
+  image_list=$1
+  pause_img_addr=$(cat ${image_list} |grep pause)
+  if [ ! -z "${pause_img_addr}" ]; then
+    pause_addr=$(echo ${pause_img_addr}|cut -d: -f1)
+    pause_tag=$(echo ${pause_img_addr}|cut -d: -f2)
+    new_tag=$(awk 'BEGIN{print '${pause_tag}+0.1' }')
+    echo "${pause_addr}:${new_tag}" >> ${image_list}
+  fi
+}
+
 function generate_temp_list() {
   if [ ! -d "kubespray" ]; then
     echo "kubespray git repo should exist."
@@ -31,7 +42,7 @@ function generate_temp_list() {
   remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui|flannel"
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
   cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
-
+  add_pause_image_addr contrib/offline/temp/images.list
   cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
 }
 
