@@ -86,8 +86,19 @@ spec:
                           type: string
                       type: object
                     type: array
-                  registryRepo:
-                    type: string
+                  imageRepo:
+                    properties:
+                      dockerImageRepo:
+                        type: string
+                      gcrImageRepo:
+                        type: string
+                      githubImageRepo:
+                        type: string
+                      kubeImageRepo:
+                        type: string
+                      quayImageRepo:
+                        type: string
+                    type: object
                   yumRepo:
                     items:
                       type: string

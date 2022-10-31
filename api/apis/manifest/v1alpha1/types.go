@@ -43,13 +43,26 @@ type Spec struct {
 
 type LocalService struct {
 	// +optional
-	RegistryRepo string `json:"registryRepo,omitempty" yaml:"registryRepo,omitempty"`
+	ImageRepo ImageRepo `json:"imageRepo,omitempty" yaml:"imageRepo,omitempty"`
 	// +optional
 	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
 	YumRepo []string `json:"yumRepo,omitempty" yaml:"yumRepo,omitempty"`
 	// +optional
 	HostsMap []*HostsMap `json:"hostsMap,omitempty" yaml:"hostsMap,omitempty"`
+}
+
+type ImageRepo struct {
+	// +optional
+	KubeImageRepo string `json:"kubeImageRepo,omitempty" yaml:"kubeImageRepo,omitempty"`
+	// +optional
+	GcrImageRepo string `json:"gcrImageRepo,omitempty" yaml:"gcrImageRepo,omitempty"`
+	// +optional
+	GithubImageRepo string `json:"githubImageRepo,omitempty" yaml:"githubImageRepo,omitempty"`
+	// +optional
+	DockerImageRepo string `json:"dockerImageRepo,omitempty" yaml:"dockerImageRepo,omitempty"`
+	// +optional
+	QuayImageRepo string `json:"quayImageRepo,omitempty" yaml:"quayImageRepo,omitempty"`
 }
 
 type HostsMap struct {
