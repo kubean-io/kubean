@@ -173,8 +173,8 @@ func (c *Controller) UpdateLocalAvailableImage() {
 		return
 	}
 	imageRepo := "ghcr.m.daocloud.io"
-	if len(global.Spec.LocalService.RegistryRepo) != 0 {
-		imageRepo = global.Spec.LocalService.RegistryRepo
+	if len(global.Spec.LocalService.GetGHCRImageRepo()) != 0 {
+		imageRepo = global.Spec.LocalService.GetGHCRImageRepo() // ghcr.io
 	}
 	newImageName := fmt.Sprintf("%s/kubean-io/spray-job:%s", imageRepo, global.Spec.KubeanVersion)
 	if global.Status.LocalAvailable.KubesprayImage != newImageName {

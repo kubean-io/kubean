@@ -87,17 +87,8 @@ spec:
                       type: object
                     type: array
                   imageRepo:
-                    properties:
-                      dockerImageRepo:
-                        type: string
-                      gcrImageRepo:
-                        type: string
-                      githubImageRepo:
-                        type: string
-                      kubeImageRepo:
-                        type: string
-                      quayImageRepo:
-                        type: string
+                    additionalProperties:
+                      type: string
                     type: object
                   yumRepo:
                     items:
