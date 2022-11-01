@@ -43,7 +43,7 @@ type Spec struct {
 
 type LocalService struct {
 	// +optional
-	RegistryRepo string `json:"registryRepo,omitempty" yaml:"registryRepo,omitempty"`
+	ImageRepo map[ImageRepoType]string `json:"imageRepo" yaml:"imageRepo"`
 	// +optional
 	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
@@ -51,6 +51,21 @@ type LocalService struct {
 	// +optional
 	HostsMap []*HostsMap `json:"hostsMap,omitempty" yaml:"hostsMap,omitempty"`
 }
+
+func (localService *LocalService) GetGHCRImageRepo() string {
+	if localService.ImageRepo == nil {
+		return ""
+	}
+	return localService.ImageRepo[GithubImageRepo]
+}
+
+type ImageRepoType string
+
+const KubeImageRepo ImageRepoType = "kubeImageRepo"
+const GCRImageRepo ImageRepoType = "gcrImageRepo"
+const GithubImageRepo ImageRepoType = "githubImageRepo"
+const DockerImageRepo ImageRepoType = "dockerImageRepo"
+const QuayImageRepo ImageRepoType = "quayImageRepo"
 
 type HostsMap struct {
 	// +required

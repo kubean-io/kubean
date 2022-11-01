@@ -86,8 +86,10 @@ spec:
                           type: string
                       type: object
                     type: array
-                  registryRepo:
-                    type: string
+                  imageRepo:
+                    additionalProperties:
+                      type: string
+                    type: object
                   yumRepo:
                     items:
                       type: string
