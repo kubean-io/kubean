@@ -4,6 +4,7 @@ set -eo pipefail
 
 OPTION=${1:-'all'}
 KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}
+KUBE_VERSION=${KUBE_VERSION:-"v1.24.7"}
 
 CURRENT_DIR=$(pwd)
 ARCH=${ARCH:-"amd64"}
@@ -36,7 +37,7 @@ function generate_temp_list() {
   fi
   echo "$CURRENT_DIR/kubespray"
   cd $CURRENT_DIR/kubespray
-  bash contrib/offline/generate_list.sh -e"image_arch=${ARCH}"
+  bash contrib/offline/generate_list.sh -e"image_arch=${ARCH}" -e"kube_version=${KUBE_VERSION}"
 
   # Clean up unused images
   remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui|flannel"
