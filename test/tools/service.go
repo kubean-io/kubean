@@ -18,6 +18,13 @@ import (
 	"time"
 )
 
+func CreateClusterByApply(installYamlPath string) {
+	cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", installYamlPath)
+	out, _ := DoCmd(*cmd)
+	klog.Info("create cluster result:", out.String())
+
+}
+
 func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, podName, expectedStatus string) {
 	klog.Info("---- Waiting kubean job-related pod ", podName, " success ----")
 	klog.Info("podName: ", podName)
@@ -32,7 +39,20 @@ func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, p
 		if podStatus == PodStatusSucceeded {
 			return true
 		} else {
-			gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
+			if podStatus == PodStatusFailed {
+				cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "logs", podName, "-n", "kubean-system")
+				out, _ := DoCmd(*cmd)
+				klog.Info("Get pod log When pod is Error:***")
+				klog.Info("pod log string length: ", len(out.String()))
+				if len(out.String()) > 10000 {
+					klog.Info(out.String()[(len(out.String()) - 10000):len(out.String())])
+				} else {
+					klog.Info(out.String())
+				}
+				gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
+			} else {
+				return false
+			}
 		}
 		return false
 	}, 300*time.Minute, 1*time.Minute).Should(gomega.BeTrue())
@@ -137,7 +157,7 @@ func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Dur
 }
 
 func DoSonoBuoyCheck(masterSSH string) {
-	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "10.6.170.10:5000/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
+	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
 		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
 	klog.Info("sonobuoy check cmd: ", subCmd)
 	cmd := RemoteSSHCmdArray(subCmd)
@@ -151,5 +171,4 @@ func DoSonoBuoyCheck(masterSSH string) {
 	ginkgo.GinkgoWriter.Printf("sonobuoy status result: %s\n", out.String())
 	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("complete"))
 	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("passed"))
-
 }
