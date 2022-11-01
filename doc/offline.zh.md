@@ -82,15 +82,15 @@ $ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_addr
 ``` bash
 os-pkgs
 ├── import_ospkgs.sh              # 该脚本用于导入 os packages 到 minio 文件服务
-├── os-pkgs-v0.1.1-amd64.tar.gz   # amd64 架构的 os packages 包
-├── os-pkgs-v0.1.1-arm64.tar.gz   # arm64 架构的 os packages 包
-└── os-pkgs-v0.1.1.sha256sum.txt  # os packages 包的 sha256sum 效验文件
+├── os-pkgs-amd64.tar.gz   # amd64 架构的 os packages 包
+├── os-pkgs-arm64.tar.gz   # arm64 架构的 os packages 包
+└── os-pkgs.sha256sum.txt  # os packages 包的 sha256sum 效验文件
 ```
 
 执行如下命令, 将 os packages 包到 minio 文件服务中:
 
 ``` bash
-$ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${tag}-${arch}.tar.gz
+$ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${arch}.tar.gz
 ```
 
 ## 建立离线源
