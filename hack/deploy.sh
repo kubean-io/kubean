@@ -49,7 +49,8 @@ if [ "${IMG_VER}" != "" ]; then
 fi
 
 #v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
-KUBEAN_CHART_VERSION="$(echo "${HELM_VER}" |sed  's/^v//g' )"
+# KUBEAN_CHART_VERSION="$(echo "${HELM_VER}" |sed  's/^v//g' )"
+KUBEAN_CHART_VERSION=${HELM_VER}
 
 #ensure kube.conf without group-readable
 chmod 600 ${KUBE_CONF}
