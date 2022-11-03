@@ -3,22 +3,9 @@
 set -o nounset
 set -o pipefail
 
-# checkout command exist
-trivy -v
-if [[ $? != 0 ]];then
-  arch=$(arch)
-  case $(arch) in
-  "x86_64")
-    wget https://github.com/aquasecurity/trivy/releases/download/v0.29.0/trivy_0.29.0_Linux-64bit.tar.gz
-    tar xf trivy_0.29.0_Linux-64bit.tar.gz
-    ;;
-  "aarch64")
-    wget https://github.com/aquasecurity/trivy/releases/download/v0.29.0/trivy_0.29.0_Linux-ARM64.tar.gz
-    tar xf trivy_0.29.0_Linux-ARM64.tar.gz
-    ;;
-  esac
-fi
-mv trivy /usr/local/bin/trivy
+# install trivy
+{ which trivy 2>/dev/null; } || { echo "install trivy now..."; curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin latest; }
+
 trivy -v
 for i in $*
 do
