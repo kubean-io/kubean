@@ -6,6 +6,12 @@
 
 kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray).
 
+[<img src="doc/images/certified-kubernetes-color.png" height=150>](https://github.com/cncf/k8s-conformance/pull/2240)
+<!--
+Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
+-->
+
+
 # Quick Start
 
 ## Deploy Kubean-Operator
