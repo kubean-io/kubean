@@ -6,7 +6,7 @@ OPTION=${1:-'create_localartifactset'} ## create_localartifactset  create_manife
 
 KUBESPRAY_TAG=${KUBESPRAY_TAG:-"v2.19.0"} ## env from github action
 KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}        ## env from github action
-KUBE_VERSION=${KUBE_VERSION:-"v1.24.7"}
+KUBE_VERSION=${KUBE_VERSION:-""}
 
 CURRENT_DIR=$(cd $(dirname $0); pwd) ## artifacts dir
 CURRENT_DATE=$(date +%Y%m%d)
@@ -87,8 +87,13 @@ function update_docker_offline_version() {
 function create_offline_version_cr() {
   cni_version=$(extract_version "cni_version")
   containerd_version=$(extract_version "containerd_version")
-  # kube_version=$(extract_version "kube_version" "kubespray-defaults")
-  kube_version=${KUBE_VERSION}
+
+  if [ -z "${KUBE_VERSION}" ]; then
+    kube_version=$(extract_version "kube_version" "kubespray-defaults")
+  else
+    kube_version=${KUBE_VERSION}
+  fi
+
   calico_version=$(extract_version "calico_version")
   cilium_version=$(extract_version "cilium_version")
   etcd_version=$(extract_etcd_version "$kube_version")
@@ -147,8 +152,12 @@ function create_info_manifest_cr() {
   containerd_version_default=$(extract_version "containerd_version")
   containerd_version_range=$(extract_version_range ".containerd_archive_checksums.amd64")
 
-  # kube_version_default=$(extract_version "kube_version" "kubespray-defaults")
-  kube_version_default=${kube_version}
+  if [ -z "${KUBE_VERSION}" ]; then
+    kube_version_default=$(extract_version "kube_version" "kubespray-defaults")
+  else
+    kube_version_default=${KUBE_VERSION}
+  fi
+
   kube_version_range=$(extract_version_range ".kubelet_checksums.amd64")
 
   calico_version_default=$(extract_version "calico_version")

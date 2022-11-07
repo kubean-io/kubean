@@ -7,6 +7,9 @@ on:
         required: true
         type: string
 
+env:
+  KUBE_VERSION: v1.24.7
+
 jobs:
   offline-build:
     runs-on: ubuntu-latest
@@ -36,6 +39,7 @@ jobs:
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
         KUBESPRAY_TAG: ${{ env.SPRAY_SHA_SHORT }}
+        KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
         bash artifacts/manage_version_cr.sh create_localartifactset
@@ -60,6 +64,7 @@ jobs:
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
         ARCH: amd64
+        KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
         bash artifacts/generate_offline_package.sh all
@@ -75,6 +80,7 @@ jobs:
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
         ARCH: arm64
+        KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
         bash artifacts/generate_offline_package.sh all
