@@ -44,7 +44,7 @@ function import_images() {
     if [ -n "$DEST_USER" ]; then
       copy_cmd=$copy_cmd" --dest-creds=$DEST_USER:$DEST_PASS "
     fi
-    ## dir:offline-images/coreos%etcd:v3.5.4 docker://1.2.3.4:5000/coreos/etcd:v3.5.4
+    ## dir:offline-images/abc.com%coreos%etcd:v3.5.4 docker://1.2.3.4:5000/abc.com/coreos/etcd:v3.5.4
     image_name=${dir_name#*/}      # remove dir prefix
     image_name=${image_name//%/\/} # replace % with /
     image_name="$REGISTRY_ADDR"/"$image_name"
