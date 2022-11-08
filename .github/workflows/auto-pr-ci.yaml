@@ -11,6 +11,7 @@ env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
+  AIRGAP_PATCH_IMAGE_NAME: airgap-patch
   KUBESPRAY_TAG: latest
 
 jobs:
@@ -49,7 +50,7 @@ jobs:
           args: --timeout=10m
 
   unit-test:
-    needs: [static-check,get_ref]
+    needs: [ static-check,get_ref ]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -70,7 +71,7 @@ jobs:
           make test
 
   build-push-for-e2e:
-    needs: [unit-test,get_ref]
+    needs: [ unit-test,get_ref ]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -109,6 +110,7 @@ jobs:
           echo VERSION=$VERSION
           docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
       - name: spray-job Build image
         run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
 
@@ -124,8 +126,23 @@ jobs:
           docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
+      - name: airgap-patch Build image
+        run: docker build . --file ./build/images/$AIRGAP_PATCH_IMAGE_NAME/Dockerfile --tag $AIRGAP_PATCH_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
+
+      - name: airgap-patch Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$AIRGAP_PATCH_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $AIRGAP_PATCH_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
   e2e:
-    needs: [build-push-for-e2e,get_ref]
+    needs: [ build-push-for-e2e,get_ref ]
     runs-on: self-hosted
     permissions:
       packages: write
