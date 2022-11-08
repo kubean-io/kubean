@@ -13,14 +13,14 @@ data:
           ansible_host: IP1
           ansible_connection: ssh
           ansible_user: who
-          ansible_ssh_pass: xxx
+          ansible_password: xxx
         node2:
           ip: IP2
           access_ip: IP2
           ansible_host: IP2
           ansible_connection: ssh
           ansible_user: who
-          ansible_ssh_pass: xxx
+          ansible_password: xxx
       children:
         kube_control_plane:
           hosts:
