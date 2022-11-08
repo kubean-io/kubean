@@ -13,6 +13,10 @@ jobs:
             dockerfile: build/os-packages/Dockerfile.centos7
           - name: redhat8
             dockerfile: build/os-packages/Dockerfile.redhat8
+          - name: ubuntu1804
+            dockerfile: build/os-packages/Dockerfile.ubuntu1804
+          - name: ubuntu2004
+            dockerfile: build/os-packages/Dockerfile.ubuntu2004
     steps:
       - name: Checkout
         uses: actions/checkout@v3
