@@ -67,6 +67,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: airgap-patch image build
+        uses: docker/build-push-action@v3.1.1
+        with:
+          context: ./
+          file: ./build/images/airgap-patch/Dockerfile
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push: true
+          platforms: ${{ env.BUILD_PLATFORM }}
+          tags: |
+            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:${{ github.ref_name }}
+            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:latest
+          build-args: |
+            SPRAY_TAG=${{ needs.output-variable.outputs.image_tag_short_sha }}
+            REPO=${{ needs.output-variable.outputs.repo }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: spray-job image build
         uses: docker/build-push-action@v3.1.1
         with:
