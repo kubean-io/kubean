@@ -21,6 +21,8 @@ const (
 	KubeanNamespace     = "kubean-system"
 	KubeSystemNamespace = "kube-system"
 	DefaultNamespace    = "default"
+	TestClusterName     = "cluster1"
+	LocalKubeConfigPath = "cluster1-config"
 )
 
 func init() {
