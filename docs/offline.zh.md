@@ -288,59 +288,6 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 最终, 通过 `kubectl apply -f artifacts/offlineDemo` 启动 ClusterOperation 任务来安装 k8s 集群.
 
-## 增量离线包
+## 增量离线包的生成和使用
 
-为了满足用户对于某些软件特定版本的需要，kubean提供脚本`artifacts/offline_patch.py`用来根据配置文件`manifest.yml`来生成对应版本的离线包。
-
-### 脚本使用前提:
-TODO: 后续提供docker镜像
-
-* python3 + ansible环境
-* skopeo wget git vim 命令行工具
-
-### 使用步骤:
-
-1. 下载kubean代码 `git clone https://github.com/kubean-io/kubean.git`
-2. `cd kubean`，`git clone https://github.com/kubernetes-sigs/kubespray.git`
-3. 编写`manifest.yml`文件，内容如下:
-
-```yaml
-image_arch:
-  - "amd64"
-  - "arm64"
-kube_version:
-  - "v1.24.6"
-  - "v1.24.4"
-calico_version:
-  - "v3.23.3"
-cni_version:
-  - "v1.1.1"
-containerd_version:
-  - "1.6.8"
-cilium_version:
-  - "v1.12.1"
-etcd_version:
-  - "v3.5.3"
-```
-
-4. 使用`artifacts/offline_patch.py`脚本，执行 `MANIFEST_CONF=manifest.yml  python3 artifacts/offline_patch.py`
-5. 查看增量离线包`v_offline_patch`
-
-```yaml
-v_offline_patch
-├── amd64
-│   ├── files
-│   │   ├── import_files.sh
-│   │   └── offline-files.tar.gz
-│   ├── images
-│   │   ├── import_images.sh
-│   │   └── offline-images.tar.gz
-├── arm64
-│   ├── files
-│   │   ├── import_files.sh
-│   │   └── offline-files.tar.gz
-│   ├── images
-│   │   ├── import_images.sh
-│   │   └── offline-images.tar.gz
-└── kubeanofflineversion.cr.patch.yaml
-```
+详细文档见[airgap_patch_usage](airgap_patch_usage.md)
