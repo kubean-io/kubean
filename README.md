@@ -8,7 +8,7 @@
 
   <p>
 
-[<img src="doc/images/certified-kubernetes-color.png" height=150>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/images/certified-kubernetes-color.png" height=150>](https://github.com/cncf/k8s-conformance/pull/2240)
 <!--
 Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
 -->
@@ -26,8 +26,8 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 [![main workflow](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml/badge.svg)](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml)
 [![codecov](https://codecov.io/gh/kubean-io/kubean/branch/main/graph/badge.svg?token=8FX807D3QQ)](https://codecov.io/gh/kubean-io/kubean)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6263/badge)](https://bestpractices.coreinfrastructure.org/projects/6263)
-[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md)
-[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage2.svg)](https://github.com/kubean-io/kubean/blob/main/doc/test/kubean_testcase.md)
+[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage.svg)](https://github.com/kubean-io/kubean/blob/main/docs/test/kubean_testcase.md)
+[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage2.svg)](https://github.com/kubean-io/kubean/blob/main/docs/test/kubean_testcase.md)
 [![license](https://img.shields.io/badge/license-AL%202.0-blue)](https://github.com/kubean-io/kubean/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/kubean-io/kubean)](https://goreportcard.com/report/github.com/kubean-io/kubean)
 
@@ -57,8 +57,8 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
   3. `kubectl apply -f demo/` to start kubeanClusterOps which will start the kubespray job
   4. `kubectl get job -n kubean-system` to check the kubespray job status
 
-[![quick_start_image](doc/images/quick_start.gif)](https://asciinema.org/a/511386)
+[![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
 
 ## Offline Usage
 
-[offline](doc/offline.md)
+[offline](docs/offline.md)
