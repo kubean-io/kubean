@@ -26,7 +26,7 @@ var hostsYaml = `
           ansible_host: %s
           ansible_connection: ssh
           ansible_user: %s
-          ansible_ssh_pass: %s
+          ansible_password: %s
       children:
         kube_control_plane:
           hosts:
