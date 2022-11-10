@@ -294,4 +294,4 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ## 增量离线包的生成和使用
 
-详细文档见[airgap_patch_usage](airgap_patch_usage.md)
+详细文档见[airgap_patch_usage.md](airgap_patch_usage.md)
