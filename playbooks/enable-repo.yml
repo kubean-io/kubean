@@ -8,6 +8,9 @@
     yum_repo_bak_path: /etc/yum.repos.d.bak
     yum_repo_url_list: []
   tasks:
+
+    # Install
+
     - name: Checking if "{{ yum_repo_name }}" exists
       stat:
         path: "{{ yum_repo_src_path }}/{{ yum_repo_name }}.repo"
@@ -22,6 +25,7 @@
       when: 
         - ansible_facts['os_family'] == "RedHat"
         - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
+        - not undo|default(false)|bool
 
     - name: Enable "{{ yum_repo_name }}" yum repositories
       ansible.builtin.yum_repository:
@@ -36,3 +40,43 @@
         index_var: url_index
       when:
         - ansible_facts['os_family'] == "RedHat"
+        - not undo|default(false)|bool
+
+    # Uninstall
+
+    - name: Clean extension repo
+      shell: >
+        rm -rf {{ yum_repo_src_path }}/{{ yum_repo_name }}.repo
+      args:
+        executable: /bin/bash
+      register: clean_repo_result
+      until: clean_repo_result.rc == 0
+      retries: 5
+      delay: 5
+      when:
+        - undo|default(false)|bool
+        - ansible_facts['os_family'] == "RedHat"
+        - file_data.stat.exists
+
+    - name: Checking if "{{ yum_repo_bak_path }}" exists
+      stat:
+        path: "{{ yum_repo_bak_path }}"
+      register: repo_bak_path
+      when:
+        - undo|default(false)|bool
+        - ansible_facts['os_family'] == "RedHat"
+
+    - name: Restore "{{ yum_repo_src_path }}" repo
+      shell: >
+        mv {{ yum_repo_bak_path }}/* {{ yum_repo_src_path }}/ &&
+        rm -rf {{ yum_repo_bak_path }}
+      args:
+        executable: /bin/bash
+      register: restore_repo_result
+      until: restore_repo_result.rc == 0
+      retries: 5
+      delay: 5
+      when:
+        - undo|default(false)|bool
+        - ansible_facts['os_family'] == "RedHat"
+        - repo_bak_path.stat.exists
