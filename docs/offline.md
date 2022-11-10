@@ -1,5 +1,7 @@
 # Offline Usage
 
+> English | [中文](zh/offline.md)
+
 The `kubean` project can be divided into three functions, `generating offline package`
 , `importing offline package to minio and registry` and `installing k8s`.
 
