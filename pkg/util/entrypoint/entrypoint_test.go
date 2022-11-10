@@ -149,8 +149,8 @@ var testData = `
   input:
     actionType: playbook
     action: kubeconfig.yml
-    extraArgs: "-e postback_undo=true"
-  matchString: "/kubespray/kubeconfig.yml -e postback_undo=true"
+    extraArgs: "-e undo=true"
+  matchString: "/kubespray/kubeconfig.yml -e undo=true"
   output: true
 
 - message: "Check entrypoint script cmd concatenation"

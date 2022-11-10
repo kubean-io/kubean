@@ -203,6 +203,10 @@ spec:
   postHook:
     - actionType: playbook
       action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群后, 还原各节点 yum repo 配置. (注：此步骤, 可视情况添加.)
+      extraArgs: |
+        -e undo=true
 ```
 
 ## 部署集群前的配置
