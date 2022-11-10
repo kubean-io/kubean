@@ -84,19 +84,19 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			klog.Info("5.4 CNI check2: execute ls -al /etc,the output should not contain cni")
 			gomega.Expect(out3.String()).ShouldNot(gomega.ContainSubstring("cni"))
 
-			/*			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/root"})
-						out4, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
-						klog.Info("5.6 k8s config file check: execute ls -al /root, the output should not contain .kube")
-						gomega.Expect(out4.String()).ShouldNot(gomega.ContainSubstring(".kube"))
+			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/root"})
+			out4, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
+			klog.Info("5.6 k8s config file check: execute ls -al /root, the output should not contain .kube")
+			gomega.Expect(out4.String()).ShouldNot(gomega.ContainSubstring(".kube"))
 
-						newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/usr/local/bin"})
-						out5, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
-						klog.Info("5.7 kubelet check: execute ls -al /usr/local/bin, the output should not contain kubelet")
-						gomega.Expect(out5.String()).ShouldNot(gomega.ContainSubstring("kubelet"))*/
+			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/usr/local/bin"})
+			out5, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
+			klog.Info("5.7 kubelet check: execute ls -al /usr/local/bin, the output should not contain kubelet")
+			gomega.Expect(out5.String()).ShouldNot(gomega.ContainSubstring("kubelet"))
 		})
 
 		// Create cluster after reset
-		ginkgo.It("Create cluster after reset with Docker CRI", func() {
+		ginkgo.It("[bug] Create cluster after reset with Docker CRI", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
