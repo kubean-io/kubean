@@ -45,8 +45,8 @@ $ ls /root/.ssh/id_rsa* -lh
 # 比如指定将公钥分发至 `192.168.10.11` `192.168.10.12` 两个节点
 $ declare -a IPS=(192.168.10.11 192.168.10.12)
 
-# 遍历节点 IP 分发公钥，假设用户名为: root, 密码为: kubean
-$ for ip in ${IPS[@]}; do sshpass -p "kubean" ssh-copy-id -o StrictHostKeyChecking=no root@$ip; done
+# 遍历节点 IP 分发公钥(/root/.ssh/id_rsa.pub)，假设用户名为: root, 密码为: kubean
+$ for ip in ${IPS[@]}; do sshpass -p "kubean" ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@$ip; done
 ```
 
 ## 使用私钥制作Secret
