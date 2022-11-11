@@ -2,13 +2,13 @@
 
 Kubean 的整体架构如下所示：
 
-![kubean-architecture](images/kubean-architecture.png)
+![kubean-architecture](../images/kubean-architecture.png)
 
 Kubean 需要运行在一个已存在的 Kubernetes 集群，通过应用 Kubean 提供的标准 CRD 资源和 Kubernetes 内建资源来控制和管理集群的生命周期（安装、卸载、升级、扩容、缩容等）。 Kubean 采用 Kubespray 作为底层技术依赖，一方面简化了集群部署的操作流程，降低了用户的使用门槛。另一方面在 Kubespray 能力基础上增加了集群操作记录、离线版本记录等诸多新特性。
 
 <br/>
 
-![kubean-components](images/kubean-components.png)
+![kubean-components](../images/kubean-components.png)
 
 Kubean 运行着多个控制器，这些控制器跟踪 Kubean CRD 对象的变化，并且与底层集群的 API 服务器进行通信来创建 Kubernetes原生资源对象。由以下四个组件构成：
 
