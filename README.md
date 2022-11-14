@@ -37,52 +37,28 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 
 ---
 
-## :anchor: Awesome features
+## Quick Start
 
-- Simplicity: Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.
-- Offline Supported: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.
-- Compatibility: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
-- Expandability: Allowing custom actions be added to cluster without any changes for Kubespray. 
-
-## :surfing_man: Quick Start
-
-#### 1. Ensure that a Kubernetes Cluster exists and Helm installed
-
-#### 2. Deploy Kubean-Operator
+#### 1. Deploy Kubean-Operator
 
 ``` shell
-$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-$ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
+helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 ```
 
-Then check kubean-operator status by 
-```shell 
-$ kubectl get pods -n kubean-system | grep 'kubean'
-```
+Then check kubean-operator status by `kubectl get pods -n kubean-system | grep 'kubean'`.
 
-#### 3. Start ClusterOperation for cluster.yml playbook
+#### 2. Start ClusterOperation for cluster.yml playbook
 
 We cloud use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
 
-  1. cd resources path
-     ```shell
-     $ cd artifacts/
-     ```
+  1. `cd artifacts/`
   2. modify `demo/hosts-conf-cm.yml` by replacing `IP1`, `IP2`... with the real ip where we want to install k8s cluster
-  3. start kubeanClusterOps which will start the kubespray job
-     ```shell
-     $ kubectl apply -f demo/
-     ```
-  4. check the kubespray job status
-     ```shell
-     $ kubectl get job -n kubean-system
-     ```
+  3. `kubectl apply -f demo/` to start kubeanClusterOps which will start the kubespray job
+  4. `kubectl get job -n kubean-system` to check the kubespray job status
 
 [![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
 
-## :book: Documents
-- [Architecture](docs/zh/architecture.md)
-- [Kubean vs Kubespray](docs/zh/comparisons.md)
-- [CRD Outline](docs/zh/crds.md)
-- [Deploy cluster using SSH secret key method](docs/zh/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/offline.md)
+## Offline Usage
+
+[offline](docs/offline.md)
