@@ -46,8 +46,8 @@ os_compability_e2e(){
     cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/hosts-conf-cm.yml
-    sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
-    sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME}/" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
+    sed -i "s#image:.*#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
+    sed -i "s/name: cluster.*/name: ${CLUSTER_OPERATION_NAME}/" $(pwd)/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
     # Run cluster function e2e
     ginkgo -v -timeout=10h -race --fail-fast ./test/kubean_os_compatibility_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --clusterOperationName="${CLUSTER_OPERATION_NAME}" --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}"
 }
@@ -55,8 +55,11 @@ os_compability_e2e(){
 
 ###### OS compitable e2e logic ########
 utils::install_sshpass sshpass
-os_array=("Vagrantfile_rhel84")
+os_array=("Vagrantfile_rhel84" "Vagrantfile_centos76" "Vagrantfile_rhel76")
+echo "OS list: ${os_array[*]}"
 for (( i=0; i<${#os_array[@]};i++)); do
+    echo "***************"
+    echo "OS is: ${os_array[$i]}"
     os_compability_e2e ${os_array[$i]}
     vagrant destroy -f sonobouyDefault
     vagrant destroy -f sonobouyDefault2
