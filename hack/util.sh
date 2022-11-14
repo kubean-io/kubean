@@ -131,6 +131,7 @@ function util::wait_for_condition() {
   local msg=$1
   # condition should be a string that can be eval'd.
   local condition=$2
+  echo "condition is：$condition"
   local timeout=${3:-}
 
   local start_msg="Waiting for ${msg}"
@@ -318,8 +319,8 @@ function utils:runner_ip(){
         vm_ip_addr2="10.6.127.43"
     fi
     if [ "${RUNNER_NAME}" == "debug" ]; then
-        vm_ip_addr1="10.6.127.45"
-        vm_ip_addr2="10.6.127.46"
+        vm_ip_addr1="172.30.41.75"
+        vm_ip_addr2="172.30.41.76"
     fi
 }
 
