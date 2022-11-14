@@ -8,7 +8,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          name: kubean-io/website
+          repository: kubean-io/website
           ref: main
       - name: save
         run: |

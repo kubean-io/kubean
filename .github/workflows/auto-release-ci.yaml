@@ -94,21 +94,8 @@ jobs:
         run: |
           ./hack/sync_api.sh ${GITHUB_REF_NAME}
 
-  auto-generate-release-notes:
-    needs: sync-charts-and-api
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-
   save-release-notes-to-file:
-    needs: auto-generate-release-notes
+    needs: sync-charts-and-api
     uses: ./.github/workflows/call-save-release-notes.yaml
     secrets: inherit
 
