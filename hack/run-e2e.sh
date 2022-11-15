@@ -54,7 +54,7 @@ sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/" $(pwd)/test/kubean_f
 # Run cluster function e2e
 
 ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
-ginkgo -v -race -timeout=3h --fail-fast ./test/kubean_functions_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr}"
+ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr}"
 
 # prepare kubean reset job yml
 cp $(pwd)/test/common/hosts-conf-cm.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
@@ -71,4 +71,4 @@ sed -i "s/${CLUSTER_OPERATION_NAME1}/${CLUSTER_OPERATION_NAME2}/" $(pwd)/test/ku
 sed -i "s/containerd/docker/" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 sed -i "$ a\    override_system_hostname: false" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast ./test/kubean_reset_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"  --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr}"
+ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"  --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr}"

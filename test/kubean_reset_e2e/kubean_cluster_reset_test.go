@@ -96,7 +96,8 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 		})
 
 		// Create cluster after reset
-		ginkgo.It("Create cluster after reset with Docker CRI", func() {
+		//issue link: https://github.com/kubean-io/kubean/issues/295
+		ginkgo.It("[bug] Create cluster after reset with Docker CRI", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
@@ -156,7 +157,8 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
 		})
 
-		ginkgo.It("Docker: when check docker functions", func() {
+		//issue link: https://github.com/kubean-io/kubean/issues/295
+		ginkgo.It("[bug]  Docker: when check docker functions", func() {
 			masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "docker", "info"})
 			out, _ := tools.NewDoCmd("sshpass", masterCmd...)
 			klog.Info("docker info to check if server running: ")
