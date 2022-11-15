@@ -8,9 +8,12 @@ import (
 	"testing"
 	"time"
 
+	batchv1 "k8s.io/api/batch/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	"kubean.io/api/constants"
 	clusterv1alpha1fake "kubean.io/api/generated/cluster/clientset/versioned/fake"
 	clusteroperationv1alpha1fake "kubean.io/api/generated/clusteroperation/clientset/versioned/fake"
 
@@ -1046,6 +1049,417 @@ func Test_CreateEntryPointShellConfigMap(t *testing.T) {
 				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
 				result, err := controller.CreateEntryPointShellConfigMap(clusterOps)
 				return result && err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_FetchJobStatus(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "jobRef is empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				_, err := controller.FetchJobStatus(clusterOps)
+				return err != nil
+			},
+			want: true,
+		},
+		{
+			name: "job is not found",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job123"}
+				status, err := controller.FetchJobStatus(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+		{
+			name: "job finished",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-finished"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-finished",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobComplete,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				status, err := controller.FetchJobStatus(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.SucceededStatus
+			},
+			want: true,
+		},
+		{
+			name: "job failed",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-failed"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-failed",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobFailed,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				status, err := controller.FetchJobStatus(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+		{
+			name: "job running",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-running"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-running",
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				status, err := controller.FetchJobStatus(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.RunningStatus
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_ListClusterOps(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "list and get nothing",
+			args: func() bool {
+				result, err := controller.ListClusterOps("kubeanCluster-123")
+				return len(result) == 0 && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "list and get something",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
+					},
+				}
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				result, err := controller.ListClusterOps("kubeanCluster-123")
+				return len(result) > 0 && err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CopyConfigMap(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "origin configMap is not found",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
+					},
+				}
+				_, err := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{}, "")
+				return err != nil && apierrors.IsNotFound(err)
+			},
+			want: true,
+		},
+		{
+			name: "origin configMap is copied successfully",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
+					},
+				}
+				configMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "a-configmap",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), configMap, metav1.CreateOptions{})
+				result, _ := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "a-configmap"}, "b-configmap")
+				return result.Name == "b-configmap"
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.want != test.args() {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CopySecret(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "origin secret is not found",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
+					},
+				}
+				_, err := controller.CopySecret(clusterOps, &apis.SecretRef{}, "")
+				return err != nil && apierrors.IsNotFound(err)
+			},
+			want: true,
+		},
+		{
+			name: "origin secret is copied successfully",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
+					},
+				}
+				secret := &corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "Secret",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "a-secret",
+					},
+				}
+				controller.ClientSet.CoreV1().Secrets("kubean-system").Create(context.Background(), secret, metav1.CreateOptions{})
+				result, _ := controller.CopySecret(clusterOps, &apis.SecretRef{NameSpace: "kubean-system", Name: "a-secret"}, "b-secret")
+				return result.Name == "b-secret"
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.want != test.args() {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_BackUpDataRef(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "hostsConf is empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+					},
+				}
+				cluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+				}
+				_, err := controller.BackUpDataRef(clusterOps, cluster)
+				return err != nil && strings.Contains(err.Error(), "DataRef has empty value")
+			},
+			want: true,
+		},
+		{
+			name: "hostsConf and varsConf are not empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{},
+				}
+				cluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				hostsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "hosts-a",
+					},
+				}
+				varsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "vars-a",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), hostsConfigMap, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), varsConfigMap, metav1.CreateOptions{})
+				controller.Client.Create(context.Background(), clusterOps)
+				_, err := controller.BackUpDataRef(clusterOps, cluster)
+				return err == nil
 			},
 			want: true,
 		},
