@@ -143,7 +143,7 @@ func (c *Controller) FetchJobStatus(clusterOps *clusteroperationv1alpha1.Cluster
 	if err != nil {
 		return "", err
 	}
-	// according the job condtions, return success or failed
+	// according to the job condtions, return success or failed
 	for _, contion := range targetJob.Status.Conditions {
 		if contion.Type == batchv1.JobComplete && contion.Status == corev1.ConditionTrue {
 			return clusteroperationv1alpha1.SucceededStatus, nil
