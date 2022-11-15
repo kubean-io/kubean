@@ -475,3 +475,64 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 		})
 	}
 }
+
+func TestNewGlobalInfoManifest(t *testing.T) {
+	type args struct {
+		latestInfoManifest *manifestv1alpha1.Manifest
+	}
+	tests := []struct {
+		name string
+		args args
+		want *manifestv1alpha1.Manifest
+	}{
+		{
+			name: "test new global info manifest normal",
+			args: args{
+				latestInfoManifest: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "test",
+					},
+					Spec: manifestv1alpha1.Spec{
+						LocalService: manifestv1alpha1.LocalService{
+							ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
+								"dockerImageRepo": "abc.io",
+							},
+							FilesRepo: "abc.io",
+							YumRepo:   []string{"abc.io"},
+						},
+						KubesprayVersion: "v2.0.0",
+						KubeanVersion:    "v1.0.0",
+					},
+				},
+			},
+			want: &manifestv1alpha1.Manifest{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Manifest",
+					APIVersion: "kubean.io/v1alpha1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:   constants.InfoManifestGlobal,
+					Labels: map[string]string{OriginLabel: "test"},
+				},
+				Spec: manifestv1alpha1.Spec{
+					LocalService: manifestv1alpha1.LocalService{
+						ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
+							"dockerImageRepo": "abc.io",
+						},
+						FilesRepo: "abc.io",
+						YumRepo:   []string{"abc.io"},
+					},
+					KubesprayVersion: "v2.0.0",
+					KubeanVersion:    "v1.0.0",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewGlobalInfoManifest(tt.args.latestInfoManifest); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewGlobalInfoManifest() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
