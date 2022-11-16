@@ -67,10 +67,18 @@ function iso_os_version_arch() {
         echo "/centos-iso/8/os/aarch64"
         return
       fi
+      if echo "$path" | grep 'ky10.x86_64.rpm' >/dev/null 2>&1; then
+        echo "/kylin-iso/10/os/x86_64"
+        return
+      fi
+      if echo "$path" | grep 'ky10.aarch64.rpm' >/dev/null 2>&1; then
+        echo "/kylin-iso/10/os/aarch64"
+        return
+      fi
     fi
   done
-  echo "not support $ISO_IMG_FILE , can not find os and arch info"
-  exit 1
+  echo ""
+  return
 }
 
 function mount_iso_file() {
