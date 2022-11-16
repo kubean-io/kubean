@@ -1,0 +1,50 @@
+name: incremental-packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      file_suffix:
+        required: true
+        type: string
+        default: "add_etcd_version"
+      image_arch:
+        required: true
+        type: string
+        default: "amd64 arm64"
+      kube_version:
+        required: false
+        type: string
+      calico_version:
+        required: false
+        type: string
+      cni_version:
+        required: false
+        type: string
+      containerd_version:
+        required: false
+        type: string
+      cilium_version:
+        required: false
+        type: string
+      etcd_version:
+        required: false
+        type: string
+jobs:
+  incremental-packages:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Generate incremental offline packages
+        run: |
+          export IMAGE_ARCH="${{ inputs.image_arch }}"
+          export KUBE_VERSION="${{ inputs.kube_version }}"
+          export CALICO_VERSION="${{ inputs.calico_version }}"
+          export CNI_VERSION="${{ inputs.cni_version }}"
+          export CONTAINERD_VERSION="${{ inputs.containerd_version }}"
+          export CILIUM_VERSION="${{ inputs.cilium_version }}"
+          export ETCD_VERSION="${{ inputs.etcd_version }}"
+          export FILE_SUFFIX="${{ inputs.file_suffix }}"
+          export OFFLINE_NGINX_IP="${{ secrets.OFFLINE_NGINX_IP }}"
+          export OFFLINE_NGINX_PASSWORD="${{ secrets.OFFLINE_NGINX_PASSWORD }}"
+          bash hack/incremental-pkgs.sh
