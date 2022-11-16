@@ -27,4 +27,5 @@ CMD echo "printing supporting versions" \
     && MANIFEST_CONF=/manifest.yml python3 artifacts/offline_patch.py \
     && echo "copying data" \
     && mv v_* /data \
+    && chmod -R 777 /data/ \
     && echo "finished"
