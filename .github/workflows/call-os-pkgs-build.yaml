@@ -13,6 +13,8 @@ jobs:
             dockerfile: build/os-packages/Dockerfile.centos7
           - name: redhat8
             dockerfile: build/os-packages/Dockerfile.redhat8
+          - name: kylinv10
+            dockerfile: build/os-packages/Dockerfile.kylinv10
           - name: ubuntu1804
             dockerfile: build/os-packages/Dockerfile.ubuntu1804
           - name: ubuntu2004

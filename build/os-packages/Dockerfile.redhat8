@@ -6,7 +6,7 @@ RUN ARCH=$(uname -m) \
     && dnf --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos -y \
     && dnf distro-sync -y \
     && dnf install -q -y ${BUILD_TOOLS} \
-    && dnf install -q -y http://mirror.centos.org/centos/8-stream/AppStream/${ARCH}/os/Packages/modulemd-tools-0.7-4.el8.noarch.rpm \
+    && dnf install -q -y http://mirror.centos.org/centos/8-stream/AppStream/${ARCH}/os/Packages/modulemd-tools-0.7-6.el8.noarch.rpm \
     && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
     && dnf makecache
 
