@@ -46,7 +46,8 @@ DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 
 ####### e2e logic ########
 trap utils::clean_up EXIT
-./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "kindest/node:v1.21.1" "${CLUSTER_PREFIX}"-host
+KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
+./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
 
 utils:runner_ip
 
