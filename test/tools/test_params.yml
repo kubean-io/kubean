@@ -1,0 +1,4 @@
+runner_ip:
+registry_addr:
+minio_addr:
+nginx_image:

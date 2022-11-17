@@ -1,0 +1,22 @@
+name: Auto OFFLINE CI
+on: [workflow_dispatch]
+
+jobs:
+  offline_e2e:
+    runs-on: [self-hosted, offline]
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+        #- uses: actions/setup-go@v3
+        # with:
+        #  go-version: 1.18.2
+
+      - name: offline_e2e
+        run: |
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
+          bash hack/offline-e2e.sh  "${CONTAINER_TAG}"
