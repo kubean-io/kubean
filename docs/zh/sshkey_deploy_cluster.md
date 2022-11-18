@@ -1,5 +1,6 @@
 # :key: 使用 SSH 秘钥方式部署 K8S 集群
 
+> [English](../en/sshkey_deploy_cluster.md) | 中文
 ## 内容
 
 * ✓ [1. SSH 秘钥的生成与分发](#SSH秘钥的生成与分发)
