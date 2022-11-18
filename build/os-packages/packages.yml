@@ -5,30 +5,36 @@ yum:
 
 common:
   - sshpass
+  - socat
 
 docker:
   # https://docs.docker.com/engine/installation/linux/centos/#install-from-a-package
   # https://download.docker.com/linux/centos/<centos_version>>/x86_64/stable/Packages/
   # or do 'yum --showduplicates list docker-engine'
   centos7:
-    - containerd.io-1.4.9-3.1.el7
+    - libselinux-python
     - containerd.io-1.4.12-3.1.el7
     - containerd.io-1.6.4-3.1.el7
-    - docker-ce-18.09.9-3.el7
     - docker-ce-19.03.15-3.el7
     - docker-ce-20.10.20-3.el7
-    - docker-ce-cli-18.09.9-3.el7
     - docker-ce-cli-19.03.15-3.el7
     - docker-ce-cli-20.10.20-3.el7
 
   redhat8:
-    - containerd.io-1.4.9-3.1.el8
+    - libselinux-python3
     - containerd.io-1.4.12-3.1.el8
     - containerd.io-1.6.4-3.1.el8
-    - docker-ce-3:18.09.9-3.el7
     - docker-ce-3:19.03.15-3.el8
     - docker-ce-3:20.10.20-3.el8
-    - docker-ce-cli-1:18.09.9-3.el7
+    - docker-ce-cli-1:19.03.15-3.el8
+    - docker-ce-cli-1:20.10.20-3.el8
+
+  kylinv10:
+    - libselinux-python
+    - containerd.io-1.4.12-3.1.el8
+    - containerd.io-1.6.4-3.1.el8
+    - docker-ce-3:19.03.15-3.el8
+    - docker-ce-3:20.10.20-3.el8
     - docker-ce-cli-1:19.03.15-3.el8
     - docker-ce-cli-1:20.10.20-3.el8
 

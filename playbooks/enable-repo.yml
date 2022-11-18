@@ -20,14 +20,14 @@
         path: "{{ yum_repo_src_path }}/{{ yum_repo_name }}.repo"
       register: file_data
       when:
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
 
     - name: Move(Backup) original yum repo if "{{ yum_repo_name }}" not exist
       shell: >-
         mkdir -p {{ yum_repo_bak_path }}/ &&
         mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/
       when: 
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
         - not undo|default(false)|bool
 
@@ -43,7 +43,7 @@
         loop_var: url_item
         index_var: url_index
       when:
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
         - not undo|default(false)|bool
 
     # Uninstall
@@ -59,7 +59,7 @@
       delay: 5
       when:
         - undo|default(false)|bool
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
         - file_data.stat.exists
 
     - name: Checking if "{{ yum_repo_bak_path }}" exists
@@ -68,7 +68,7 @@
       register: repo_bak_path
       when:
         - undo|default(false)|bool
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
 
     - name: Restore "{{ yum_repo_src_path }}" repo
       shell: >
@@ -82,5 +82,5 @@
       delay: 5
       when:
         - undo|default(false)|bool
-        - ansible_facts['os_family'] == "RedHat"
+        - ansible_os_family == "RedHat"
         - repo_bak_path.stat.exists
