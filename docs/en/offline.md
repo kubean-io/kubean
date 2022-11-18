@@ -1,6 +1,6 @@
 # Use Kubean in offline scenes
 
-> English | [中文](zh/offline.md)
+> English | [中文](../zh/offline.md)
 
 ## Preparation
 
@@ -11,7 +11,7 @@
 
 2. Necessary tools to be installed:
 
-* A tool for importing image files: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)，Required >=1.9.2
+* A tool for importing image files: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md), Required >=1.9.2
 * A tool for importing binary files: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 3. Deploy Kubean by Helm[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)

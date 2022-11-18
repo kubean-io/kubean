@@ -1,5 +1,7 @@
 ## Kubean 基础架构
 
+> [English](../en/architecture.md) | 中文
+
 Kubean 的整体架构如下所示：
 
 ![kubean-architecture](../images/kubean-architecture.png)
