@@ -43,10 +43,28 @@ function backup_yum_repo() {
 
 function generate_yum_repo() {
   MODE=$1
+  local OS=${2:-""}
   echo "MODE: $MODE"
   backup_yum_repo
 
   if [ ${MODE} == "iso" ]; then
+    if [ "${OS}" == "rhel" ]; then
+      cat >${YUM_REPOS_PATH}/${ISO_REPO_CONF} <<EOF
+[kubean-iso-BaseOS]
+name=Kubean ISO Repo BaseOS
+baseurl=file://${ISO_MOUNT_PATH}/BaseOS
+enabled=1
+gpgcheck=0
+sslverify=0
+
+[kubean-iso-AppStream]
+name=Kubean ISO Repo AppStream
+baseurl=file://${ISO_MOUNT_PATH}/AppStream
+enabled=1
+gpgcheck=0
+sslverify=0
+EOF
+    else
     cat >${YUM_REPOS_PATH}/${ISO_REPO_CONF} <<EOF
 [kubean-iso]
 name=Kubean ISO Repo
@@ -55,6 +73,7 @@ enabled=1
 gpgcheck=0
 sslverify=0
 EOF
+    fi
     echo "generate: ${YUM_REPOS_PATH}/${ISO_REPO_CONF}"
   fi
 
@@ -84,7 +103,11 @@ function gen_repo_conf_with_iso() {
     mount_iso_file
     generate_yum_repo iso
     ;;
-
+  redhat | rhel)
+    check_iso_img
+    mount_iso_file
+    generate_yum_repo iso rhel
+    ;;
   debian | ubuntu)
     echo "this linux distribution is temporarily not supported."
     ;;
@@ -103,7 +126,7 @@ function gen_repo_conf_with_url() {
   echo "LINUX_DISTRIBUTION: $LINUX_DISTRIBUTION, REPO_BASE_URL: $REPO_BASE_URL"
 
   case $LINUX_DISTRIBUTION in
-  centos)
+  centos | redhat | rhel)
     check_repo_url
     generate_yum_repo url
     ;;
@@ -121,20 +144,25 @@ function gen_repo_conf_with_url() {
 function show_usage() {
   local cmd=$(basename $0)
   cat <<EOF
-Usage:
-  $cmd <command>
-Examples:
-# Mount the ISO image and generate the repo configuration file
-./gen_repo_conf.sh --iso-mode \${linux_distribution} \${iso_image_file}
-./gen_repo_conf.sh -im centos CentOS-7-x86_64-Everything-2207-02.iso
+Usage
+  $cmd [ -im | --iso-mode ] <linux_distribution> <iso_image_file>
+  $cmd [ -um | --url-mode ] <linux_distribution> <iso_image_file>
 
-# Generate repo configuration file according to url
-./gen_repo_conf.sh --url-mode \${linux_distribution} \${repo_base_url}
-./gen_repo_conf.sh -um centos http://10.8.172.10:8010/centos/7/
+Commands
+  -im, --iso-mode       use the iso image as the repo source
+  -um, --url-mode       use url as repo source
 
-Available Commands:
-  -im, --iso-mode      use the iso image as the repo source
-  -um, --url-mode      use url as repo source
+Arguments
+  linux_distribution       supported for centos, redhat(rhel) only
+  iso_image_file           path to iso image file
+  repo_base_url            url to access remote repo
+
+Examples
+  # Mount the ISO image and generate the repo configuration file
+  ./gen_repo_conf.sh -im centos CentOS-7-x86_64-Everything-2207-02.iso
+
+  # Generate repo configuration file according to url
+  ./gen_repo_conf.sh -um centos http://10.8.172.10:8010/centos/7/
 EOF
 }
 

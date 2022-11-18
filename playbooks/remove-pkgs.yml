@@ -1,0 +1,16 @@
+---
+## Only for RHEL 8.4 on offline environment currently
+- hosts: k8s_cluster
+  become: yes
+  vars:
+    rhel_enable_repos: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Remove fuse package
+      package: 
+        name: fuse
+        state: absent
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_version == "8.4"
+        - not rhel_enable_repos

@@ -25,7 +25,8 @@
     - name: Move(Backup) original yum repo if "{{ yum_repo_name }}" not exist
       shell: >-
         mkdir -p {{ yum_repo_bak_path }}/ &&
-        mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/
+        mv {{ yum_repo_src_path }}/ {{ yum_repo_bak_path }}/ &&
+        mkdir -p {{ yum_repo_src_path }}/
       when: 
         - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )

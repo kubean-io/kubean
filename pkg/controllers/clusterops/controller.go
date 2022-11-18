@@ -489,6 +489,9 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 			return false, err
 		}
 	}
+	if err := entryPointData.PreHookRunPartForRHEL8(isPrivateKey); err != nil {
+		return false, err
+	}
 	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey); err != nil {
 		return false, err
 	}
