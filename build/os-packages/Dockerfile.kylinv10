@@ -1,9 +1,9 @@
-FROM almalinux/8-base:8.5 as os-kylinv10
+FROM openeuler/openeuler:22.03-lts as os-kylinv10
 ARG OS_VERSION=10
-ARG BUILD_TOOLS="dnf-plugins-core createrepo wget"
+ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo wget"
 
 WORKDIR /kylin/${OS_VERSION}/os
-COPY build/os-packages/repos/kylin.repo /etc/yum.repo.d/
+COPY build/os-packages/repos/kylin.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.yum[],.common[],.docker.kylinv10[]' packages.yml > packages.list
@@ -11,9 +11,13 @@ RUN yq eval '.yum[],.common[],.docker.kylinv10[]' packages.yml > packages.list
 RUN ARCH=$(uname -m) \
     && dnf install -y ${BUILD_TOOLS} \
     && dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
-    && dnf makecache \
-    && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
+    && sed -i 's/$releasever/8/g' /etc/yum.repos.d/docker-ce.repo \
+    && rm -rf /etc/yum.repos.d/openEuler* && dnf clean all && dnf makecache \
+    && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line} --nobest --allowerasing; done <<<"$(sort -u packages.list)" \
     && createrepo -d ${ARCH}
 
 FROM scratch
 COPY --from=os-kylinv10 /kylin /resources/kylin
+
+# One way to make a kylin docker image:
+# https://github.com/moby/moby/blob/master/contrib/mkimage-yum.sh
