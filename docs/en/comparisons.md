@@ -1,6 +1,6 @@
 # Kubean vs Kubespray
 
-> [English](comparisons.md) | [中文](../zh/comparisons.md)
+> English | [中文](../zh/comparisons.md)
 
 <!--Kubespray 使用 Ansible 作为底层来配置和编排，可以运行在裸金属机、虚拟机、大多数云环境等。它支持众多 Kubernetes 版本和插件，可以完成集群从 0 到 1 的搭建和配置，也包含集群生命周期的维护，使用方式非常灵活。-->
 Kubespray uses Ansible as the underlying layer to configure and orchestrate clusters. It can run on bare metal machines, virtual machines, and most kinds of cloud environment. It supports a wide range of Kubernetes versions and various plugins. With Kubespray, you can flexibly build and configure clusters from 0 to 1, and maintain you clusters through their lifecycles.
