@@ -10,7 +10,7 @@ RUN ARCH=$(uname -m) \
     && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
     && dnf makecache
 
-WORKDIR /centos/$OS_VERSION/os
+WORKDIR /redhat/$OS_VERSION/os
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.yum[],.common[],.docker.redhat8[]' packages.yml > packages.list
