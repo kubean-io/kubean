@@ -5,10 +5,12 @@
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   tasks:
     - name: Show cluster info
-      ansible.builtin.shell: |
-        kubectl get node -o wide
-        kubectl -n kube-system get pod
-        kubectl get --raw='/readyz?verbose'
+      shell: |
+        /usr/local/bin/kubectl get node -o wide
+        /usr/local/bin/kubectl -n kube-system get pod
+        /usr/local/bin/kubectl get --raw='/readyz?verbose'
+      args:
+        executable: /bin/bash
       register: clusterinfo
       retries: 5
       delay: 30
