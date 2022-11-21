@@ -13,3 +13,11 @@ baseurl = http://update.cs2c.com.cn:8080/NS/V10/V10SP2/os/adv/lic/updates/$basea
 enabled = 1
 sslverify=0
 gpgcheck = 0
+
+## `docker-ce-3:20.10` has dependencies on `fuse-overlayfs` and `slirp4netns` packages, which require `almalinux-extras` repo. ##
+# [almalinux-extras]
+# name=Almalinux extras - $basearch
+# baseurl=http://repo.almalinux.org/almalinux/8/AppStream/$basearch/os/
+# enabled = 1
+# sslverify=0
+# gpgcheck = 0
