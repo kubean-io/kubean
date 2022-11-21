@@ -51,28 +51,24 @@ function unmount_iso_file() {
 function iso_os_version_arch() {
   for path in $(find $ISO_MOUNT_PATH); do
     if [ -f "$path" ]; then
-      if echo "$path" | grep 'el7.x86_64.rpm' >/dev/null 2>&1; then
-        echo "/centos-iso/7/os/x86_64"
-        return
-      fi
-      if echo "$path" | grep 'el7.aarch64.rpm' >/dev/null 2>&1; then
-        echo "/centos-iso/7/os/aarch64"
-        return
-      fi
-      if echo "$path" | grep 'el8.x86_64.rpm' >/dev/null 2>&1; then
-        echo "/centos-iso/8/os/x86_64"
-        return
-      fi
-      if echo "$path" | grep 'el8.aarch64.rpm' >/dev/null 2>&1; then
-        echo "/centos-iso/8/os/aarch64"
-        return
-      fi
       if echo "$path" | grep 'ky10.x86_64.rpm' >/dev/null 2>&1; then
         echo "/kylin-iso/10/os/x86_64"
         return
       fi
       if echo "$path" | grep 'ky10.aarch64.rpm' >/dev/null 2>&1; then
         echo "/kylin-iso/10/os/aarch64"
+        return
+      fi
+      if [ "$(basename $path)" = ".treeinfo" ]; then
+        local arch=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/arch = //p' | head -1)
+        local os=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/name = //p' | head -1)
+        local version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | cut -d. -f1)
+        if [[ "$os" =~ "CentOS" ]]; then
+          echo "/centos-iso/$version/os/$arch"
+        fi
+        if [[ "$os" =~ "Red Hat" ]]; then
+          echo "/redhat-iso/$version/os/$arch"
+        fi
         return
       fi
     fi
@@ -103,6 +99,7 @@ function import_iso_data() {
     echo "can not find os version and arch info from $ISO_IMG_FILE"
     exit 1
   fi
+  minioFileName="kubeaniominioserver/kubean$Minio_Server_PATH"
   dirArray=()
 
   if [ -d "$ISO_MOUNT_PATH/Packages" ]; then
@@ -113,12 +110,22 @@ function import_iso_data() {
     dirArray+=("$ISO_MOUNT_PATH/repodata")
   fi
 
-  minioFileName="kubeaniominioserver/kubean$Minio_Server_PATH/"
-
-  for dirName in "${dirArray[@]}"; do
-    ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
-    mc cp --no-color --recursive "$dirName" "$minioFileName"
-  done
+  if [ -d "$ISO_MOUNT_PATH/BaseOS" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/BaseOS")
+  fi
+  if [ -d "$ISO_MOUNT_PATH/AppStream" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/AppStream")
+  fi
+  
+  if [ "${#dirArray[@]}" -gt 0 ]; then
+    for dirName in "${dirArray[@]}"; do
+      ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
+      mc cp --no-color --recursive "$dirName" "$minioFileName"
+    done
+  else
+    echo "cannot find valid repo data from $ISO_IMG_FILE"
+    exit 1
+  fi
 }
 
 start=$(date +%s)

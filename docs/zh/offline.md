@@ -1,5 +1,9 @@
 # 离线场景的使用
 
+## 提醒事项
+
+- 针对 RHEL 8.4 系列，由于包依赖问题，执行过程中会卸载系统预装的 fuse 包
+
 ## 准备事项
 
 1. 需要预先部署的服务:
@@ -143,6 +147,25 @@ gpgcheck=0
 sslverify=0
 ```
 
+此外，如果导入的是 RHEL ISO，需注意此 ISO 提供两个源：
+
+```
+[kubean-iso-online-BaseOS]
+name=Kubean ISO Repo Online BaseOS
+baseurl=${minio_address}/kubean/redhat-iso/$releasever/os/$basearch/BaseOS
+enabled=1
+gpgcheck=0
+sslverify=0
+
+
+[kubean-iso-online-AppStream]
+name=Kubean ISO Repo Online AppStream
+baseurl=${minio_address}/kubean/redhat-iso/$releasever/os/$basearch/AppStream
+enabled=1
+gpgcheck=0
+sslverify=0
+```
+
 * 需要将 `${minio_address}` 替换为 minio API Server 地址
 
 ### 2. 建立 extras 软件源
@@ -214,6 +237,7 @@ spec:
 离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
 位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件:
 
+
 ``` yaml
 ---
 ## 全局的离线配置
@@ -281,6 +305,8 @@ containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/rele
 nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 
 ```
+
+**额外说明：** 对于 RHEL 系列的离线安装，需添加配置 `rhel_enable_repos: false`
 
 我们以 `artifacts/offlineDemo` 作为模板,
 

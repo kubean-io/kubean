@@ -16,10 +16,10 @@ COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.yum[],.common[],.docker.redhat8[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
-    && while read -r line; do yum install -y --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
+    && sort -u packages.list | xargs repotrack --destdir ${ARCH} \
     && createrepo_c ${ARCH} \
     && repo2module -s stable ${ARCH} ${ARCH}/modules.yaml \
     && modifyrepo_c --mdtype=modules ${ARCH}/modules.yaml ${ARCH}/repodata
 
 FROM scratch
-COPY --from=os-redhat8 /centos /resources/centos
+COPY --from=os-redhat8 /redhat /resources/redhat

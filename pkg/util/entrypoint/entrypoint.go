@@ -25,6 +25,7 @@ const (
 	KubeconfigPB  = "kubeconfig.yml"
 	ClusterInfoPB = "cluster-info.yml"
 	UpdateHostsPB = "update-hosts.yml"
+	RemovePkgsPB  = "remove-pkgs.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -51,6 +52,7 @@ func NewActions() *Actions {
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
 		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
+		RemovePkgsPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
@@ -124,6 +126,11 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPri
 	}
 	ep.PreHookCMDs = append(ep.PreHookCMDs, prehook)
 	return nil
+}
+
+// PreHookRunPartForRHEL8 does special things only for RHEL8.
+func (ep *EntryPoint) PreHookRunPartForRHEL8(isPrivateKey bool) error {
+	return ep.PreHookRunPart(PBAction, RemovePkgsPB, "", isPrivateKey)
 }
 
 func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
