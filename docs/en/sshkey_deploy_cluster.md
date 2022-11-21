@@ -1,6 +1,6 @@
 # Deploy Kubernetes clusters with SSH
 
-> [English](sshkey_deploy_cluster.md) | [中文](../zh/sshkey_deploy_cluster.md)
+> English | [中文](../zh/sshkey_deploy_cluster.md)
 
 **Contents**
 
