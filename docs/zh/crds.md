@@ -5,6 +5,7 @@
 Kubean 允许通过 custom resource definitions (CRDs) 来声明（唯一标识）一个 Kubernetes 集群。所有对集群的操作都基于此 CRD 里声明的内容。
 
 下面是一份示例，帮助理解下文的配置项说明：
+
 ```yaml
 apiVersion: kubean.io/v1alpha1
 kind: Cluster
@@ -27,24 +28,24 @@ spec:
 
 #### 属性关联
 
-- `hostConfRef`：hostConfRef 是一个 ConfigMap 资源，它的内容应满足 ansible inventory 的格式，包含集群节点信息、类型分组信息。内容可参考 [demo](../../artifacts/demo/hosts-conf-cm.yml)
+- `hostConfRef`：hostConfRef 是一个 ConfigMap 资源，它的内容应满足 ansible inventory 的格式，包含集群节点信息、类型分组信息。内容可参考 [demo](../../artifacts/demo/hosts-conf-cm.yml)。
   - `name`：表示其引用的 ConfigMap 的名称
   - `namespace`：表示其引用的 ConfigMap 所在的命名空间
   
-- `varsConfRef`：varsConfRef 是一个 ConfigMap 资源，用作初始化或覆盖 Kubespray 中声明的变量值。如果有离线需求，这将很有用。内容可参考 [demo](../../artifacts/demo/vars-conf-cm.yml)
+- `varsConfRef`：varsConfRef 是一个 ConfigMap 资源，用作初始化或覆盖 Kubespray 中声明的变量值。如果有离线需求，这将很有用。内容可参考 [demo](../../artifacts/demo/vars-conf-cm.yml)。
   - `name`：表示其引用的 ConfigMap 的名称
   - `namespace`：表示其引用的 ConfigMap 所在的命名空间
 
-- `sshAuthRef`：sshAuthRef 是一个 Secret 资源，仅在 SSH 私钥模式时使用
+- `sshAuthRef`：sshAuthRef 是一个 Secret 资源，仅在 SSH 私钥模式时使用。
   - `name`：表示其引用的 Secret 名称
   - `namespace`：表示其引用的 Secret 所在的命名空间
-
 
 ## ClusterOperation
 
 Kubean 允许通过 custom resource definitions (CRDs) 来声明对一个 Kubernetes 集群的操作（部署、升级等），前提是正确关联一个已经定义的 Cluster CRD。完成操作所必要的信息从其关联的 Cluster CRD 中获取。
 
 下面是一份示例，帮助理解下文的配置项说明：
+
 ```yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
@@ -93,6 +94,7 @@ spec:
 Kubean 允许通过 custom resource definitions (CRDs) 来记录和维护当前版本的 Kubean 使用和兼容的组件、包及版本；使用者不用手动编写此资源，由 Kubean 自行维护。
 
 下面是一份示例，帮助理解下文的 spec 说明：
+
 ```yaml
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
@@ -165,6 +167,7 @@ spec:
   kubeanVersion: v0.4.0-rc2
   kubesprayVersion: c788620
 ```
+
 ### spec 说明
 
 - `components`：镜像或二进制文件的版本声明
@@ -183,6 +186,7 @@ spec:
 Kubean 允许通过 custom resource definitions (CRDs) 来记录离线包支持的组件及版本信息；使用者不用手动编写此资源，由 Kubean 自行维护。
 
 下面是一份示例，帮助理解下文的 spec 说明：
+
 ```yaml
 apiVersion: kubean.io/v1alpha1
 kind: LocalArtifactSet

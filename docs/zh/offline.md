@@ -1,5 +1,7 @@
 # 离线场景的使用
 
+> [English](../en/offline.md) | 中文
+
 ## 提醒事项
 
 - 针对 RHEL 8.4 系列，由于包依赖问题，执行过程中会卸载系统预装的 fuse 包
@@ -7,21 +9,20 @@
 ## 准备事项
 
 1. 需要预先部署的服务:
-* 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
-* 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)（2.7 以下）
-  或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
+
+    - 文件资源服务 [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
+    - 镜像仓库服务 [`docker registry`](https://hub.docker.com/_/registry)（2.7 以下）或者 [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
 
 2. 需要安装的必要工具:
 
-* 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)，需要 >=1.9.2
-* 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
+    - 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)，需要 >=1.9.2
+    - 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 3. 通过Helm部署[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
 
-
 ## 下载离线资源
 
-通过 [Github Releases](https://github.com/kubean-io/kubean/releases) 页面可以下载我们想要版本的离线资源
+通过 [Github Releases](https://github.com/kubean-io/kubean/releases) 页面可以下载我们想要版本的离线资源。
 
 离线资源的基本说明:
 
@@ -166,7 +167,7 @@ gpgcheck=0
 sslverify=0
 ```
 
-* 需要将 `${minio_address}` 替换为 minio API Server 地址
+- 需要将 `${minio_address}` 替换为 minio API Server 地址
 
 ### 2. 建立 extras 软件源
 
@@ -236,7 +237,6 @@ spec:
 
 离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
 位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件:
-
 
 ``` yaml
 ---
@@ -320,4 +320,4 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ## 增量离线包的生成和使用
 
-详细文档见: [Air gap patch usage](airgap_patch_usage.md).
+详细文档见: [Air gap patch usage](airgap_patch_usage.md)。
