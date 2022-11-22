@@ -65,11 +65,12 @@ function iso_os_version_arch() {
         local version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | cut -d. -f1)
         if [[ "$os" =~ "CentOS" ]]; then
           echo "/centos-iso/$version/os/$arch"
+          return
         fi
         if [[ "$os" =~ "Red Hat" ]]; then
           echo "/redhat-iso/$version/os/$arch"
+          return
         fi
-        return
       fi
     fi
   done
