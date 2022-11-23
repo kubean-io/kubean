@@ -30,6 +30,8 @@ docker:
     - docker-ce-cli-1:20.10.20-3.el8
 
   kylinv10:
+    - libselinux-python
+    - libselinux-devel
     - python3-libselinux
     - containerd.io-1.4.12-3.1.el8
     - containerd.io-1.6.4-3.1.el8
