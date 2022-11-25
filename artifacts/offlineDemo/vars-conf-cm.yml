@@ -16,7 +16,7 @@ data:
     docker_insecure_registries:
         - "{{ registry_host }}"
     containerd_insecure_registries:
-        "{{ registry_host }}": "http://{{ registry_host }}"
+        "REGISTRY_HOST:REGISTRY_PORT": "http://{{ registry_host }}"
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico
     kube_network_plugin_multus: false
