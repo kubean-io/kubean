@@ -90,7 +90,7 @@ export KUBECONFIG="${MAIN_KUBECONFIG}" # kube.conf for helm and kubectl
 bash "${REPO_ROOT}"/hack/deploy.sh "${KUBEAN_VERSION}" "${KUBEAN_IMAGE_VERSION}"  "${MAIN_KUBECONFIG}"  "${KUBEAN_SYSTEM_NAMESPACE}"  "${HELM_REPO}" "${IMG_REPO}" "false" "E2E"
 
 # Wait and check kubean ready
-util::wait_pod_ready "${KUBEAN_POD_LABEL}" "${KUBEAN_SYSTEM_NAMESPACE}" 300s
+util::wait_pod_ready "${KUBEAN_POD_LABEL}" "${KUBEAN_SYSTEM_NAMESPACE}" 600s
 
 #https://textkool.com/en/ascii-art-generator?hl=default&vl=default&font=DOS%20Rebel&text=KUBEAN
 KUBEAN_GREETING='

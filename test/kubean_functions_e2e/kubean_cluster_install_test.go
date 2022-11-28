@@ -20,20 +20,22 @@ import (
 
 var _ = ginkgo.Describe("e2e test cluster operation", func() {
 
-	kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-	kindClient, err := kubernetes.NewForConfig(kindConfig)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 	localKubeConfigPath := tools.LocalKubeConfigPath
-
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
 
 	ginkgo.Context("when install a cluster", func() {
 		var pod1Name = "nginx1"
+		var svc1Name = "nginxsvc1"
 		clusterInstallYamlsPath := "e2e-install-cluster"
+		offlineFlag := tools.IsOffline
+		klog.Info("offlineFlag is: ", offlineFlag)
 		kubeanClusterOpsName := tools.ClusterOperationName
 		testClusterName := tools.TestClusterName
 		ginkgo.It("kubean cluster podStatus should be Succeeded", func() {
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+			kindClient, err := kubernetes.NewForConfig(kindConfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 			// Create yaml for kuBean CR and related configuration
 			klog.Info("kubeanClusterOpsName is :", kubeanClusterOpsName)
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
@@ -100,16 +102,20 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 
+			//When online e2e will pull image from network, when offline e2e pull image from local registry
+			nginx_image := "nginx:alpine"
+			if offlineFlag == "true" || offlineFlag == "True" {
+				nginx_image = "10.6.178.62:31500/test/docker.m.daocloud.io/library/nginx:1.22"
+			}
 			//check a test nginx svc for network check
-
-			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.DefaultNamespace, "--image", "nginx:alpine", "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
+			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.DefaultNamespace, "--image", nginx_image, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
 			nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
 			klog.Info("create %s :", nginx1CmdOut.String(), err1.String())
 			tools.WaitPodBeRunning(cluster1Client, tools.DefaultNamespace, pod1Name, 1000)
-			service1Cmd := exec.Command("kubectl", "expose", "pod", pod1Name, "-n", tools.DefaultNamespace, "--port", "18081", "--target-port", "80", "--type", "NodePort", "--name", "nginx2svc", "--kubeconfig", localKubeConfigPath)
+			service1Cmd := exec.Command("kubectl", "expose", "pod", pod1Name, "-n", tools.DefaultNamespace, "--port", "18081", "--target-port", "80", "--type", "NodePort", "--name", svc1Name, "--kubeconfig", localKubeConfigPath)
 			service1CmdOut, err1 := tools.DoErrCmd(*service1Cmd)
 			klog.Info("create service result:", service1CmdOut.String(), err1.String())
-			svc, err := cluster1Client.CoreV1().Services(tools.DefaultNamespace).Get(context.Background(), "nginx2svc", metav1.GetOptions{})
+			svc, err := cluster1Client.CoreV1().Services(tools.DefaultNamespace).Get(context.Background(), svc1Name, metav1.GetOptions{})
 			port := svc.Spec.Ports[0].NodePort
 			time.Sleep(10 * time.Second)
 			tools.SvcCurl(tools.Vmipaddr, port, "Welcome to nginx!", 60)
@@ -141,6 +147,28 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			gomega.Expect(ipSub2).Should(gomega.Equal(168))
 			gomega.Expect(ipSub3 >= 128).Should(gomega.BeTrue())
 			gomega.Expect(ipSub3 <= 143).Should(gomega.BeTrue())
+		})
+
+		ginkgo.It("Support calico: kube_service_addresses ", func() {
+			//This case need the nginx pod created in the upper case
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+
+			//the pod set was 10.96.0.0/12, so the available svc ip range is 10.96.0.1 ~ 10.111.255.255
+			svc1, err := cluster1Client.CoreV1().Services(tools.DefaultNamespace).Get(context.Background(), svc1Name, metav1.GetOptions{})
+			klog.Info("svc ip ia: ", svc1.Spec.ClusterIP)
+			ipSplitArr := strings.Split(svc1.Spec.ClusterIP, ".")
+			gomega.Expect(len(ipSplitArr)).Should(gomega.Equal(4))
+
+			ipSub1, err := strconv.Atoi(ipSplitArr[0])
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "ip split conversion failed")
+			ipSub2, err := strconv.Atoi(ipSplitArr[1])
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "ip split conversion failed")
+
+			gomega.Expect(ipSub1).Should(gomega.Equal(10))
+			gomega.Expect(ipSub2 >= 96).Should(gomega.BeTrue())
 		})
 	})
 })

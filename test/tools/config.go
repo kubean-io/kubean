@@ -8,6 +8,7 @@ var Kubeconfig string
 var Vmipaddr string
 var Vmipaddr2 string
 var ClusterOperationName string
+var IsOffline string
 
 // k8s const
 const (
@@ -28,6 +29,7 @@ const (
 func init() {
 	flag.StringVar(&Kubeconfig, "kubeconfig", "", "cluster kubeconfig")
 	flag.StringVar(&ClusterOperationName, "clusterOperationName", "", "crd clusteroperation.kubean.io name")
+	flag.StringVar(&IsOffline, "isOffline", "", "install k8s cluster offline or online")
 	flag.StringVar(&Vmipaddr, "vmipaddr", "", "vm ip address")
 	flag.StringVar(&Vmipaddr2, "vmipaddr2", "", "vm worker ip address")
 
