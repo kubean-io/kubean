@@ -6,7 +6,7 @@ Expand the name of the chart.
 {{- end }}
 
 {{- define "kubean.namespace" -}}
-{{- default .Values.namespace -}}
+{{- .Release.Namespace -}}
 {{- end -}}
 
 {{/*
