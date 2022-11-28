@@ -97,7 +97,7 @@ function util::download_offline_files(){
   file_down_list=(${f_file_list} ${f_files_tgz} ${f_images_list} ${f_images_tgz} ${f_os_pkgs})
   for (( i=0; i<${#file_down_list[@]};i++)); do
     echo "${file_down_list[$i]}"
-    wget -c -P -q "${download_folder}"  "${file_down_list[$i]}"
+    wget -q -c  -P  "${download_folder}"  "${file_down_list[$i]}"
   done
 }
 
