@@ -33,7 +33,7 @@
 3. 使用镜像，等待运行退出后，`data` 文件夹中生成增量离线包
 
     ```bash
-    docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/hangscer8/airgap-patch:v0.2.2
+    docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5 
     ```
 
 ## 使用增量离线包
