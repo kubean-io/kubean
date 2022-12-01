@@ -29,6 +29,10 @@ jobs:
             chmod 700 get_helm.sh
             ./get_helm.sh
 
+            if [ -n "${{ secrets.CD_IMAGE_TAG }}" ]; then
+              export IMAGE_TAG="${{ secrets.CD_IMAGE_TAG }}"
+            fi
+
             if [ ${{ inputs.ENRIRONMENT_CD }} == 'dev' ]; then
 
               # kubeconfig init
@@ -38,6 +42,9 @@ jobs:
               chmod g-r kubeconfig
 
               # cd to dev
+              if [ -n "${{ secrets.KUBEAN_IMAGE_REPO }}" ]; then
+                export IMAGE_REPO="${{ secrets.KUBEAN_IMAGE_REPO }}"
+              fi
               make local-chart-to-deploy
 
             elif [ ${{ inputs.ENRIRONMENT_CD }} == 'alpha' ]; then
@@ -48,7 +55,7 @@ jobs:
               chmod g-r kubeconfig
 
               # cd to alpha
-              make local-chart-to-deploy
+              make local-chart-to-deploy $KUBEAN_IMAGE_REPO
 
               echo "${{ secrets.ALPHA_ARM_KUBECONFIG }}" > kubeconfig
 
