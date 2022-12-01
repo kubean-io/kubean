@@ -17,6 +17,7 @@ import (
 	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
 	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
+	localartifactsetv1alpha1fake "kubean.io/api/generated/localartifactset/clientset/versioned/fake"
 	manifestv1alpha1fake "kubean.io/api/generated/manifest/clientset/versioned/fake"
 )
 
@@ -284,9 +285,10 @@ func Test_EnsureGlobalInfoManifestBeingLatest(t *testing.T) {
 
 func Test_UpdateGlobalLocalService1(t *testing.T) {
 	controller := &Controller{
-		Client:                newFakeClient(),
-		ClientSet:             clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+		Client:                  newFakeClient(),
+		ClientSet:               clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+		OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -316,6 +318,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 					},
 					Data: map[string]string{"localService": "      imageRepo: \n        kubeImageRepo: \"temp-registry.daocloud.io:5000/registry.k8s.io\"\n        gcrImageRepo: \"temp-registry.daocloud.io:5000/gcr.io\"\n        githubImageRepo: \"a\"\n        dockerImageRepo: \"b\"\n        quayImageRepo: \"c\"\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d'"},
 				}
+				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
 				controller.Create(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
@@ -362,6 +365,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 					},
 					Data: map[string]string{"localService": "      imageRepo: \n        kubeImageRepo: \"temp-registry.daocloud.io:5000/registry.k8s.io\"\n        gcrImageRepo: \"temp-registry.daocloud.io:5000/gcr.io\"\n        githubImageRepo: \"a\"\n        dockerImageRepo: \"b\"\n        quayImageRepo: \"c\"\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d1'"},
 				}
+				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Update(context.Background(), configMap, metav1.UpdateOptions{})
 				controller.Create(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
@@ -532,6 +536,60 @@ func TestNewGlobalInfoManifest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewGlobalInfoManifest(tt.args.latestInfoManifest); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewGlobalInfoManifest() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func addLocalArtifactSet(controller *Controller) {
+	set := &localartifactsetv1alpha1.LocalArtifactSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "set-1",
+		},
+		Spec: localartifactsetv1alpha1.Spec{
+			Items: []*localartifactsetv1alpha1.SoftwareInfo{
+				{
+					Name:         "etcd-1",
+					VersionRange: []string{"1.1", "1.2"},
+				},
+			},
+		},
+	}
+	controller.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), set, metav1.CreateOptions{})
+}
+
+func TestIsOnlineENV(t *testing.T) {
+	controller := &Controller{
+		Client:                  newFakeClient(),
+		ClientSet:               clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+		OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "list nothing",
+			args: func() bool {
+				return controller.IsOnlineENV()
+			},
+			want: true,
+		},
+		{
+			name: "airgap env",
+			args: func() bool {
+				addLocalArtifactSet(controller)
+				return controller.IsOnlineENV()
+			},
+			want: false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
 			}
 		})
 	}

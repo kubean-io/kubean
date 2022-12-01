@@ -18,6 +18,7 @@ import (
 	"k8s.io/klog/v2"
 	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
+	localartifactsetClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
 	manifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -31,8 +32,9 @@ const LocalServiceConfigMap = "kubean-localservice"
 
 type Controller struct {
 	client.Client
-	InfoManifestClientSet manifestClientSet.Interface
-	ClientSet             kubernetes.Interface
+	InfoManifestClientSet   manifestClientSet.Interface
+	ClientSet               kubernetes.Interface
+	OfflineversionClientSet localartifactsetClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -141,6 +143,10 @@ func (c *Controller) ParseConfigMapToLocalService(localServiceConfigMap *corev1.
 }
 
 func (c *Controller) UpdateGlobalLocalService() {
+	if c.IsOnlineENV() {
+		// if not airgap env , then do nothing and return
+		return
+	}
 	localServiceConfigMap, err := c.FetchLocalServiceCM(util.GetCurrentNSOrDefault())
 	if err != nil {
 		klog.Warningf("ignoring %s", err.Error())
@@ -166,6 +172,7 @@ func (c *Controller) UpdateGlobalLocalService() {
 	}
 }
 
+// UpdateLocalAvailableImage update image infos to global-infomanifest-cr.
 func (c *Controller) UpdateLocalAvailableImage() {
 	global, err := c.FetchGlobalInfoManifest()
 	if err != nil {
@@ -187,11 +194,24 @@ func (c *Controller) UpdateLocalAvailableImage() {
 	}
 }
 
+// IsOnlineENV indicates what the running env is onLine or air-gap.
+func (c *Controller) IsOnlineENV() bool {
+	result, err := c.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		klog.Errorf("%s ", err.Error())
+		return true
+	}
+	if len(result.Items) == 0 {
+		return true
+	}
+	return false
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	if req.Name == constants.InfoManifestGlobal {
 		return controllerruntime.Result{Requeue: false}, nil
 	}
-	klog.Warningf("InfoManifest Controller receive event %s", req.Name)
+	klog.Infof("InfoManifest Controller receive event %s", req.Name)
 	latestInfoManifest, err := c.FetchLatestInfoManifest()
 	if err != nil {
 		klog.Warningf("%s ", err.Error())

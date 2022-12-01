@@ -157,9 +157,10 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	}
 
 	infomanifestController := &infomanifest.Controller{
-		Client:                mgr.GetClient(),
-		InfoManifestClientSet: infomanifestClientSet,
-		ClientSet:             ClientSet,
+		Client:                  mgr.GetClient(),
+		InfoManifestClientSet:   infomanifestClientSet,
+		ClientSet:               ClientSet,
+		OfflineversionClientSet: offlineversionClientSet,
 	}
 	if err := infomanifestController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager Infomanifest but %s", err)
