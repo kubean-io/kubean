@@ -85,7 +85,7 @@ func (c *Controller) FetchGlobalInfoManifest() (*manifestv1alpha1.Manifest, erro
 	if err != nil {
 		return nil, err
 	}
-	return global, err
+	return global, nil
 }
 
 func (c *Controller) EnsureGlobalInfoManifestBeingLatest(latestInfoManifest *manifestv1alpha1.Manifest) (*manifestv1alpha1.Manifest, error) {

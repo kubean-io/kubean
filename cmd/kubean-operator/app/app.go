@@ -135,10 +135,11 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		return err
 	}
 	clusterOpsController := &clusterops.Controller{
-		Client:              mgr.GetClient(),
-		ClientSet:           ClientSet,
-		KubeanClusterSet:    clusterClientSet,
-		KubeanClusterOpsSet: clusterClientOperationSet,
+		Client:                mgr.GetClient(),
+		ClientSet:             ClientSet,
+		KubeanClusterSet:      clusterClientSet,
+		KubeanClusterOpsSet:   clusterClientOperationSet,
+		InfoManifestClientSet: infomanifestClientSet,
 	}
 	if err := clusterOpsController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager ClusterOps but %s", err)

@@ -6,7 +6,7 @@ metadata:
     clusterName: cluster1-demo
 spec:
   cluster: cluster1-demo
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:latest # or change image to kubespray origin image version
+  image: ghcr.m.daocloud.io/kubean-io/spray-job # or add specific tag, such as v0.4.0
   backoffLimit: 0
   actionType: playbook
   action: cluster.yml
