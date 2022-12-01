@@ -13,7 +13,7 @@ import (
 	"github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	kubeanClusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 )
 
 var _ = ginkgo.Describe("kubean ops e2e test", func() {
@@ -23,7 +23,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 	var basepath = filepath.Dir(currentFile)
 	clusterInstallYamlsPath := "e2e-install-cluster"
 	opsFile := filepath.Join(basepath, "/e2e-install-cluster/kubeanClusterOps.yml")
-	clusterClientOpsSet, _ := kubeanClusterOpsClientSet.NewForConfig(config)
+	clusterClientOperationSet, _ := kubeanClusterOperationClientSet.NewForConfig(config)
 
 	ginkgo.Context("when apply two jobs for one cluster hosts", func() {
 		// step1 create the first ops

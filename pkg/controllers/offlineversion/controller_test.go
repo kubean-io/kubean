@@ -33,10 +33,10 @@ func newFakeClient() client.Client {
 
 func TestMergeOfflineVersion(t *testing.T) {
 	controller := &Controller{
-		Client:                  newFakeClient(),
-		ClientSet:               clientsetfake.NewSimpleClientset(),
-		OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-		InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -260,10 +260,10 @@ func TestReconcile(t *testing.T) {
 			name: "merge successfully",
 			args: func() bool {
 				controller := &Controller{
-					Client:                  newFakeClient(),
-					ClientSet:               clientsetfake.NewSimpleClientset(),
-					OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-					InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := localartifactsetv1alpha1.LocalArtifactSet{
 					TypeMeta: metav1.TypeMeta{
@@ -294,7 +294,7 @@ func TestReconcile(t *testing.T) {
 				}
 
 				controller.Create(context.Background(), &offlineVersionData)
-				controller.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
 
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
@@ -307,10 +307,10 @@ func TestReconcile(t *testing.T) {
 			name: "ComponentsversionGlobal not exist",
 			args: func() bool {
 				controller := &Controller{
-					Client:                  newFakeClient(),
-					ClientSet:               clientsetfake.NewSimpleClientset(),
-					OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-					InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := localartifactsetv1alpha1.LocalArtifactSet{
 					TypeMeta: metav1.TypeMeta{
@@ -331,7 +331,7 @@ func TestReconcile(t *testing.T) {
 				}
 
 				controller.Create(context.Background(), &offlineVersionData)
-				controller.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
 				return result.RequeueAfter == Loop
@@ -342,10 +342,10 @@ func TestReconcile(t *testing.T) {
 			name: "offlineVersion not found",
 			args: func() bool {
 				controller := &Controller{
-					Client:                  newFakeClient(),
-					ClientSet:               clientsetfake.NewSimpleClientset(),
-					OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-					InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 				}
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "offlineversion-1"}})
 				return result.Requeue == false && result.RequeueAfter == 0

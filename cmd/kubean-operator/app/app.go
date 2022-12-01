@@ -20,8 +20,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
-	kubeanofflineversionClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
+	kubeanClusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	kubeanLocalArtifactSetClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
 	kubeaninfomanifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -111,7 +111,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
-	clusterClientOpsSet, err := kubeanClusterOpsClientSet.NewForConfig(resetConfig)
+	clusterClientOperationSet, err := kubeanClusterOperationClientSet.NewForConfig(resetConfig)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
-	offlineversionClientSet, err := kubeanofflineversionClientSet.NewForConfig(resetConfig)
+	localArtifactSetClientSet, err := kubeanLocalArtifactSetClientSet.NewForConfig(resetConfig)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		Client:              mgr.GetClient(),
 		ClientSet:           ClientSet,
 		KubeanClusterSet:    clusterClientSet,
-		KubeanClusterOpsSet: clusterClientOpsSet,
+		KubeanClusterOpsSet: clusterClientOperationSet,
 	}
 	// the message type
 	if err := clusterController.SetupWithManager(mgr); err != nil {
@@ -138,7 +138,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		Client:              mgr.GetClient(),
 		ClientSet:           ClientSet,
 		KubeanClusterSet:    clusterClientSet,
-		KubeanClusterOpsSet: clusterClientOpsSet,
+		KubeanClusterOpsSet: clusterClientOperationSet,
 	}
 	if err := clusterOpsController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager ClusterOps but %s", err)
@@ -146,10 +146,10 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	}
 
 	offlineVersionController := &offlineversion.Controller{
-		Client:                  mgr.GetClient(),
-		ClientSet:               ClientSet,
-		InfoManifestClientSet:   infomanifestClientSet,
-		OfflineversionClientSet: offlineversionClientSet,
+		Client:                    mgr.GetClient(),
+		ClientSet:                 ClientSet,
+		InfoManifestClientSet:     infomanifestClientSet,
+		LocalArtifactSetClientSet: localArtifactSetClientSet,
 	}
 	if err := offlineVersionController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager OfflineVersion but %s", err)
@@ -157,10 +157,10 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	}
 
 	infomanifestController := &infomanifest.Controller{
-		Client:                  mgr.GetClient(),
-		InfoManifestClientSet:   infomanifestClientSet,
-		ClientSet:               ClientSet,
-		OfflineversionClientSet: offlineversionClientSet,
+		Client:                    mgr.GetClient(),
+		InfoManifestClientSet:     infomanifestClientSet,
+		ClientSet:                 ClientSet,
+		LocalArtifactSetClientSet: localArtifactSetClientSet,
 	}
 	if err := infomanifestController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager Infomanifest but %s", err)

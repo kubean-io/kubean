@@ -32,9 +32,9 @@ const LocalServiceConfigMap = "kubean-localservice"
 
 type Controller struct {
 	client.Client
-	InfoManifestClientSet   manifestClientSet.Interface
-	ClientSet               kubernetes.Interface
-	OfflineversionClientSet localartifactsetClientSet.Interface
+	InfoManifestClientSet     manifestClientSet.Interface
+	ClientSet                 kubernetes.Interface
+	LocalArtifactSetClientSet localartifactsetClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -196,7 +196,7 @@ func (c *Controller) UpdateLocalAvailableImage() {
 
 // IsOnlineENV indicates what the running env is onLine or air-gap.
 func (c *Controller) IsOnlineENV() bool {
-	result, err := c.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().List(context.Background(), metav1.ListOptions{})
+	result, err := c.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		klog.Errorf("%s ", err.Error())
 		return true
