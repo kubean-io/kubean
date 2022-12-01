@@ -22,13 +22,20 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 
 	localKubeConfigPath := tools.LocalKubeConfigPath
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
+	var offlineConfigs tools.OfflineConfig
 
 	ginkgo.Context("when install a cluster", func() {
 		var pod1Name = "nginx1"
 		var svc1Name = "nginxsvc1"
 		clusterInstallYamlsPath := "e2e-install-cluster"
+		nginxImage := "nginx:alpine"
 		offlineFlag := tools.IsOffline
 		klog.Info("offlineFlag is: ", offlineFlag)
+		offlineConfigs = tools.InitOfflineConfig()
+		if offlineFlag == "true" || offlineFlag == "True" {
+			nginxImage = offlineConfigs.NginxImage
+		}
+		klog.Info("nginx image is: ", nginxImage)
 		kubeanClusterOpsName := tools.ClusterOperationName
 		testClusterName := tools.TestClusterName
 		ginkgo.It("kubean cluster podStatus should be Succeeded", func() {
@@ -102,13 +109,8 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 
-			//When online e2e will pull image from network, when offline e2e pull image from local registry
-			nginx_image := "nginx:alpine"
-			if offlineFlag == "true" || offlineFlag == "True" {
-				nginx_image = "10.6.178.62:31500/test/docker.m.daocloud.io/library/nginx:1.22"
-			}
 			//check a test nginx svc for network check
-			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.DefaultNamespace, "--image", nginx_image, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
+			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.DefaultNamespace, "--image", nginxImage, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
 			nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
 			klog.Info("create %s :", nginx1CmdOut.String(), err1.String())
 			tools.WaitPodBeRunning(cluster1Client, tools.DefaultNamespace, pod1Name, 1000)

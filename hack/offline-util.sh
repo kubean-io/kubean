@@ -1,3 +1,15 @@
+### Clean up the docker containers before test
+function util::clean_containers_before_test() {
+   echo "======= container prefix: ${CONTAINERS_PREFIX}"
+    kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
+    if [ "${kubean_containers_num}" ];then
+      echo "Remove exist containers name contains kubean..."
+      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f
+    else
+      echo "No container name contains kubean to delete."
+    fi
+}
+
 ### Restore vm snapshot to only os installed state
 function util::restore_vsphere_vm_snapshot {
   VSPHERE_HOST=${1}
@@ -134,7 +146,7 @@ function util::import_files_minio(){
   minio_url=${3:-"http://172.18.0.2:32000"}
   import_files_path=${4}
   pushd "${import_files_path}"
-  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password}  ./import_files.sh ${minio_url}
+  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password}  ./import_files.sh ${minio_url} > /dev/null
   popd
 }
 
@@ -148,7 +160,7 @@ function util::import_os_package_minio_by_arch(){
   os_packeges_path=${4}
   arch=${5}
   pushd ${os_packeges_path}
-  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password}  ./import_ospkgs.sh  ${minio_url}  os-pkgs-${arch}.tar.gz
+  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password}  ./import_ospkgs.sh  ${minio_url}  os-pkgs-${arch}.tar.gz > /dev/null
   popd
 }
 
@@ -164,8 +176,8 @@ function util::push_registry(){
 
 
 ### Use artifacts/gen_repo_conf.sh to generate local repo
-### Before test, should prepare the iso file under path /mnt
-### Centos repo only support centos7
+### Before test, should prepare the iso file
+### Centos repo only support redhat os family
 function util::mount_iso_image(){
   linux_distribution=${1:-centos}
   iso_image_file=${2}
@@ -179,8 +191,8 @@ function util::mount_iso_image(){
     echo "current dirs:"
     pwd
     #chmod +x "${shell_path}"/gen_repo_conf.sh
-    echo "start mount"
-    sh gen_repo_conf.sh --iso-mode "${linux_distribution}" "${iso_image_file}"
+    echo "Start import iso to minio..."
+    sh gen_repo_conf.sh --iso-mode "${linux_distribution}" "${iso_image_file}" > /dev/null
     popd
   else
     echo "Iso is already mounted, nothing to do"
@@ -203,13 +215,14 @@ function util::import_iso(){
   minio_url=${3:-"http://172.18.0.2:32000"}
   shell_path=${4}
   iso_image_file=${5}
-  echo "start import iso to Minio"
   check_iso_img "${iso_image_file}"
+  # umount before mount
   set_ios_unmounted "${iso_image_file}"
   pushd "${shell_path}"
   pwd
   chmod +x import_iso.sh
-  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password} ./import_iso.sh ${minio_url} ${iso_image_file}
+  echo "Start import iso to Minio, wait patiently...."
+  MINIO_USER=${minio_usr} MINIO_PASS=${minio_password} ./import_iso.sh ${minio_url} ${iso_image_file} > /dev/null
   popd
 }
 

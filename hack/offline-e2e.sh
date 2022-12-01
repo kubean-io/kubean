@@ -8,6 +8,8 @@ HELM_CHART_VERSION=$1
 IMAGE_VERSION=$1
 TAG_VERSION=$1
 SPRAY_JOB_VERSION=$1
+VSPHERE_USER=$2
+VSPHERE_PASSWD=$3
 SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 IMG_REPO="ghcr.io/kubean-io"
 HELM_REPO="https://kubean-io.github.io/kubean-helm-chart/"
@@ -26,8 +28,6 @@ minioPort=32000
 # Revert snapshot of vms
 ## Fix me: set login info to other place, such pre export to runner
 VSPHERE_HOST="192.168.1.136"
-VSPHERE_PASSWD="Ahqu<oo0chee4yo"
-VSPHERE_USER="wenting.guo@daocloud.io"
 SNAPSHOT_NAME="os_installed"
 vm_name="gwt-kubean-offline-e2e-node1"
 
@@ -37,10 +37,12 @@ local_helm_repo_alias="kubean-io"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
-trap utils::clean_up EXIT
+# Remove containers before test
+CONTAINERS_PREFIX="kubean-"
+util::clean_containers_before_test
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name}"
 
-# add kubean repo locally
+# Add kubean repo locally
 repoCount=$(helm repo list | grep "${local_helm_repo_alias}" && repoCount=true || repoCount=false)
 if [ "$repoCount" == "true" ]; then
     helm repo remove ${local_helm_repo_alias}
@@ -122,26 +124,24 @@ sed -i "s#registry_host:#registry_host: ${registry_addr}#"    ${REPO_ROOT}/test/
 sed -i "s#minio_address:#minio_address: ${minio_url}#"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
 sed -i "s#registry_host_key#${registry_addr}#"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
 
-# Set params in test/tools/test_params.yml
-sed -i "s#runner_ip:#runner_ip: ${kubean_node_ip}#"  ${REPO_ROOT}/test/tools/test_params.yml
-sed -i "s#registry_addr:#registry_addr: ${registry_addr}#"  ${REPO_ROOT}/test/tools/test_params.yml
-sed -i "s#minio_url:#minio_url: ${minio_url}#"  ${REPO_ROOT}/test/tools/test_params.yml
-nginx_image_name=${registry_addr}/test/$(cat /root/kubean/kubean/hack/test_images.list |grep nginx|awk -F '/' '{print $NF}')
-sed -i "s#nginx_image:#nginx_image: ${nginx_image_name} #"  ${REPO_ROOT}/test/tools/test_params.yml
+# Set params in test/tools/offline_params.yml
+sed -i "/ip:/c\ip: ${kubean_node_ip}"  ${REPO_ROOT}/test/tools/offline_params.yml
+sed -i "/registry_addr:/c\registry_addr: ${registry_addr}"  ${REPO_ROOT}/test/tools/offline_params.yml
+sed -i "/minio_addr:/c\minio_addr: ${minio_url}"  ${REPO_ROOT}/test/tools/offline_params.yml
+nginx_image_name=${registry_addr}/test/$(cat /root/kubean/kubean/hack/test_images.list |grep nginx)
+sed -i "/nginx_image:/c\nginx_image: ${nginx_image_name} "  ${REPO_ROOT}/test/tools/offline_params.yml
 
 # Copy images used in test case to registry
 util::scope_copy_test_images ${registry_addr}
 
 # Run cluster function e2e
 ####KUBECONFIG_FILE="/root/.kube/kubean-v0.4.0-rc7-3798-host.config"
-echo "start go ****"
+echo "Start go test ****"
 ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}"
 
 ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- \
            --kubeconfig="${KUBECONFIG_FILE}" \
            --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr}" --isOffline="true"
-
-
 
 
 

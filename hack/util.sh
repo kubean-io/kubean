@@ -329,7 +329,7 @@ function utils::clean_up(){
     echo "======= cluster prefix: ${CLUSTER_PREFIX}"
     local auto_cleanup="true"
     if [ "$auto_cleanup" == "true" ];then
-        ./hack/delete-cluster.sh "${CLUSTER_PREFIX}"-host
+      bash  "${REPO_ROOT}"/hack/delete-cluster.sh "${CLUSTER_PREFIX}"-host
     fi
     if [ "$EXIT_CODE" == "0" ];then
         exit $EXIT_CODE

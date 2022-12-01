@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	_ "embed"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
@@ -30,6 +31,13 @@ func GetKuBeanPath() string {
 	return path[:index]
 }
 
+type OfflineConfig struct {
+	Ip           string `yaml:"ip"`
+	RegistryAddr string `yaml:"registry_addr"`
+	MinioAddr    string `yaml:"minio_addr"`
+	NginxImage   string `yaml:"nginx_image"`
+}
+
 type KubeanOpsYml struct {
 	ApiVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
@@ -46,6 +54,18 @@ type KubeanOpsYml struct {
 		ActionType   string `yaml:"actionType"`
 		Action       string `yaml:"action"`
 	}
+}
+
+//go:embed offline_params.yml
+var OfflineConfigStr string
+
+func InitOfflineConfig() OfflineConfig {
+	configStr := OfflineConfigStr
+	var offlineConfig OfflineConfig
+
+	err := yaml.Unmarshal([]byte(configStr), &offlineConfig)
+	CheckErr(err, "yaml unmarshal error")
+	return offlineConfig
 }
 
 func UpdateOpsYml(content string, filePath string) {
