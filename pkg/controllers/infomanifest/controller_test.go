@@ -285,10 +285,10 @@ func Test_EnsureGlobalInfoManifestBeingLatest(t *testing.T) {
 
 func Test_UpdateGlobalLocalService1(t *testing.T) {
 	controller := &Controller{
-		Client:                  newFakeClient(),
-		ClientSet:               clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
-		OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string
@@ -555,15 +555,15 @@ func addLocalArtifactSet(controller *Controller) {
 			},
 		},
 	}
-	controller.OfflineversionClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), set, metav1.CreateOptions{})
+	controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), set, metav1.CreateOptions{})
 }
 
 func TestIsOnlineENV(t *testing.T) {
 	controller := &Controller{
-		Client:                  newFakeClient(),
-		ClientSet:               clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet:   manifestv1alpha1fake.NewSimpleClientset(),
-		OfflineversionClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 	}
 	tests := []struct {
 		name string

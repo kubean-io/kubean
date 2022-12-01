@@ -14,7 +14,7 @@ import (
 	kubeancluster "kubean.io/api/apis/cluster/v1alpha1"
 	kubeanclusterops "kubean.io/api/apis/clusteroperation/v1alpha1"
 	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
-	kubeanClusterOpsClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	kubeanClusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 )
 
 var hostsYaml = `
@@ -184,7 +184,7 @@ func CreatCR() {
 	}
 
 	// 4 create ClusterOperation
-	clusterClientOpsSet, err := kubeanClusterOpsClientSet.NewForConfig(config)
+	clusterClientOperationSet, err := kubeanClusterOperationClientSet.NewForConfig(config)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 	preHookAction :=
 		`ansible -i /conf/hosts.yml all -m ping;

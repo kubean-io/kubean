@@ -23,9 +23,9 @@ const Loop = time.Second * 15
 
 type Controller struct {
 	client.Client
-	ClientSet               kubernetes.Interface
-	InfoManifestClientSet   manifestClientSet.Interface
-	OfflineversionClientSet localartifactsetClientSet.Interface
+	ClientSet                 kubernetes.Interface
+	InfoManifestClientSet     manifestClientSet.Interface
+	LocalArtifactSetClientSet localartifactsetClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {

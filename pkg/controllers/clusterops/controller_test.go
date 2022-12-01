@@ -13,9 +13,11 @@ import (
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
 	clusterv1alpha1fake "kubean.io/api/generated/cluster/clientset/versioned/fake"
 	clusteroperationv1alpha1fake "kubean.io/api/generated/clusteroperation/clientset/versioned/fake"
+	manifestv1alpha1fake "kubean.io/api/generated/manifest/clientset/versioned/fake"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -406,7 +408,11 @@ func TestController_SetOwnerReferences(t *testing.T) {
 }
 
 func TestNewKubesprayJob(t *testing.T) {
-	controller := Controller{}
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
@@ -676,10 +682,11 @@ func TestIsValidImageName(t *testing.T) {
 
 func TestCreateKubeSprayJob(t *testing.T) {
 	controller := Controller{
-		Client:              newFakeClient(),
-		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	clusterOps.Spec.BackoffLimit = 10
@@ -1462,6 +1469,102 @@ func Test_BackUpDataRef(t *testing.T) {
 				return err == nil
 			},
 			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_ProcessKubeanOperationImage(t *testing.T) {
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() string
+		want string
+	}{
+		{
+			name: "nothing to update",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("a:c", "my_tag")
+			},
+			want: "a:c",
+		},
+		{
+			name: "update image tag",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("abc", "my_tag")
+			},
+			want: "abc:my_tag",
+		},
+		{
+			name: "update image tag with latest",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("abc", "")
+			},
+			want: "abc:latest",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_FetchGlobalManifestImageTag(t *testing.T) {
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+
+	tests := []struct {
+		name string
+		args func() string
+		want string
+	}{
+		{
+			name: "none globalManifest",
+			args: func() string {
+				return controller.FetchGlobalManifestImageTag()
+			},
+			want: "",
+		},
+		{
+			name: "none globalManifest",
+			args: func() string {
+				global := &manifestv1alpha1.Manifest{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Manifest",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   constants.InfoManifestGlobal,
+						Labels: map[string]string{"origin": "v2"},
+					},
+					Spec: manifestv1alpha1.Spec{
+						KubeanVersion: "123",
+					},
+				}
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
+				return controller.FetchGlobalManifestImageTag()
+			},
+			want: "123",
 		},
 	}
 	for _, test := range tests {

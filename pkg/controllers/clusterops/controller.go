@@ -22,9 +22,11 @@ import (
 	"kubean.io/api/apis"
 	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 	"kubean.io/api/constants"
 	clusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 	clusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	manifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -38,9 +40,10 @@ const (
 
 type Controller struct {
 	client.Client
-	ClientSet           kubernetes.Interface
-	KubeanClusterSet    clusterClientSet.Interface
-	KubeanClusterOpsSet clusterOperationClientSet.Interface
+	ClientSet             kubernetes.Interface
+	KubeanClusterSet      clusterClientSet.Interface
+	KubeanClusterOpsSet   clusterOperationClientSet.Interface
+	InfoManifestClientSet manifestClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -105,6 +108,14 @@ func (c *Controller) UpdateStatusHasModified(clusterOps *clusteroperationv1alpha
 		return true, nil
 	}
 	return false, nil
+}
+
+func (c *Controller) FetchGlobalInfoManifest() (*manifestv1alpha1.Manifest, error) {
+	global, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return global, nil
 }
 
 func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.ClusterOperation, fetchJobStatus func(*clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error)) (bool, error) {
@@ -315,6 +326,25 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	return controllerruntime.Result{Requeue: false}, nil
 }
 
+func (c *Controller) ProcessKubeanOperationImage(oldImage, globalManifestImageTag string) string {
+	if strings.Contains(oldImage, ":") { // kubespray-job:v1
+		return oldImage
+	}
+	if globalManifestImageTag == "" {
+		return fmt.Sprintf("%s:latest", oldImage)
+	}
+	return fmt.Sprintf("%s:%s", oldImage, globalManifestImageTag)
+}
+
+func (c *Controller) FetchGlobalManifestImageTag() string {
+	globalManifest, err := c.FetchGlobalInfoManifest()
+	if err != nil {
+		klog.Warningf("%s", err.Error())
+		return ""
+	}
+	return globalManifest.Spec.KubeanVersion
+}
+
 func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation) *batchv1.Job {
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
@@ -339,7 +369,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 					Containers: []corev1.Container{
 						{
 							Name:    "kubespray", // do not change this name
-							Image:   clusterOps.Spec.Image,
+							Image:   c.ProcessKubeanOperationImage(clusterOps.Spec.Image, c.FetchGlobalManifestImageTag()),
 							Command: []string{"/bin/entrypoint.sh"},
 							Env: []corev1.EnvVar{
 								{
