@@ -19,14 +19,18 @@ jobs:
       online_register: ${{ steps.output_variables.outputs.online_register }}
       build_plateform: ${{ steps.output_variables.outputs.build_plateform }}
       image_tag_short_sha: ${{ steps.output_variables.outputs.image_tag_short_sha }}
-
+      container_tag: ${{ steps.output_variables.outputs.container_tag }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: output environment variable
         id: output_variables
         run: |
           IMAGE_TAG_SHORT_SHA=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)
           echo image_tag_short_sha=${IMAGE_TAG_SHORT_SHA} >> $GITHUB_OUTPUT
-
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
           ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
           echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
           echo online_register=${{ env.ONLINE_REGISTER }} >> $GITHUB_OUTPUT
@@ -76,7 +80,7 @@ jobs:
           push: true
           platforms: ${{ env.BUILD_PLATFORM }}
           tags: |
-            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:${{ github.ref_name }}
+            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:${{ ${{ needs.output-variable.outputs.container_tag }} }}
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:latest
           build-args: |
             SPRAY_TAG=${{ needs.output-variable.outputs.image_tag_short_sha }}
@@ -93,7 +97,7 @@ jobs:
           push: true
           platforms: ${{ env.BUILD_PLATFORM }}
           tags: |
-            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:${{ github.ref_name }}
+            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:${{ ${{ needs.output-variable.outputs.container_tag }} }}
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:latest
           build-args: |
             SPRAY_TAG=${{ needs.output-variable.outputs.image_tag_short_sha }}
@@ -110,7 +114,7 @@ jobs:
           push: true
           platforms: ${{ env.BUILD_PLATFORM }}
           tags: |
-            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/kubean-operator:${{ github.ref_name }}
+            ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/kubean-operator:${{ ${{ needs.output-variable.outputs.container_tag }} }}
             ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/kubean-operator:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -126,6 +130,6 @@ jobs:
         run: |
           export REGISTRY=${{ env.ONLINE_REGISTER }}
           export REPO=${{ needs.output-variable.outputs.repo }}
-          export IMAGE_TAG=${{ github.ref_name }}
+          export IMAGE_TAG=${{ ${{ needs.output-variable.outputs.container_tag }} }}
           export SPRAY_IMAGE_TAG_SHORT_SHA=${{ needs.output-variable.outputs.image_tag_short_sha }}
           make security-scanning
