@@ -9,8 +9,11 @@ on:
         default: "add_etcd_version"
       image_arch:
         required: true
-        type: string
-        default: "amd64 arm64"
+        type: choice
+        options:
+        - "amd64 arm64"
+        - "amd64"
+        - "arm64"
       kube_version:
         required: false
         type: string
