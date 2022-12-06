@@ -10,11 +10,12 @@ TAG_VERSION=$1
 SPRAY_JOB_VERSION=$1
 VSPHERE_USER=$2
 VSPHERE_PASSWD=$3
+RUNNER_NAME=$4
 SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 IMG_REPO="ghcr.io/kubean-io"
 HELM_REPO="https://kubean-io.github.io/kubean-helm-chart/"
 KUBECONFIG_PATH="${HOME}/.kube"
-CLUSTER_PREFIX=kubean-"${IMAGE_VERSION}"-$RANDOM
+CLUSTER_PREFIX="kubean-offline-${IMAGE_VERSION}-$RANDOM"
 KUBECONFIG_FILE="${KUBECONFIG_PATH}/${CLUSTER_PREFIX}-host.config"
 OFFLINE_FLAG=true
 EXIT_CODE=0
@@ -28,8 +29,7 @@ minioPort=32000
 # Revert snapshot of vms
 ## Fix me: set login info to other place, such pre export to runner
 VSPHERE_HOST="192.168.1.136"
-SNAPSHOT_NAME="os_installed"
-vm_name="gwt-kubean-offline-e2e-node1"
+SNAPSHOT_NAME="os-installed"
 
 # Add repo if not exist; update repo if exist
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
@@ -37,10 +37,15 @@ local_helm_repo_alias="kubean-io"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
-# Remove containers before test
-CONTAINERS_PREFIX="kubean-"
-util::clean_containers_before_test
-util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name}"
+# Init vm ip and vm name value
+util::vm_name_ip_init
+
+# Offline kindCluster will be remove before test always
+# Online kindCluster will be remove before test if the cpu/mem resource insufficient
+# Vm snapshot will be restored before test always
+CONTAINERS_PREFIX="kubean-offline"
+util::clean_offline_kind_cluster
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
 
 # Add kubean repo locally
 repoCount=$(helm repo list | grep "${local_helm_repo_alias}" && repoCount=true || repoCount=false)
@@ -100,19 +105,14 @@ shell_path="${REPO_ROOT}/artifacts"
 util::import_iso  ${minIOUser} ${minIOPwd} "${minio_url}" "${shell_path}" ${iso_image_file}
 
 ##### First run fundamental case in pr ci ######
-util::offline_vm_ip
 ## Run pr ci
-
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date +%s`
 
-cp  ${REPO_ROOT}/test/offline-common/hosts-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
-cp  ${REPO_ROOT}/test/offline-common/kubeanCluster.yml  ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
-cp  ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml  ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
-cp  ${REPO_ROOT}/test/offline-common/kubeanClusterOps.yml  ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
+cp -f  ${REPO_ROOT}/test/offline-common/*.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 
 # host-config-cm.yaml set
-sed -i "s/ip:/ip: ${vm_ip_addr}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
-sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
+sed -i "s/ip:/ip: ${vm_ip_addr1}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
+sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 
 # kubeanClusterOps.yml sed
 sed -i "s#image:#image: ${SPRAY_JOB}#" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
@@ -122,7 +122,7 @@ sed -i "s#{offline_minio_url}#${minio_url}#g" ${REPO_ROOT}/test/kubean_functions
 # vars-conf-cm.yml set
 sed -i "s#registry_host:#registry_host: ${registry_addr}#"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
 sed -i "s#minio_address:#minio_address: ${minio_url}#"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
-sed -i "s#registry_host_key#${registry_addr}#"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
+sed -i "s#registry_host_key#${registry_addr}#g"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
 
 # Set params in test/tools/offline_params.yml
 sed -i "/ip:/c\ip: ${kubean_node_ip}"  ${REPO_ROOT}/test/tools/offline_params.yml
@@ -141,10 +141,29 @@ ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${KUBECO
 
 ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- \
            --kubeconfig="${KUBECONFIG_FILE}" \
-           --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr}" --isOffline="true"
+           --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr1}" --isOffline="true"
+
+#Prepare reset yaml
+
+CLUSTER_OPERATION_NAME2="e2e-cluster1-reset"
+cp -f ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml  ${REPO_ROOT}/test/kubean_reset_e2e/e2e-reset-cluster
+cp -f ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml  ${REPO_ROOT}/test/kubean_reset_e2e/e2e-reset-cluster
+cp -f ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanCluster.yml  ${REPO_ROOT}/test/kubean_reset_e2e/e2e-reset-cluster
+sed -i "s#image:#image: ${SPRAY_JOB}#"  ${REPO_ROOT}/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
+
+# prepare kubean install job yml using docker
+CLUSTER_OPERATION_NAME3="cluster1-install-dcr"`date +%s`
+cp -r ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster ${REPO_ROOT}/test/kubean_reset_e2e/e2e-install-cluster-docker
+sed -i "s/${CLUSTER_OPERATION_NAME1}/${CLUSTER_OPERATION_NAME3}/" ${REPO_ROOT}/test/kubean_reset_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
+sed -i "s#container_manager: containerd#container_manager: docker#" ${REPO_ROOT}/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+sed -i "$ a\    override_system_hostname: false" ${REPO_ROOT}/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 
 
+ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- \
+          --kubeconfig="${KUBECONFIG_FILE}"  \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME3}" --vmipaddr="${vm_ip_addr1}" --isOffline="true"
 
-
-
-
+## Clean up kind cluster and powerDown vm when success
+util::clean_offline_kind_cluster
+SNAPSHOT_NAME="power-down"
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"

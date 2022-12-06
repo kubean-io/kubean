@@ -1,5 +1,5 @@
 ### Clean up the docker containers before test
-function util::clean_containers_before_test() {
+function util::clean_offline_kind_cluster() {
    echo "======= container prefix: ${CONTAINERS_PREFIX}"
     kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
     if [ "${kubean_containers_num}" ];then
@@ -248,9 +248,51 @@ function util::firewalld_add_port_forward(){
 }
 
 ### Set work cluster node ip
-function util::offline_vm_ip(){
-  vm_ip_addr="10.16.10.161"
-  vm_ip_addr2="10.16.10.162"
+function util::vm_name_ip_init(){
+  echo "RUNNER NAME: " $RUNNER_NAME
+  echo "OFFLINE_FLAG" $OFFLINE_FLAG
+  # Offline vm name && ip init
+  if [ "${OFFLINE_FLAG}" == "true" ] || [ "${OFFLINE_FLAG}" == "True" ]; then
+     if [ "${RUNNER_NAME}" == "debug" ]; then
+        vm_ip_addr1="10.16.10.163"
+        vm_ip_addr2="10.16.10.164"
+        vm_name1="gwt-kubean-offline-e2e-node3"
+        vm_name2="gwt-kubean-offline-e2e-node4"
+      else
+        vm_ip_addr1="10.16.10.161"
+        vm_ip_addr2="10.16.10.162"
+        vm_name1="gwt-kubean-offline-e2e-node1"
+        vm_name2="gwt-kubean-offline-e2e-node2"
+      fi
+  else
+    ## Online vm name && ip init
+    if [ "${RUNNER_NAME}" == "debug" ]; then
+          vm_ip_addr1="10.6.127.41"
+          vm_ip_addr2="10.6.127.42"
+          vm_name1="gwt-kubean-e2e-node5"
+          vm_name1="gwt-kubean-e2e-node6"
+    else
+      if [ "${RUNNER_NAME}" == "kubean-actions-runner1" ]; then
+          vm_ip_addr1="10.6.127.31"
+          vm_ip_addr2="10.6.127.32"
+          vm_name1="gwt-kubean-e2e-node1"
+          vm_name1="gwt-kubean-e2e-node2"
+      fi
+      if [ "${RUNNER_NAME}" == "kubean-actions-runner2" ]; then
+          vm_ip_addr1="10.6.127.33"
+          vm_ip_addr2="10.6.127.34"
+          vm_name1="gwt-kubean-e2e-node3"
+          vm_name1="gwt-kubean-e2e-node4"
+      else
+           vm_ip_addr1="10.6.127.31"
+           vm_ip_addr2="10.6.127.32"
+           vm_name1="gwt-kubean-e2e-node1"
+           vm_name1="gwt-kubean-e2e-node2"
+      fi
+    fi
+  fi
+  echo "vm name:  $vm_name1 $vm_name2"
+  echo "vm_ip_addr:  $vm_ip_addr1 $vm_ip_addr2"
 }
 
 ### Use skopeo copy images, which used in golang case, to docker registry
