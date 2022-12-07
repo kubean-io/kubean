@@ -62,12 +62,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/checkout@v3
-        with:
-          repository: kubernetes-sigs/kubespray
-          ref: ${{ inputs.SPRAY_REF }}
-          path: ./kubespray
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -84,8 +78,9 @@ jobs:
       - name: kubespray base image build
         uses: docker/build-push-action@v3.1.1
         with:
-          context: ./
-          file: ./build/images/kubespray/Dockerfile
+          context: ./build/images/kubespray
+          build-args: |
+            SPRAY_REF=${{ inputs.SPRAY_REF }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           push: true
           platforms: ${{ inputs.BUILD_PLATFORM }}
