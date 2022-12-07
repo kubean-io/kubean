@@ -4,7 +4,7 @@ RELEASE_NAME=${2:-"kubean"}
 TARGET_NS=${3:-"kubean-system"}
 KUBECONFIG_PATH=${4:-"kubeconfig"}
 IMAGE_TAG=${5:-"latest"}
-CHART_VERSION="version: ${IMAGE_TAG}"
+CHART_VERSION="version: ${6:-$IMAGE_TAG}"
 
 sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
 
