@@ -152,6 +152,25 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 		ClientSet:             clientsetfake.NewSimpleClientset(),
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
+	localServiceData := `
+      imageRepo: 
+        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
+        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
+        githubImageRepo: "a"
+        dockerImageRepo: "b"
+        quayImageRepo: "c"
+      filesRepo: 'http://temp-registry.daocloud.io:9000'
+      yumRepos:
+        aRepo: 
+          - 'aaa1'
+          - 'aaa2'
+        bRepo: 
+          - 'bbb1'
+          - 'bbb2'
+      hostsMap:
+        - domain: temp-registry.daocloud.io
+          address: 'a.b.c.d'
+`
 	tests := []struct {
 		name string
 		arg  *corev1.ConfigMap
@@ -169,7 +188,7 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 		},
 		{
 			name: "good string data",
-			arg:  &corev1.ConfigMap{Data: map[string]string{"localService": "      imageRepo: \n        kubeImageRepo: \"temp-registry.daocloud.io:5000/registry.k8s.io\"\n        gcrImageRepo: \"temp-registry.daocloud.io:5000/gcr.io\"\n        githubImageRepo: \"a\"\n        dockerImageRepo: \"b\"\n        quayImageRepo: \"c\"\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap:\n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d'\n"}},
+			arg:  &corev1.ConfigMap{Data: map[string]string{"localService": localServiceData}},
 			want: &manifestv1alpha1.LocalService{
 				ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
 					"kubeImageRepo":   "temp-registry.daocloud.io:5000/registry.k8s.io",
@@ -179,7 +198,10 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 					"quayImageRepo":   "c",
 				},
 				FilesRepo: "http://temp-registry.daocloud.io:9000",
-				YumRepo:   []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
+				YumRepos: map[string][]string{
+					"aRepo": {"aaa1", "aaa2"},
+					"bRepo": {"bbb1", "bbb2"},
+				},
 				HostsMap: []*manifestv1alpha1.HostsMap{
 					{Domain: "temp-registry.daocloud.io", Address: "a.b.c.d"},
 				},
@@ -316,7 +338,25 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 						Name:      LocalServiceConfigMap,
 						Namespace: "default",
 					},
-					Data: map[string]string{"localService": "      imageRepo: \n        kubeImageRepo: \"temp-registry.daocloud.io:5000/registry.k8s.io\"\n        gcrImageRepo: \"temp-registry.daocloud.io:5000/gcr.io\"\n        githubImageRepo: \"a\"\n        dockerImageRepo: \"b\"\n        quayImageRepo: \"c\"\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d'"},
+					Data: map[string]string{"localService": `
+      imageRepo: 
+        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
+        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
+        githubImageRepo: "a"
+        dockerImageRepo: "b"
+        quayImageRepo: "c"
+      filesRepo: 'http://temp-registry.daocloud.io:9000'
+      yumRepos:
+        aRepo: 
+          - 'aaa1'
+          - 'aaa2'
+        bRepo: 
+          - 'bbb1'
+          - 'bbb2'
+      hostsMap: 
+        - domain: temp-registry.daocloud.io
+          address: 'a.b.c.d'
+`},
 				}
 				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
@@ -333,7 +373,10 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 					"quayImageRepo":   "c",
 				},
 				FilesRepo: "http://temp-registry.daocloud.io:9000",
-				YumRepo:   []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
+				YumRepos: map[string][]string{
+					"aRepo": {"aaa1", "aaa2"},
+					"bRepo": {"bbb1", "bbb2"},
+				},
 				HostsMap: []*manifestv1alpha1.HostsMap{
 					{
 						Domain:  "temp-registry.daocloud.io",
@@ -363,7 +406,25 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 						Name:      LocalServiceConfigMap,
 						Namespace: "default",
 					},
-					Data: map[string]string{"localService": "      imageRepo: \n        kubeImageRepo: \"temp-registry.daocloud.io:5000/registry.k8s.io\"\n        gcrImageRepo: \"temp-registry.daocloud.io:5000/gcr.io\"\n        githubImageRepo: \"a\"\n        dockerImageRepo: \"b\"\n        quayImageRepo: \"c\"\n      filesRepo: 'http://temp-registry.daocloud.io:9000'\n      yumRepo:\n        - 'http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch'\n        - 'http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch'\n      hostsMap: \n        - domain: temp-registry.daocloud.io\n          address: 'a.b.c.d1'"},
+					Data: map[string]string{"localService": `
+      imageRepo: 
+        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
+        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
+        githubImageRepo: "a"
+        dockerImageRepo: "b"
+        quayImageRepo: "c"
+      filesRepo: 'http://temp-registry.daocloud.io:9000'
+      yumRepos:
+        aRepo: 
+          - 'aaa1'
+          - 'aaa2'
+        bRepo: 
+          - 'bbb1'
+          - 'bbb2'
+      hostsMap: 
+        - domain: temp-registry.daocloud.io
+          address: 'a.b.c.d1'
+`},
 				}
 				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Update(context.Background(), configMap, metav1.UpdateOptions{})
@@ -380,7 +441,10 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 					"quayImageRepo":   "c",
 				},
 				FilesRepo: "http://temp-registry.daocloud.io:9000",
-				YumRepo:   []string{"http://temp-registry.daocloud.io:9000/kubean/centos-iso/\\$releasever/os/\\$basearch", "http://temp-registry.daocloud.io:9000/centos/\\$releasever/os/\\$basearch"},
+				YumRepos: map[string][]string{
+					"aRepo": {"aaa1", "aaa2"},
+					"bRepo": {"bbb1", "bbb2"},
+				},
 				HostsMap: []*manifestv1alpha1.HostsMap{
 					{
 						Domain:  "temp-registry.daocloud.io",
@@ -502,7 +566,9 @@ func TestNewGlobalInfoManifest(t *testing.T) {
 								"dockerImageRepo": "abc.io",
 							},
 							FilesRepo: "abc.io",
-							YumRepo:   []string{"abc.io"},
+							YumRepos: map[string][]string{
+								"a": {"aa"},
+							},
 						},
 						KubesprayVersion: "v2.0.0",
 						KubeanVersion:    "v1.0.0",
@@ -524,7 +590,9 @@ func TestNewGlobalInfoManifest(t *testing.T) {
 							"dockerImageRepo": "abc.io",
 						},
 						FilesRepo: "abc.io",
-						YumRepo:   []string{"abc.io"},
+						YumRepos: map[string][]string{
+							"a": {"aa"},
+						},
 					},
 					KubesprayVersion: "v2.0.0",
 					KubeanVersion:    "v1.0.0",
