@@ -22,9 +22,9 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 
 	localKubeConfigPath := tools.LocalKubeConfigPath
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
-	var offlineConfigs tools.OfflineConfig
 
 	ginkgo.Context("when install a cluster", func() {
+		var offlineConfigs tools.OfflineConfig
 		var pod1Name = "nginx1"
 		var svc1Name = "nginxsvc1"
 		clusterInstallYamlsPath := "e2e-install-cluster"

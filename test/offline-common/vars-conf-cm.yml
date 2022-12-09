@@ -21,7 +21,9 @@ data:
       "registry_host_key": "http://{{registry_host}}"
 
     ### 如果 docker 采用非安全 HTTP 免认证方式, 则需要配置:
-
+    docker_insecure_registries:
+      - "registry_host_key"
+    
     # gcr and kubernetes image repo define
     gcr_image_repo: "{{registry_host}}/ghcr.io/kube-vip/kube-vip"
 
@@ -104,3 +106,5 @@ data:
     runc_download_url: "{{ files_repo }}/github.com/opencontainers/runc/releases/download/{{ runc_version }}/runc.{{ image_arch }}"
     containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ image_arch }}.tar.gz"
     nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+    docker_rh_repo_base_url: "{{ files_repo }}/centos/$releasever/os/$basearch"
+    docker_rh_repo_gpgkey: ""
