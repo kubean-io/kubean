@@ -11,6 +11,8 @@ jobs:
         include:
           - name: centos7
             dockerfile: build/os-packages/Dockerfile.centos7
+          - name: redhat7
+            dockerfile: build/os-packages/Dockerfile.redhat7
           - name: redhat8
             dockerfile: build/os-packages/Dockerfile.redhat8
           - name: kylinv10

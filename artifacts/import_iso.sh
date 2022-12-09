@@ -68,6 +68,11 @@ function iso_os_version_arch() {
           return
         fi
         if [[ "$os" =~ "Red Hat" ]]; then
+          # set var releasever to '7Server' when OS is RHEL 7.x 
+          if [[ "$version" == "7" ]]; then
+            echo "/redhat-iso/7Server/os/$arch"
+            return
+          fi
           echo "/redhat-iso/$version/os/$arch"
           return
         fi
