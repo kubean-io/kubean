@@ -14,7 +14,7 @@ ORG_NAME=${ORG_NAME:-""}
 # Get Latest Git Tag
 late_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -1`
 # Get Previous Git Tag (the one before the latest tag)
-prev_tag=`git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1)`
+prev_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1)`
 
 wget -c https://raw.githubusercontent.com/${ORG_NAME}/kubean/${late_tag}/build/os-packages/packages.yml -O late_packages.yml
 wget -c https://raw.githubusercontent.com/${ORG_NAME}/kubean/${prev_tag}/build/os-packages/packages.yml -O prev_packages.yml
