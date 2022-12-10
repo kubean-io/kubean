@@ -27,13 +27,30 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set env
+        run: |
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
+          echo "ORG_NAME=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+
+      - name: Check if the OS package needs to be rebuilt
+        id: check
+        env:
+          OS_NAME: ${{ matrix.name }}
+          ORG_NAME: ${{ env.ORG_NAME }}
+        run: |
+          ret=`bash build/os-packages/check_rebuild_pkgs.sh`
+          echo "need_rebuild=${ret}" >>$GITHUB_OUTPUT
+
       - name: Set up QEMU
+        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
+        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
         uses: docker/setup-buildx-action@v2.0.0
 
       - name: Build OS packages to local
+        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -45,6 +62,7 @@ jobs:
             RHEL_REG_PASS=${{ secrets.RHEL_REG_PASS }}
 
       - name: Make OS packages into Tar files
+        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
         shell: bash
         run: |
           mkdir -p os-pkgs/
