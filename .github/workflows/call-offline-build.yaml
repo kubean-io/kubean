@@ -8,7 +8,8 @@ on:
         type: string
 
 env:
-  KUBE_VERSION: v1.24.7
+  # KUBE_VERSION: v1.24.7
+  KUBE_VERSION: ""
 
 jobs:
   offline-build:
