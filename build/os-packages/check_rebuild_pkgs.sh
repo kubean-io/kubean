@@ -12,7 +12,7 @@ OS_NAME=${OS_NAME:-""}
 ORG_NAME=${ORG_NAME:-""}
 
 # Get Latest Git Tag
-late_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | sort -r | head -1`
+late_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -1`
 # Get Previous Git Tag (the one before the latest tag)
 prev_tag=`git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1)`
 
