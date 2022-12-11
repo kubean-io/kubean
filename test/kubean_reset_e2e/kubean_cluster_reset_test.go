@@ -96,7 +96,6 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 		})
 
 		// Create cluster after reset
-		//issue link: https://github.com/kubean-io/kubean/issues/295
 		ginkgo.It("Create cluster after reset with Docker CRI", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
@@ -110,12 +109,18 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			// modify hostname before reInstall
 			cmd := tools.RemoteSSHCmdArray([]string{masterSSH, "hostnamectl", "set-hostname", "hello-kubean"})
 			_, _ = tools.NewDoCmd("sshpass", cmd...)
+			// check hostname after deploy: hostname should be hello-kubean
+			var out, stderr bytes.Buffer
+			cmd = tools.RemoteSSHCmdArray([]string{masterSSH, "hostname"})
+			out, _ = tools.NewDoCmd("sshpass", cmd...)
+			fmt.Println("Fetched node hostname is: ", out.String())
+			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
 
 			//Create yaml for kuBean CR and related configuration
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
 			cmd1 := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
 			ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd1.String())
-			var out, stderr bytes.Buffer
+
 			cmd1.Stdout = &out
 			cmd1.Stderr = &stderr
 			if err := cmd1.Run(); err != nil {
@@ -148,7 +153,7 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 			// Wait all pods in kube-syste to be Running
-			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
+			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 3600)
 
 			// check hostname after deploy: hostname should be hello-kubean
 			cmd = tools.RemoteSSHCmdArray([]string{masterSSH, "hostname"})
@@ -157,8 +162,7 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
 		})
 
-		//issue link: https://github.com/kubean-io/kubean/issues/295
-		ginkgo.It("Docker: when check docker functions", func() {
+		ginkgo.It("[bug]Docker: when check docker functions", func() {
 			masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "docker", "info"})
 			out, _ := tools.NewDoCmd("sshpass", masterCmd...)
 			klog.Info("docker info to check if server running: ")

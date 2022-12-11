@@ -19,6 +19,7 @@ jobs:
         env:
           VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
           VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+          KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
         run: |
           CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
           HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1}'`
@@ -27,4 +28,4 @@ jobs:
               HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
           fi
           echo ${{ runner.name }}
-          bash hack/offline-e2e.sh  "${HELM_CHART_VERSION}" "${VSPHERE_USER}" "${VSPHERE_PASSWD}"  "${{ runner.name }}"
+          bash hack/offline-e2e.sh  "${HELM_CHART_VERSION}" "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${KYLIN_VM_PASSWORD}"  "${{ runner.name }}"

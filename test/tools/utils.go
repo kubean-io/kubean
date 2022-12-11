@@ -32,10 +32,11 @@ func GetKuBeanPath() string {
 }
 
 type OfflineConfig struct {
-	Ip           string `yaml:"ip"`
-	RegistryAddr string `yaml:"registry_addr"`
-	MinioAddr    string `yaml:"minio_addr"`
-	NginxImage   string `yaml:"nginx_image"`
+	Ip              string `yaml:"ip"`
+	RegistryAddr    string `yaml:"registry_addr"`
+	MinioAddr       string `yaml:"minio_addr"`
+	NginxImageAMD64 string `yaml:"nginx_image_amd64"`
+	NginxImageARM64 string `yaml:"nginx_image_arm64"`
 }
 
 type KubeanOpsYml struct {
@@ -136,6 +137,11 @@ func DoErrCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 
 func RemoteSSHCmdArray(subCmd []string) []string {
 	var CmdArray = []string{"-p", "root", "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"}
+	return append(CmdArray, subCmd...)
+}
+
+func RemoteSSHCmdArrayByPasswd(password string, subCmd []string) []string {
+	var CmdArray = []string{"-p", password, "ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no"}
 	return append(CmdArray, subCmd...)
 }
 

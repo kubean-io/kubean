@@ -132,6 +132,20 @@ func PodPingPod(node, podFromNs, podFromName, podToIP string) {
 	gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
 }
 
+func NodePingPodByPasswd(password, sshNode, podIP string) {
+	pingPodIpCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "ping", "-c 1", podIP})
+	pingNginx1IpCmd1Out, _ := NewDoCmd("sshpass", pingPodIpCmd1...)
+	klog.Info(sshNode, "ping pod IP ", podIP, "result: ", pingNginx1IpCmd1Out.String())
+	gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
+}
+
+func PodPingPodByPasswd(password, node, podFromNs, podFromName, podToIP string) {
+	podsPingCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{node, "kubectl", "exec", "-it", podFromName, "-n", podFromNs, "--", "ping", "-c 1", podToIP})
+	podsPingCmdOut1, _ := NewDoCmd("sshpass", podsPingCmd1...)
+	fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
+	gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
+}
+
 func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Duration, ops ...time.Duration) {
 	var timeInterval time.Duration = 5
 	var flag bool = false
@@ -154,6 +168,23 @@ func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Dur
 		return flag
 	}, timeTotalSecond*time.Second, timeInterval*time.Second).Should(gomega.BeTrue())
 	gomega.Expect(flag).Should(gomega.BeTrue())
+}
+
+func DoSonoBuoyCheckByPasswd(password, masterSSH string) {
+	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
+		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
+	klog.Info("sonobuoy check cmd: ", subCmd)
+	cmd := RemoteSSHCmdArrayByPasswd(password, subCmd)
+	out, _ := NewDoCmd("sshpass", cmd...)
+	fmt.Println(out.String())
+
+	sshcmd := RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "sonobuoy", "status"})
+	sshout, _ := NewDoCmd("sshpass", sshcmd...)
+	fmt.Println(sshout.String())
+	klog.Info("sonobuoy status result:\n", out.String())
+	ginkgo.GinkgoWriter.Printf("sonobuoy status result: %s\n", out.String())
+	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("complete"))
+	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("passed"))
 }
 
 func DoSonoBuoyCheck(masterSSH string) {
