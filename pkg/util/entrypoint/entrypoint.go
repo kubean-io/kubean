@@ -128,11 +128,6 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPri
 	return nil
 }
 
-// PreHookRunPartForRHEL8 does special things only for RHEL8.
-func (ep *EntryPoint) PreHookRunPartForRHEL8(isPrivateKey bool) error {
-	return ep.PreHookRunPart(PBAction, RemovePkgsPB, "", isPrivateKey)
-}
-
 func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
 	posthook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
 	if err != nil {
