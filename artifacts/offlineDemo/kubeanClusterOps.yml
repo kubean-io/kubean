@@ -19,6 +19,8 @@ spec:
         -e "{yum_repo_url_list: ['http://MINIO_API_HOST:MINIO_API_PORT/kubean/centos/\$releasever/os/\$basearch']}"
     - actionType: playbook
       action: disable-firewalld.yml
+    - actionType: playbook
+      action: remove-pkgs.yml
   postHook:
     - actionType: playbook
       action: cluster-info.yml
