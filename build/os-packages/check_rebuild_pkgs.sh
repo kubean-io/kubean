@@ -14,10 +14,17 @@ ORG_NAME=${ORG_NAME:-""}
 # Get Latest Git Tag
 late_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -1`
 # Get Previous Git Tag (the one before the latest tag)
-prev_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1)`
+prev_tag=`git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1`
 
 wget -c https://raw.githubusercontent.com/${ORG_NAME}/kubean/${late_tag}/build/os-packages/packages.yml -O late_packages.yml
 wget -c https://raw.githubusercontent.com/${ORG_NAME}/kubean/${prev_tag}/build/os-packages/packages.yml -O prev_packages.yml
+
+if [ "${OS_NAME}" == "kylinv10" ]; then
+  ret=`git diff ${prev_tag} ${late_tag} build/os-packages/repos/kylin.repo`
+  if [ ! -z "$ret" ]; then
+      echo "true" && exit 0
+  fi
+fi
 
 # centos7 / kylinv10 / redhat7 / redhat8
 if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ]; then
