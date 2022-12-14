@@ -6,8 +6,7 @@
     yum_repo_name: extension
     yum_repo_src_path: /etc/yum.repos.d
     yum_repo_bak_path: /etc/yum.repos.d.bak
-    ## yum_repo_url_list: []
-    yum_repo_url_dict: { } ## centos: ["url1","url2"] kylin:["url1","url2"] redhat:["url1","url2"]
+    yum_repo_url_list: []
   tasks:
 
     # Install
@@ -15,38 +14,6 @@
       set_fact:
         ansible_os_family: "RedHat"
       when: ansible_distribution == "Kylin Linux Advanced Server"
-
-    - name: Fetch /etc/os-release
-      raw: cat /etc/os-release
-      register: os_release
-      changed_when: false
-      check_mode: false
-
-    - name: Process yum_repo_url_dict for distribution "{{ ansible_distribution }}"
-      set_fact:
-        centos_yum_url: '{{ yum_repo_url_dict["centos"] }}'
-        redhat_yum_url: '{{ yum_repo_url_dict["redhat"] }}'
-        kylin_yum_url: '{{ yum_repo_url_dict["kylin"] }}'
-      when: yum_repo_url_dict|length > 0
-
-    - name: Set yum_repo_url_list for CentOS
-      set_fact:
-        yum_repo_url_list: '{{ centos_yum_url }}'
-      when: '''ID="centos"'' in os_release.stdout_lines'
-
-    - name: Set yum_repo_url_list for Redhat
-      set_fact:
-        yum_repo_url_list: '{{ redhat_yum_url }}'
-      when: '''ID="rhel"'' in os_release.stdout_lines'
-
-    - name: Set yum_repo_url_list for Kylin
-      set_fact:
-        yum_repo_url_list: '{{ kylin_yum_url }}'
-      when: '''ID="kylin"'' in os_release.stdout_lines'
-
-    - name: Show yum_repo_url_list
-      debug:
-        msg: 'yum_repo_url_list {{ yum_repo_url_list }}'
 
     - name: Checking if "{{ yum_repo_name }}" exists
       stat:
@@ -60,12 +27,12 @@
         mkdir -p {{ yum_repo_bak_path }}/ &&
         mv {{ yum_repo_src_path }}/ {{ yum_repo_bak_path }}/ &&
         mkdir -p {{ yum_repo_src_path }}/
-      when:
+      when: 
         - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
         - not undo|default(false)|bool
 
-    - name: Enable "{{ yum_repo_name }}" yum repositories for "{{ ansible_distribution }}"
+    - name: Enable "{{ yum_repo_name }}" yum repositories
       ansible.builtin.yum_repository:
         name: "{{ yum_repo_name }}-{{ url_index }}"
         description: "kubean {{ yum_repo_name }} {{ url_index }}"
@@ -79,7 +46,6 @@
       when:
         - ansible_os_family == "RedHat"
         - not undo|default(false)|bool
-
 
     # Uninstall
 
