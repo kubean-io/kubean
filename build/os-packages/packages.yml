@@ -3,9 +3,7 @@ yum:
   - conntrack-tools
   - container-selinux
 
-common:
-  - sshpass
-  - socat
+common: []
 
 docker:
   # https://docs.docker.com/engine/installation/linux/centos/#install-from-a-package
