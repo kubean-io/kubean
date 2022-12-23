@@ -11,64 +11,65 @@ set -e
 #
 # Usage: hack/run-e2e.sh
 
-# Run e2e 
-KUBECONFIG_PATH=${KUBECONFIG_PATH:-"${HOME}/.kube"}
-HOST_CLUSTER_NAME=${1:-"kubean-host"}
-SPRAY_JOB_VERSION=${2:-latest}
-vm_ip_addr=${3:-"10.6.127.33"}
-MAIN_KUBECONFIG=${MAIN_KUBECONFIG:-"${KUBECONFIG_PATH}/${HOST_CLUSTER_NAME}.config"}
-EXIT_CODE=0
-echo "currnent dir: "$(pwd)
+# Run e2e
 # Install ginkgo
+source "${REPO_ROOT}"/hack/util.sh
+source "${REPO_ROOT}"/hack/offline-util.sh
+
 GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
-
-# prepare vagrant vm as k8 cluster single node
-vm_clean_up(){
-    vagrant destroy -f default
-    exit $EXIT_CODE
-}
-
-trap vm_clean_up EXIT
 rm -f ~/.ssh/known_hosts
-vagrant init Kiowa/kubean-e2e-vm-template --box-version 0
-sed -i "$ i\  config.vm.network \"public_network\", ip: \"${vm_ip_addr}\", bridge: \"ens192\"" Vagrantfile
-vagrant up
-vagrant status
-ping -c 5 ${vm_ip_addr}
-sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr} cat /proc/version
+arch=amd64
+os_name="CENTOS7"
+util::vm_name_ip_init_online_by_os ${os_name}
+echo "vm_name1: ${vm_name1}"
+SNAPSHOT_NAME="os-installed"
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
+sleep 10
+echo "wait ${vm_ip_addr1} ..."
+util::wait_ip_reachable "${vm_ip_addr1}" 30
+echo "wait ${vm_ip_addr2} ..."
+util::wait_ip_reachable "${vm_ip_addr2}" 30
+ping -c 5 ${vm_ip_addr1}
+sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
 # print vm origin hostname
 echo "before deploy display hostname: "
-sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr} hostname
+sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} hostname
 
 # prepare kubean install job yml using containerd
 SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
-CLUSTER_OPERATION_NAME1="cluster1-install-"`date +%s`
-cp $(pwd)/test/common/hosts-conf-cm.yml $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/
-cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/
-cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/
-sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
-sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
-sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
-sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/" $(pwd)/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
+CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
+cp -f "${REPO_ROOT}"/test/common/hosts-conf-cm.yml "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
+cp -f "${REPO_ROOT}"/test/common/kubeanCluster.yml "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
+cp -f "${REPO_ROOT}"/test/common/vars-conf-cm.yml  "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
+cp -f "${REPO_ROOT}"/test/common/kubeanClusterOps.yml  "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
+sed -i "s/ip:/ip: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
+sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
+sed -i "s#image:#image: ${SPRAY_JOB}#" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
 # Run cluster function e2e
 
-ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"
-ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}" --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr}"
+ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}"
+ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+             --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr1}" --isOffline="false" --arch=${arch}
 
 # prepare kubean reset job yml
-cp $(pwd)/test/common/hosts-conf-cm.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
-cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
-cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/
-sed -i "s/ip:/ip: ${vm_ip_addr}/" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
-sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr}/" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
-sed -i "s#image:#image: ${SPRAY_JOB}#" $(pwd)/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
+cp "${REPO_ROOT}"/test/common/hosts-conf-cm.yml "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/
+cp "${REPO_ROOT}"/test/common/kubeanCluster.yml "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/
+cp "${REPO_ROOT}"/test/common/vars-conf-cm.yml  "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/
+sed -i "s/ip:/ip: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
+sed -i "s#image:#image: ${SPRAY_JOB}#" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
 
 # prepare kubean install job yml using docker
-CLUSTER_OPERATION_NAME2="cluster1-install-dcr"`date +%s`
-cp -r $(pwd)/test/kubean_functions_e2e/e2e-install-cluster $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker
-sed -i "s/${CLUSTER_OPERATION_NAME1}/${CLUSTER_OPERATION_NAME2}/" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
-sed -i "s/containerd/docker/" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
-sed -i "$ a\    override_system_hostname: false" $(pwd)/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+CLUSTER_OPERATION_NAME2="cluster1-install-dcr"`date "+%H-%M-%S"`
+cp -r "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker
+sed -i "s/${CLUSTER_OPERATION_NAME1}/${CLUSTER_OPERATION_NAME2}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
+#sed -i "s/containerd/docker/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+sed -i "$ a\    override_system_hostname: false" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kubeconfig="${MAIN_KUBECONFIG}"  --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr}"
+ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}"  \
+              --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr1}" --isOffline="false" --arch=${arch}
+
+SNAPSHOT_NAME="power-down"
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"

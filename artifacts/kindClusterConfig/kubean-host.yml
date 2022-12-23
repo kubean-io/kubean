@@ -4,12 +4,3 @@ nodes:
   # one node hosting a control plane
   - role: control-plane
     image: kindest-node:v1.25.3
-    extraPortMappings:
-      - containerPort: 32000 # MinIO  NodePort in kind, expose to host 32000
-        hostPort: 32000
-      - containerPort: 32001 # MinIO ui Nodeport in kind, expose to host 32001
-        hostPort: 32001
-      - containerPort: 31500 # Registry Nodeport in kind, expose to host 31500
-        hostPort: 31500
-      - containerPort: 31501 # Registry Nodeport in kind, expose to host 31501
-        hostPort: 31501
