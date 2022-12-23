@@ -1,1 +1,2 @@
 docker.m.daocloud.io/library/nginx:1.22
+docker.m.daocloud.io/arm64v8/nginx:1.23-alpine

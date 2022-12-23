@@ -30,12 +30,16 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		clusterInstallYamlsPath := "e2e-install-cluster"
 		nginxImage := "nginx:alpine"
 		offlineFlag := tools.IsOffline
-		klog.Info("offlineFlag is: ", offlineFlag)
 		offlineConfigs = tools.InitOfflineConfig()
-		if offlineFlag == "true" || offlineFlag == "True" {
-			nginxImage = offlineConfigs.NginxImage
+		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
+			nginxImage = offlineConfigs.NginxImageARM64
+		}
+		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "AMD64" {
+			nginxImage = offlineConfigs.NginxImageAMD64
 		}
 		klog.Info("nginx image is: ", nginxImage)
+		klog.Info("offlineFlag is: ", offlineFlag)
+		klog.Info("arch is: ", tools.Arch)
 		kubeanClusterOpsName := tools.ClusterOperationName
 		testClusterName := tools.TestClusterName
 		ginkgo.It("kubean cluster podStatus should be Succeeded", func() {

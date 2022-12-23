@@ -1,4 +1,6 @@
 ip:
-registry_addr:
+registry_addr_amd64:
+registry_addr_arm64:
 minio_addr:
-nginx_image:
+nginx_image_amd64:
+nginx_image_arm64:

@@ -324,6 +324,29 @@ function utils:runner_ip(){
     fi
 }
 
+# shellcheck disable=SC1036
+function utils::vm_name_ip_init_centos(){
+  echo "RUNNER_NAME: "${RUNNER_NAME}
+  if [ $RUNNER_NAME == "kubean_e2e_node1" ]; then
+    vm_ip_addr1="10.6.178.61"
+    vm_ip_addr2="10.6.178.62"
+    vm_name1="gwt-kubean-e2e-node1"
+    vm_name2="gwt-kubean-e2e-node2"
+  fi
+  if [ $RUNNER_NAME == "kubean_e2e_node2" ]; then
+      vm_ip_addr1="10.6.178.63"
+      vm_ip_addr2="10.6.178.64"
+      vm_name1="kubean-e2e-node3"
+      vm_name2="kubean-e2e-node4"
+    fi
+  if [ $RUNNER_NAME == "debug" ]; then
+      vm_ip_addr1="10.6.178.65"
+      vm_ip_addr2="10.6.178.66"
+      vm_name1="kubean-e2e-node5"
+      vm_name2="kubean-e2e-node6"
+  fi
+}
+
 ###### Clean Up #######
 function utils::clean_up(){
     echo "======= cluster prefix: ${CLUSTER_PREFIX}"

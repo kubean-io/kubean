@@ -30,7 +30,7 @@ data:
     kube_image_repo: "{{registry_host}}/registry.k8s.io"
 
     # docker image repo define
-    docker_image_repo: "{{registry_host}}/daocloud.io"
+    docker_image_repo: "{{registry_host}}/docker.io"
 
     # quay image repo define
     quay_image_repo: "{{registry_host}}/quay.io"
