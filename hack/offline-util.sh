@@ -263,7 +263,7 @@ function util::vm_name_ip_init_offline_by_os(){
     esac
   else
     case ${OS_NAME} in
-        "KYLIN")
+        "KYLINV10")
           vm_ip_addr1="10.16.10.165"
           vm_ip_addr2="10.16.10.166"
           vm_name1="gwt-kubean-offline-e2e-kylin-node1"
