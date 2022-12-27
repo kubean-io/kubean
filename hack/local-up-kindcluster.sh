@@ -18,7 +18,7 @@ KUBEAN_VERSION=${1:-latest}
 KUBEAN_IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
 IMG_REPO=${4:-"ghcr.io/kubean-io"}
-KIND_VERSION=${5:-"kindest/node:v1.21.1"}
+KIND_VERSION=${5:-"kindest/node:v1.25.3"}
 HOST_CLUSTER_NAME=${6:-"kubean-host"}
 
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
@@ -66,7 +66,11 @@ while read -r img2pull && [[ -n "$img2pull" ]] ; do
 done <<< "$IMAGE_LIST"
 
 #step1. prepare for kindClusterConfig
-KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host.yml
+if [ "${OFFLINE_FLAG}" == "true" ];then
+  KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host-offline.yml
+else
+  KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host.yml
+fi
 echo -e "Preparing kindClusterConfig in path: ${KIND_CLUSTER_CONF_PATH}"
 docker pull "${KIND_VERSION}"
 util::create_cluster "${HOST_CLUSTER_NAME}" "${MAIN_KUBECONFIG}" "${KIND_VERSION}" ${KIND_CLUSTER_CONF_PATH}
