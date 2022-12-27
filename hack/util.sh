@@ -325,26 +325,73 @@ function utils:runner_ip(){
 }
 
 # shellcheck disable=SC1036
-function utils::vm_name_ip_init_centos(){
-  echo "RUNNER_NAME: "${RUNNER_NAME}
-  if [ $RUNNER_NAME == "kubean_e2e_node1" ]; then
-    vm_ip_addr1="10.6.178.61"
-    vm_ip_addr2="10.6.178.62"
-    vm_name1="gwt-kubean-e2e-node1"
-    vm_name2="gwt-kubean-e2e-node2"
+function util::vm_name_ip_init_online_by_os(){
+  echo "RUNNER NAME: " $RUNNER_NAME
+  declare -u  OS_NAME=$1
+  echo "OS_NAME: " ${OS_NAME}
+  if [ "${RUNNER_NAME}" == "debug" ]; then
+      case ${OS_NAME} in
+          "CENTOS7")
+             vm_ip_addr1="172.30.41.71"
+             vm_ip_addr2="172.30.41.72"
+             vm_name1="gwt-kubean-e2e-node71"
+             vm_name2="gwt-kubean-e2e-node72"
+             ;;
+          "KYLINV10")
+              vm_ip_addr1="10.6.178.73"
+              vm_ip_addr2="10.6.178.74"
+              vm_name1="gwt-kubean-e2e-node73"
+              vm_name2="gwt-kubean-e2e-node74"
+              ;;
+     esac
   fi
-  if [ $RUNNER_NAME == "kubean_e2e_node2" ]; then
-      vm_ip_addr1="10.6.178.63"
-      vm_ip_addr2="10.6.178.64"
-      vm_name1="kubean-e2e-node3"
-      vm_name2="kubean-e2e-node4"
+  if [ "${RUNNER_NAME}" == "kubean-e2e-runner1" ]; then
+      case ${OS_NAME} in
+          "CENTOS7")
+              vm_ip_addr1="172.30.41.81"
+              vm_ip_addr2="172.30.41.82"
+              vm_name1="gwt-kubean-e2e-node81"
+              vm_name2="gwt-kubean-e2e-node82"
+              ;;
+          "KYLINV10")
+              vm_ip_addr1="10.6.178.83"
+              vm_ip_addr2="10.6.178.84"
+              vm_name1="gwt-kubean-e2e-node83"
+              vm_name2="gwt-kubean-e2e-node84"
+          ;;
+     esac
+  fi
+  if [ "${RUNNER_NAME}" == "kubean-e2e-runner2" ]; then
+        case ${OS_NAME} in
+            "CENTOS7")
+                vm_ip_addr1="10.6.178.91"
+                vm_ip_addr2="10.6.178.92"
+                vm_name1="gwt-kubean-e2e-node91"
+                vm_name2="gwt-kubean-e2e-node92"
+                ;;
+            "KYLINV10")
+                vm_ip_addr1="10.6.178.93"
+                vm_ip_addr2="10.6.178.94"
+                vm_name1="gwt-kubean-e2e-node93"
+                vm_name2="gwt-kubean-e2e-node94"
+            ;;
+      esac
+  fi
+
+  echo "vm_ip_addr1: $vm_ip_addr1"
+  echo "vm_ip_addr2: $vm_ip_addr2"
+}
+
+### Clean up the docker containers before test
+function util::clean_online_kind_cluster() {
+   echo "======= container prefix: ${CONTAINERS_PREFIX}"
+    kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
+    if [ "${kubean_containers_num}" ];then
+      echo "Remove exist containers name contains kubean..."
+      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f
+    else
+      echo "No container name contains kubean to delete."
     fi
-  if [ $RUNNER_NAME == "debug" ]; then
-      vm_ip_addr1="10.6.178.65"
-      vm_ip_addr2="10.6.178.66"
-      vm_name1="kubean-e2e-node5"
-      vm_name2="kubean-e2e-node6"
-  fi
 }
 
 ###### Clean Up #######
