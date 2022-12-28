@@ -203,3 +203,12 @@ func DoSonoBuoyCheck(masterSSH string) {
 	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("complete"))
 	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("passed"))
 }
+
+func CreatePod(podName, namespace, nodeName, image, kubeconfigFile string) {
+	overrideStr := fmt.Sprintf(`{"spec":{"nodeName":"%s"}}`, nodeName)
+	klog.Info("...overrideStr is: ", overrideStr)
+	//overrideStr := '{"spec":{"nodeName":"node1"}}'
+	createCmd := exec.Command("kubectl", "run", podName, "-n", namespace, "--image", image, "--overrides", overrideStr, "--kubeconfig", kubeconfigFile)
+	createCmdOut, err1 := DoErrCmd(*createCmd)
+	fmt.Println("create nginx1: ", createCmdOut.String(), err1.String())
+}
