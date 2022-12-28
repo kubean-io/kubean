@@ -37,7 +37,6 @@ echo "before deploy display hostname: "
 sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} hostname
 
 # prepare kubean install job yml using containerd
-SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 cp -f "${REPO_ROOT}"/test/common/hosts-conf-cm.yml "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
 cp -f "${REPO_ROOT}"/test/common/kubeanCluster.yml "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/
