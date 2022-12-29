@@ -12,6 +12,10 @@ env:
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
   KUBESPRAY_TAG: latest
+  VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
+  VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+  AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}
+  KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
   
 jobs:
   build-push-for-e2e:
@@ -87,4 +91,4 @@ jobs:
           CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
           HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
           echo ${{ runner.name }}
-          bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" "https://kubean-io.github.io/kubean-helm-chart/" "ghcr.io/kubean-io" "${CONTAINER_TAG}" ${{ runner.name }} "NIGHTLY"
+          bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY"
