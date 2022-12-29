@@ -11,6 +11,7 @@ var ClusterOperationName string
 var IsOffline string
 var Arch string
 var VmPassword string
+var OtherLabel string
 
 // k8s const
 const (
@@ -36,7 +37,7 @@ func init() {
 	flag.StringVar(&Vmipaddr2, "vmipaddr2", "", "vm worker ip address")
 	flag.StringVar(&Arch, "arch", "", "vm os arch")
 	flag.StringVar(&VmPassword, "vmPassword", "", "vm login password")
-
+	flag.StringVar(&OtherLabel, "otherLabel", "", "for not general label")
 }
 
 func FlagParse() {
