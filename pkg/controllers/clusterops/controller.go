@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -455,6 +456,11 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 					},
 				},
 			})
+	}
+	if !reflect.ValueOf(clusterOps.Spec.Resources).IsZero() {
+		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+			job.Spec.Template.Spec.Containers[0].Resources = clusterOps.Spec.Resources
+		}
 	}
 	return job
 }
