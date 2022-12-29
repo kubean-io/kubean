@@ -24,7 +24,7 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 		clusterResetYamlsPath := "e2e-reset-cluster"
 		kubeanClusterOpsName := "e2e-cluster1-reset"
 		var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
-
+		var password = tools.VmPassword
 		ginkgo.It("Kubean cluster podStatus should be Succeeded", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
@@ -74,22 +74,22 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			klog.Info("5.2 CRI check: execute systemctl status containerd.service")
 			gomega.Expect(err1).ShouldNot(gomega.BeNil())
 
-			newMasterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/opt"})
+			newMasterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "ls", "-al", "/opt"})
 			out2, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
 			klog.Info("5.3 CNI check1: execute ls -al /opt, the output should not contain cni")
 			gomega.Expect(out2.String()).ShouldNot(gomega.ContainSubstring("cni"))
 
-			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/etc"})
+			newMasterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "ls", "-al", "/etc"})
 			out3, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
 			klog.Info("5.4 CNI check2: execute ls -al /etc,the output should not contain cni")
 			gomega.Expect(out3.String()).ShouldNot(gomega.ContainSubstring("cni"))
 
-			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/root"})
+			newMasterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "ls", "-al", "/root"})
 			out4, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
 			klog.Info("5.6 k8s config file check: execute ls -al /root, the output should not contain .kube")
 			gomega.Expect(out4.String()).ShouldNot(gomega.ContainSubstring(".kube"))
 
-			newMasterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "-al", "/usr/local/bin"})
+			newMasterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "ls", "-al", "/usr/local/bin"})
 			out5, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
 			klog.Info("5.7 kubelet check: execute ls -al /usr/local/bin, the output should not contain kubelet")
 			gomega.Expect(out5.String()).ShouldNot(gomega.ContainSubstring("kubelet"))
@@ -107,11 +107,11 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			localKubeConfigPath := "cluster1-config-in-docker"
 
 			// modify hostname before reInstall
-			cmd := tools.RemoteSSHCmdArray([]string{masterSSH, "hostnamectl", "set-hostname", "hello-kubean"})
+			cmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostnamectl", "set-hostname", "hello-kubean"})
 			_, _ = tools.NewDoCmd("sshpass", cmd...)
 			// check hostname after deploy: hostname should be hello-kubean
 			var out, stderr bytes.Buffer
-			cmd = tools.RemoteSSHCmdArray([]string{masterSSH, "hostname"})
+			cmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostname"})
 			out, _ = tools.NewDoCmd("sshpass", cmd...)
 			fmt.Println("Fetched node hostname is: ", out.String())
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
@@ -156,20 +156,20 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 3600)
 
 			// check hostname after deploy: hostname should be hello-kubean
-			cmd = tools.RemoteSSHCmdArray([]string{masterSSH, "hostname"})
+			cmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostname"})
 			out, _ = tools.NewDoCmd("sshpass", cmd...)
 			fmt.Println("Fetched node hostname is: ", out.String())
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
 		})
 
 		ginkgo.It("[bug]Docker: when check docker functions", func() {
-			masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "docker", "info"})
+			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "docker", "info"})
 			out, _ := tools.NewDoCmd("sshpass", masterCmd...)
 			klog.Info("docker info to check if server running: ")
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("/var/lib/docker"))
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("Cgroup Driver: systemd"))
 
-			masterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "systemctl", "status", "docker"})
+			masterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "systemctl", "status", "docker"})
 			out1, _ := tools.NewDoCmd("sshpass", masterCmd...)
 			klog.Info("systemctl status containerd to check if docker running: ")
 			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("Active: active (running)"))

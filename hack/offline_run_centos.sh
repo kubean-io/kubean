@@ -26,7 +26,7 @@ util::vm_name_ip_init_offline_by_os ${os_name}
 # host-config-cm.yaml set
 sed -i "s/ip:/ip: ${vm_ip_addr1}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
-
+sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g"  ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 # kubeanClusterOps.yml sed
 sed -i "s#image:#image: ${SPRAY_JOB}#" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
 sed -i "s#e2e-cluster1-install#${CLUSTER_OPERATION_NAME1}#" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
@@ -46,7 +46,7 @@ ginkgo -v -race --fail-fast ./test/kubean_deploy_e2e/  -- --kubeconfig="${KUBECO
 
 ginkgo -v -race -timeout=3h --fail-fast --skip "\[bug\]" ./test/kubean_functions_e2e/  -- \
           --kubeconfig="${KUBECONFIG_FILE}" \
-          --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr1}" --isOffline="true" --arch=${arch}
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr1}" --isOffline="true" --arch=${arch} --vmPassword="${AMD_ROOT_PASSWORD}"
 
 # Prepare reset yaml
 CLUSTER_OPERATION_NAME2="e2e-cluster1-reset"
@@ -64,7 +64,7 @@ sed -i "$ a\    override_system_hostname: false" ${REPO_ROOT}/test/kubean_reset_
 echo "in shell arch is ${arch}"
 ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- \
           --kubeconfig="${KUBECONFIG_FILE}"  \
-          --clusterOperationName="${CLUSTER_OPERATION_NAME3}" --vmipaddr="${vm_ip_addr1}" --isOffline="true" --arch=${arch}
+          --clusterOperationName="${CLUSTER_OPERATION_NAME3}" --vmipaddr="${vm_ip_addr1}" --isOffline="true" --arch=${arch} --vmPassword="${AMD_ROOT_PASSWORD}"
 
 SNAPSHOT_NAME="power-down"
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
