@@ -120,6 +120,7 @@ func (in *Spec) DeepCopyInto(out *Spec) {
 		*out = make([]HookAction, len(*in))
 		copy(*out, *in)
 	}
+	in.Resources.DeepCopyInto(&out.Resources)
 	return
 }
 
