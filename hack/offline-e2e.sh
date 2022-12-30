@@ -10,25 +10,23 @@ export SPRAY_JOB_VERSION=$1
 export TAG_VERSION=$1
 export VSPHERE_USER=$2
 export VSPHERE_PASSWD=$3
-export KYLIN_VM_PASSWORD=$4
+export AMD_ROOT_PASSWORD=$4
+export KYLIN_VM_PASSWORD=$5
 export VSPHERE_HOST="10.64.56.11"
-export RUNNER_NAME=$5
+export RUNNER_NAME=$6
 export SPRAY_JOB="m.daocloud.io/ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 IMG_REPO="ghcr.io/kubean-io"
 HELM_REPO="https://kubean-io.github.io/kubean-helm-chart/"
 KUBECONFIG_PATH="${HOME}/.kube"
-CLUSTER_PREFIX="kubean-offline-${IMAGE_VERSION}-$RANDOM"
+CLUSTER_PREFIX="kubean-offline-$RANDOM"
 export KUBECONFIG_FILE="${KUBECONFIG_PATH}/${CLUSTER_PREFIX}-host.config"
 export OFFLINE_FLAG=true
-EXIT_CODE=0
-
 export REGISTRY_PORT_AMD64=31500
 export REGISTRY_PORT_ARM64=31501
 export MINIOUSER="admin"
 export MINIOPWD="adminPassword"
 export MINIOPORT=32000
-
 export CONTAINERS_PREFIX="kubean-offline"
 export DOWNLOAD_FOLDER="${REPO_ROOT}/download_offline_files-${TAG_VERSION}"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
@@ -43,16 +41,16 @@ chmod +x ${REPO_ROOT}/hack/offline_run_centos.sh
 
 registry_addr_amd64=${RUNNER_NODE_IP}:${REGISTRY_PORT_AMD64}
 registry_addr_arm64=${RUNNER_NODE_IP}:${REGISTRY_PORT_ARM64}
-local_helm_repo_alias="kubean-io"
+local_helm_repo_alias="kubean_release"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
 util::clean_offline_kind_cluster
-repoCount=$(helm repo list | grep "${local_helm_repo_alias}" && repoCount=true || repoCount=false)
-if [ "$repoCount" == "true" ]; then
-  helm repo remove ${local_helm_repo_alias}
-else
-   echo "repoCount:" $repoCount
+# add kubean repo locally
+repoCount=$(helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false)
+echo "repoCount: $repoCount"
+if [ "$repoCount" != "false" ]; then
+    helm repo remove ${local_helm_repo_alias}
 fi
 helm repo add ${local_helm_repo_alias} ${HELM_REPO}
 helm repo update

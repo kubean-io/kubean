@@ -27,6 +27,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		var offlineConfigs tools.OfflineConfig
 		var pod1Name = "nginx1"
 		var svc1Name = "nginxsvc1"
+		var password = tools.VmPassword
 		clusterInstallYamlsPath := "e2e-install-cluster"
 		nginxImage := "nginx:alpine"
 		offlineFlag := tools.IsOffline
@@ -85,7 +86,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 
 		ginkgo.It("set-hostname to node1", func() {
 			// hostname after deploy: hostname should be node1
-			hostnamecmd := tools.RemoteSSHCmdArray([]string{masterSSH, "hostname"})
+			hostnamecmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostname"})
 			hostnameout, _ := tools.NewDoCmd("sshpass", hostnamecmd...)
 
 			fmt.Println("hostname: ", hostnameout.String())
@@ -93,13 +94,13 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		})
 
 		ginkgo.It("systemctl status containerd to check if containerd running: ", func() {
-			masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "nerdctl", "info"})
+			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "nerdctl", "info"})
 			out, _ := tools.NewDoCmd("sshpass", masterCmd...)
 
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("k8s.io"))
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("Cgroup Driver: systemd"))
 
-			masterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "systemctl", "status", "containerd"})
+			masterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "systemctl", "status", "containerd"})
 			out1, _ := tools.NewDoCmd("sshpass", masterCmd...)
 
 			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("/etc/systemd/system/containerd.service;"))

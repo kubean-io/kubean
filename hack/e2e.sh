@@ -24,7 +24,7 @@ export IMG_REPO="ghcr.io/kubean-io"
 export VSPHERE_HOST="10.64.56.11"
 export OFFLINE_FLAG=false
 export KUBECONFIG_PATH="${HOME}/.kube"
-export CLUSTER_PREFIX="kubean-online-${IMAGE_VERSION}-$RANDOM"
+export CLUSTER_PREFIX="kubean-online-$RANDOM"
 export CONTAINERS_PREFIX="kubean-online"
 export KUBECONFIG_FILE="${KUBECONFIG_PATH}/${CLUSTER_PREFIX}-host.config"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
@@ -32,7 +32,6 @@ source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
 echo "IMAGE_VERSION: ${IMAGE_VERSION}"
-EXIT_CODE=0
 local_helm_repo_alias="kubean_release"
 
 # add kubean repo locally

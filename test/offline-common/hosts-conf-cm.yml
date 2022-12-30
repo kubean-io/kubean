@@ -13,7 +13,7 @@ data:
           ansible_host: 
           ansible_connection: ssh
           ansible_user: root
-          ansible_password: root
+          ansible_password: root_password
       children:
         kube_control_plane:
           hosts:
