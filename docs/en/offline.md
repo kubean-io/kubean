@@ -195,7 +195,7 @@ spec:
     - actionType: playbook
       action: enable-repo.yml  # Before deploying the cluster, run the enable-repo playbook to create a source configuration for each node with the specified url
       extraArgs: |
-        -e "{yum_repo_url_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
     - actionType: playbook
       action: disable-firewalld.yml
   postHook:

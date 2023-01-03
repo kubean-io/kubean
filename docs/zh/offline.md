@@ -200,10 +200,9 @@ sslverify=0
 
 ### 3. ClusterOperation 结合 playbook 创建源配置文件
 
-> 当前仅支持 Centos yum repo 的添加
+由于创建源的过程涉及到集群的所有节点, 手动脚本操作相对繁琐, 这里提供了一种 playbook 的解决方式.
 
-由于创建源的过程涉及到集群的所有节点, 手动脚本操作相对繁琐, 这里提供了一种 playbook 的解决方式:
-
+centos yum repo 的配置示例：
 ``` yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
@@ -221,7 +220,7 @@ spec:
     - actionType: playbook
       action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
       extraArgs: |
-        -e "{yum_repo_url_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
     - actionType: playbook
       action: disable-firewalld.yml
   postHook:
@@ -229,6 +228,36 @@ spec:
       action: cluster-info.yml
     - actionType: playbook
       action: enable-repo.yml  # 在部署集群后, 还原各节点 yum repo 配置. (注：此步骤, 可视情况添加.)
+      extraArgs: |
+        -e undo=true
+```
+
+ubuntu20.04 apt repo 的配置示例：
+``` yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  backoffLimit: 0
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置 [注：ubuntu 是 os package 离线资源，ubuntu-iso 是 iso 安装包资源]
+      extraArgs: |
+        -e "{repo_list: ['deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu/amd64 focal/', 'deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu-iso focal main restricted']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群后, 还原各节点 apt repo 配置. (注：此步骤, 可视情况添加.)
       extraArgs: |
         -e undo=true
 ```
