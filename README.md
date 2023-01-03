@@ -8,7 +8,8 @@
 
   <p>
 
-[<img src="docs/images/certified-kubernetes-color.png" height=150>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/images/certified-kubernetes-color.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/images/kubean-logo.png" height=120>](https://kubean-io.github.io/website/)
 <!--
 Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
 -->
