@@ -51,6 +51,7 @@ data:
     auto_renew_certificates: true
     local_path_provisioner_enabled: true
     ntp_enabled: true
+    kubeadm_init_timeout: 600s
 
     kube_service_addresses: 10.96.0.0/12
     kube_pods_subnet: 192.168.128.0/20

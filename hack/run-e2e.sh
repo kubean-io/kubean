@@ -31,10 +31,10 @@ util::wait_ip_reachable "${vm_ip_addr1}" 30
 echo "wait ${vm_ip_addr2} ..."
 util::wait_ip_reachable "${vm_ip_addr2}" 30
 ping -c 5 ${vm_ip_addr1}
-sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
+sshpass -p "${AMD_ROOT_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
 # print vm origin hostname
 echo "before deploy display hostname: "
-sshpass -p root ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} hostname
+sshpass -p "${AMD_ROOT_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} hostname
 
 # prepare kubean install job yml using containerd
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`

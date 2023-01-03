@@ -343,6 +343,18 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-node73"
               vm_name2="gwt-kubean-e2e-node74"
               ;;
+          "REDHAT8")
+              vm_ip_addr1="172.30.41.73"
+              vm_ip_addr2="172.30.41.74"
+              vm_name1="gwt-kubean-e2e-redhat8-node73"
+              vm_name2="gwt-kubean-e2e-redhat8-node74"
+              ;;
+          "REDHAT7")
+              vm_ip_addr1="172.30.41.75"
+              vm_ip_addr2="172.30.41.76"
+              vm_name1="gwt-kubean-e2e-redhat7-node75"
+              vm_name2="gwt-kubean-e2e-redhat7-node76"
+              ;;
      esac
   fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner1" ]; then
@@ -359,6 +371,18 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-node83"
               vm_name2="gwt-kubean-e2e-node84"
           ;;
+          "REDHAT8")
+              vm_ip_addr1="172.30.41.83"
+              vm_ip_addr2="172.30.41.84"
+              vm_name1="gwt-kubean-e2e-redhat8-node83"
+              vm_name2="gwt-kubean-e2e-redhat8-node84"
+              ;;
+          "REDHAT7")
+              vm_ip_addr1="172.30.41.85"
+              vm_ip_addr2="172.30.41.86"
+              vm_name1="gwt-kubean-e2e-redhat7-node85"
+              vm_name2="gwt-kubean-e2e-redhat7-node86"
+              ;;
      esac
   fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner2" ]; then
@@ -375,6 +399,18 @@ function util::vm_name_ip_init_online_by_os(){
                 vm_name1="gwt-kubean-e2e-node93"
                 vm_name2="gwt-kubean-e2e-node94"
             ;;
+            "REDHAT8")
+                vm_ip_addr1="10.6.178.93"
+                vm_ip_addr2="10.6.178.94"
+                vm_name1="gwt-kubean-e2e-redhat8-node93"
+                vm_name2="gwt-kubean-e2e-redhat8-node94"
+                ;;
+            "REDHAT7")
+                vm_ip_addr1="10.6.178.95"
+                vm_ip_addr2="10.6.178.96"
+                vm_name1="gwt-kubean-e2e-redhat7-node93"
+                vm_name2="gwt-kubean-e2e-redhat7-node94"
+                ;;
       esac
   fi
 
