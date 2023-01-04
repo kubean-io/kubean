@@ -45,6 +45,12 @@ local_helm_repo_alias="kubean_release"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
+if [[ ${HELM_CHART_VERSION} =~ .*rc ]];then
+  echo "RC version, remain the the kube_version to 1.24.7"
+else
+   sed -i '/kube_version: /d' ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml
+fi
+
 util::clean_offline_kind_cluster
 # add kubean repo locally
 repoCount=$(helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false)

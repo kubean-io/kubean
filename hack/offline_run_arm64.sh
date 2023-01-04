@@ -22,6 +22,8 @@ util::scope_copy_test_images ${registry_addr_arm64}
 ############### Case Prepare
 util::vm_name_ip_init_offline_by_os  ${os_name}
 util::init_kylin_vm_template_map
+rm -fr "${REPO_ROOT}"/test/kubean_os_compatibility_e2e/e2e-install-cluster/
+mkdir "${REPO_ROOT}"/test/kubean_os_compatibility_e2e/e2e-install-cluster/
 cp -f  ${REPO_ROOT}/test/offline-common/hosts-conf-cm-2nodes.yml ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/hosts-conf-cm.yml
 cp -f  ${REPO_ROOT}/test/offline-common/kubeanCluster.yml ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster
 cp -f  ${REPO_ROOT}/test/offline-common/kubeanClusterOps.yml ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster

@@ -17,11 +17,11 @@ import (
 	"github.com/kubean-io/kubean/test/tools"
 )
 
-var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", func() {
+var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
 	var workerSSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
 	// do cluster installation within docker
-	ginkgo.Context("when install a redhat84 cluster using docker", func() {
+	ginkgo.Context("when install a  cluster using docker", func() {
 		var offlineConfigs tools.OfflineConfig
 		var pod1Name = "nginx1"
 		var pod2Name = "nginx2"
@@ -43,7 +43,7 @@ var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", f
 		kubeanClusterOpsName := tools.ClusterOperationName
 		testClusterName := tools.TestClusterName
 
-		ginkgo.It("Start create RedHat85 K8S cluster", func() {
+		ginkgo.It("Start create K8S cluster", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "clientcmd.BuildConfigFromFlags error")
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
@@ -125,5 +125,4 @@ var _ = ginkgo.Describe("e2e test compatibility redhat84 1 master + 1 worker", f
 			tools.SvcCurl(tools.Vmipaddr, port, "Welcome to nginx!", 60)
 		})
 	})
-
 })
