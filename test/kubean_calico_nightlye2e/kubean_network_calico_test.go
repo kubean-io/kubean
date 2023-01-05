@@ -106,15 +106,15 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 		ginkgo.It("check calico tunnel valid", func() {
 			tunal_mode := tools.OtherLabel
 			klog.Info("tunal_mode is: ", tunal_mode)
-			poolCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "calicoctl", "get", "ippools", "--output=go-template=\"{{range .}}{{range .Items}}{{.ObjectMeta.Name}}{{end}}{{end}}\""})
+			poolCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "calicoctl", "get", "ippools", "--output=go-template=\"{{range .}}{{range .Items}}{{.ObjectMeta.Name}}{{end}}{{end}}\""})
 			poolName, _ := tools.NewDoCmd("sshpass", poolCmd...)
 			fmt.Println("check poolName: ", poolName.String())
 
-			ipmodeCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "calicoctl", "get", "ippools", poolName.String(), "--output=custom-columns=IPIPMODE"})
+			ipmodeCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "calicoctl", "get", "ippools", poolName.String(), "--output=custom-columns=IPIPMODE"})
 			ipmodeCmdOut, _ := tools.NewDoCmd("sshpass", ipmodeCmd...)
 			fmt.Println("check IPIPMODE: ", ipmodeCmdOut.String())
 
-			vxmodeCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "calicoctl", "get", "ippools", poolName.String(), "--output=custom-columns=VXLANMODE"})
+			vxmodeCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "calicoctl", "get", "ippools", poolName.String(), "--output=custom-columns=VXLANMODE"})
 			vxmodeCmdOut, _ := tools.NewDoCmd("sshpass", vxmodeCmd...)
 			fmt.Println("check VXLANMODE: ", vxmodeCmdOut.String())
 
