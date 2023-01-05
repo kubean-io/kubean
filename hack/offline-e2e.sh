@@ -53,7 +53,8 @@ fi
 
 util::clean_offline_kind_cluster
 # add kubean repo locally
-repoCount=$(helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false)
+repoCount=true
+helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false
 echo "repoCount: $repoCount"
 if [ "$repoCount" != "false" ]; then
     helm repo remove ${local_helm_repo_alias}
@@ -79,7 +80,7 @@ sed -i "/ip:/c\ip: ${RUNNER_NODE_IP}"  ${REPO_ROOT}/test/tools/offline_params.ym
 sed -i "/registry_addr_amd64:/c\registry_addr_amd64: ${registry_addr_amd64}"  ${REPO_ROOT}/test/tools/offline_params.yml
 sed -i "/registry_addr_arm64:/c\registry_addr_arm64: ${registry_addr_arm64}"  ${REPO_ROOT}/test/tools/offline_params.yml
 sed -i "/minio_addr:/c\minio_addr: ${MINIO_URL}"  ${REPO_ROOT}/test/tools/offline_params.yml
-nginx_image_name="${registry_addr_amd64}/test/docker.m.daocloud.io/library/nginx:1.22"
+nginx_image_name="${registry_addr_amd64}/test/docker.m.daocloud.io/library/nginx:alpine"
 sed -i "/nginx_image_amd64:/c\nginx_image_amd64: ${nginx_image_name} "  ${REPO_ROOT}/test/tools/offline_params.yml
 nginx_image_name="${registry_addr_arm64}/test/docker.m.daocloud.io/arm64v8/nginx:1.23-alpine"
 sed -i "/nginx_image_arm64:/c\nginx_image_arm64: ${nginx_image_name} "  ${REPO_ROOT}/test/tools/offline_params.yml

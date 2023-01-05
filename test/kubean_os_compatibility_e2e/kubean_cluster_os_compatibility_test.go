@@ -38,6 +38,7 @@ var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "AMD64" {
 			nginxImage = offlineConfigs.NginxImageAMD64
 		}
+		klog.Info("nginx images is:", nginxImage)
 		localKubeConfigPath := "cluster1-config"
 		clusterInstallYamlsPath := "e2e-install-cluster"
 		kubeanClusterOpsName := tools.ClusterOperationName
@@ -91,12 +92,8 @@ var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 
 			// do network check:
 			// => 1. create nginx1 pod on node1, create nginx2 pod on node2
-			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.KubeSystemNamespace, "--image", nginxImage, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
-			nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
-			klog.Info("create [%s] :", nginx1CmdOut.String(), err1.String())
-			nginx2Cmd := exec.Command("kubectl", "run", pod2Name, "-n", tools.DefaultNamespace, "--image", nginxImage, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node2")
-			nginx2CmdOut, err2 := tools.DoErrCmd(*nginx2Cmd)
-			klog.Info("create [%s] :", nginx2CmdOut.String(), err2.String())
+			tools.CreatePod(pod1Name, tools.KubeSystemNamespace, "node1", nginxImage, localKubeConfigPath)
+			tools.CreatePod(pod2Name, tools.DefaultNamespace, "node2", nginxImage, localKubeConfigPath)
 
 			// do network check:
 			// => 2. wait pod to be Running
