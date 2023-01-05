@@ -8,11 +8,16 @@ REPO_BASE_URL=''
 ISO_MOUNT_PATH=''
 
 MARK_NAME=Kubean
-ISO_REPO_CONF=${MARK_NAME}-ISO.repo
-URL_REPO_CONF=${MARK_NAME}-URL.repo
+YUM_ISO_REPO_CONF=${MARK_NAME}-ISO.repo
+YUM_URL_REPO_CONF=${MARK_NAME}-URL.repo
 
 YUM_REPOS_PATH=/etc/yum.repos.d
 YUM_REPOS_BAK_PATH=/etc/yum.repos.d.bak
+
+APT_REPOS_DIR=/etc/apt/sources.list.d
+APT_REPOS_PATH=/etc/apt/sources.list
+APT_ISO_REPO_CONF=${MARK_NAME}-ISO.list
+APT_URL_REPO_CONF=${MARK_NAME}-URL.list
 
 function check_iso_img() {
   if [ -z "${ISO_IMG_FILE}" ] || [ ! -f ${ISO_IMG_FILE} ]; then
@@ -49,7 +54,7 @@ function generate_yum_repo() {
 
   if [ ${MODE} == "iso" ]; then
     if [ "${OS}" == "rhel" ]; then
-      cat >${YUM_REPOS_PATH}/${ISO_REPO_CONF} <<EOF
+      cat >${YUM_REPOS_PATH}/${YUM_ISO_REPO_CONF} <<EOF
 [kubean-iso-BaseOS]
 name=Kubean ISO Repo BaseOS
 baseurl=file://${ISO_MOUNT_PATH}/BaseOS
@@ -65,7 +70,7 @@ gpgcheck=0
 sslverify=0
 EOF
     else
-    cat >${YUM_REPOS_PATH}/${ISO_REPO_CONF} <<EOF
+    cat >${YUM_REPOS_PATH}/${YUM_ISO_REPO_CONF} <<EOF
 [kubean-iso]
 name=Kubean ISO Repo
 baseurl=file://${ISO_MOUNT_PATH}
@@ -74,11 +79,11 @@ gpgcheck=0
 sslverify=0
 EOF
     fi
-    echo "generate: ${YUM_REPOS_PATH}/${ISO_REPO_CONF}"
+    echo "generate: ${YUM_REPOS_PATH}/${YUM_ISO_REPO_CONF}"
   fi
 
   if [ ${MODE} == "url" ]; then
-    cat >${YUM_REPOS_PATH}/${URL_REPO_CONF} <<EOF
+    cat >${YUM_REPOS_PATH}/${YUM_URL_REPO_CONF} <<EOF
 [kubean-extra]
 name=Kubean Extra Repo
 baseurl=${REPO_BASE_URL}
@@ -86,7 +91,46 @@ enabled=1
 gpgcheck=0
 sslverify=0
 EOF
-    echo "generate: ${YUM_REPOS_PATH}/${URL_REPO_CONF}"
+    echo "generate: ${YUM_REPOS_PATH}/${YUM_URL_REPO_CONF}"
+  fi
+}
+
+function backup_apt_repo() {
+  if [ $(ls -A ${APT_REPOS_DIR} | grep ${MARK_NAME} | wc -l) -eq 0 ]; then
+    mv ${APT_REPOS_DIR}{,.bak}
+    mkdir -p ${APT_REPOS_DIR}
+  fi
+  [ -f ${APT_REPOS_PATH} ] && mv ${APT_REPOS_PATH}{,.bak} || true
+}
+
+function get_apt_codename_from_os_release() {
+  echo "$(cat /etc/os-release | sed -n -r 's/^VERSION_CODENAME=|^UBUNTU_CODENAME=//p' | head -n1)"
+}
+
+function get_apt_codename_from_iso() {
+  for codename in $(find ${ISO_MOUNT_PATH}/dists/ -maxdepth 1 -type d -exec basename {} \;); do
+    [[ "${codename}" =~ xenial|bionic|focal|jammy ]] && { echo "${codename}"; return; }
+  done
+  echo $(get_apt_codename_from_os_release)
+}
+
+function generate_apt_repo() {
+  MODE=$1
+  echo "MODE: $MODE"
+  backup_apt_repo
+
+  if [ ${MODE} == "iso" ]; then
+    cat >${APT_REPOS_DIR}/${APT_ISO_REPO_CONF} <<EOF
+deb file://${ISO_MOUNT_PATH} $(get_apt_codename_from_iso) main restricted
+EOF
+    echo "generate: ${APT_REPOS_DIR}/${APT_ISO_REPO_CONF}"
+  fi
+
+  if [ ${MODE} == "url" ]; then
+    cat >${APT_REPOS_DIR}/${APT_URL_REPO_CONF} <<EOF
+deb ${REPO_BASE_URL} $(get_apt_codename_from_os_release) main restricted
+EOF
+    echo "generate: ${APT_REPOS_DIR}/${APT_URL_REPO_CONF}"
   fi
 }
 
@@ -109,7 +153,9 @@ function gen_repo_conf_with_iso() {
     generate_yum_repo iso rhel
     ;;
   debian | ubuntu)
-    echo "this linux distribution is temporarily not supported."
+    check_iso_img
+    mount_iso_file
+    generate_apt_repo iso
     ;;
 
   *)
@@ -132,7 +178,8 @@ function gen_repo_conf_with_url() {
     ;;
 
   debian | ubuntu)
-    echo "this linux distribution is temporarily not supported."
+    check_repo_url
+    generate_apt_repo url
     ;;
 
   *)
@@ -146,14 +193,14 @@ function show_usage() {
   cat <<EOF
 Usage
   $cmd [ -im | --iso-mode ] <linux_distribution> <iso_image_file>
-  $cmd [ -um | --url-mode ] <linux_distribution> <iso_image_file>
+  $cmd [ -um | --url-mode ] <linux_distribution> <repo_base_url>
 
 Commands
   -im, --iso-mode       use the iso image as the repo source
   -um, --url-mode       use url as repo source
 
 Arguments
-  linux_distribution       supported for centos, redhat(rhel) only
+  linux_distribution       supported for centos, redhat(rhel), ubuntu only
   iso_image_file           path to iso image file
   repo_base_url            url to access remote repo
 

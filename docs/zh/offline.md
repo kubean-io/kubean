@@ -105,7 +105,7 @@ $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_addre
 OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地
 ISO 镜像源.
 
-> 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前仅支持 Centos 发行版的 ISO 镜像源创建;
+> 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前支持 Centos、Redhat、Ubuntu 发行版的 ISO 镜像源创建;
 
 这里可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可挂载 ISO 镜像文件, 并创建 Repo 配置文件:
 

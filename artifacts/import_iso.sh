@@ -50,6 +50,12 @@ function unmount_iso_file() {
 
 function iso_os_version_arch() {
   for path in $(find $ISO_MOUNT_PATH); do
+    if [ -L "$path" ]; then
+      if echo "$path" | grep 'ubuntu' &>/dev/null; then
+        echo "/ubuntu-iso"
+        return
+      fi
+    fi
     if [ -f "$path" ]; then
       if echo "$path" | grep 'ky10.x86_64.rpm' >/dev/null 2>&1; then
         echo "/kylin-iso/10/os/x86_64"
@@ -121,6 +127,13 @@ function import_iso_data() {
   fi
   if [ -d "$ISO_MOUNT_PATH/AppStream" ]; then
     dirArray+=("$ISO_MOUNT_PATH/AppStream")
+  fi
+
+  if [ -d "$ISO_MOUNT_PATH/dists" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/dists")
+  fi
+  if [ -d "$ISO_MOUNT_PATH/pool" ]; then
+    dirArray+=("$ISO_MOUNT_PATH/pool")
   fi
   
   if [ "${#dirArray[@]}" -gt 0 ]; then
