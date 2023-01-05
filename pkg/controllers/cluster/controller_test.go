@@ -1,12 +1,24 @@
 package cluster
 
 import (
+	"context"
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
+	"kubean.io/api/apis"
 	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	"kubean.io/api/constants"
+	clusterv1alpha1fake "kubean.io/api/generated/cluster/clientset/versioned/fake"
+	clusteroperationv1alpha1fake "kubean.io/api/generated/clusteroperation/clientset/versioned/fake"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientsetfake "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
 func TestCompareClusterCondition(t *testing.T) {
@@ -118,4 +130,186 @@ func TestCompareClusterConditions(t *testing.T) {
 			t.Fatal()
 		}
 	}
+}
+
+func TestSortClusterOperationsByCreation(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args []clusteroperationv1alpha1.ClusterOperation
+		want []clusteroperationv1alpha1.ClusterOperation
+	}{
+		{
+			name: "empty slice",
+			args: nil,
+			want: nil,
+		},
+		{
+			name: "unsorted slice",
+			args: []clusteroperationv1alpha1.ClusterOperation{
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(2, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(1, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(3, 0)}},
+			},
+			want: []clusteroperationv1alpha1.ClusterOperation{
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(3, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(2, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(1, 0)}},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			controller.SortClusterOperationsByCreation(test.args)
+			if !reflect.DeepEqual(test.args, test.want) {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_CleanExcessClusterOps(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	exampleCluster := &clusterv1alpha1.Cluster{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Cluster",
+			APIVersion: "kubean.io/v1alpha1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "cluster1",
+		},
+		Spec: clusterv1alpha1.Spec{
+			HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+			VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+		},
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "get nothing",
+			args: func() bool {
+				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				return result
+			},
+			want: false,
+		},
+		{
+			name: "OpsBackupNum clusterOperations",
+			args: func() bool {
+				for i := 0; i < OpsBackupNum; i++ {
+					clusterOperation := &clusteroperationv1alpha1.ClusterOperation{
+						TypeMeta: metav1.TypeMeta{
+							Kind:       "ClusterOperation",
+							APIVersion: "kubean.io/v1alpha1",
+						},
+						ObjectMeta: metav1.ObjectMeta{
+							Name:              "my_kubean_ops_cluster_1_" + fmt.Sprint(i),
+							Labels:            map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+							CreationTimestamp: metav1.Unix(int64(i), 0),
+						},
+					}
+					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
+				}
+				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				return result
+			},
+			want: false,
+		},
+		{
+			name: "clean clusterOperations",
+			args: func() bool {
+				for i := 0; i < OpsBackupNum*2; i++ {
+					clusterOperation := &clusteroperationv1alpha1.ClusterOperation{
+						TypeMeta: metav1.TypeMeta{
+							Kind:       "ClusterOperation",
+							APIVersion: "kubean.io/v1alpha1",
+						},
+						ObjectMeta: metav1.ObjectMeta{
+							Name:              "my_kubean_ops_cluster_2_" + fmt.Sprint(i),
+							Labels:            map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+							CreationTimestamp: metav1.Unix(int64(i), 0),
+						},
+					}
+					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
+				}
+				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				return result
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_UpdateStatus(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	exampleCluster := &clusterv1alpha1.Cluster{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Cluster",
+			APIVersion: "kubean.io/v1alpha1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "cluster1",
+		},
+		Spec: clusterv1alpha1.Spec{
+			HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+			VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+		},
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "get nothing",
+			args: func() bool {
+				return controller.UpdateStatus(exampleCluster) == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func newFakeClient() client.Client {
+	sch := scheme.Scheme
+	if err := clusteroperationv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	if err := clusterv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&clusteroperationv1alpha1.ClusterOperation{}).WithRuntimeObjects(&clusterv1alpha1.Cluster{}).Build()
+	return client
 }

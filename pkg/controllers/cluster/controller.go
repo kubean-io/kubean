@@ -7,6 +7,7 @@ import (
 	"time"
 
 	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
 	clusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 	clusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 
@@ -26,9 +27,9 @@ const (
 
 type Controller struct {
 	client.Client
-	ClientSet           *kubernetes.Clientset
-	KubeanClusterSet    *clusterClientSet.Clientset
-	KubeanClusterOpsSet *clusterOperationClientSet.Clientset
+	ClientSet           kubernetes.Interface
+	KubeanClusterSet    clusterClientSet.Interface
+	KubeanClusterOpsSet clusterOperationClientSet.Interface
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -78,9 +79,7 @@ func (c *Controller) UpdateStatus(cluster *clusterv1alpha1.Cluster) error {
 		return err
 	}
 	// clusterOps list sort by creation timestamp
-	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
-		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
-	})
+	c.SortClusterOperationsByCreation(clusterOpsList.Items)
 	newConditions := make([]clusterv1alpha1.ClusterCondition, 0)
 	for _, item := range clusterOpsList.Items {
 		newConditions = append(newConditions, clusterv1alpha1.ClusterCondition{
@@ -99,6 +98,13 @@ func (c *Controller) UpdateStatus(cluster *clusterv1alpha1.Cluster) error {
 	return nil
 }
 
+// SortClusterOperationsByCreation operations from large to small by creation timestamp.
+func (c *Controller) SortClusterOperationsByCreation(operations []clusteroperationv1alpha1.ClusterOperation) {
+	sort.Slice(operations, func(i, j int) bool {
+		return operations[i].CreationTimestamp.After(operations[j].CreationTimestamp.Time)
+	})
+}
+
 // CleanExcessClusterOps clean up excess ClusterOperation.
 func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster) (bool, error) {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
@@ -110,13 +116,14 @@ func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster) (bo
 		return false, nil
 	}
 
-	// clusterOps list sort by creation timestamp
-	sort.Slice(clusterOpsList.Items, func(i, j int) bool {
-		return clusterOpsList.Items[i].CreationTimestamp.After(clusterOpsList.Items[j].CreationTimestamp.Time)
-	})
+	c.SortClusterOperationsByCreation(clusterOpsList.Items)
+
 	excessClusterOpsList := clusterOpsList.Items[OpsBackupNum:]
 	for _, item := range excessClusterOpsList {
-		klog.Warningf("Delete ClusterOperation: name: %s, createTime: %s", item.Name, item.CreationTimestamp.String())
+		if item.Status.Status == clusteroperationv1alpha1.RunningStatus { // keep running job
+			continue
+		}
+		klog.Warningf("Delete ClusterOperation: name: %s, createTime: %s, status: %s", item.Name, item.CreationTimestamp.String(), item.Status.Status)
 		c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Delete(context.Background(), item.Name, metav1.DeleteOptions{})
 	}
 	return true, nil
