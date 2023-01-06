@@ -3,6 +3,13 @@ yum:
   - conntrack-tools
   - container-selinux
 
+apt:
+  - conntrack
+  - socat
+  - unzip
+  - ebtables
+  - ntp
+
 common: []
 
 docker:

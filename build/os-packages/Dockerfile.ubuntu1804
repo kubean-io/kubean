@@ -11,11 +11,11 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh \
     && echo "deb [arch=$ARCH] https://download.docker.com/linux/ubuntu ${OS_VERSION} stable" > /etc/apt/sources.list.d/docker.list\
     && apt update -qq
 
-WORKDIR /ubuntu1804/${TARGETARCH}
+WORKDIR /ubuntu/${TARGETARCH}
 COPY build/os-packages/packages.yml .
 
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.common[],.docker.ubuntu1804[]' packages.yml > packages.list \
+RUN yq eval '.apt[],.common[],.docker.ubuntu1804[]' packages.yml > packages.list \
     && while read -r line; do apt-get install --reinstall --print-uris ${line} | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; done <<<"$(sort -u packages.list)"
 
 RUN cat urls.list | sort | uniq > packages.list \
@@ -23,4 +23,4 @@ RUN cat urls.list | sort | uniq > packages.list \
     && dpkg-scanpackages ${OS_VERSION} | gzip -9c > ${OS_VERSION}/Packages.gz
 
 FROM scratch
-COPY --from=os-bionic /ubuntu1804 /resources/ubuntu1804
+COPY --from=os-bionic /ubuntu /resources/ubuntu

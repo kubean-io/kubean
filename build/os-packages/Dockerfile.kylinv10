@@ -6,7 +6,7 @@ WORKDIR /kylin/${OS_VERSION}/os
 COPY build/os-packages/repos/kylin.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.yum[],.common[],.docker.kylinv10[]' packages.yml > packages.list
+RUN yq eval '.yum[],.docker.kylinv10[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && dnf install -y ${BUILD_TOOLS} \

@@ -3,10 +3,17 @@
   become: yes
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   vars:
-    yum_repo_name: extension
+    repo_name: extension
+    repo_list: []
+
     yum_repo_src_path: /etc/yum.repos.d
     yum_repo_bak_path: /etc/yum.repos.d.bak
-    yum_repo_url_list: []
+
+    apt_repo_src_file: /etc/apt/sources.list
+    apt_repo_bak_file: /etc/apt/sources.list.bak
+    apt_repo_src_path: /etc/apt/sources.list.d
+    apt_repo_bak_path: /etc/apt/sources.list.d.bak
+
   tasks:
 
     # Install
@@ -15,31 +22,32 @@
         ansible_os_family: "RedHat"
       when: ansible_distribution == "Kylin Linux Advanced Server"
 
-    - name: Checking if "{{ yum_repo_name }}" exists
+    ## yum repository config
+    - name: Checking if "{{ repo_name }}" exists
       stat:
-        path: "{{ yum_repo_src_path }}/{{ yum_repo_name }}.repo"
+        path: "{{ yum_repo_src_path }}/{{ repo_name }}.repo"
       register: file_data
       when:
         - ansible_os_family == "RedHat"
 
-    - name: Move(Backup) original yum repo if "{{ yum_repo_name }}" not exist
+    - name: Move(Backup) original yum repo if "{{ repo_name }}" not exist
       shell: >-
         mkdir -p {{ yum_repo_bak_path }}/ &&
         mv {{ yum_repo_src_path }}/ {{ yum_repo_bak_path }}/ &&
         mkdir -p {{ yum_repo_src_path }}/
       when: 
         - ansible_os_family == "RedHat"
-        - not file_data.stat.exists and ( yum_repo_url_list | length > 0 )
+        - not file_data.stat.exists and ( repo_list | length > 0 )
         - not undo|default(false)|bool
 
-    - name: Enable "{{ yum_repo_name }}" yum repositories
+    - name: Enable "{{ repo_name }}" yum repositories
       ansible.builtin.yum_repository:
-        name: "{{ yum_repo_name }}-{{ url_index }}"
-        description: "kubean {{ yum_repo_name }} {{ url_index }}"
-        file: "{{ yum_repo_name }}"
+        name: "{{ repo_name }}-{{ url_index }}"
+        description: "kubean {{ repo_name }} {{ url_index }}"
+        file: "{{ repo_name }}"
         baseurl: "{{ url_item }}"
         gpgcheck: no
-      loop: "{{ yum_repo_url_list }}"
+      loop: "{{ repo_list }}"
       loop_control:
         loop_var: url_item
         index_var: url_index
@@ -47,11 +55,41 @@
         - ansible_os_family == "RedHat"
         - not undo|default(false)|bool
 
+    ## apt repository config
+    - name: Checking if apt "{{ repo_name }}" exists
+      stat:
+        path: "{{ apt_repo_src_path }}/{{ repo_name }}.list"
+      register: deb_repo_data
+      when:
+        - ansible_pkg_mgr == 'apt'
+
+    - name: Move(Backup) original apt repo if "{{ repo_name }}" not exist
+      shell: >-
+        mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }} &&
+        mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/ &&
+        mkdir -p {{ apt_repo_src_path }}/
+      when:
+        - ansible_pkg_mgr == 'apt'
+        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+        - not undo|default(false)|bool
+
+    - name: Enable "{{ repo_name }}" apt repositories
+      apt_repository:
+        repo: "{{ item }}"
+        state: present
+        filename: "{{ repo_name }}"
+      with_items: "{{ repo_list }}"
+      when:
+        - ansible_pkg_mgr == 'apt'
+        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+        - not undo|default(false)|bool
+
     # Uninstall
 
+    ## yum repository config
     - name: Clean extension repo
       shell: >
-        rm -rf {{ yum_repo_src_path }}/{{ yum_repo_name }}.repo
+        rm -rf {{ yum_repo_src_path }}/{{ repo_name }}.repo
       args:
         executable: /bin/bash
       register: clean_repo_result
@@ -85,3 +123,30 @@
         - undo|default(false)|bool
         - ansible_os_family == "RedHat"
         - repo_bak_path.stat.exists
+
+    ## apt repository config
+    - name: Checking if apt "{{ apt_repo_bak_file }}" exists
+      stat:
+        path: "{{ apt_repo_bak_file }}"
+      register: list_file
+      when:
+        - undo|default(false)|bool
+        - ansible_pkg_mgr == 'apt'
+
+    - name: Checking if apt "{{ apt_repo_bak_path }}" exists
+      stat:
+        path: "{{ apt_repo_bak_path }}"
+      register: list_path
+      when:
+        - undo|default(false)|bool
+        - ansible_pkg_mgr == 'apt'
+
+    - name: Restore apt repositories
+      shell: >-
+        mv {{ apt_repo_bak_file }} {{ apt_repo_src_file }} &&
+        rm {{ apt_repo_src_path }}/ -rf &&
+        mv {{ apt_repo_bak_path }}/ {{ apt_repo_src_path }}/
+      when:
+        - undo|default(false)|bool
+        - list_file.stat.exists and list_path.stat.exists
+        - ansible_pkg_mgr == 'apt'
