@@ -454,6 +454,25 @@ func TestNewKubesprayJob(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "activeDeadlineSeconds args",
+			args: func() bool {
+				ActiveDeadlineSeconds := int64(10)
+				clusterOps.Spec.ActiveDeadlineSeconds = &ActiveDeadlineSeconds
+				job := controller.NewKubesprayJob(clusterOps)
+				return *job.Spec.ActiveDeadlineSeconds == 10
+			},
+			want: true,
+		},
+		{
+			name: "nil activeDeadlineSeconds args",
+			args: func() bool {
+				clusterOps.Spec.ActiveDeadlineSeconds = nil
+				job := controller.NewKubesprayJob(clusterOps)
+				return job.Spec.ActiveDeadlineSeconds == nil
+			},
+			want: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

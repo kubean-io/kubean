@@ -457,6 +457,9 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 				},
 			})
 	}
+	if clusterOps.Spec.ActiveDeadlineSeconds != nil && *clusterOps.Spec.ActiveDeadlineSeconds > 0 {
+		job.Spec.ActiveDeadlineSeconds = clusterOps.Spec.ActiveDeadlineSeconds
+	}
 	if !reflect.ValueOf(clusterOps.Spec.Resources).IsZero() {
 		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
 			job.Spec.Template.Spec.Containers[0].Resources = clusterOps.Spec.Resources

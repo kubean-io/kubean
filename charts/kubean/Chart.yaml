@@ -1,6 +1,3 @@
-annotations:
-  addon.kpanda.io/namespace: kubean-system
-  addon.kpanda.io/release-name: kubean
 apiVersion: v2
 name: kubean
 description: A Helm chart for kubean
