@@ -15,7 +15,7 @@ WORKDIR /ubuntu/${TARGETARCH}
 COPY build/os-packages/packages.yml .
 
 COPY --from=mikefarah/yq:4.27.2 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.apt[],.common[],.docker.ubuntu1804[]' packages.yml > packages.list \
+RUN yq eval '.apt[],.docker.ubuntu1804[]' packages.yml > packages.list \
     && while read -r line; do apt-get install --reinstall --print-uris ${line} | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; done <<<"$(sort -u packages.list)"
 
 RUN cat urls.list | sort | uniq > packages.list \
