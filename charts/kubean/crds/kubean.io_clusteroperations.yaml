@@ -45,6 +45,9 @@ spec:
                 type: string
               actionType:
                 type: string
+              activeDeadlineSeconds:
+                format: int64
+                type: integer
               backoffLimit:
                 type: integer
               cluster:

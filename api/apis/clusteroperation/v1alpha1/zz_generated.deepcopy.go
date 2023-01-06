@@ -121,6 +121,11 @@ func (in *Spec) DeepCopyInto(out *Spec) {
 		copy(*out, *in)
 	}
 	in.Resources.DeepCopyInto(&out.Resources)
+	if in.ActiveDeadlineSeconds != nil {
+		in, out := &in.ActiveDeadlineSeconds, &out.ActiveDeadlineSeconds
+		*out = new(int64)
+		**out = **in
+	}
 	return
 }
 
