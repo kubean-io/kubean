@@ -14,3 +14,4 @@
         - ansible_distribution == "RedHat"
         - ansible_distribution_version == "8.4"
         - not rhel_enable_repos
+        - container_manager == "docker"
