@@ -90,9 +90,9 @@ jobs:
         run: |
           CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
           HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
-          CONDITION_COUNT=$(echo ${CONTAINER_TAG}|grep -o '-'|wc -l)
-          if (( ${CONDITION_COUNT} >= 3 ));then
-             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
           fi
           echo ${{ runner.name }}
           echo "${HELM_CHART_VERSION}" 
