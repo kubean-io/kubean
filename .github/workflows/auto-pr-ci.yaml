@@ -9,7 +9,6 @@ on:
 
 env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
-  KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
   AIRGAP_PATCH_IMAGE_NAME: airgap-patch
   KUBESPRAY_TAG: latest

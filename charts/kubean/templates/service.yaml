@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "kubean.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.kubeanOperator.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.kubeanOperator.service.port }}
       targetPort: http
       protocol: TCP
       name: http
