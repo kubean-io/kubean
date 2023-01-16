@@ -59,19 +59,18 @@ jobs:
 
       - name: update helm version and image tag
         run: |
-          CHART_VERSION="version: ${GITHUB_REF_NAME}"
-          CHART_IMAGE_TAG="${GITHUB_REF_NAME}"
-          sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
-          # example =>  tag: v0.1.0
-          sed -i "/tag:/c\ \ tag: ${CHART_IMAGE_TAG}" charts/kubean/values.yaml
+          yq -i ".version=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+          yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+          yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+          yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
 
       - name: helm checkout
         run: |
-             pushd charts
-             tar zcvf kubean.tar.gz kubean
-             bash ../hack/verify_helm_standard.sh kubean.tar.gz
-             rm -rf kubean.tar.gz
-             popd
+          pushd charts
+          tar zcvf kubean.tar.gz kubean
+          bash ../hack/verify_helm_standard.sh kubean.tar.gz
+          rm -rf kubean.tar.gz
+          popd
 
       - name: Pushes charts to another repository
         id: push_directory

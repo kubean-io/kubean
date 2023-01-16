@@ -6,47 +6,47 @@ metadata:
   labels:
     {{- include "kubean.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.kubeanOperator.replicaCount }}
   selector:
     matchLabels:
       {{- include "kubean.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with .Values.kubeanOperator.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
         {{- include "kubean.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- with .Values.kubeanOperator.image.pullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "kubean.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.kubeanOperator.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+            {{- toYaml .Values.kubeanOperator.securityContext | nindent 12 }}
+          image: "{{ .Values.kubeanOperator.image.registry }}/{{ .Values.kubeanOperator.image.repository }}:{{ .Values.kubeanOperator.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.kubeanOperator.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
+            {{- toYaml .Values.kubeanOperator.resources | nindent 12 }}
+      {{- with .Values.kubeanOperator.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.kubeanOperator.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.kubeanOperator.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

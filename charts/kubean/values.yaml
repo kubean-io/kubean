@@ -2,42 +2,18 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-## @param global kubean global config
-global:
-  ## @param global.imageRegistry Global Docker image registry
-  imageRegistry: ""
-  ## E.g.
-  ## imagePullSecrets:
-  ##   - myRegistryKeySecretName
-  imagePullSecrets: []
+## define kubean-operator configuration
+kubeanOperator:
+  replicaCount: 1
+  nameOverride: ""
+  fullnameOverride: ""
 
-replicaCount: 1
+  podAnnotations: {}
 
-image:
-  repository: ghcr.io/kubean-io/kubean-operator
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
+  podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
+  securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -45,14 +21,33 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 80
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
 
-# @param installCRDs define flag whether to install CRD resources
-installCRDs: true
+  ## define kubean-operator image
+  image:
+    # -- kubean-operator image registry
+    registry: ghcr.io
+    # -- kubean-operator image registry
+    repository: kubean-io/kubean-operator
+    # -- the image tag whose default is the chart appVersion
+    tag: ""
+    # -- Pull policy of image
+    pullPolicy: IfNotPresent
+    # -- Pull secrets of image
+    pullSecrets: []
 
-resources: {}
+  service:
+    type: ClusterIP
+    port: 80
+
+  resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -64,8 +59,19 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-nodeSelector: {}
+  nodeSelector: {}
 
-tolerations: []
+  tolerations: []
+  
+  affinity: {}
 
-affinity: {}
+## define spray-job configuration
+sprayJob:
+  ## define spray-job image
+  image:
+    # -- spray-job image registry
+    registry: ghcr.io
+    # -- spray-job image registry
+    repository: kubean-io/spray-job
+    # -- the image tag whose default is the chart appVersion
+    tag: ""

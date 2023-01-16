@@ -1,0 +1,4 @@
+# kubean-operator
+- "{{ .kubeanOperator.image.registry }}/{{ .kubeanOperator.image.repository }}:{{ .kubeanOperator.image.tag }}"
+# spray-job
+- "{{ .sprayJob.image.registry }}/{{ .sprayJob.image.repository }}:{{ .sprayJob.image.tag }}"
