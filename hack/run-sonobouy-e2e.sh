@@ -8,7 +8,7 @@ check_yq_intalled(){
     yq_installed=0
     yq -V |grep 'version' && yq_installed=true || yq_installed=false
     if [ "${yq_installed}" == "false" ]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.27.5/yq_linux_amd64 && \
+        wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 && \
             sudo mv yq_linux_amd64 /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
     fi
 }
