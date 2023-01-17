@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: kubean-io/website
           ref: main
@@ -23,9 +23,9 @@ jobs:
             sed -i "/Release Notes/a\ \ \* [Release ${latest_release}](00Releases/${latest_release}.md)" docs/honkit/en/SUMMARY.md
             sed -i "/Release Notes/a\ \ \* [Release ${latest_release}](00Releases/${latest_release}.md)" docs/honkit/zh/SUMMARY.md
 
-      - name: Pushes charts to another repository
+      - name: Pushes release notes to website
         id: push_directory
-        uses: cpina/github-action-push-to-another-repository@ssh-deploy-key
+        uses: cpina/github-action-push-to-another-repository@v1.5.1
         env:
           SSH_DEPLOY_KEY: ${{ secrets.WEBSITE_SSH_DEPLOY_KEY }}
         with:

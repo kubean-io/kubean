@@ -33,7 +33,7 @@ jobs:
         path: ./kubespray
 
     - name: Install yq tool
-      uses: mikefarah/yq@v4.27.2
+      uses: mikefarah/yq@v4.30.8
 
     - name: Generate InfoManifest & OfflineVersion files
       env:

@@ -14,7 +14,7 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
     && wget https://github.com/lework/skopeo-binary/releases/download/v1.9.3/skopeo-linux-$ARCH \
     && chmod +x skopeo-linux-$ARCH \
     && mv skopeo-linux-$ARCH /usr/bin/skopeo \
-    && wget https://github.com/mikefarah/yq/releases/download/v4.29.2/yq_linux_$ARCH \
+    && wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_$ARCH \
     && chmod +x yq_linux_$ARCH \
     && mv yq_linux_$ARCH /usr/bin/yq \
     && ln -s /kubespray /kubean/kubespray
