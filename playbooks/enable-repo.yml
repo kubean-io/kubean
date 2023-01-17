@@ -148,5 +148,5 @@
         mv {{ apt_repo_bak_path }}/ {{ apt_repo_src_path }}/
       when:
         - undo|default(false)|bool
-        - list_file.stat.exists and list_path.stat.exists
         - ansible_pkg_mgr == 'apt'
+        - list_file.stat.exists and list_path.stat.exists
