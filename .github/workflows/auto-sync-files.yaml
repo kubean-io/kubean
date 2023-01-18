@@ -1,0 +1,17 @@
+name: Auto TEST CI
+on:
+  # refer: https://crontab.guru/examples.html
+  # At 00:00 on day-of-month 20.
+  schedule:
+    - cron: '10 * * * *'
+    - cron: '5 * * * *'
+jobs:
+  echo-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step1
+        run: |
+            echo "hello word"
+      - name: Step2
+        run: |
+          echo "hello word2"
