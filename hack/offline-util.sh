@@ -22,13 +22,25 @@ function util::restore_vsphere_vm_snapshot() {
   VSPHERE_PASSWD=${2}
   VSPHERE_USER=${3}
   SNAPSHOT_NAME=${4}
-  vm_name=${5:-""}
+  vm_name=${5}
   echo "Start restore vm snapshot..."
   # shell脚本不支持传数组，就改用文件方式获取虚拟机名称列表 hack/vm_name.list
   # vsphere python package
   if [ ! -d "pyvmomi-community-samples" ]; then
     pip3 install -v pyvmomi==7.0.3
-    git clone https://github.com/vmware/pyvmomi-community-samples.git
+    for ((i=0;i <5; i++)){
+       cloneOk="true"
+       git clone https://github.com/vmware/pyvmomi-community-samples.git  || cloneOk="false"
+       if [ ${cloneOk} == "false" ];then
+          echo "pyvmomi clone failed, try later..."
+          sleep 10
+       else
+         echo "pyvmomi clone ok."
+         break
+       fi
+    }
+
+
   else
     echo "vmware python repo exist"
   fi
@@ -37,12 +49,8 @@ function util::restore_vsphere_vm_snapshot() {
       echo "restore $vm_name..."
       python3 pyvmomi-community-samples/samples/snapshot_operations.py -s ${VSPHERE_HOST} -u ${VSPHERE_USER} -p ${VSPHERE_PASSWD} -nossl -v "${vm_name}" -op revert --snapshot-name ${SNAPSHOT_NAME}
   else
-    for i in $(cat hack/vm_name.list);
-    do
-      # revert vm snapshot
-      echo ${i}
-       python3 pyvmomi-community-samples/samples/snapshot_operations.py -s ${VSPHERE_HOST} -u ${VSPHERE_USER} -p ${VSPHERE_PASSWD} -nossl -v "${i}" -op revert --snapshot-name ${SNAPSHOT_NAME}
-    done
+      echo "vm_name empty, exit."
+      exit 1
   fi
   echo "Restore vm snapshot end!"
 }
@@ -128,9 +136,11 @@ function util::download_offline_files_by_tag(){
   # os pkgs
   f_os_centos7=${base_url}/os-pkgs-centos7-${tag}.tar.gz
   f_os_kylin10=${base_url}/os-pkgs-kylinv10-${tag}.tar.gz
+  f_os_redhat8=${base_url}/os-pkgs-redhat8-${tag}.tar.gz
+  f_os_redhat7=${base_url}/os-pkgs-redhat7-${tag}.tar.gz
   # shellcheck disable=SC2206
   file_down_list=(${f_files_amd64_tgz}  ${f_images_amd64_tgz} ${f_files_arm64__tgz} ${f_images_arm64_tgz} \
-                  ${f_os_centos7} ${f_os_kylin10})
+                  ${f_os_centos7} ${f_os_kylin10} ${f_os_redhat8} ${f_os_redhat7})
   for (( i=0; i<${#file_down_list[@]};i++)); do
     echo "${file_down_list[$i]}"
     wget -q -c  -P  "${download_folder}"  "${file_down_list[$i]}"
@@ -249,8 +259,8 @@ function util::vm_name_ip_init_offline_by_os(){
   if [ "${RUNNER_NAME}" == "debug" ]; then
     case ${OS_NAME} in
         "KYLINV10")
-           vm_ip_addr1="10.16.10.167"
-           vm_ip_addr2="10.16.10.168"
+           vm_ip_addr1="10.5.127.167"
+           vm_ip_addr2="10.5.127.168"
            vm_name1="gwt-kubean-offline-e2e-kylin-node3"
            vm_name2="gwt-kubean-offline-e2e-kylin-node4"
            ;;
@@ -260,12 +270,24 @@ function util::vm_name_ip_init_offline_by_os(){
             vm_name1="gwt-kubean-offline-e2e-node3"
             vm_name2="gwt-kubean-offline-e2e-node4"
             ;;
+        "REDHAT8")
+            vm_ip_addr1="10.5.127.205"
+            vm_ip_addr2="10.5.127.206"
+            vm_name1="gwt-kubean-offline-e2e-redhat8-node205"
+            vm_name2="gwt-kubean-offline-e2e-redhat8-node206"
+            ;;
+        "REDHAT7")
+            vm_ip_addr1="10.5.127.207"
+            vm_ip_addr2="10.5.127.208"
+            vm_name1="gwt-kubean-offline-e2e-redhat7-node207"
+            vm_name2="gwt-kubean-offline-e2e-redhat7-node208"
+            ;;
     esac
   else
     case ${OS_NAME} in
         "KYLINV10")
-          vm_ip_addr1="10.16.10.165"
-          vm_ip_addr2="10.16.10.166"
+          vm_ip_addr1="10.5.127.165"
+          vm_ip_addr2="10.5.127.166"
           vm_name1="gwt-kubean-offline-e2e-kylin-node1"
           vm_name2="gwt-kubean-offline-e2e-kylin-node2"
            ;;
@@ -275,6 +297,17 @@ function util::vm_name_ip_init_offline_by_os(){
           vm_name1="gwt-kubean-offline-e2e-node1"
           vm_name2="gwt-kubean-offline-e2e-node2"
           ;;
+        "REDHAT8")
+            vm_ip_addr1="10.5.127.201"
+            vm_ip_addr2="10.5.127.202"
+            vm_name1="gwt-kubean-offline-e2e-redhat8-node201"
+            vm_name2="gwt-kubean-offline-e2e-redhat8-node202"
+            ;;
+        "REDHAT7")
+            vm_ip_addr1="10.5.127.203"
+            vm_ip_addr2="10.5.127.204"
+            vm_name1="gwt-kubean-offline-e2e-redhat7-node203"
+            vm_name2="gwt-kubean-offline-e2e-redhat7-node204"
     esac
   fi
   echo "vm name1:  $vm_name1"
@@ -365,15 +398,20 @@ function wait_kylin_vm_undefine(){
 function util::wait_ip_reachable(){
     vm_ip=$1
     loop_time=$2
-    ATTEMPTS=0
-    pingOK=0
     echo "Wait vm_ip=$1 reachable ... "
-    ping -w 2 -c 1 ${vm_ip}|grep "0%" && pingOK=true || pingOK=false
-    until [ "${pingOK}" == "true" ] || [ $ATTEMPTS -eq $((loop_time)) ]; do
-    ping -w 2 -c 1 ${vm_ip}|grep "0%" && pingOK=true || pingOK=false
-    echo "==> ping "${vm_ip} $pingOK
-    ATTEMPTS=$((ATTEMPTS + 1))
-    sleep 10
+    for ((i=1;i<=$((loop_time));i++)); do
+      pingOK=0
+      ping -w 2 -c 1 ${vm_ip}|grep "0%" || pingOK=false
+      echo "==> ping "${vm_ip} $pingOK
+      if [[ ${pingOK} == false ]];then
+        sleep 10
+      else
+        break
+      fi
+      if [ $i -eq $((loop_time)) ];then
+        echo "node not reachable exit!"
+        exit 1
+      fi
     done
 }
 

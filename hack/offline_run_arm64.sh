@@ -31,7 +31,7 @@ cp -f  ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml ${REPO_ROOT}/test/kubea
 
 # host-config-cm.yaml set
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
-ARM64_SERVER_IP="172.30.120.5"
+ARM64_SERVER_IP="10.0.6.17"
 ARM64_SERVER_PASSWORD="Admin@9000"
 sed -i "s/vm_ip_addr1/${vm_ip_addr1}/g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/vm_ip_addr2/${vm_ip_addr2}/g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/hosts-conf-cm.yml
@@ -48,15 +48,14 @@ sed -i "s#registry_host_key#${registry_addr_arm64}#g"    ${REPO_ROOT}/test/kubea
 sed -i "s#{{ files_repo }}/centos#{{ files_repo }}/kylin#" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
 echo ${vm_name1}
 echo ${vm_name2}
-util::init_kylin_vm ${template_name1} ${vm_name1} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD} &
-util::init_kylin_vm ${template_name2} ${vm_name2} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD} &
-wait
+util::init_kylin_vm ${template_name1} ${vm_name1} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD}
+util::init_kylin_vm ${template_name2} ${vm_name2} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD}
 # Wait for vm ready
 sleep 60
 echo "wait ${vm_ip_addr1} ..."
-util::wait_ip_reachable "${vm_ip_addr1}" 30
+util::wait_ip_reachable "${vm_ip_addr1}" 10
 echo "wait ${vm_ip_addr2} ..."
-util::wait_ip_reachable "${vm_ip_addr2}" 30
+util::wait_ip_reachable "${vm_ip_addr2}" 10
 
 ### RUN CASE
 ginkgo -v -timeout=10h -race --fail-fast ./test/kubean_os_compatibility_e2e/  -- \
@@ -64,7 +63,6 @@ ginkgo -v -timeout=10h -race --fail-fast ./test/kubean_os_compatibility_e2e/  --
     --clusterOperationName="${CLUSTER_OPERATION_NAME1}" --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
     --isOffline="true"  --vmPassword="${KYLIN_VM_PASSWORD}"  --arch=${arch}
 
-util::delete_kylin_vm ${vm_name1} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD} &
-util::delete_kylin_vm ${vm_name2} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD} &
-wait
+util::delete_kylin_vm ${vm_name1} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD}
+util::delete_kylin_vm ${vm_name2} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD}
 echo "Delete vm end!"

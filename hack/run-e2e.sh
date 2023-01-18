@@ -28,8 +28,6 @@ util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_US
 sleep 10
 echo "wait ${vm_ip_addr1} ..."
 util::wait_ip_reachable "${vm_ip_addr1}" 30
-echo "wait ${vm_ip_addr2} ..."
-util::wait_ip_reachable "${vm_ip_addr2}" 30
 ping -c 5 ${vm_ip_addr1}
 sshpass -p "${AMD_ROOT_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
 # print vm origin hostname

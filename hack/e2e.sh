@@ -35,7 +35,8 @@ echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 local_helm_repo_alias="kubean_release"
 
 # add kubean repo locally
-repoCount=$(helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false)
+repoCount=true
+helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false
 echo "repoCount: $repoCount"
 if [ "$repoCount" != "false" ]; then
     helm repo remove ${local_helm_repo_alias}
