@@ -6,9 +6,11 @@ MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
 
 ISO_IMG_FILE=${2} ##  CentOS-7-XXX.ISO CentOS-8XXX.ISO
 
-ISO_MOUNT_PATH="/mnt/kubean-temp-iso"
+export ISO_MOUNT_PATH="/mnt/kubean-temp-iso"
 
 Minio_Server_PATH=""
+
+readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
 
 function add_mc_host_conf() {
   if [ -z "$MINIO_USER" ]; then
@@ -23,7 +25,7 @@ function add_mc_host_conf() {
 
 function remove_mc_host_conf() {
   echo "remove mc config"
-  mc config host remove kubeaniominioserver
+  flock $PARALLEL_LOCK mc config host remove kubeaniominioserver || true
 }
 
 function check_mc_cmd() {
@@ -38,7 +40,7 @@ function check_mc_cmd() {
 function ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
-    mc mb kubeaniominioserver/kubean
+    mc mb -p kubeaniominioserver/kubean
     mc anonymous set download kubeaniominioserver/kubean
   fi
 }
@@ -153,7 +155,8 @@ check_mc_cmd
 add_mc_host_conf
 ensure_kubean_bucket
 mount_iso_file
-import_iso_data
+export -f import_iso_data iso_os_version_arch
+flock -s $PARALLEL_LOCK bash -c 'import_iso_data'
 unmount_iso_file
 remove_mc_host_conf
 

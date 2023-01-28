@@ -4,6 +4,8 @@ set -eo pipefail
 
 MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
 
+readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
+
 function add_mc_host_conf() {
   if [ -z "$MINIO_USER" ]; then
     echo "need MINIO_USER and MINIO_PASS"
@@ -18,14 +20,14 @@ function add_mc_host_conf() {
 function ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
-    mc mb kubeaniominioserver/kubean
+    mc mb -p kubeaniominioserver/kubean
     mc anonymous set download kubeaniominioserver/kubean
   fi
 }
 
 function del_mc_host_conf() {
   echo "remove mc config"
-  mc config host remove kubeaniominioserver
+  flock $PARALLEL_LOCK mc config host remove kubeaniominioserver || true
 }
 
 function check_mc_cmd() {
@@ -54,7 +56,8 @@ start=$(date +%s)
 check_mc_cmd
 add_mc_host_conf
 ensure_kubean_bucket
-import_files
+export -f import_files
+flock -s $PARALLEL_LOCK bash -c "import_files"
 del_mc_host_conf
 
 end=$(date +%s)
