@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -408,6 +409,7 @@ func TestController_SetOwnerReferences(t *testing.T) {
 }
 
 func TestNewKubesprayJob(t *testing.T) {
+	os.Setenv("POD_NAMESPACE", "mynamespace")
 	controller := Controller{
 		Client:                newFakeClient(),
 		ClientSet:             clientsetfake.NewSimpleClientset(),
@@ -1282,7 +1284,7 @@ func Test_CopyConfigMap(t *testing.T) {
 						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
 					},
 				}
-				_, err := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{}, "")
+				_, err := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{}, "", "")
 				return err != nil && apierrors.IsNotFound(err)
 			},
 			want: true,
@@ -1311,7 +1313,7 @@ func Test_CopyConfigMap(t *testing.T) {
 					},
 				}
 				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), configMap, metav1.CreateOptions{})
-				result, _ := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "a-configmap"}, "b-configmap")
+				result, _ := controller.CopyConfigMap(clusterOps, &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "a-configmap"}, "b-configmap", "")
 				return result.Name == "b-configmap"
 			},
 			want: true,
@@ -1351,7 +1353,7 @@ func Test_CopySecret(t *testing.T) {
 						Labels: map[string]string{constants.KubeanClusterLabelKey: "kubeanCluster-123"},
 					},
 				}
-				_, err := controller.CopySecret(clusterOps, &apis.SecretRef{}, "")
+				_, err := controller.CopySecret(clusterOps, &apis.SecretRef{}, "", "")
 				return err != nil && apierrors.IsNotFound(err)
 			},
 			want: true,
@@ -1380,7 +1382,7 @@ func Test_CopySecret(t *testing.T) {
 					},
 				}
 				controller.ClientSet.CoreV1().Secrets("kubean-system").Create(context.Background(), secret, metav1.CreateOptions{})
-				result, _ := controller.CopySecret(clusterOps, &apis.SecretRef{NameSpace: "kubean-system", Name: "a-secret"}, "b-secret")
+				result, _ := controller.CopySecret(clusterOps, &apis.SecretRef{NameSpace: "kubean-system", Name: "a-secret"}, "b-secret", "")
 				return result.Name == "b-secret"
 			},
 			want: true,

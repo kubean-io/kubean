@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/kubean-io/kubean/pkg/util"
 	"github.com/kubean-io/kubean/pkg/util/entrypoint"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -351,7 +352,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
 	jobName := c.GenerateJobName(clusterOps)
-	namespace := clusterOps.Spec.HostsConfRef.NameSpace
+	namespace := util.GetCurrentNSOrDefault()
 	job := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "batch/v1",
@@ -548,7 +549,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-entrypoint", clusterOps.Name),
-			Namespace: clusterOps.Spec.HostsConfRef.NameSpace,
+			Namespace: util.GetCurrentNSOrDefault(),
 		},
 		Data: map[string]string{"entrypoint.sh": strings.TrimSpace(configMapData)}, // |2+
 	}
@@ -570,10 +571,14 @@ func (c *Controller) SetOwnerReferences(objectMetaData *metav1.ObjectMeta, clust
 	objectMetaData.OwnerReferences = []metav1.OwnerReference{*metav1.NewControllerRef(clusterOps, clusteroperationv1alpha1.SchemeGroupVersion.WithKind("ClusterOperation"))}
 }
 
-func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldConfigMapRef *apis.ConfigMapRef, newName string) (*corev1.ConfigMap, error) {
+func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldConfigMapRef *apis.ConfigMapRef, newName, newNamespace string) (*corev1.ConfigMap, error) {
 	oldConfigMap, err := c.ClientSet.CoreV1().ConfigMaps(oldConfigMapRef.NameSpace).Get(context.Background(), oldConfigMapRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
+	}
+	namespace := oldConfigMapRef.NameSpace
+	if newNamespace != "" {
+		namespace = newNamespace
 	}
 	newConfigMap := &corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -582,7 +587,7 @@ func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterO
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      newName,
-			Namespace: oldConfigMapRef.NameSpace,
+			Namespace: namespace,
 		},
 		Data: oldConfigMap.Data,
 	}
@@ -594,10 +599,14 @@ func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterO
 	return newConfigMap, nil
 }
 
-func (c *Controller) CopySecret(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldSecretRef *apis.SecretRef, newName string) (*corev1.Secret, error) {
+func (c *Controller) CopySecret(clusterOps *clusteroperationv1alpha1.ClusterOperation, oldSecretRef *apis.SecretRef, newName, newNamespace string) (*corev1.Secret, error) {
 	oldSecret, err := c.ClientSet.CoreV1().Secrets(oldSecretRef.NameSpace).Get(context.Background(), oldSecretRef.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
+	}
+	namespace := oldSecretRef.NameSpace
+	if newNamespace != "" {
+		namespace = newNamespace
 	}
 	newSecret := &corev1.Secret{
 		TypeMeta: metav1.TypeMeta{
@@ -606,7 +615,7 @@ func (c *Controller) CopySecret(clusterOps *clusteroperationv1alpha1.ClusterOper
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      newName,
-			Namespace: oldSecretRef.NameSpace,
+			Namespace: namespace,
 		},
 		Data: oldSecret.Data,
 	}
@@ -630,8 +639,9 @@ func (c *Controller) BackUpDataRef(clusterOps *clusteroperationv1alpha1.ClusterO
 	} else {
 		clusterOps.Labels[constants.KubeanClusterLabelKey] = cluster.Name
 	}
+	currentNS := util.GetCurrentNSOrDefault()
 	if clusterOps.Spec.HostsConfRef.IsEmpty() {
-		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp)
+		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.HostsConfRef, cluster.Spec.HostsConfRef.Name+timestamp, currentNS)
 		if err != nil {
 			return false, err
 		}
@@ -645,7 +655,7 @@ func (c *Controller) BackUpDataRef(clusterOps *clusteroperationv1alpha1.ClusterO
 		return true, nil
 	}
 	if clusterOps.Spec.VarsConfRef.IsEmpty() {
-		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.VarsConfRef, cluster.Spec.VarsConfRef.Name+timestamp)
+		newConfigMap, err := c.CopyConfigMap(clusterOps, cluster.Spec.VarsConfRef, cluster.Spec.VarsConfRef.Name+timestamp, currentNS)
 		if err != nil {
 			return false, err
 		}
@@ -660,7 +670,7 @@ func (c *Controller) BackUpDataRef(clusterOps *clusteroperationv1alpha1.ClusterO
 	}
 	if clusterOps.Spec.SSHAuthRef.IsEmpty() && !cluster.Spec.SSHAuthRef.IsEmpty() {
 		// clusterOps backups ssh data when cluster has ssh data.
-		newSecret, err := c.CopySecret(clusterOps, cluster.Spec.SSHAuthRef, cluster.Spec.SSHAuthRef.Name+timestamp)
+		newSecret, err := c.CopySecret(clusterOps, cluster.Spec.SSHAuthRef, cluster.Spec.SSHAuthRef.Name+timestamp, currentNS)
 		if err != nil {
 			return false, err
 		}
