@@ -386,32 +386,32 @@ function util::vm_name_ip_init_online_by_os(){
      esac
   fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner2" ]; then
-        case ${OS_NAME} in
-            "CENTOS7")
-                vm_ip_addr1="10.6.178.91"
-                vm_ip_addr2="10.6.178.92"
-                vm_name1="gwt-kubean-e2e-node91"
-                vm_name2="gwt-kubean-e2e-node92"
-                ;;
-            "KYLINV10")
-                vm_ip_addr1="10.6.178.93"
-                vm_ip_addr2="10.6.178.94"
-                vm_name1="gwt-kubean-e2e-node93"
-                vm_name2="gwt-kubean-e2e-node94"
-            ;;
-            "REDHAT8")
-                vm_ip_addr1="10.6.178.93"
-                vm_ip_addr2="10.6.178.94"
-                vm_name1="gwt-kubean-e2e-redhat8-node93"
-                vm_name2="gwt-kubean-e2e-redhat8-node94"
-                ;;
-            "REDHAT7")
-                vm_ip_addr1="10.6.178.95"
-                vm_ip_addr2="10.6.178.96"
-                vm_name1="gwt-kubean-e2e-redhat7-node93"
-                vm_name2="gwt-kubean-e2e-redhat7-node94"
-                ;;
-      esac
+          case ${OS_NAME} in
+              "CENTOS7")
+                  vm_ip_addr1="10.6.178.201"
+                  vm_ip_addr2="10.6.178.202"
+                  vm_name1="gwt-kubean-e2e-node201"
+                  vm_name2="gwt-kubean-e2e-node202"
+                  ;;
+              "KYLINV10")
+                  vm_ip_addr1="10.6.178.93"
+                  vm_ip_addr2="10.6.178.94"
+                  vm_name1="gwt-kubean-e2e-node93"
+                  vm_name2="gwt-kubean-e2e-node94"
+                  ;;
+              "REDHAT8")
+                  vm_ip_addr1="10.6.178.205"
+                  vm_ip_addr2="10.6.178.206"
+                  vm_name1="gwt-kubean-e2e-redhat8-node205"
+                  vm_name2="gwt-kubean-e2e-redhat8-node206"
+                  ;;
+              "REDHAT7")
+                  vm_ip_addr1="10.6.178.203"
+                  vm_ip_addr2="10.6.178.204"
+                  vm_name1="gwt-kubean-e2e-redhat7-node203"
+                  vm_name2="gwt-kubean-e2e-redhat7-node204"
+                  ;;
+        esac
   fi
 
   echo "vm_ip_addr1: $vm_ip_addr1"
