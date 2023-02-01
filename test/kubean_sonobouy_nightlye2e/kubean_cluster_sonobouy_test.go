@@ -3,7 +3,8 @@ package kubean_sonobouy_nightlye2e
 import (
 	"context"
 	"fmt"
-	"os"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/klog/v2"
 	"os/exec"
 	"strings"
 	"time"
@@ -14,419 +15,247 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 )
 
 var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", func() {
-
-	config, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-	kubeClient, err := kubernetes.NewForConfig(config)
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-	localKubeConfigPath := "cluster1-sonobouy-config"
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
 	var workerSSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
 
-	defer ginkgo.GinkgoRecover()
-
 	// do cluster installation within docker
-	ginkgo.Context("when install a sonobouy cluster using docker", func() {
-		clusterInstallYamlsPath := "e2e-install-cluster-sonobouy"
-		kubeanNamespace := "kubean-system"
-		kubeanClusterOpsName := "e2e-cluster1-install-sonobouy"
+	ginkgo.Context("Install a sonobouy cluster using docker", func() {
+		var localKubeConfigPath = "cluster1-config"
+		var offlineConfigs tools.OfflineConfig
+		var pod1Name = "nginx1"
+		var pod2Name = "nginx2"
+		var password = tools.VmPassword
+		testClusterName := tools.TestClusterName
+		nginxImage := "nginx:alpine"
+		offlineFlag := tools.IsOffline
+		offlineConfigs = tools.InitOfflineConfig()
+		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
+			nginxImage = offlineConfigs.NginxImageARM64
+		}
+		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "AMD64" {
+			nginxImage = offlineConfigs.NginxImageAMD64
+		}
+		klog.Info("nginx image is: ", nginxImage)
+		klog.Info("offlineFlag is: ", offlineFlag)
+		klog.Info("arch is: ", tools.Arch)
 
-		// Create yaml for kuBean CR and related configuration
-		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
+		ginkgo.It("Create cluster", func() {
+			clusterInstallYamlsPath := "e2e-install-cluster-sonobouy"
+			kubeanClusterOpsName := tools.ClusterOperationName
+			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
+			kindClient, err := kubernetes.NewForConfig(kindConfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-		// Check if the job and related pods have been created
-		time.Sleep(30 * time.Second)
-		pods, _ := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
-		})
-		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
-		jobPodName := pods.Items[0].Name
+			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
+			out, _ := tools.DoCmd(*cmd)
+			klog.Info("create cluster result:", out.String())
+			time.Sleep(10 * time.Second)
 
-		// Wait for job-related pod status to be succeeded
-		for {
-			pod, err := kubeClient.CoreV1().Pods(kubeanNamespace).Get(context.Background(), jobPodName, metav1.GetOptions{})
-			ginkgo.GinkgoWriter.Printf("* wait for install job using docker related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
-			podStatus := string(pod.Status.Phase)
-			if podStatus == "Succeeded" || podStatus == "Failed" {
-				ginkgo.It("cluster deploy job related pod Status should be Succeeded", func() {
-					gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
+			// Check if the job and related pods have been created
+			pods := &corev1.PodList{}
+			klog.Info("Wait job related pod to be created")
+			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
+			klog.Info("label is: ", labelStr)
+			gomega.Eventually(func() bool {
+				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
+					LabelSelector: labelStr,
 				})
-				break
-			}
-			time.Sleep(1 * time.Minute)
-		}
-
-		clusterClientSet, err := kubeanClusterClientSet.NewForConfig(config)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-
-		// from Cluster: cluster1 get kubeconfRef: name: cluster1-kubeconf namespace: kubean-system
-		cluster1, err := clusterClientSet.KubeanV1alpha1().Clusters().Get(context.Background(), "cluster1", metav1.GetOptions{})
-		fmt.Println("Name:", cluster1.Spec.KubeConfRef.Name, "NameSpace:", cluster1.Spec.KubeConfRef.NameSpace)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to get Cluster")
-
-		// get configmap
-		kubeClient, err := kubernetes.NewForConfig(config)
-		cluster1CF, err := kubeClient.CoreV1().ConfigMaps(cluster1.Spec.KubeConfRef.NameSpace).Get(context.Background(), cluster1.Spec.KubeConfRef.Name, metav1.GetOptions{})
-		err1 := os.WriteFile(localKubeConfigPath, []byte(cluster1CF.Data["config"]), 0666)
-		gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "failed to write localKubeConfigPath")
-
-	})
-
-	time.Sleep(2 * time.Minute)
-	// check kube-system pod status
-	ginkgo.Context("When fetching kube-system pods status", func() {
-		config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-		kubeClient, err = kubernetes.NewForConfig(config)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-		podList, err := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check kube-system pod status")
-		for _, pod := range podList.Items {
-			for {
-				po, _ := kubeClient.CoreV1().Pods("kube-system").Get(context.Background(), pod.Name, metav1.GetOptions{})
-				ginkgo.GinkgoWriter.Printf("* wait for kube-system pod[%s] status: %s\n", po.Name, po.Status.Phase)
-				podStatus := string(po.Status.Phase)
-				if podStatus == "Running" || podStatus == "Failed" {
-					ginkgo.It("every pod in kube-system should be in running status", func() {
-						gomega.Expect(podStatus).To(gomega.Equal("Running"))
-					})
-					break
+				if len(pods.Items) > 0 {
+					return true
 				}
-				time.Sleep(1 * time.Minute)
+				return false
+			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
+
+			jobPodName := pods.Items[0].Name
+			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
+			// Save testCluster kubeConfig to local path
+			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
+
+			// check kube version before upgrade
+			nodeList, _ := cluster1Client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+			for _, node := range nodeList.Items {
+				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.OriginK8Version))
+				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.OriginK8Version))
 			}
-		}
-
-		// check kube version before upgrade
-		nodeList, _ := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-		for _, node := range nodeList.Items {
-			ginkgo.It("kube node version should be v1.23.7 before upgrade", func() {
-				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal("v1.23.7"))
-				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal("v1.23.7"))
-			})
-		}
-
-	})
-
-	// sonobuoy run --sonobuoy-image docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7 --plugin-env e2e.E2E_FOCUS=pods --plugin-env e2e.E2E_DRYRUN=true --wait
-	ginkgo.Context("do sonobuoy checking ", func() {
-		subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "10.6.170.10:5000/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
-			"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
-		cmd := tools.RemoteSSHCmdArray(subCmd)
-		out, _ := tools.NewDoCmd("sshpass", cmd...)
-		fmt.Println(out.String())
-
-		sshcmd := tools.RemoteSSHCmdArray([]string{masterSSH, "sonobuoy", "status"})
-		sshout, _ := tools.NewDoCmd("sshpass", sshcmd...)
-		fmt.Println(sshout.String())
-
-		ginkgo.GinkgoWriter.Printf("sonobuoy status result: %s\n", out.String())
-		ginkgo.It("sonobuoy status checking result", func() {
-			gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("complete"))
-			gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("passed"))
-		})
-	})
-
-	// check network configuration:
-	// cat /proc/sys/net/ipv4/ip_forward: 1
-	// cat /proc/sys/net/ipv4/tcp_tw_recycle: 0
-	ginkgo.Context("do network configurations checking", func() {
-		masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
-		workerCmd := tools.RemoteSSHCmdArray([]string{workerSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
-		out1, _ := tools.NewDoCmd("sshpass", masterCmd...)
-		fmt.Println("out: ", out1.String())
-		ginkgo.It("master net.ipv4.ip_forward result checking: ", func() {
-			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("1"))
-		})
-		out2, _ := tools.NewDoCmd("sshpass", workerCmd...)
-		fmt.Println("out: ", out2.String())
-		ginkgo.It("worker net.ipv4.ip_forward result checking: ", func() {
-			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("1"))
+			if strings.ToUpper(offlineFlag) != "TRUE" {
+				klog.Info("On line, sonobuoy check")
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH)
+			}
 		})
 
-		masterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
-		workerCmd = tools.RemoteSSHCmdArray([]string{workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
-		out3, _ := tools.NewDoCmd("sshpass", masterCmd...)
-		fmt.Println("out: ", out3.String())
-		ginkgo.It("master net.ipv4.tcp_tw_recycle result checking: ", func() {
-			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("0"))
-		})
-		out4, _ := tools.NewDoCmd("sshpass", workerCmd...)
-		fmt.Println("out: ", out4.String())
-		ginkgo.It("worker net.ipv4.tcp_tw_recycle result checking: ", func() {
-			gomega.Expect(out4.String()).Should(gomega.ContainSubstring("0"))
-		})
-	})
+		// check network configuration:
+		// cat /proc/sys/net/ipv4/ip_forward: 1
+		// cat /proc/sys/net/ipv4/tcp_tw_recycle: 0
+		ginkgo.It("do network configurations checking", func() {
+			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
+			workerCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{workerSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
+			masterOut, _ := tools.NewDoCmd("sshpass", masterCmd...)
+			klog.Info("out: ", masterOut.String())
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("1"))
+			workerOut, _ := tools.NewDoCmd("sshpass", workerCmd...)
+			klog.Info("out: ", workerOut.String())
+			gomega.Expect(workerOut.String()).Should(gomega.ContainSubstring("1"))
 
-	ginkgo.Context("Support CNI: Calico", func() {
-		//4. check calico (calico-node and calico-kube-controller)pod status: pod status should be "Running"
-		config, _ = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-		kubeClient, _ = kubernetes.NewForConfig(config)
-		podList, _ := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
-		for _, pod := range podList.Items {
-			if strings.Contains(pod.ObjectMeta.Name, "calico-node") || strings.Contains(pod.ObjectMeta.Name, "kube-controller") {
-				ginkgo.It("calico/controller pod should works", func() {
+			masterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
+			workerCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
+			masterOut, _ = tools.NewDoCmd("sshpass", masterCmd...)
+			klog.Info("out: ", masterOut.String())
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("0"))
+			workerOut, _ = tools.NewDoCmd("sshpass", workerCmd...)
+			klog.Info("out: ", workerOut.String())
+			gomega.Expect(workerOut.String()).Should(gomega.ContainSubstring("0"))
+		})
+
+		ginkgo.It("Support CNI: Calico", func() {
+			//4. check calico (calico-node and calico-kube-controller)pod status: pod status should be "Running"
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+
+			podList, _ := cluster1Client.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
+			calico_pod_number := 0
+			for _, pod := range podList.Items {
+				if strings.Contains(pod.ObjectMeta.Name, "calico-node") || strings.Contains(pod.ObjectMeta.Name, "calico-kube-controllers") {
 					gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
-				})
-			}
-		}
-
-		//5. check folder /opt/cni/bin contains  file "calico" and "calico-ipam" are exist in both master and worker node
-		masterCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "ls", "/opt/cni/bin/"})
-		workerCmd := tools.RemoteSSHCmdArray([]string{workerSSH, "ls", "/opt/cni/bin/"})
-		out1, _ := tools.NewDoCmd("sshpass", masterCmd...)
-		fmt.Println("out1: ", out1.String())
-		ginkgo.It("master /opt/cni/bin checking: ", func() {
-			gomega.Expect(out1.String()).Should(gomega.ContainSubstring("calico"))
-		})
-		out2, _ := tools.NewDoCmd("sshpass", workerCmd...)
-		fmt.Println("out2: ", out2.String())
-		ginkgo.It("worker /opt/cni/bin checking: ", func() {
-			gomega.Expect(out2.String()).Should(gomega.ContainSubstring("calico"))
-		})
-
-		// check calicoctl
-		masterCmd = tools.RemoteSSHCmdArray([]string{masterSSH, "calicoctl", "version"})
-		out3, _ := tools.NewDoCmd("sshpass", masterCmd...)
-		fmt.Println("out3: ", out3.String())
-		ginkgo.It("master calicoctl checking: ", func() {
-			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("Client Version"))
-			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("Cluster Version"))
-			gomega.Expect(out3.String()).Should(gomega.ContainSubstring("kubespray,kubeadm,kdd"))
-		})
-
-		//6. check pod connection:
-		config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-		kubeClient, err = kubernetes.NewForConfig(config)
-		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-		//6.1. create a deployment of nginx1 on master, on namespace ns1: set replicaset to 1(here call the pod as pod1)
-		nginx1Cmd := exec.Command("kubectl", "run", "nginx1", "-n", "kube-system", "--image", "nginx:alpine", "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
-		nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
-		fmt.Println("create nginx1: ", nginx1CmdOut.String(), err1.String())
-		nginx2Cmd := exec.Command("kubectl", "run", "nginx2", "-n", "default", "--image", "nginx:alpine", "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node2")
-		nginx2CmdOut, err2 := tools.DoErrCmd(*nginx2Cmd)
-		fmt.Println("create nginx1: ", nginx2CmdOut.String(), err2.String())
-
-		time.Sleep(60 * time.Second)
-		pod1, _ := kubeClient.CoreV1().Pods("kube-system").Get(context.Background(), "nginx1", metav1.GetOptions{})
-		nginx1Ip := string(pod1.Status.PodIP)
-		ginkgo.It("nginxPod1 should be in running status", func() {
-			gomega.Expect(string(pod1.Status.Phase)).To(gomega.Equal("Running"))
-		})
-		pod2, _ := kubeClient.CoreV1().Pods("default").Get(context.Background(), "nginx2", metav1.GetOptions{})
-		nginx2Ip := string(pod2.Status.PodIP)
-		ginkgo.It("nginxPod1 should be in running status", func() {
-			gomega.Expect(string(pod2.Status.Phase)).To(gomega.Equal("Running"))
-		})
-		// 4.1 node ping 2 pods
-		pingNginx1IpCmd1 := tools.RemoteSSHCmdArray([]string{masterSSH, "ping", "-c 1", nginx1Ip})
-		pingNginx1IpCmd1Out, _ := tools.NewDoCmd("sshpass", pingNginx1IpCmd1...)
-		fmt.Println("node ping nginx pod 1: ", pingNginx1IpCmd1Out.String())
-		ginkgo.It("node ping nginx pod 1 succuss: ", func() {
-			gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
-		})
-		pingNginx2IpCmd1 := tools.RemoteSSHCmdArray([]string{masterSSH, "ping", "-c 1", nginx2Ip})
-		pingNgin21IpCmd1Out, _ := tools.NewDoCmd("sshpass", pingNginx2IpCmd1...)
-		fmt.Println("node ping nginx pod 2: ", pingNgin21IpCmd1Out.String())
-		ginkgo.It("node ping nginx pod 2 succuss: ", func() {
-			gomega.Expect(pingNgin21IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
-		})
-		// 4.2 pod ping pod
-		podsPingCmd1 := tools.RemoteSSHCmdArray([]string{masterSSH, "kubectl", "exec", "-it", "nginx1", "-n", "kube-system", "--", "ping", "-c 1", nginx2Ip})
-		podsPingCmdOut1, _ := tools.NewDoCmd("sshpass", podsPingCmd1...)
-		fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
-		ginkgo.It("pod ping pod succuss: ", func() {
-			gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
-		})
-		podsPingCmd2 := tools.RemoteSSHCmdArray([]string{masterSSH, "kubectl", "exec", "-it", "nginx2", "-n", "default", "--", "ping", "-c 1", nginx1Ip})
-		podsPingCmdOut2, _ := tools.NewDoCmd("sshpass", podsPingCmd2...)
-		fmt.Println("pod ping pod: ", podsPingCmdOut2.String())
-		ginkgo.It("pod ping pod succuss: ", func() {
-			gomega.Expect(podsPingCmdOut2.String()).Should(gomega.ContainSubstring("1 packets received"))
-		})
-	})
-
-	// cluster upgrade from v1.23.7 to v1.24.3
-	ginkgo.Context("do cluster upgrade from v1.23.7 to v1.24.3", func() {
-		clusterInstallYamlsPath := "e2e-upgrade-cluster"
-		kubeanNamespace := "kubean-system"
-		kubeanClusterOpsName := "e2e-upgrade-cluster"
-
-		// Create yaml for kuBean CR and related configuration
-		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
-
-		// Check if the job and related pods have been created
-		time.Sleep(30 * time.Second)
-		config, _ = clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-		kubeClient, _ = kubernetes.NewForConfig(config)
-		pods, _ := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
-		})
-		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
-		jobPodName := pods.Items[0].Name
-
-		// Wait for job-related pod status to be succeeded
-		for {
-			pod, err := kubeClient.CoreV1().Pods(kubeanNamespace).Get(context.Background(), jobPodName, metav1.GetOptions{})
-			ginkgo.GinkgoWriter.Printf("* wait for upgrade job related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
-			podStatus := string(pod.Status.Phase)
-			if podStatus == "Succeeded" || podStatus == "Failed" {
-				ginkgo.It("cluster upgrade job related pod Status should be Succeeded", func() {
-					gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
-				})
-				break
-			}
-			time.Sleep(1 * time.Minute)
-		}
-		//kubectl version：v1.24.3
-		ginkgo.Context("check kubectl version  --short:", func() {
-			// kubectlCmd := exec.Command("kubectl", "version", "--short")
-			// kubectlOut, _ := tools.DoCmd(*kubectlCmd)
-			kubectlCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "kubectl", "version", "--short"})
-			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
-			fmt.Println(kubectlOut.String())
-			ginkgo.It("kubectl version  --short should be v1.24.3: ", func() {
-				gomega.Expect(kubectlOut.String()).Should(gomega.ContainSubstring("v1.24.3"))
-			})
-		})
-
-		time.Sleep(1 * time.Minute)
-		// check kube pods status after upgrade from  v1.23.7 to v1.24.3
-		ginkgo.Context("When fetching kube-system pods status after upgrade from  v1.23.7 to v1.24.3", func() {
-			config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kubeClient, err = kubernetes.NewForConfig(config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			podList, err := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check kube-system pod status")
-			for _, pod := range podList.Items {
-				for {
-					po, _ := kubeClient.CoreV1().Pods("kube-system").Get(context.Background(), pod.Name, metav1.GetOptions{})
-					ginkgo.GinkgoWriter.Printf("* wait for upgrade job from  v1.23.7 to v1.24.3 related pod[%s] status: %s\n", po.Name, po.Status.Phase)
-					podStatus := string(po.Status.Phase)
-					if podStatus == "Running" || podStatus == "Failed" {
-						ginkgo.It("every pod in kube-system after upgrade from  v1.23.7 to v1.24.3 should be in running status", func() {
-							gomega.Expect(podStatus).To(gomega.Equal("Running"))
-						})
-						break
-					}
-					time.Sleep(1 * time.Minute)
+					calico_pod_number += 1
 				}
 			}
+			gomega.Expect(calico_pod_number).To(gomega.Equal(3))
+
+			//5. check folder /opt/cni/bin contains  file "calico" and "calico-ipam" are exist in both master and worker node
+			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "ls", "/opt/cni/bin/"})
+			workerCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{workerSSH, "ls", "/opt/cni/bin/"})
+			masterOut, _ := tools.NewDoCmd("sshpass", masterCmd...)
+			klog.Info("master cmd out: ", masterOut.String())
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("calico"))
+			workerOut, _ := tools.NewDoCmd("sshpass", workerCmd...)
+			klog.Info("worker cmd out: ", workerOut.String())
+			gomega.Expect(workerOut.String()).Should(gomega.ContainSubstring("calico"))
+
+			// check calicoctl
+			masterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "calicoctl", "version"})
+			masterOut, _ = tools.NewDoCmd("sshpass", masterCmd...)
+			klog.Info("check calicoctl: ", masterOut.String())
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("Client Version"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("Cluster Version"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("kubespray,kubeadm,kdd"))
+
+			//6. check pod connection:
+			tools.CreatePod(pod1Name, tools.DefaultNamespace, "node1", nginxImage, localKubeConfigPath)
+			tools.CreatePod(pod2Name, tools.KubeSystemNamespace, "node2", nginxImage, localKubeConfigPath)
+			pod1 := tools.WaitPodBeRunning(cluster1Client, tools.DefaultNamespace, pod1Name, 1000)
+			pod2 := tools.WaitPodBeRunning(cluster1Client, tools.KubeSystemNamespace, pod2Name, 1000)
+			tools.NodePingPodByPasswd(password, masterSSH, pod2.Status.PodIP)
+			tools.NodePingPodByPasswd(password, workerSSH, pod1.Status.PodIP)
+			tools.PodPingPodByPasswd(password, masterSSH, tools.DefaultNamespace, pod1Name, pod2.Status.PodIP)
+			tools.PodPingPodByPasswd(password, masterSSH, tools.KubeSystemNamespace, pod2Name, pod1.Status.PodIP)
 		})
 
-		// check kube version after upgrade from v1.23.7 to v1.24.3
-		ginkgo.Context("check kube version after upgrade from  v1.23.7 to v1.24.3", func() {
-			config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+		ginkgo.It("upgrade cluster Y version", func() {
+			clusterInstallYamlsPath := "e2e-upgrade-cluster-y"
+			kubeanClusterOpsName := "cluster1-upgrade-y"
+			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kubeClient, err = kubernetes.NewForConfig(config)
+			kindClient, err := kubernetes.NewForConfig(kindConfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			nodeList, _ := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-			for _, node := range nodeList.Items {
-				ginkgo.It("kube node version should bev1.24.3", func() {
-					gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal("v1.24.3"))
-					gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal("v1.24.3"))
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+
+			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
+			out, _ := tools.DoCmd(*cmd)
+			klog.Info("create cluster result:", out.String())
+			time.Sleep(10 * time.Second)
+			pods := &corev1.PodList{}
+			klog.Info("Wait job related pod to be created")
+			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
+			klog.Info("label is: ", labelStr)
+			gomega.Eventually(func() bool {
+				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
+					LabelSelector: labelStr,
 				})
-			}
-		})
-	})
-
-	// cluster upgrade from v1.24.3 to v1.24.6
-	ginkgo.Context("do cluster upgrade from from v1.24.3 to v1.24.6", func() {
-		clusterInstallYamlsPath := "e2e-upgrade-cluster24"
-		kubeanNamespace := "kubean-system"
-		kubeanClusterOpsName := "e2e-upgrade-cluster24"
-
-		// Create yaml for kuBean CR and related configuration
-		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
-
-		// Check if the job and related pods have been created
-		time.Sleep(30 * time.Second)
-		config, _ = clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-		kubeClient, _ = kubernetes.NewForConfig(config)
-		pods, _ := kubeClient.CoreV1().Pods(kubeanNamespace).List(context.Background(), metav1.ListOptions{
-			LabelSelector: fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName),
-		})
-		gomega.Expect(len(pods.Items)).NotTo(gomega.Equal(0))
-		jobPodName := pods.Items[0].Name
-
-		// Wait for job-related pod status to be succeeded
-		for {
-			pod, err := kubeClient.CoreV1().Pods(kubeanNamespace).Get(context.Background(), jobPodName, metav1.GetOptions{})
-			ginkgo.GinkgoWriter.Printf("* wait for upgrade job from v1.24.3 to v1.24.6 related pod[%s] status: %s\n", pod.Name, pod.Status.Phase)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed get job related pod")
-			podStatus := string(pod.Status.Phase)
-			if podStatus == "Succeeded" || podStatus == "Failed" {
-				ginkgo.It("cluster upgrade from v1.24.3 to v1.24.6 job related pod Status should be Succeeded", func() {
-					gomega.Expect(podStatus).To(gomega.Equal("Succeeded"))
-				})
-				break
-			}
-			time.Sleep(1 * time.Minute)
-		}
-
-		time.Sleep(1 * time.Minute)
-		// check kube pods status after upgrade from v1.24.3 to v1.24.6
-		ginkgo.Context("When fetching kube-system pods status after upgrade from v1.24.3 to v1.24.6", func() {
-			config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kubeClient, err = kubernetes.NewForConfig(config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			podList, err := kubeClient.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed to check kube-system pod status")
-			for _, pod := range podList.Items {
-				for {
-					po, _ := kubeClient.CoreV1().Pods("kube-system").Get(context.Background(), pod.Name, metav1.GetOptions{})
-					ginkgo.GinkgoWriter.Printf("* wait for upgrade job from v1.24.3 to v1.24.6 related pod[%s] status: %s\n", po.Name, po.Status.Phase)
-					podStatus := string(po.Status.Phase)
-					if podStatus == "Running" || podStatus == "Failed" {
-						ginkgo.It("every pod in kube-system after upgrade from v1.24.3 to v1.24.6 should be in running status", func() {
-							gomega.Expect(podStatus).To(gomega.Equal("Running"))
-						})
-						break
-					}
-					time.Sleep(1 * time.Minute)
+				if len(pods.Items) > 0 {
+					return true
 				}
+				return false
+			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
+
+			jobPodName := pods.Items[0].Name
+			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
+			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
+
+			// kubectl version should be：tools.UpgradeK8Version_Y
+			kubectlCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "version", "--short"})
+			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
+			klog.Info(kubectlOut.String())
+			gomega.Expect(kubectlOut.String()).Should(gomega.ContainSubstring(tools.UpgradeK8Version_Y))
+			// node version should be：tools.UpgradeK8Version_Y
+			nodeList, _ := cluster1Client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+			for _, node := range nodeList.Items {
+				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.UpgradeK8Version_Y))
+				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.UpgradeK8Version_Y))
 			}
 		})
-		//kubectl version：v1.24.6
-		ginkgo.Context("check kubectl version  --short:", func() {
-			kubectlCmd := tools.RemoteSSHCmdArray([]string{masterSSH, "kubectl", "version", "--short"})
-			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
-			fmt.Println(kubectlOut.String())
-			ginkgo.It("kubectl version  --short should be v1.24.6: ", func() {
-				gomega.Expect(kubectlOut.String()).Should(gomega.ContainSubstring("v1.24.6"))
-			})
-		})
-		// check kube version after upgrade from v1.24.3 to v1.24.6
-		ginkgo.Context("check kube version after upgrade fromv1.24.3 to v1.24.6", func() {
-			config, err = clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+
+		ginkgo.It("upgrade cluster Z version", func() {
+			clusterInstallYamlsPath := "e2e-upgrade-cluster-z"
+			kubeanClusterOpsName := "cluster1-upgrade-z"
+
+			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kubeClient, err = kubernetes.NewForConfig(config)
+			kindClient, err := kubernetes.NewForConfig(kindConfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			nodeList, _ := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-			for _, node := range nodeList.Items {
-				ginkgo.It("kube node version should be v1.24.6", func() {
-					gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal("v1.24.6"))
-					gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal("v1.24.6"))
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+
+			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
+			out, _ := tools.DoCmd(*cmd)
+			klog.Info("create cluster result:", out.String())
+			time.Sleep(10 * time.Second)
+			pods := &corev1.PodList{}
+			klog.Info("Wait job related pod to be created")
+			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
+			klog.Info("label is: ", labelStr)
+			gomega.Eventually(func() bool {
+				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
+					LabelSelector: labelStr,
 				})
+				if len(pods.Items) > 0 {
+					return true
+				}
+				return false
+			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
+
+			jobPodName := pods.Items[0].Name
+			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
+			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
+
+			kubectlCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "version", "--short"})
+			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
+			klog.Info(kubectlOut.String())
+			gomega.Expect(kubectlOut.String()).Should(gomega.ContainSubstring(tools.UpgradeK8Version_Z))
+
+			nodeList, _ := cluster1Client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+			for _, node := range nodeList.Items {
+				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.UpgradeK8Version_Z))
+				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.UpgradeK8Version_Z))
 			}
 		})
 	})
-
 })

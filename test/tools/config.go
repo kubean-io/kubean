@@ -29,6 +29,12 @@ const (
 	LocalKubeConfigPath = "cluster1-config"
 )
 
+const (
+	OriginK8Version    = "v1.24.7"
+	UpgradeK8Version_Y = "v1.25.3"
+	UpgradeK8Version_Z = "v1.25.5"
+)
+
 func init() {
 	flag.StringVar(&Kubeconfig, "kubeconfig", "", "cluster kubeconfig")
 	flag.StringVar(&ClusterOperationName, "clusterOperationName", "", "crd clusteroperation.kubean.io name")
