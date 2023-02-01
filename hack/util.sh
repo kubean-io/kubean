@@ -299,31 +299,6 @@ function util::check_clusters_ready() {
 	util::wait_for_condition 'ok' "kubectl --kubeconfig ${kubeconfig_path} --context ${context_name} get --raw=/healthz &> /dev/null" 300
 }
 
-###### to get k8 cluster single node ip address based on actions-runner #######
-function utils:runner_ip(){
-    echo "RUNNER_NAME: "$RUNNER_NAME
-    if [ "${RUNNER_NAME}" == "kubean-actions-runner1" ]; then
-        vm_ip_addr1="10.6.127.33"
-        vm_ip_addr2="10.6.127.36"
-    fi
-    if [ "${RUNNER_NAME}" == "kubean-actions-runner2" ]; then
-        vm_ip_addr1="10.6.127.35"
-        vm_ip_addr2="10.6.127.37"
-    fi
-    if [ "${RUNNER_NAME}" == "kubean-actions-runner3" ]; then
-        vm_ip_addr1="10.6.127.39"
-        vm_ip_addr2="10.6.127.40"
-    fi
-    if [ "${RUNNER_NAME}" == "kubean-actions-runner4" ]; then
-        vm_ip_addr1="10.6.127.42"
-        vm_ip_addr2="10.6.127.43"
-    fi
-    if [ "${RUNNER_NAME}" == "debug" ]; then
-        vm_ip_addr1="172.30.41.75"
-        vm_ip_addr2="172.30.41.76"
-    fi
-}
-
 # shellcheck disable=SC1036
 function util::vm_name_ip_init_online_by_os(){
   echo "RUNNER NAME: " $RUNNER_NAME

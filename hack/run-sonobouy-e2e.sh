@@ -21,11 +21,10 @@ rm -f ~/.ssh/known_hosts
 export ARCH=amd64
 export OS_NAME="CENTOS7"
 export ISOFFLINE=false
-./hack/run-network-e2e.sh
 
+./hack/run-nightly-cluster-e2e.sh
+./hack/run-network-e2e.sh
 ## sonobuoy use
-#*  echo "==> scp sonobuoy bin to master: "
-#* sshpass -p root scp  -o StrictHostKeyChecking=no "${REPO_ROOT}"/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 # prepare kubean install job yml using docker：kube_version: v1.23.7
 #cp $(pwd)/test/common/kubeanCluster.yml $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/
 #* cp $(pwd)/test/common/vars-conf-cm.yml $(pwd)/test/kubean_sonobouy_e2e/e2e-install-cluster-sonobouy/
