@@ -9,5 +9,5 @@ roleRef:
   name: {{ $name }}
 subjects:
   - kind: ServiceAccount
-    name: {{ $name }}
+    name: {{ include "kubean.serviceAccountName" . }}
     namespace: {{ include "kubean.namespace" . }}
