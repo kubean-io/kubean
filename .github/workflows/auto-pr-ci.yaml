@@ -52,6 +52,11 @@ jobs:
           version: v1.46.2
           args: --timeout=10m
 
+      - name: ansible-lint
+        uses: ansible/ansible-lint-action@v6
+        with:
+          path: "playbooks/"
+
   unit-test:
     needs: [ static-check,get_ref ]
     runs-on: ubuntu-latest
