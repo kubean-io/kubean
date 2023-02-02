@@ -28,6 +28,8 @@ export CLUSTER_PREFIX="kubean-online-$RANDOM"
 export CONTAINERS_PREFIX="kubean-online"
 export KUBECONFIG_FILE="${KUBECONFIG_PATH}/${CLUSTER_PREFIX}-host.config"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+export POWER_ON_SNAPSHOT_NAME="os-installed"
+export POWER_DOWN_SNAPSHOT_NAME="power-down"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
