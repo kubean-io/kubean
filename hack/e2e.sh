@@ -51,6 +51,7 @@ chmod +x ./hack/run-e2e.sh
 chmod +x ./hack/run-sonobouy-e2e.sh
 chmod +x ./hack/run-os-compatibility-e2e.sh
 chmod +x ./hack/run-network-e2e.sh
+chmod +x ./hack/run-nightly-cluster-e2e.sh
 DIFF_NIGHTLYE2E=`git show -- './test/*' | grep nightlye2e || true`
 DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 

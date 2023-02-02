@@ -95,12 +95,12 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 			podList, _ := cluster1Client.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
 			calico_pod_number := 0
 			for _, pod := range podList.Items {
-				if strings.Contains(pod.ObjectMeta.Name, "calico-node") || strings.Contains(pod.ObjectMeta.Name, "calico_kube_controller") {
+				if strings.Contains(pod.ObjectMeta.Name, "calico-node") || strings.Contains(pod.ObjectMeta.Name, "calico-kube-controllers") {
 					gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
 					calico_pod_number += 1
 				}
 			}
-			gomega.Expect(calico_pod_number).To(gomega.Equal(2))
+			gomega.Expect(calico_pod_number).To(gomega.Equal(3))
 		})
 
 		ginkgo.It("check calico tunnel valid", func() {
