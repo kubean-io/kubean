@@ -73,7 +73,7 @@ jobs:
 
   schedule_os_e2e:
     needs: build-push-for-e2e
-    runs-on: self-hosted
+    runs-on: [self-hosted, online]
     permissions:
       packages: write
       contents: read
