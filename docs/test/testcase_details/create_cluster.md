@@ -245,3 +245,103 @@
     6. create pod2 on worker, on namespace2
     7. login master node, ping pod2; login worker, ping pod1
     8. login pod2, ping pod1
+
+### Create cluster support  calico dual stack v4: Vxlan_Always(v4)_Vxlan_Always(v6)
+    1. prepare the config file as basic cluster
+    2. enable the dual stack switch
+         enable_dual_stack_networks: true
+    3. set network card mode to any one of the:
+        calico_ip_auto_method: first-found
+        calico_ip6_auto_method: first-found
+    4. set calico tunning mode:
+        calico_ipip_mode: Never
+        calico_vxlan_mode: Always
+        calico_ipip_mode_ipv6: Never
+        calico_vxlan_mode_ipv6: Always
+    5. set cluster topology: 1 master + 1 worker
+    6. start setup cluster
+    7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    8. check calico pods are Running
+    9. check tunning mode of ipv4
+    10. check tunning mode of ipv6
+    11. create pod1 on master, on namespace1
+    12. create pod2 on worker, on namespace2
+    13. check pod1 and pod2 both have 2 ips
+    14. login master node, ping pod2; login worker, ping pod1
+    15. login pod2, ping pod1
+
+### Create cluster support  calico dual stack v4: Vxlan_CrossSubnet(v4)_Vxlan_Always(v6)
+    1. prepare the config file as basic cluster
+    2. enable the dual stack switch
+         enable_dual_stack_networks: true
+    3. set network card mode to any one of the:
+        calico_ip_auto_method: first-found
+        calico_ip6_auto_method: first-found
+    4. set calico tunning mode:
+        calico_ipip_mode: Never
+        calico_vxlan_mode: CrossSubnet
+        calico_ipip_mode_ipv6: Never
+        calico_vxlan_mode_ipv6: Always
+    5. set cluster topology: 1 master + 1 worker
+    6. start setup cluster
+    7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    8. check calico pods are Running
+    9. check tunning mode of ipv4
+    10. check tunning mode of ipv6
+    11. create pod1 on master, on namespace1
+    12. create pod2 on worker, on namespace2
+    13. check pod1 and pod2 both have 2 ips
+    14. login master node, ping pod2; login worker, ping pod1
+    15. login pod2, ping pod1
+
+### Create cluster support  calico dual stack v4: IPIP_Always(v4)_Vxlan_CrossSubnet(v6)
+    1. prepare the config file as basic cluster
+    2. enable the dual stack switch
+        enable_dual_stack_networks: true
+    3. set network card mode to any one of the:
+        calico_ip_auto_method: first-found
+        calico_ip6_auto_method: first-found
+    4. set calico tunning mode:
+        calico_ipip_mode: Always
+        calico_vxlan_mode: Never
+        calico_network_backend: bird
+        calico_ipip_mode_ipv6: Never
+        calico_vxlan_mode_ipv6: CrossSubnet
+    5. set cluster topology: 1 master + 1 worker
+    6. start setup cluster
+    7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    8. check calico pods are Running
+    9. check tunning mode of ipv4
+    10. check tunning mode of ipv6
+    11. create pod1 on master, on namespace1
+    12. create pod2 on worker, on namespace2
+    13. check pod1 and pod2 both have 2 ips
+    14. login master node, ping pod2; login worker, ping pod1
+    15. login pod2, ping pod1
+
+### Create cluster support  calico dual stack v4: IPIP_CrossSubnet(v4)_Vxlan_CrossSubnet(v6)
+    1. prepare the config file as basic cluster
+    2. enable the dual stack switch
+        enable_dual_stack_networks: true
+    3. set network card mode to any one of the:
+        calico_ip_auto_method: first-found
+        calico_ip6_auto_method: first-found
+    4. set calico tunning mode:
+        calico_ipip_mode: CrossSubnet
+        calico_vxlan_mode: Never
+        calico_network_backend: bird
+        calico_ipip_mode_ipv6: Never
+        calico_vxlan_mode_ipv6: CrossSubnet
+    5. set cluster topology: 1 master + 1 worker
+    6. start setup cluster
+    7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    8. check calico pods are Running
+    9. check tunning mode of ipv4
+    10. check tunning mode of ipv6
+    11. create pod1 on master, on namespace1
+    12. create pod2 on worker, on namespace2
+    13. check pod1 and pod2 both have 2 ips
+    14. login master node, ping pod2; login worker, ping pod1
+    15. login pod2, ping pod1
+
+
