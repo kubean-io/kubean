@@ -212,3 +212,32 @@ func CreatePod(podName, namespace, nodeName, image, kubeconfigFile string) {
 	createCmdOut, err1 := DoErrCmd(*createCmd)
 	fmt.Println("create nginx1: ", createCmdOut.String(), err1.String())
 }
+
+func OperateClusterByYaml(clusterInstallYamlsPath, operatorName string, kindConfig *restclient.Config) {
+	installYamlPath := fmt.Sprint(GetKuBeanPath(), clusterInstallYamlsPath)
+	kindClient, err := kubernetes.NewForConfig(kindConfig)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
+	cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", installYamlPath)
+	out, _ := DoCmd(*cmd)
+	klog.Info("create cluster result:", out.String())
+	time.Sleep(10 * time.Second)
+
+	// Check if the job and related pods have been created
+	pods := &v1.PodList{}
+	klog.Info("Wait job related pod to be created")
+	labelStr := fmt.Sprintf("job-name=kubean-%s-job", operatorName)
+	klog.Info("label is: ", labelStr)
+	gomega.Eventually(func() bool {
+		pods, _ = kindClient.CoreV1().Pods(KubeanNamespace).List(context.Background(), metav1.ListOptions{
+			LabelSelector: labelStr,
+		})
+		if len(pods.Items) > 0 {
+			return true
+		}
+		return false
+	}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
+
+	jobPodName := pods.Items[0].Name
+	WaitKubeanJobPodToSuccess(kindClient, KubeanNamespace, jobPodName, PodStatusSucceeded)
+
+}
