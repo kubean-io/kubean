@@ -84,6 +84,11 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 			// Wait all pods in kube-syste to be Running
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
+			// do sonobuoy check
+			if strings.ToUpper(offlineFlag) != "TRUE" {
+				klog.Info("On line, sonobuoy check")
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH)
+			}
 		})
 
 		ginkgo.It("Calico pod check", func() {
