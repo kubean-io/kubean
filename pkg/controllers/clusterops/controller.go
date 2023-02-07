@@ -3,6 +3,7 @@ package clusterops
 import (
 	"context"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -38,6 +39,7 @@ const (
 	LoopForJobStatus = time.Second * 3
 	RetryInterval    = time.Millisecond * 300
 	RetryCount       = 5
+	ServiceAccount   = "kubean.io/kubean-operator=sa"
 )
 
 type Controller struct {
@@ -347,7 +349,7 @@ func (c *Controller) FetchGlobalManifestImageTag() string {
 	return globalManifest.Spec.KubeanVersion
 }
 
-func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation) *batchv1.Job {
+func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation, serviceAccountName string) *batchv1.Job {
 	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
@@ -367,7 +369,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					RestartPolicy:      corev1.RestartPolicyNever,
-					ServiceAccountName: "kubean",
+					ServiceAccountName: serviceAccountName,
 					Containers: []corev1.Container{
 						{
 							Name:    "kubespray", // do not change this name
@@ -483,8 +485,12 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *clusteroperationv1alpha1.Clu
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			// the job doest not exist , and will create the job.
+			sa, err := c.GetServiceAccountName(util.GetCurrentNSOrDefault(), ServiceAccount)
+			if err != nil {
+				return false, err
+			}
 			klog.Warningf("create job %s for kuBeanClusterOp %s", jobName, clusterOps.Name)
-			job = c.NewKubesprayJob(clusterOps)
+			job = c.NewKubesprayJob(clusterOps, sa)
 
 			c.SetOwnerReferences(&job.ObjectMeta, clusterOps)
 			job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
@@ -565,6 +571,18 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 		return false, err
 	}
 	return true, nil
+}
+
+// GetServiceAccountName get serviceaccount name on kubean namespace by labelSelector.
+func (c *Controller) GetServiceAccountName(namespace, labelSelector string) (string, error) {
+	serviceAccounts, err := c.ClientSet.CoreV1().ServiceAccounts(namespace).List(context.Background(), metav1.ListOptions{LabelSelector: labelSelector})
+	if err != nil {
+		return "", err
+	}
+	if len(serviceAccounts.Items) <= 0 {
+		return "", errors.New("no valild serviceaccount")
+	}
+	return serviceAccounts.Items[0].Name, nil
 }
 
 func (c *Controller) SetOwnerReferences(objectMetaData *metav1.ObjectMeta, clusterOps *clusteroperationv1alpha1.ClusterOperation) {

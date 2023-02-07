@@ -439,7 +439,7 @@ func TestNewKubesprayJob(t *testing.T) {
 		{
 			name: "no ssh args",
 			args: func() bool {
-				job := controller.NewKubesprayJob(clusterOps)
+				job := controller.NewKubesprayJob(clusterOps, "kubean")
 				return job.Namespace == "mynamespace" && job.Name == "kubean-myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 3 && len(job.Spec.Template.Spec.Volumes) == 3
 			},
 			want: true,
@@ -451,7 +451,7 @@ func TestNewKubesprayJob(t *testing.T) {
 					NameSpace: "mynamespace",
 					Name:      "secret",
 				}
-				job := controller.NewKubesprayJob(clusterOps)
+				job := controller.NewKubesprayJob(clusterOps, "kubean")
 				return job.Namespace == "mynamespace" && job.Name == "kubean-myops-job" && len(job.Spec.Template.Spec.Containers) == 1 && len(job.Spec.Template.Spec.Containers[0].VolumeMounts) == 4 && len(job.Spec.Template.Spec.Volumes) == 4
 			},
 			want: true,
@@ -461,7 +461,7 @@ func TestNewKubesprayJob(t *testing.T) {
 			args: func() bool {
 				ActiveDeadlineSeconds := int64(10)
 				clusterOps.Spec.ActiveDeadlineSeconds = &ActiveDeadlineSeconds
-				job := controller.NewKubesprayJob(clusterOps)
+				job := controller.NewKubesprayJob(clusterOps, "kubean")
 				return *job.Spec.ActiveDeadlineSeconds == 10
 			},
 			want: true,
@@ -470,7 +470,7 @@ func TestNewKubesprayJob(t *testing.T) {
 			name: "nil activeDeadlineSeconds args",
 			args: func() bool {
 				clusterOps.Spec.ActiveDeadlineSeconds = nil
-				job := controller.NewKubesprayJob(clusterOps)
+				job := controller.NewKubesprayJob(clusterOps, "kubean")
 				return job.Spec.ActiveDeadlineSeconds == nil
 			},
 			want: true,
