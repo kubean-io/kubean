@@ -2,10 +2,10 @@ name: os_e2e_schedule
 
 on:
   # refer: https://crontab.guru/examples.html
-  # At 00:00 on day-of-month 20.
+  # At 00:00 on every saturday（Beijing Time).
   workflow_dispatch:
-    schedule:
-      - cron: '0 0 20 * *'
+  schedule:
+    - cron: '0 8 * * 6'
 
 env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
