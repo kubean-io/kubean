@@ -159,6 +159,10 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
         githubImageRepo: "a"
         dockerImageRepo: "b"
         quayImageRepo: "c"
+      imageRepoAuth:
+        - imageRepoAddress: temp-registry.daocloud.io:5000
+          userName: admin
+          passwordBase64: SGFyYm9yMTIzNDUK
       filesRepo: 'http://temp-registry.daocloud.io:9000'
       yumRepos:
         aRepo: 
@@ -196,6 +200,13 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 					"githubImageRepo": "a",
 					"dockerImageRepo": "b",
 					"quayImageRepo":   "c",
+				},
+				ImageRepoAuth: []manifestv1alpha1.ImageRepoPasswordAuth{
+					{
+						ImageRepoAddress: "temp-registry.daocloud.io:5000",
+						UserName:         "admin",
+						PasswordBase64:   "SGFyYm9yMTIzNDUK",
+					},
 				},
 				FilesRepo: "http://temp-registry.daocloud.io:9000",
 				YumRepos: map[string][]string{

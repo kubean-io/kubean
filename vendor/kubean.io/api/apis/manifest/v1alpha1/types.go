@@ -41,9 +41,20 @@ type Spec struct {
 	Docker []*DockerInfo `json:"docker,omitempty"`
 }
 
+type ImageRepoPasswordAuth struct {
+	// +optional
+	ImageRepoAddress string `json:"imageRepoAddress" yaml:"imageRepoAddress"`
+	// +optional
+	UserName string `json:"userName" yaml:"userName"`
+	// +optional
+	PasswordBase64 string `json:"passwordBase64" yaml:"passwordBase64"`
+}
+
 type LocalService struct {
 	// +optional
 	ImageRepo map[ImageRepoType]string `json:"imageRepo" yaml:"imageRepo"`
+	// +optional
+	ImageRepoAuth []ImageRepoPasswordAuth `json:"imageRepoAuth,omitempty" yaml:"imageRepoAuth,omitempty"`
 	// +optional
 	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
