@@ -90,6 +90,17 @@ spec:
                     additionalProperties:
                       type: string
                     type: object
+                  imageRepoAuth:
+                    items:
+                      properties:
+                        imageRepoAddress:
+                          type: string
+                        passwordBase64:
+                          type: string
+                        userName:
+                          type: string
+                      type: object
+                    type: array
                   yumRepos:
                     additionalProperties:
                       items:
