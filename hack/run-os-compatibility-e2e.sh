@@ -21,15 +21,8 @@ os_compability_e2e(){
     fi
     echo "vm_name1: ${vm_name1}"
     echo "vm_name2: ${vm_name2}"
-    SNAPSHOT_NAME="os-installed"
     dest_yaml_path="${REPO_ROOT}"/test/kubean_os_compatibility_e2e/e2e-install-cluster
-    util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
-    util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
-    sleep 20
-    util::wait_ip_reachable "${vm_ip_addr1}" 10
-    util::wait_ip_reachable "${vm_ip_addr2}" 10
-    ping -c 5 ${vm_ip_addr1}
-    ping -c 5 ${vm_ip_addr2}
+    util::power_on_2vms ${OS_NAME}
     rm -f ~/.ssh/known_hosts
     echo "==> scp sonobuoy bin to master: "
     sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
@@ -69,7 +62,7 @@ os_compability_e2e(){
     ginkgo -v -timeout=10h -race --fail-fast ./test/kubean_os_compatibility_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
                      --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
                      --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
-    SNAPSHOT_NAME="power-down"
+    SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
     util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
     util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
 }

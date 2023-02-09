@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	"os/exec"
@@ -47,47 +45,19 @@ var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 		ginkgo.It("Start create K8S cluster", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "clientcmd.BuildConfigFromFlags error")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "kubernetes.NewForConfig error")
 
-			//Create cluster by apply yaml
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
+			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 
-			// wait kubean create-cluster pod to success.
-			pods := &v1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 60*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-
-			// Save testCluster kubeConfig to local path
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-
-			// Wait all pods in kube-syste to be Running
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 
 			// do sonobuoy check
+			klog.Info("Sonobuoy check")
 			if strings.ToUpper(offlineFlag) != "TRUE" {
-				klog.Info("On line, sonobuoy check")
-				tools.DoSonoBuoyCheckByPasswd(password, masterSSH)
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag)
+			} else {
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag, offlineConfigs.SonobuoyImage, offlineConfigs.ConformanceImage, offlineConfigs.SystemdLogImage)
 			}
 
 			// do network check:

@@ -1,2 +1,5 @@
 docker.m.daocloud.io/library/nginx:alpine
 docker.m.daocloud.io/arm64v8/nginx:1.23-alpine
+registry.k8s.io/conformance:v1.24.7
+docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7
+sonobuoy/systemd-logs:v0.4

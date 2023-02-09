@@ -12,7 +12,6 @@ import (
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -46,41 +45,13 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		ginkgo.It("kubean cluster podStatus should be Succeeded", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			// Create yaml for kuBean CR and related configuration
-			klog.Info("kubeanClusterOpsName is :", kubeanClusterOpsName)
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-
-			// Check if the job and related pods have been created
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 60*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-
+			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			// Save testCluster kubeConfig to local path
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
 			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
-			// Wait all pods in kube-syste to be Running
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 		})
 

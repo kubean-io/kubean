@@ -2,19 +2,13 @@ package kubean_reset_e2e
 
 import (
 	"bytes"
-	"context"
 	"fmt"
-	"k8s.io/klog/v2"
-	"os/exec"
-	"time"
-
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog/v2"
+	"os/exec"
 )
 
 var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
@@ -28,36 +22,9 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 		ginkgo.It("Kubean cluster podStatus should be Succeeded", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-			// Start reset cluster job
-			resetYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterResetYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", resetYamlPath)
-			ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("reset cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-
-			// Fetch the job-related pod
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 60*time.Second, 5*time.Second).Should(gomega.BeTrue())
-			jobPodName := pods.Items[0].Name
-
-			// Wait job-related pod to be succeeded
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-
+			// Create cluster by apply yaml
+			tools.OperateClusterByYaml(clusterResetYamlsPath, kubeanClusterOpsName, kindConfig)
 		})
 
 		// after reest login node， check node functions
@@ -97,62 +64,24 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 
 		// Create cluster after reset
 		ginkgo.It("Create cluster after reset with Docker CRI", func() {
-			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-
 			clusterInstallYamlsPath := "e2e-install-cluster-docker"
 			kubeanClusterOpsName := tools.ClusterOperationName
 			localKubeConfigPath := "cluster1-config-in-docker"
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 
 			// modify hostname before reInstall
 			cmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostnamectl", "set-hostname", "hello-kubean"})
 			_, _ = tools.NewDoCmd("sshpass", cmd...)
 			// check hostname after deploy: hostname should be hello-kubean
-			var out, stderr bytes.Buffer
+			var out bytes.Buffer
 			cmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostname"})
 			out, _ = tools.NewDoCmd("sshpass", cmd...)
 			fmt.Println("Fetched node hostname is: ", out.String())
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
-
-			//Create yaml for kuBean CR and related configuration
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd1 := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd1.String())
-
-			cmd1.Stdout = &out
-			cmd1.Stderr = &stderr
-			if err := cmd1.Run(); err != nil {
-				ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
-				gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
-			}
-
-			// Fetch the job-related pod
-			time.Sleep(10 * time.Second)
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 60*time.Second, 5*time.Second).Should(gomega.BeTrue())
-			jobPodName := pods.Items[0].Name
-			// Wait for job-related pod status to be succeeded
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-			// Save testCluster kubeConfig to local path
+			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
-			// Wait all pods in kube-syste to be Running
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 3600)
 
 			// check hostname after deploy: hostname should be hello-kubean

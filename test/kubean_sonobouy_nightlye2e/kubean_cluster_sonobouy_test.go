@@ -3,18 +3,14 @@ package kubean_sonobouy_nightlye2e
 import (
 	"context"
 	"fmt"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
-	"os/exec"
-	"strings"
-	"time"
-
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog/v2"
+	"strings"
 )
 
 var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", func() {
@@ -43,42 +39,13 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		klog.Info("arch is: ", tools.Arch)
 
 		ginkgo.It("Create cluster", func() {
-			clusterInstallYamlsPath := "e2e-install-cluster-sonobouy"
+			clusterYamlPath := "e2e-install-cluster-sonobouy"
 			kubeanClusterOpsName := tools.ClusterOperationName
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-
-			// Check if the job and related pods have been created
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-			// Save testCluster kubeConfig to local path
+			tools.OperateClusterByYaml(clusterYamlPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 
 			// check kube version before upgrade
@@ -87,9 +54,11 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.OriginK8Version))
 				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.OriginK8Version))
 			}
+			// do sonobuoy check
 			if strings.ToUpper(offlineFlag) != "TRUE" {
-				klog.Info("On line, sonobuoy check")
-				tools.DoSonoBuoyCheckByPasswd(password, masterSSH)
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag)
+			} else {
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag, offlineConfigs.SonobuoyImage, offlineConfigs.ConformanceImage, offlineConfigs.SystemdLogImage)
 			}
 		})
 
@@ -163,38 +132,13 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		})
 
 		ginkgo.It("upgrade cluster Y version", func() {
-			clusterInstallYamlsPath := "e2e-upgrade-cluster-y"
+			clusterYamlPath := "e2e-upgrade-cluster-y"
 			kubeanClusterOpsName := "cluster1-upgrade-y"
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
+			tools.OperateClusterByYaml(clusterYamlPath, kubeanClusterOpsName, kindConfig)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 
 			// kubectl version should be：tools.UpgradeK8Version_Y
@@ -211,41 +155,13 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		})
 
 		ginkgo.It("upgrade cluster Z version", func() {
-			clusterInstallYamlsPath := "e2e-upgrade-cluster-z"
+			clusterYamlPath := "e2e-upgrade-cluster-z"
 			kubeanClusterOpsName := "cluster1-upgrade-z"
-
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
-
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
+			tools.OperateClusterByYaml(clusterYamlPath, kubeanClusterOpsName, kindConfig)
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
-
 			kubectlCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "version", "--short"})
 			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
 			klog.Info(kubectlOut.String())

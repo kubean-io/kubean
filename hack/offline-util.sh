@@ -60,32 +60,21 @@ function util::install_minio(){
   local MINIO_USER=$1
   local MINIO_PASS=$2
   local kubeconfig_file=$3
-  #* helm repo add minio-official https://charts.min.io
-  #* helm repo update minio-official
-  #* helm pull minio-official/minio --version=5.0.1
+  helm repo add minio-official https://charts.min.io
+  helm repo update minio-official
+  helm pull minio-official/minio --version=5.0.1
 
   # will be replaced by operator later
-  # helm upgrade --install  --create-namespace --cleanup-on-fail \
-            #--set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
-            #--set mode="standalone" \
-            #--set service.type=NodePort \
-            #--set consoleService.type=NodePort \
-            #--set resources.requests.memory=200Mi \
-            #--set persistence.size=10Gi \
-            #--kubeconfig "${kubeconfig_file}" \
-            #minio minio-official/minio --wait
+  helm upgrade --install  --create-namespace --cleanup-on-fail \
+            --set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
+            --set mode="standalone" \
+            --set service.type=NodePort \
+            --set consoleService.type=NodePort \
+            --set resources.requests.memory=200Mi \
+            --set persistence.size=10Gi \
+            --kubeconfig "${kubeconfig_file}" \
+            minio minio-official/minio --wait
 
-    helm repo add community https://release.daocloud.io/chartrepo/community
-    helm repo update
-    helm upgrade --install  --create-namespace --cleanup-on-fail \
-              --set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
-              --set mode="standalone" \
-              --set service.type=NodePort \
-              --set consoleService.type=NodePort \
-              --set resources.requests.memory=200Mi \
-              --set persistence.size=10Gi \
-              --kubeconfig "${kubeconfig_file}" \
-              minio community/minio --wait
 }
 
 
@@ -344,7 +333,23 @@ function util::scope_copy_test_images(){
     echo "Skopeo copy images end!"
 }
 
-
+function util::scopeo_copy_sonobuoy_images(){
+    dest_registry_addr=${1}
+    sonobuoy_image="docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7"
+    conformance_image="registry.k8s.io/conformance:v1.24.7"
+    systemd_logs_image="sonobuoy/systemd-logs:v0.4"
+    # shellcheck disable=SC2206
+    image_list=(${sonobuoy_image}  ${conformance_image} ${systemd_logs_image})
+    skopeo_cmd="skopeo copy --insecure-policy --src-tls-verify=false --dest-tls-verify=false  "
+    for image_name in "${image_list[@]}"; do
+      echo "skopeo copy sonobuoy images to registry: ${image_name}"
+      dest_image_name=$(echo ${image_name}|awk -F "/" '{print $NF}')
+      ${skopeo_cmd} docker://"${image_name}"  docker://"${dest_registry_addr}"/test/"${dest_image_name}" > /dev/null
+    done
+    for (( i=0; i<${#image_list[@]};i++)); do
+        ${skopeo_cmd} docker://"${image_name}"  docker://"${dest_registry_addr}"/test/"${image_name}" > /dev/null
+    done
+}
 
 ### OS COMPATIBILITY TEST: Kylin os use clone template
 function util::init_kylin_vm(){

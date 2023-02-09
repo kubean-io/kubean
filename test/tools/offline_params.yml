@@ -4,3 +4,6 @@ registry_addr_arm64:
 minio_addr:
 nginx_image_amd64:
 nginx_image_arm64:
+sonobuoy_image:
+conformance_image:
+systemd_logs_image: 

@@ -27,6 +27,7 @@ const (
 	DefaultNamespace    = "default"
 	TestClusterName     = "cluster1"
 	LocalKubeConfigPath = "cluster1-config"
+	SonobuoyImage       = "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7"
 )
 
 const (

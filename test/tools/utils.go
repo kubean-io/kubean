@@ -32,11 +32,14 @@ func GetKuBeanPath() string {
 }
 
 type OfflineConfig struct {
-	Ip              string `yaml:"ip"`
-	RegistryAddr    string `yaml:"registry_addr"`
-	MinioAddr       string `yaml:"minio_addr"`
-	NginxImageAMD64 string `yaml:"nginx_image_amd64"`
-	NginxImageARM64 string `yaml:"nginx_image_arm64"`
+	Ip               string `yaml:"ip"`
+	RegistryAddr     string `yaml:"registry_addr"`
+	MinioAddr        string `yaml:"minio_addr"`
+	NginxImageAMD64  string `yaml:"nginx_image_amd64"`
+	NginxImageARM64  string `yaml:"nginx_image_arm64"`
+	SonobuoyImage    string `yaml:"sonobuoy_image"`
+	ConformanceImage string `yaml:"conformance_image"`
+	SystemdLogImage  string `yaml:"systemd_logs_image"`
 }
 
 type KubeanOpsYml struct {

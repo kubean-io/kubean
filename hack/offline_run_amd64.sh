@@ -14,6 +14,7 @@ beginTime=`date +%s`
 util::import_files_minio_by_arch ${MINIOUSER} ${MINIOPWD} "${MINIO_URL}" "${DOWNLOAD_FOLDER}" ${arch}
 util::push_registry_by_arch "${registry_addr_amd64}" "${DOWNLOAD_FOLDER}" ${arch}
 util::scope_copy_test_images ${registry_addr_amd64}
+util::scopeo_copy_sonobuoy_images ${registry_addr_amd64}
 endTime=`date +%s`
 echo "Import minio and push registry end. Spend time $(($endTime-$beginTime)) s"
 

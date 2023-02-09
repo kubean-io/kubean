@@ -4,7 +4,6 @@ import (
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 )
@@ -29,11 +28,7 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
-			// Wait all pods in kube-syste to be Running
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 		})
 
@@ -44,9 +39,7 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 		})
 
@@ -57,9 +50,7 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 		})
 	})

@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 	"os"
@@ -74,19 +75,20 @@ func SaveKubeConf(kindConfig *restclient.Config, clusterName, configToSavePath s
 	gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "failed to write localKubeConfigPath")
 }
 
-func WaitPodSInKubeSystemBeRunning(kubeClient *kubernetes.Clientset, timeTotalSecond time.Duration, ops ...time.Duration) {
+func WaitPodSInKubeSystemBeRunning(clusterClient *kubernetes.Clientset, timeTotalSecond time.Duration, ops ...time.Duration) {
+
 	klog.Info("---- Waiting Pods in %s to be Running ---", KubeSystemNamespace)
 	var timeInterval time.Duration = 60
 	if len(ops) != 0 {
 		timeInterval = ops[0]
 	}
-
-	podList, err := kubeClient.CoreV1().Pods(KubeSystemNamespace).List(context.TODO(), metav1.ListOptions{})
+	podList, err := clusterClient.CoreV1().Pods(KubeSystemNamespace).List(context.TODO(), metav1.ListOptions{})
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed to get kube-system pods")
+
 	for _, podItem := range podList.Items {
 		klog.Info("Waiting ", podItem.Name, "to be Running...")
 		gomega.Eventually(func() bool {
-			pod, err1 := kubeClient.CoreV1().Pods(KubeSystemNamespace).Get(context.Background(), podItem.Name, metav1.GetOptions{})
+			pod, err1 := clusterClient.CoreV1().Pods(KubeSystemNamespace).Get(context.Background(), podItem.Name, metav1.GetOptions{})
 			gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "Failed get pod", pod.Name)
 			podStatus := string(pod.Status.Phase)
 			if podStatus == PodStatusRunning {
@@ -100,6 +102,13 @@ func WaitPodSInKubeSystemBeRunning(kubeClient *kubernetes.Clientset, timeTotalSe
 	}
 }
 
+func GenerateClusterClient(localKubeConfigPath string) *kubernetes.Clientset {
+	cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+	cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+	return cluster1Client
+}
 func WaitPodBeRunning(kubeClient *kubernetes.Clientset, namespace, podName string, timeTotalSecond time.Duration, ops ...time.Duration) *v1.Pod {
 	klog.Info("---- Waiting Pods in [%s] to be Running ---", namespace)
 	var timeInterval time.Duration = 10
@@ -170,32 +179,29 @@ func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Dur
 	gomega.Expect(flag).Should(gomega.BeTrue())
 }
 
-func DoSonoBuoyCheckByPasswd(password, masterSSH string) {
-	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
-		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
+func DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag string, sonobuoyArg ...string) {
+	var subCmd []string
+	var sonobuoyImage = SonobuoyImage
+	if strings.ToUpper(offlineFlag) == "TRUE" {
+		gomega.Expect(len(sonobuoyArg) >= 3).Should(gomega.BeTrue())
+		sonobuoyImage = sonobuoyArg[0]
+		conformanceImage := sonobuoyArg[1]
+		systemdLogImage := sonobuoyArg[2]
+		subCmd = []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", sonobuoyImage, "--kube-conformance-image", conformanceImage,
+			"--systemd-logs-image", systemdLogImage, "--plugin-env", "e2e.E2E_FOCUS=pods",
+			"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
+
+	} else {
+		subCmd = []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", sonobuoyImage, "--plugin-env", "e2e.E2E_FOCUS=pods",
+			"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
+	}
+
 	klog.Info("sonobuoy check cmd: ", subCmd)
 	cmd := RemoteSSHCmdArrayByPasswd(password, subCmd)
 	out, _ := NewDoCmd("sshpass", cmd...)
 	fmt.Println(out.String())
 
 	sshcmd := RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "sonobuoy", "status"})
-	sshout, _ := NewDoCmd("sshpass", sshcmd...)
-	fmt.Println(sshout.String())
-	klog.Info("sonobuoy status result:\n", out.String())
-	ginkgo.GinkgoWriter.Printf("sonobuoy status result: %s\n", out.String())
-	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("complete"))
-	gomega.Expect(sshout.String()).Should(gomega.ContainSubstring("passed"))
-}
-
-func DoSonoBuoyCheck(masterSSH string) {
-	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
-		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
-	klog.Info("sonobuoy check cmd: ", subCmd)
-	cmd := RemoteSSHCmdArray(subCmd)
-	out, _ := NewDoCmd("sshpass", cmd...)
-	fmt.Println(out.String())
-
-	sshcmd := RemoteSSHCmdArray([]string{masterSSH, "sonobuoy", "status"})
 	sshout, _ := NewDoCmd("sshpass", sshcmd...)
 	fmt.Println(sshout.String())
 	klog.Info("sonobuoy status result:\n", out.String())

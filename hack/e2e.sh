@@ -75,7 +75,7 @@ if [ "${E2E_TYPE}" == "PR" ]; then
     if [[ -n $DIFF_COMPATIBILE ]] ; then
         ## pr_ci debug stage, momentarily disable compatibility e2e
         echo "compatibility e2e..."
-        #./hack/run-os-compatibility-e2e.sh "${CLUSTER_PREFIX}"-host $SPRAY_JOB_VERSION
+        ./hack/run-os-compatibility-e2e.sh
     fi
 elif [ "${E2E_TYPE}" == "NIGHTLY" ]; then
     echo "RUN NIGHTLY E2E......."

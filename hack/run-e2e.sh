@@ -5,32 +5,14 @@ set -o nounset
 set -o pipefail
 set -e
 
-# This script runs e2e test against on kubean control plane.
-# You should prepare your environment in advance and following environment may be you need to set or use default one.
-# - CONTROL_PLANE_KUBECONFIG: absolute path of control plane KUBECONFIG file.
-#
-# Usage: hack/run-e2e.sh
-
-# Run e2e
-# Install ginkgo
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
-GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
-export PATH=$PATH:$GOPATH/bin
 rm -f ~/.ssh/known_hosts
 arch=amd64
 os_name="CENTOS7"
 util::vm_name_ip_init_online_by_os ${os_name}
-echo "vm_name1: ${vm_name1}"
-SNAPSHOT_NAME="os-installed"
-util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
-sleep 10
-echo "wait ${vm_ip_addr1} ..."
-util::wait_ip_reachable "${vm_ip_addr1}" 30
-ping -c 5 ${vm_ip_addr1}
-sshpass -p "${AMD_ROOT_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} cat /proc/version
-# print vm origin hostname
+util::power_on_vm_first ${os_name}
 echo "before deploy display hostname: "
 sshpass -p "${AMD_ROOT_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${vm_ip_addr1} hostname
 
@@ -73,5 +55,5 @@ ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kube
               --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr1}" \
               --isOffline="false" --arch=${arch} --vmPassword="${AMD_ROOT_PASSWORD}"
 
-SNAPSHOT_NAME="power-down"
+SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"

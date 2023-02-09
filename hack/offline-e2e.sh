@@ -30,6 +30,9 @@ export MINIOPORT=32000
 export CONTAINERS_PREFIX="kubean-offline"
 export DOWNLOAD_FOLDER="${REPO_ROOT}/download_offline_files-${TAG_VERSION}"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+export POWER_ON_SNAPSHOT_NAME="os-installed"
+export POWER_DOWN_SNAPSHOT_NAME="power-down"
+
 echo "HELM_CHART_VERSION: ${HELM_CHART_VERSION}"
 NETWORK_CARD="ens192"
 export RUNNER_NODE_IP=$(ip a |grep ${NETWORK_CARD}|grep inet|grep global|awk -F ' ' '{print $2}'|awk -F '/' '{print $1}')
@@ -44,7 +47,6 @@ registry_addr_arm64=${RUNNER_NODE_IP}:${REGISTRY_PORT_ARM64}
 local_helm_repo_alias="kubean_release"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
-
 if [[ ${HELM_CHART_VERSION} =~ .*rc ]];then
   echo "RC version, remain the the kube_version to 1.24.7"
 else
@@ -84,7 +86,12 @@ nginx_image_name="${registry_addr_amd64}/test/docker.m.daocloud.io/library/nginx
 sed -i "/nginx_image_amd64:/c\nginx_image_amd64: ${nginx_image_name} "  ${REPO_ROOT}/test/tools/offline_params.yml
 nginx_image_name="${registry_addr_arm64}/test/docker.m.daocloud.io/arm64v8/nginx:1.23-alpine"
 sed -i "/nginx_image_arm64:/c\nginx_image_arm64: ${nginx_image_name} "  ${REPO_ROOT}/test/tools/offline_params.yml
-
+sonobuoy_image="${registry_addr_amd64}/test/sonobuoy:v0.56.9"
+sed -i "/sonobuoy_image:/c\sonobuoy_image: ${sonobuoy_image}"  ${REPO_ROOT}/test/tools/offline_params.yml
+conformance_image="${registry_addr_amd64}/test/conformance:v1.24.7"
+sed -i "/conformance_image:/c\conformance_image: ${conformance_image}"  ${REPO_ROOT}/test/tools/offline_params.yml
+systemd_logs_image="${registry_addr_amd64}/test/systemd-logs:v0.4"
+sed -i "/systemd_logs_image:/c\systemd_logs_image: ${systemd_logs_image}"  ${REPO_ROOT}/test/tools/offline_params.yml
 ##### First AMD64 case ######
 ./hack/offline_run_amd64.sh
 ./hack/offline_run_arm64.sh

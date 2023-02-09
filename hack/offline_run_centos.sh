@@ -38,7 +38,7 @@ sed -i "s#minio_address:#minio_address: ${MINIO_URL}#"    ${REPO_ROOT}/test/kube
 sed -i "s#registry_host_key#${registry_addr_amd64}#g"    ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
 
 # restore vm snapshot
-SNAPSHOT_NAME="os-installed"
+SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
 echo "GINKGO VERSISON:"
 ginkgo version
@@ -66,5 +66,5 @@ ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- \
           --kubeconfig="${KUBECONFIG_FILE}"  \
           --clusterOperationName="${CLUSTER_OPERATION_NAME3}" --vmipaddr="${vm_ip_addr1}" --isOffline="true" --arch=${arch} --vmPassword="${AMD_ROOT_PASSWORD}"
 
-SNAPSHOT_NAME="power-down"
+SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"

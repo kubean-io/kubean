@@ -444,7 +444,11 @@ function utils::create_os_e2e_vms(){
 function util::power_on_2vms(){
   local OS_NAME=$1
   echo "OS_NAME is: ${OS_NAME}"
-  util::vm_name_ip_init_online_by_os ${OS_NAME}
+  if [[ ${OFFLINE_FLAG} == false ]]; then
+    util::vm_name_ip_init_online_by_os ${OS_NAME}
+  else
+    util::vm_name_ip_init_offline_by_os ${OS_NAME}
+  fi
   echo "vm_name1: ${vm_name1}"
   echo "vm_name2: ${vm_name2}"
   SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
@@ -460,7 +464,11 @@ function util::power_on_2vms(){
 function util::power_on_vm_first(){
   local OS_NAME=$1
   echo "OS_NAME is: ${OS_NAME}"
-  util::vm_name_ip_init_online_by_os ${OS_NAME}
+  if [[ ${OFFLINE_FLAG} == false ]]; then
+      util::vm_name_ip_init_online_by_os ${OS_NAME}
+  else
+      util::vm_name_ip_init_offline_by_os ${OS_NAME}
+  fi
   echo "vm_name1: ${vm_name1}"
   SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
   util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
@@ -472,7 +480,11 @@ function util::power_on_vm_first(){
 function util::power_on_vm_second(){
     local OS_NAME=$1
     echo "OS_NAME is: ${OS_NAME}"
-    util::vm_name_ip_init_online_by_os ${OS_NAME}
+    if [[ ${OFFLINE_FLAG} == false ]]; then
+      util::vm_name_ip_init_online_by_os ${OS_NAME}
+    else
+      util::vm_name_ip_init_offline_by_os ${OS_NAME}
+    fi
     echo "vm_name2: ${vm_name2}"
     SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
     util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
@@ -509,4 +521,27 @@ function vm_clean_up_by_name(){
         fi
      done
    echo "destroy vagrant vm end."
+}
+
+function util::prepare_config_yamls_one_node(){
+  yaml_source_path=$1
+  yaml_dest_path=$2
+  rm -fr "${yaml_dest_path}"
+  mkdir  "${yaml_dest_path}"
+  cp -f "${yaml_source_path}"/hosts-conf-cm.yml "${dest_config_path}"
+  cp -f "${yaml_source_path}"/kubeanCluster.yml "${dest_config_path}"
+  cp -f "${yaml_source_path}"/vars-conf-cm.yml  "${dest_config_path}"
+  cp -f "${yaml_source_path}"/kubeanClusterOps.yml  "${dest_config_path}"
+
+}
+
+function util::prepare_config_yamls_two_node(){
+  yaml_source_path=$1
+  yaml_dest_path=$2
+  rm -fr "${yaml_dest_path}"
+  mkdir  "${yaml_dest_path}"
+  cp -f "${yaml_source_path}"/hosts-conf-cm-2nodes.yml "${dest_config_path}"/hosts-conf-cm.yml
+  cp -f "${yaml_source_path}"/kubeanCluster.yml "${dest_config_path}"
+  cp -f "${yaml_source_path}"/vars-conf-cm.yml  "${dest_config_path}"
+  cp -f "${yaml_source_path}"/kubeanClusterOps.yml  "${dest_config_path}"
 }

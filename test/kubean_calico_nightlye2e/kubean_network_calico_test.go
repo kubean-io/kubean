@@ -6,22 +6,15 @@ import (
 	"github.com/kubean-io/kubean/test/tools"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	"os/exec"
 	"strings"
-	"time"
 )
-
-/*var _, currentFile, _, _ = runtime.Caller(0)
-var basepath = filepath.Dir(currentFile)*/
 
 var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 
-	localKubeConfigPath := "calico-single-stack.config"
 	var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
 	var workerSSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
 	ginkgo.Context("when install a cluster based on calico single stack", func() {
@@ -29,9 +22,8 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 		var pod1Name = "nginx1"
 		var pod2Name = "nginx2"
 		var password = tools.VmPassword
-		//var svc1Name = "nginxsvc1"
-		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
+		localKubeConfigPath := "calico-single-stack.config"
 		nginxImage := "nginx:alpine"
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
@@ -41,53 +33,23 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "AMD64" {
 			nginxImage = offlineConfigs.NginxImageAMD64
 		}
+		kubeanClusterOpsName := tools.ClusterOperationName
+		kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 		klog.Info("nginx image is: ", nginxImage)
 		klog.Info("offlineFlag is: ", offlineFlag)
 		klog.Info("arch is: ", tools.Arch)
-
 		ginkgo.It("Create cluster and all kube-system pods be running", func() {
 			clusterInstallYamlsPath := "e2e-install-calico-cluster"
-			kubeanClusterOpsName := tools.ClusterOperationName
-			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			kindClient, err := kubernetes.NewForConfig(kindConfig)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
-			time.Sleep(10 * time.Second)
-
-			// Check if the job and related pods have been created
-			pods := &corev1.PodList{}
-			klog.Info("Wait job related pod to be created")
-			labelStr := fmt.Sprintf("job-name=kubean-%s-job", kubeanClusterOpsName)
-			klog.Info("label is: ", labelStr)
-			gomega.Eventually(func() bool {
-				pods, _ = kindClient.CoreV1().Pods(tools.KubeanNamespace).List(context.Background(), metav1.ListOptions{
-					LabelSelector: labelStr,
-				})
-				if len(pods.Items) > 0 {
-					return true
-				}
-				return false
-			}, 120*time.Second, 5*time.Second).Should(gomega.BeTrue())
-
-			jobPodName := pods.Items[0].Name
-			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
-			// Save testCluster kubeConfig to local path
+			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
-			// Wait all pods in kube-syste to be Running
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 			// do sonobuoy check
 			if strings.ToUpper(offlineFlag) != "TRUE" {
-				klog.Info("On line, sonobuoy check")
-				tools.DoSonoBuoyCheckByPasswd(password, masterSSH)
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag)
+			} else {
+				tools.DoSonoBuoyCheckByPasswd(password, masterSSH, offlineFlag, offlineConfigs.SonobuoyImage, offlineConfigs.ConformanceImage, offlineConfigs.SystemdLogImage)
 			}
 		})
 
@@ -142,10 +104,8 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 		})
 
 		ginkgo.It("check pod on different node connection", func() {
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
+			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 			tools.CreatePod(pod1Name, tools.DefaultNamespace, "node1", nginxImage, localKubeConfigPath)
 			tools.CreatePod(pod2Name, tools.KubeSystemNamespace, "node2", nginxImage, localKubeConfigPath)
 
