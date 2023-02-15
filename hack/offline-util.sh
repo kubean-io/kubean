@@ -60,32 +60,21 @@ function util::install_minio(){
   local MINIO_USER=$1
   local MINIO_PASS=$2
   local kubeconfig_file=$3
-  #* helm repo add minio-official https://charts.min.io
-  #* helm repo update minio-official
-  #* helm pull minio-official/minio --version=5.0.1
+  helm repo add minio-official https://charts.min.io
+  helm repo update minio-official
+  helm pull minio-official/minio --version=5.0.1
 
   # will be replaced by operator later
-  # helm upgrade --install  --create-namespace --cleanup-on-fail \
-            #--set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
-            #--set mode="standalone" \
-            #--set service.type=NodePort \
-            #--set consoleService.type=NodePort \
-            #--set resources.requests.memory=200Mi \
-            #--set persistence.size=10Gi \
-            #--kubeconfig "${kubeconfig_file}" \
-            #minio minio-official/minio --wait
+  helm upgrade --install  --create-namespace --cleanup-on-fail \
+            --set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
+            --set mode="standalone" \
+            --set service.type=NodePort \
+            --set consoleService.type=NodePort \
+            --set resources.requests.memory=200Mi \
+            --set persistence.size=10Gi \
+            --kubeconfig "${kubeconfig_file}" \
+            minio minio-official/minio --wait
 
-    helm repo add community https://release.daocloud.io/chartrepo/community
-    helm repo update
-    helm upgrade --install  --create-namespace --cleanup-on-fail \
-              --set rootUser=${MINIO_USER},rootPassword=${MINIO_PASS} \
-              --set mode="standalone" \
-              --set service.type=NodePort \
-              --set consoleService.type=NodePort \
-              --set resources.requests.memory=200Mi \
-              --set persistence.size=10Gi \
-              --kubeconfig "${kubeconfig_file}" \
-              minio community/minio --wait
 }
 
 
