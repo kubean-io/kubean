@@ -19,7 +19,7 @@ jobs:
       - name: Get kubespray latest commit sha
         id: get_ref
         run: |
-          COMMIT_SHA='19bc610' 
+          COMMIT_SHA='19bc610f44d0abe9fe36959d3953fdf609dae8e2' 
           ## COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
           echo sha=${COMMIT_SHA}  >> $GITHUB_OUTPUT
 
