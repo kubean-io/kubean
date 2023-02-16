@@ -3,8 +3,6 @@
 # set -x
 set -eo pipefail
 
-echo "true" && exit
-
 # Note: 
 # This script is used to check whether the contents of the current os package are the same as the contents of the last os package. 
 # If the contents are the same, the last system package is directly downloaded without rebuilding. 
