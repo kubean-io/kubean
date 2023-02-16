@@ -3,6 +3,8 @@
 # set -x
 set -eo pipefail
 
+echo "true" && exit
+
 # Note: 
 # This script is used to check whether the contents of the current os package are the same as the contents of the last os package. 
 # If the contents are the same, the last system package is directly downloaded without rebuilding. 
@@ -18,6 +20,8 @@ prev_tag=$(git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1)
 
 late_packages_yml=$(git show "${late_tag}":build/os-packages/packages.yml)
 prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
+
+git diff --quit "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
 
 if [ "${OS_NAME}" == "kylinv10" ]; then
   git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.repo || { echo "true"; exit; }
