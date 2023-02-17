@@ -4,7 +4,7 @@ set -eo pipefail
 
 MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
 
-TAR_GZ_FILE_PATH=${2} ## os-pkgs/kubean-v0.0.1-centos7-amd64.tar.gz
+export TAR_GZ_FILE_PATH=${2} ## os-pkgs/kubean-v0.0.1-centos7-amd64.tar.gz
 
 readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
 
