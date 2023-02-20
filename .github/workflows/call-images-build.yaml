@@ -6,6 +6,9 @@ on:
       SPRAY_REF:
         required: true
         type: string
+      CI_TYPE:
+        required: true
+        type: string
 
 env:
   ONLINE_REGISTER: ghcr.io
@@ -29,13 +32,16 @@ jobs:
       run: |
         IMAGE_TAG_SHORT_SHA=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)
         echo image_tag_short_sha=${IMAGE_TAG_SHORT_SHA} >> $GITHUB_OUTPUT
-        CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
-        echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
         ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
         echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
         echo online_register=${{ env.ONLINE_REGISTER }} >> $GITHUB_OUTPUT
         echo build_plateform=${{ env.BUILD_PLATFORM }} >> $GITHUB_OUTPUT
-
+        if [[ ${{ inputs.CI_TYPE }} == "main" ]]; then
+          echo container_tag="main" >> $GITHUB_OUTPUT
+        else
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
+        fi
 
   build-push-kubespray:
     needs: output-variable
