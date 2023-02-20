@@ -19,7 +19,7 @@ prev_tag=$(git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1)
 late_packages_yml=$(git show "${late_tag}":build/os-packages/packages.yml)
 prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
 
-git diff --quit "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
+git diff --quiet "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
 
 if [ "${OS_NAME}" == "kylinv10" ]; then
   git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.repo || { echo "true"; exit; }
