@@ -1,5 +1,5 @@
 ---
-## Only for RHEL 8.4 on offline environment currently
+## Only for RHEL 8 on offline environment currently
 - hosts: k8s_cluster
   become: yes
   vars:
@@ -12,6 +12,15 @@
         state: absent
       when:
         - ansible_distribution == "RedHat"
-        - ansible_distribution_version == "8.4"
+        - ansible_distribution_major_version == "8"
         - not rhel_enable_repos
         - container_manager == "docker"
+
+    - name: Remove audit package
+      package: 
+        name: audit
+        state: absent
+      when:
+        - ansible_distribution == "RedHat"
+        - ansible_distribution_major_version == "8"
+        - not rhel_enable_repos
