@@ -51,7 +51,8 @@ jobs:
     needs: get-spray-ref
     with:
       SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
-
+      CI_TYPE: "main"
+       
   get-environment:
     runs-on: ubuntu-latest
     needs: call-images-build

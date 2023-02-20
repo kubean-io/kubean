@@ -35,6 +35,7 @@ jobs:
     needs: get-spray-ref
     with:
       SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
+      CI_TYPE: "release"
 
   call-os-pkgs-build:
     uses: ./.github/workflows/call-os-pkgs-build.yaml
