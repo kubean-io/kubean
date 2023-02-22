@@ -16,7 +16,7 @@ Gomega: The assertion library that best matches ginkgo.
 ## Environment setup
 
 ````
-hack/local-up-kpanda.sh
+hack/local-up-kindcluster.sh
 ````
 This script does the following:
 
