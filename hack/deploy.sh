@@ -25,19 +25,6 @@ DEPLOY_ENV=${7:-}   # E2E/DEV/PROD
 
 LOCAL_REPO_ALIAS=kubean_release
 LOCAL_RELEASE_NAME=kubean
-values=""
-# add repo locally
-helm repo add ${LOCAL_REPO_ALIAS} ${HELM_REPO}
-
-if [ "${DEPLOY_ENV}" == "PROD" ];then
-    values="-f config/ci/demo-alpha.yaml"
-elif [ "${DEPLOY_ENV}" == "DEV" ];then
-    values="-f config/ci/demo-alpha.yaml"
-elif [ "${DEPLOY_ENV}" == "E2E" ];then
-    values="-f config/ci/e2e.yaml"
-else
-    values=""
-fi
 
 # replace the default values.yaml, the image repo or image revision
 value_override=""
@@ -57,7 +44,7 @@ chmod 600 ${KUBE_CONF}
 # install or upgrade
 helm upgrade --install  --create-namespace --cleanup-on-fail \
              ${LOCAL_RELEASE_NAME}     ${LOCAL_REPO_ALIAS}/kubean   \
-             ${values} ${value_override} \
+             ${value_override} \
              -n "${TARGET_NS}"  --version ${KUBEAN_CHART_VERSION} \
              --kubeconfig ${KUBE_CONF}
 
