@@ -16,10 +16,13 @@
         - not rhel_enable_repos
         - container_manager == "docker"
 
-    - name: Remove audit package
+    - name: Remove extra packages
       package: 
-        name: audit
+        name: "{{ item }}"
         state: absent
+      with_items:
+        - audit
+        - runc
       when:
         - ansible_distribution == "RedHat"
         - ansible_distribution_major_version == "8"
