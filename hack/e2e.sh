@@ -60,7 +60,8 @@ DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 ####### e2e logic ########
 util::clean_online_kind_cluster
 
-KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
+#KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
+KIND_VERSION=${KIND_VERSION:-"release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"}
 ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
 
 if [ "${E2E_TYPE}" == "PR" ]; then
