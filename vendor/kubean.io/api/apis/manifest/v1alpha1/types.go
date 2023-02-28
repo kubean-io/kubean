@@ -52,7 +52,7 @@ type ImageRepoPasswordAuth struct {
 
 type LocalService struct {
 	// +optional
-	ImageRepo map[ImageRepoType]string `json:"imageRepo" yaml:"imageRepo"`
+	ImageRepo map[ImageRepoType]string `json:"imageRepo,omitempty" yaml:"imageRepo,omitempty"`
 	// +optional
 	ImageRepoAuth []ImageRepoPasswordAuth `json:"imageRepoAuth,omitempty" yaml:"imageRepoAuth,omitempty"`
 	// +optional
