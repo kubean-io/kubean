@@ -40,6 +40,7 @@ const (
 	RetryInterval    = time.Millisecond * 300
 	RetryCount       = 5
 	ServiceAccount   = "kubean.io/kubean-operator=sa"
+	SprayJobPodName  = "kubean"
 )
 
 type Controller struct {
@@ -372,7 +373,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 					ServiceAccountName: serviceAccountName,
 					Containers: []corev1.Container{
 						{
-							Name:    "kubespray", // do not change this name
+							Name:    SprayJobPodName,
 							Image:   c.ProcessKubeanOperationImage(clusterOps.Spec.Image, c.FetchGlobalManifestImageTag()),
 							Command: []string{"/bin/entrypoint.sh"},
 							Env: []corev1.EnvVar{
@@ -440,7 +441,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 	}
 	if !clusterOps.Spec.SSHAuthRef.IsEmpty() {
 		// mount ssh data
-		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == SprayJobPodName {
 			job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
 				corev1.VolumeMount{
 					Name:      "ssh-auth",
@@ -464,7 +465,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 		job.Spec.ActiveDeadlineSeconds = clusterOps.Spec.ActiveDeadlineSeconds
 	}
 	if !reflect.ValueOf(clusterOps.Spec.Resources).IsZero() {
-		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == "kubespray" {
+		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == SprayJobPodName {
 			job.Spec.Template.Spec.Containers[0].Resources = clusterOps.Spec.Resources
 		}
 	}
