@@ -72,11 +72,13 @@ func (localService *LocalService) GetGHCRImageRepo() string {
 
 type ImageRepoType string
 
-const KubeImageRepo ImageRepoType = "kubeImageRepo"
-const GCRImageRepo ImageRepoType = "gcrImageRepo"
-const GithubImageRepo ImageRepoType = "githubImageRepo"
-const DockerImageRepo ImageRepoType = "dockerImageRepo"
-const QuayImageRepo ImageRepoType = "quayImageRepo"
+const (
+	KubeImageRepo   ImageRepoType = "kubeImageRepo"
+	GCRImageRepo    ImageRepoType = "gcrImageRepo"
+	GithubImageRepo ImageRepoType = "githubImageRepo"
+	DockerImageRepo ImageRepoType = "dockerImageRepo"
+	QuayImageRepo   ImageRepoType = "quayImageRepo"
+)
 
 type HostsMap struct {
 	// +required
