@@ -59,9 +59,9 @@ type ClusterCondition struct {
 	// +optional
 	Status ClusterConditionType `json:"status"`
 	// +optional
-	StartTime *metav1.Time `json:"startTime"`
+	StartTime *metav1.Time `json:"startTime,omitempty"`
 	// +optional
-	EndTime *metav1.Time `json:"endTime"`
+	EndTime *metav1.Time `json:"endTime,omitempty"`
 }
 
 // Status contains information about the current status of a
