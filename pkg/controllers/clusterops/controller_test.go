@@ -485,6 +485,64 @@ func TestNewKubesprayJob(t *testing.T) {
 	}
 }
 
+func TestController_HookCustomAction(t *testing.T) {
+	os.Setenv("POD_NAMESPACE", "mynamespace")
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+	clusterOps.Spec.BackoffLimit = 10
+	clusterOps.Name = "myops"
+	clusterOps.Spec.Image = "myimage"
+	clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "hostsconf",
+	}
+	clusterOps.Spec.VarsConfRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "varsconf",
+	}
+	clusterOps.Spec.EntrypointSHRef = &apis.ConfigMapRef{
+		NameSpace: "mynamespace",
+		Name:      "entrypoint",
+	}
+	tests := []struct {
+		name      string
+		setAction func()
+		wantErr   bool
+	}{
+		{
+			name: "specified configmap as actionSource, but actionSourceRef empty",
+			setAction: func() {
+				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
+			},
+			wantErr: true,
+		},
+		{
+			name: "specified configmap as actionSource with actionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
+				clusterOps.Spec.ActionSourceRef = &apis.ConfigMapRef{
+					Name:      "myplaybook",
+					NameSpace: "mynamespace",
+				}
+			},
+			wantErr: false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.setAction()
+			err := controller.HookCustomAction(clusterOps, controller.NewKubesprayJob(clusterOps, "kubean"))
+			if (err != nil) != test.wantErr {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestCurrentJobNeedBlock(t *testing.T) {
 	controller := Controller{}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}

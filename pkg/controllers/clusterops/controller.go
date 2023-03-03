@@ -493,6 +493,10 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *clusteroperationv1alpha1.Clu
 			klog.Warningf("create job %s for kuBeanClusterOp %s", jobName, clusterOps.Name)
 			job = c.NewKubesprayJob(clusterOps, sa)
 
+			if err := c.HookCustomAction(clusterOps, job); err != nil {
+				return false, err
+			}
+
 			c.SetOwnerReferences(&job.ObjectMeta, clusterOps)
 			job, err = c.ClientSet.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
 			if err != nil {
@@ -532,15 +536,15 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	for _, action := range clusterOps.Spec.PreHook {
-		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey); err != nil {
+		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey, clusterOps.Spec.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
-		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey); err != nil {
+		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
 			return false, err
 		}
 	}
@@ -572,6 +576,82 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 		return false, err
 	}
 	return true, nil
+}
+
+// HookCustomAction inject custom actions to spray job.
+func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.ClusterOperation, job *batchv1.Job) error {
+	errMsg := "actionSourceRef must be specified if actionSource set as configmap"
+	for _, action := range clusterOps.Spec.PreHook {
+		if action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+			if action.ActionSourceRef.IsEmpty() {
+				return fmt.Errorf(errMsg)
+			}
+			if err := c.injectCustomAction(clusterOps, job, action.Action, action.ActionType, action.ActionSourceRef); err != nil {
+				return err
+			}
+		}
+	}
+	if clusterOps.Spec.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+		if clusterOps.Spec.ActionSourceRef.IsEmpty() {
+			return fmt.Errorf(errMsg)
+		}
+		if err := c.injectCustomAction(clusterOps, job, clusterOps.Spec.Action, clusterOps.Spec.ActionType, clusterOps.Spec.ActionSourceRef); err != nil {
+			return err
+		}
+	}
+	for _, action := range clusterOps.Spec.PostHook {
+		if action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+			if action.ActionSourceRef.IsEmpty() {
+				return fmt.Errorf(errMsg)
+			}
+			if err := c.injectCustomAction(clusterOps, job, action.Action, action.ActionType, action.ActionSourceRef); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Controller) injectCustomAction(clusterOps *clusteroperationv1alpha1.ClusterOperation, job *batchv1.Job, action string, actionType clusteroperationv1alpha1.ActionType, actionRef *apis.ConfigMapRef) error {
+	currentNS := util.GetCurrentNSOrDefault()
+	if actionRef.NameSpace != currentNS {
+		_, err := c.CopyConfigMap(clusterOps, actionRef, actionRef.Name, currentNS)
+		if err != nil && !apierrors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+	defaultMode := int32(0o700)
+	pathPrefix := "/kubespray"
+	if actionType == clusteroperationv1alpha1.ShellActionType {
+		pathPrefix = "/bin"
+	}
+	volumeExist := false
+	for _, volume := range job.Spec.Template.Spec.Volumes {
+		if volume.Name == actionRef.Name {
+			volumeExist = true
+			break
+		}
+	}
+	if !volumeExist {
+		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes, corev1.Volume{
+			Name: actionRef.Name,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: actionRef.Name,
+					},
+					DefaultMode: &defaultMode,
+				},
+			},
+		})
+	}
+	job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
+		corev1.VolumeMount{
+			Name:      actionRef.Name,
+			MountPath: fmt.Sprintf("%s/%s", pathPrefix, action),
+			SubPath:   action,
+		})
+	return nil
 }
 
 // GetServiceAccountName get serviceaccount name on kubean namespace by labelSelector.

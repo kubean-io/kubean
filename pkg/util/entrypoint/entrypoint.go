@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+
+	"k8s.io/klog/v2"
 )
 
 // Generate kubespray job entrypoint script
@@ -82,9 +84,11 @@ func NewEntryPoint() *EntryPoint {
 	return ep
 }
 
-func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey bool) (string, error) {
-	if _, ok := ep.Actions.Playbooks.Dict[action]; !ok {
-		return "", ArgsError{fmt.Sprintf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)}
+func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey, builtinAction bool) (string, error) {
+	if builtinAction {
+		if _, ok := ep.Actions.Playbooks.Dict[action]; !ok {
+			return "", ArgsError{fmt.Sprintf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)}
+		}
 	}
 	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 	if isPrivateKey {
@@ -103,10 +107,13 @@ func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey bo
 	return playbookCmd, nil
 }
 
-func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivateKey bool) (string, error) {
+func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivateKey, builtinAction bool) (string, error) {
+	if !builtinAction {
+		klog.Infof("use external action %s, type %s", action, actionType)
+	}
 	hookRunCmd := ""
 	if actionType == PBAction {
-		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
+		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey, builtinAction)
 		if err != nil {
 			return "", ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
@@ -119,8 +126,8 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 	return hookRunCmd, nil
 }
 
-func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
-	prehook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
+func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPrivateKey, builtinAction bool) error {
+	prehook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey, builtinAction)
 	if err != nil {
 		return ArgsError{fmt.Sprintf("prehook: %s", err)}
 	}
@@ -128,8 +135,8 @@ func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPri
 	return nil
 }
 
-func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
-	posthook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey)
+func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPrivateKey, builtinAction bool) error {
+	posthook, err := ep.hookRunPart(actionType, action, extraArgs, isPrivateKey, builtinAction)
 	if err != nil {
 		return ArgsError{fmt.Sprintf("posthook: %s", err)}
 	}
@@ -137,9 +144,12 @@ func (ep *EntryPoint) PostHookRunPart(actionType, action, extraArgs string, isPr
 	return nil
 }
 
-func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey bool) error {
+func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPrivateKey, builtinAction bool) error {
+	if !builtinAction {
+		klog.Infof("use external action %s, type %s", action, actionType)
+	}
 	if actionType == PBAction {
-		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey)
+		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey, builtinAction)
 		if err != nil {
 			return ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
