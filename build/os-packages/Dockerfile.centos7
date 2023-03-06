@@ -1,10 +1,12 @@
 FROM centos:7.9.2009 as os-centos7
 ARG OS_VERSION=7
 ARG BUILD_TOOLS="yum-utils createrepo epel-release wget"
+ARG PKGS_IN_ISO="selinux-policy-targeted policycoreutils-python iptables libcgroup libnetfilter_conntrack libseccomp libselinux-utils"
 
 RUN yum install -q -y ${BUILD_TOOLS} \
     && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
-    && yum makecache
+    && yum makecache \
+    && yum install -y ${PKGS_IN_ISO}
 
 WORKDIR /centos/$OS_VERSION/os
 COPY build/os-packages/packages.yml .
