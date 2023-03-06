@@ -43,6 +43,19 @@ spec:
             properties:
               action:
                 type: string
+              actionSource:
+                default: builtin
+                type: string
+              actionSourceRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
               actionType:
                 type: string
               activeDeadlineSeconds:
@@ -86,6 +99,19 @@ spec:
                   properties:
                     action:
                       type: string
+                    actionSource:
+                      default: builtin
+                      type: string
+                    actionSourceRef:
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      type: object
                     actionType:
                       type: string
                     extraArgs:
@@ -100,6 +126,19 @@ spec:
                   properties:
                     action:
                       type: string
+                    actionSource:
+                      default: builtin
+                      type: string
+                    actionSourceRef:
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      type: object
                     actionType:
                       type: string
                     extraArgs:

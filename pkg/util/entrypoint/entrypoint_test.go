@@ -207,19 +207,19 @@ func TestEntrypoint(t *testing.T) {
 			ep := NewEntryPoint()
 			// Prehook 命令处理
 			for _, prehook := range item.Input.PreHooks {
-				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action, prehook.ExtraArgs, item.Input.IsPrivateKey)
+				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action, prehook.ExtraArgs, item.Input.IsPrivateKey, true)
 				if err != nil {
 					t.Fatalf("error: %v", err)
 				}
 			}
 			// Kubespray 命令处理
-			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.ExtraArgs, item.Input.IsPrivateKey)
+			err = ep.SprayRunPart(item.Input.ActionType, item.Input.Action, item.Input.ExtraArgs, item.Input.IsPrivateKey, true)
 			if err != nil {
 				t.Fatalf("error: %v", err)
 			}
 			// Posthook 命令处理
 			for _, posthook := range item.Input.PostHooks {
-				err = ep.PostHookRunPart(posthook.ActionType, posthook.Action, posthook.ExtraArgs, item.Input.IsPrivateKey)
+				err = ep.PostHookRunPart(posthook.ActionType, posthook.Action, posthook.ExtraArgs, item.Input.IsPrivateKey, true)
 				if err != nil {
 					t.Fatalf("error: %v", err)
 				}
@@ -326,7 +326,7 @@ func TestEntryPoint_buildPlaybookCmd(t *testing.T) {
 				PostHookCMDs: tt.fields.PostHookCMDs,
 				Actions:      tt.fields.Actions,
 			}
-			got, err := ep.buildPlaybookCmd(tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey)
+			got, err := ep.buildPlaybookCmd(tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey, true)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("buildPlaybookCmd() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -420,7 +420,7 @@ func Test_entryPoint_hookRunPart(t *testing.T) {
 				PostHookCMDs: tt.fields.PostHookCMDs,
 				Actions:      tt.fields.Actions,
 			}
-			got, err := ep.hookRunPart(tt.args.actionType, tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey)
+			got, err := ep.hookRunPart(tt.args.actionType, tt.args.action, tt.args.extraArgs, tt.args.isPrivateKey, true)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("hookRunPart() error = %v, wantErr %v", err, tt.wantErr)
 				return

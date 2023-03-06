@@ -25,11 +25,19 @@ type ClusterOperation struct {
 	Status Status `json:"status,omitempty"`
 }
 
-type ActionType string
+type (
+	ActionSource string
+	ActionType   string
+)
 
 const (
 	PlaybookActionType ActionType = "playbook"
 	ShellActionType    ActionType = "shell"
+)
+
+const (
+	BuiltinActionSource   ActionSource = "builtin"
+	ConfigMapActionSource ActionSource = "configmap"
 )
 
 // Spec defines the desired state of a member cluster.
@@ -54,6 +62,11 @@ type Spec struct {
 	// +required
 	Action string `json:"action"`
 	// +optional
+	// +kubebuilder:default="builtin"
+	ActionSource ActionSource `json:"actionSource"`
+	// +optional
+	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
+	// +optional
 	ExtraArgs string `json:"extraArgs"`
 	// +required
 	BackoffLimit int `json:"backoffLimit"`
@@ -74,6 +87,11 @@ type HookAction struct {
 	ActionType ActionType `json:"actionType"`
 	// +required
 	Action string `json:"action"`
+	// +optional
+	// +kubebuilder:default="builtin"
+	ActionSource ActionSource `json:"actionSource"`
+	// +optional
+	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
 	// +optional
 	ExtraArgs string `json:"extraArgs"`
 }

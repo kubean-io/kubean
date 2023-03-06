@@ -40,10 +40,10 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 
 ## :anchor: Awesome features
 
-- Simplicity: Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.
-- Offline Supported: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.
-- Compatibility: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
-- Expandability: Allowing custom actions be added to cluster without any changes for Kubespray. 
+- **Simplicity:** Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.
+- **Offline Supported**: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.
+- **Compatibility**: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
+- **Expandability**: Allowing custom actions be added to cluster without any changes for Kubespray. 
 
 ## :surfing_man: Quick Start
 
@@ -86,4 +86,5 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 - [Kubean vs Kubespray](docs/zh/comparisons.md)
 - [CRD Outline](docs/zh/crds.md)
 - [Deploy cluster using SSH secret key method](docs/zh/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/offline.md)
+- [Cluster deployment for air gap environments](docs/zh/offline.md)
+- [Custom Action](docs/zh/custom_action.md)
