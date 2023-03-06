@@ -15,7 +15,8 @@ helm upgrade \
     -n ${TARGET_NS} \
     --create-namespace \
     --cleanup-on-fail \
-    --set image.repository=${IMAGE_REPO}/kubean-operator \
-    --set image.tag=${IMAGE_TAG} \
+    --set kubeanOperator.image.registry=${IMAGE_REPO%/*} \
+    --set kubeanOperator.image.repository=${IMAGE_REPO#*/}/kubean-operator \
+    --set kubeanOperator.image.tag=${IMAGE_TAG} \
     --kubeconfig kubeconfig \
     charts/kubean/
