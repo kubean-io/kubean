@@ -1,0 +1,98 @@
+name: kubean_compatibility_schedule
+
+on:
+  # refer: https://crontab.guru/examples.html
+  # At 00:00 on every Sunday（Beijing Time).
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 0'
+
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBESPRAY_IMAGE_NAME: kubespray
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: latest
+  VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
+  VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+  AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}
+  KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
+
+jobs:
+  build-push-for-e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Set env
+        run: |
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to registry
+        # This is where you will update the PAT to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: kubean-operator Build image
+        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+
+      - name: kubean-operator Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: spray-job Build image
+        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
+
+      - name: spray-job Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+  auto-kubean-compatibility:
+    needs: build-push-for-e2e
+    runs-on: [self-hosted, online]
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+
+      - name: kubean_compatibility_schedule
+        run: |
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
+          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+          fi
+          echo ${{ runner.name }}
+          echo ${{ github.workspace }}
+          echo "${HELM_CHART_VERSION}" 
+          echo "${CONTAINER_TAG}"
+          bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "KUBEAN-COMPATIBILITY"

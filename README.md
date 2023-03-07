@@ -81,6 +81,12 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 
 [![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
 
+## :ocean: Kubernetes compatibility
+
+|               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 |
+|---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
+| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
+
 ## :book: Documents
 - [Architecture](docs/zh/architecture.md)
 - [Kubean vs Kubespray](docs/zh/comparisons.md)
