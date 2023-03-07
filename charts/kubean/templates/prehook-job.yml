@@ -1,0 +1,98 @@
+{{- $name := include "kubean.name" . -}}
+{{- $namespace := include "kubean.namespace" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}-pre-manifests
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+  crds-configmaps.yaml: |-
+    {{ range $path, $bytes := .Files.Glob (printf "crds/*")}}
+    {{- $.Files.Get $path | nindent 8 }}
+    {{ end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ $name }}-pre-hook-install-crds"
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ $name }}
+      labels:
+        app.kubernetes.io/instance: {{ $name | quote }}
+    spec:
+      serviceAccountName: {{ $name }}-pre-hook-job
+      restartPolicy: Never
+      containers:
+        - name: install-crds
+          image: {{ include "kubean.prehookImage" . }}
+          imagePullPolicy: IfNotPresent
+          workingDir: /crds
+          command:
+            - /bin/sh
+            - -c
+            - |
+              bash <<'EOF'
+              set -ex
+              kubectl apply --server-side -f /crds --force-conflicts
+              EOF
+          volumeMounts:
+            - name: crds
+              mountPath: /crds
+      volumes:
+        - name: crds
+          configMap:
+            name: {{ $name }}-pre-manifests
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}-pre-hook-job
+  namespace: {{ $namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $name }}-pre-hook-job
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ['*']
+    resources: ['*']
+    verbs: ["get", "watch", "list", "create", "update", "patch", "delete"]
+  - nonResourceURLs: ['*']
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $name }}-pre-hook-job
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $name }}-pre-hook-job
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}-pre-hook-job
+    namespace: {{ $namespace }}
+---

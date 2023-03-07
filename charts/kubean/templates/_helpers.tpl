@@ -60,3 +60,7 @@ Create the name of the service account to use
 {{- default "default" .Values.kubeanOperator.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "kubean.prehookImage" -}}
+{{- printf "%s/%s:%s" .Values.sprayJob.image.registry .Values.sprayJob.image.repository .Values.sprayJob.image.tag }}
+{{- end }}
