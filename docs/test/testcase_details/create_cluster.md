@@ -120,6 +120,13 @@
     4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
     5. check the hostname of cluster node: the hostname is overwrited by kuean
 
+### Support iptables mode
+    1. prepare the config file and set kube_proxy_mode: iptables
+    2. set cluster topology to：1 master + 0 worker
+    3. start create cluster
+    4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    5. check the prox mode of cluster node: the prox mode is iptables
+
 ### Support Readhat8 OS
     1. prepare the config file
     2. set cluster topology config in hosts-config-cm.yml： 1 master + 0 worker

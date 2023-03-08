@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   schedule:
     # every day 14:00(UTC) = 22:00（Beijing),
-    - cron: '0 14 * * *'
+    - cron: '0 20 * * *'
 
 jobs:
   offline_e2e:

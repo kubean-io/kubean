@@ -93,6 +93,14 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			gomega.Expect(hostnameout.String()).Should(gomega.ContainSubstring("node1"))
 		})
 
+		ginkgo.It("support iptables", func() {
+			getProxModecmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "get", "cm", "-n", "kube-system", "kube-proxy", "-o", "jsonpath='{.data.config\\.conf}{\"\\n\"}'"})
+			proxOut, _ := tools.NewDoCmd("sshpass", getProxModecmd...)
+
+			fmt.Println("Prox Mode:", proxOut.String())
+			gomega.Expect(proxOut.String()).Should(gomega.ContainSubstring("mode: iptables"))
+		})
+
 		ginkgo.It("systemctl status containerd to check if containerd running: ", func() {
 			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "nerdctl", "info"})
 			out, _ := tools.NewDoCmd("sshpass", masterCmd...)
