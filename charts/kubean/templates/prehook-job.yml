@@ -11,9 +11,9 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 data:
   crds-configmaps.yaml: |-
-    {{ range $path, $bytes := .Files.Glob (printf "crds/*")}}
-    {{- $.Files.Get $path | nindent 8 }}
-    {{ end }}
+    {{- range $path, $bytes := .Files.Glob (printf "crds/*") }}
+    {{- $.Files.Get $path | nindent 4 }}
+    {{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
