@@ -48,6 +48,7 @@ Selector labels
 {{- define "kubean.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "kubean.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: kubean-operator
 {{- end }}
 
 {{/*
