@@ -36,10 +36,10 @@ jobs:
         echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
         echo online_register=${{ env.ONLINE_REGISTER }} >> $GITHUB_OUTPUT
         echo build_plateform=${{ env.BUILD_PLATFORM }} >> $GITHUB_OUTPUT
+        CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
         if [[ ${{ inputs.CI_TYPE }} == "main" ]]; then
-          echo container_tag="main" >> $GITHUB_OUTPUT
+          echo container_tag="${CONTAINER_TAG}-main" >> $GITHUB_OUTPUT
         else
-          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
           echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
         fi
 
