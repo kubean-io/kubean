@@ -15,12 +15,14 @@
       when:
         - check_connection
     - name: Process connection_ping_result
+      ignore_errors: true
       set_fact:
         check_connection_result: "{{ connection_ping_result.failed == false }}"
       when:
         - check_connection
-    - name: Show check_connection result
-      debug: var=check_connection_result
+    - name: Store check_connection result to localhost
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.ping_connection=\"{{ check_connection_result }}\"' /tmp/kubean_data_temp_cache "
+      delegate_to: localhost
       when:
         - check_connection
 
@@ -32,33 +34,53 @@
       when:
         - fetch_os_type
     - name: Process fetch_os_type_result
+      ignore_errors: true
       set_fact:
-        fetch_os_type_result: "{{ dict(_keys|zip(_vals)) | combine( { 'RAW_OUTPUT': os_release_cmd_result.stdout } ) }}"
+        ## fetch_os_type_result: "{{ dict(_keys|zip(_vals)) | combine( { 'RAW_OUTPUT': os_release_cmd_result.stdout } ) }}" ## RAW_OUTPUT.value does not work well with `yq`.
+        fetch_os_type_result: "{{ dict(_keys|zip(_vals)) }}"
       vars:
         _arr: "{{ os_release_cmd_result.stdout.splitlines() | map('trim') | select() | list }}"
-        _keys: "{{ _arr | map('split', '=') | map('first') | map('replace', '\"' ,'') | list }}"
-        _vals: "{{ _arr | map('split', '=') | map('last') | map('replace', '\"' , '') | list }}"
+        _keys: "{{ _arr | map('split', '=') | map('first') | map('replace', '\"' ,'') | map('trim') | list }}"
+        _vals: "{{ _arr | map('split', '=') | map('last') | map('replace', '\"' , '') | map('trim') | list }}"
       when:
         - fetch_os_type
-    - name: Show fetch_os_type result
-      debug: var=fetch_os_type_result
+    - name: Store fetch_os_type result to localhost
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.os_type.{{ item.key }}=\"{{ item.value }}\"' /tmp/kubean_data_temp_cache "
+      loop: "{{ lookup( 'dict' , fetch_os_type_result ) }}"
+      delegate_to: localhost
       when:
         - fetch_os_type
-
 
 
     - name: Perform check_existing_k8s_service
-      shell: bash -c "kubectl get namespace" || bash -c "ps -ef | grep kubelet"
+      shell: bash -c "kubectl get namespace >/dev/null 2>&1 " || bash -c " ps -ef | grep kubelet | grep -v grep >/dev/null 2>&1 "
       register: check_k8s_cmd_result
       ignore_errors: true
       when:
         - check_existing_k8s_service
     - name: Process check_k8s_cmd_result
+      ignore_errors: true
       set_fact:
         check_existing_k8s_service_result: "{{ check_k8s_cmd_result.rc == 0 }}"
       when:
         - check_existing_k8s_service
-    - name: Show check_existing_k8s_service result
-      debug: var=check_existing_k8s_service_result
+    - name: Store check_existing_k8s_service result to localhost
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.existing_k8s_service=\"{{ check_existing_k8s_service_result }}\"' /tmp/kubean_data_temp_cache "
+      delegate_to: localhost
       when:
         - check_existing_k8s_service
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Get precheck result
+      shell: 'yq -o=json /tmp/kubean_data_temp_cache || echo {} '
+      register: yq_cmd
+      ignore_errors: true
+
+    - name: Set precheck result
+      set_fact:
+        check_result: "{{yq_cmd.stdout | replace('\"True\"','true') | replace('\"False\"','false')}}"
+
+    - name: Show precheck result
+      debug: var=check_result
