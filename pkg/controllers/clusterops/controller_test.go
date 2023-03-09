@@ -1495,7 +1495,7 @@ func Test_BackUpDataRef(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "hostsConf and varsConf are not empty",
+			name: "hostsConf are not empty",
 			args: func() bool {
 				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
 					TypeMeta: metav1.TypeMeta{
@@ -1503,10 +1503,12 @@ func Test_BackUpDataRef(t *testing.T) {
 						APIVersion: "kubean.io/v1alpha1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name:   "cluster1-ops",
-						Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+						Name: "cluster1-ops",
+						// Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
 					},
-					Spec: clusteroperationv1alpha1.Spec{},
+					Spec: clusteroperationv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a-back-1"},
+					},
 				}
 				cluster := &clusterv1alpha1.Cluster{
 					TypeMeta: metav1.TypeMeta{
@@ -1543,6 +1545,137 @@ func Test_BackUpDataRef(t *testing.T) {
 				}
 				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), hostsConfigMap, metav1.CreateOptions{})
 				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), varsConfigMap, metav1.CreateOptions{})
+				controller.Client.Create(context.Background(), clusterOps)
+				_, err := controller.BackUpDataRef(clusterOps, cluster)
+				return err == nil
+			},
+			want: true,
+		},
+		{
+			name: "varsConf are not empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops-2",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1-1"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						VarsConfRef: &apis.ConfigMapRef{
+							NameSpace: "kubean-system", Name: "vars-a-back-1",
+						},
+					},
+				}
+				cluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1-1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				hostsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "hosts-a",
+					},
+				}
+				varsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "vars-a",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), hostsConfigMap, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), varsConfigMap, metav1.CreateOptions{})
+				controller.Client.Create(context.Background(), clusterOps)
+				_, err := controller.BackUpDataRef(clusterOps, cluster)
+				return err == nil
+			},
+			want: true,
+		},
+		{
+			name: "SSHAuth are not empty",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops-3",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "cluster1-2"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a-back-1"},
+						VarsConfRef: &apis.ConfigMapRef{
+							NameSpace: "kubean-system", Name: "vars-a-back-1",
+						},
+					},
+				}
+				cluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1-2",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+						SSHAuthRef:   &apis.SecretRef{NameSpace: "kubean-system", Name: "secret-a"},
+					},
+				}
+				hostsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "hosts-a",
+					},
+				}
+				varsConfigMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "ConfigMap",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "vars-a",
+					},
+				}
+				sshAuthSecret := &corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "v1",
+						Kind:       "Secret",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "secret-a",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), hostsConfigMap, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), varsConfigMap, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().Secrets("kubean-system").Create(context.Background(), sshAuthSecret, metav1.CreateOptions{})
 				controller.Client.Create(context.Background(), clusterOps)
 				_, err := controller.BackUpDataRef(clusterOps, cluster)
 				return err == nil
