@@ -60,7 +60,7 @@ DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 
 ####### e2e logic ########
 if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
-    k8s_list=( "v1.20.15" "v1.21.14" "v1.22.15" "v1.23.13" "v1.24.7" "v1.25.3" )
+    k8s_list=( "v1.20.15" "v1.21.14" "v1.22.15" "v1.23.13" "v1.24.7" "v1.25.3" "v1.26.0" )
     echo ${#k8s_list[@]}
     for k8s in "${k8s_list[@]}"; do
         echo "***************k8s version is: ${k8s} ***************"
@@ -72,7 +72,7 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
 
 else
     util::clean_online_kind_cluster
-    KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
+    KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.0"
     ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
 
     if [ "${E2E_TYPE}" == "PR" ]; then

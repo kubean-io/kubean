@@ -69,7 +69,6 @@ jobs:
           docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
   auto-kubean-compatibility:
-    needs: build-push-for-e2e
     runs-on: [self-hosted, online]
     permissions:
       packages: write
