@@ -38,7 +38,7 @@ data:
     # github image repo define (ex multus only use that)
     github_image_repo: "{{registry_host}}/ghcr.io"
     # k8s-cluster
-    kube_version: "v1.24.7"
+    kube_version: "v1.25.4"
     container_manager: containerd
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico
