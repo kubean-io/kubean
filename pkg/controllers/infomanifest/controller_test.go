@@ -673,3 +673,64 @@ func TestIsOnlineENV(t *testing.T) {
 		})
 	}
 }
+
+func TestFetchLocalServiceCM(t *testing.T) {
+	controller := &Controller{
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	}
+	controller.FetchLocalServiceCM("")
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "get localService from default namespace",
+			args: func() bool {
+				configMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kubean-localservice",
+						Namespace: "default",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
+				result, err := controller.FetchLocalServiceCM("no-exist-namespace")
+				return err == nil && result != nil
+			},
+			want: true,
+		},
+		{
+			name: "get localService from no-default namespace",
+			args: func() bool {
+				configMap := &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kubean-localservice",
+						Namespace: "kubean-system",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), configMap, metav1.CreateOptions{})
+				result, err := controller.FetchLocalServiceCM("kubean-system")
+				return err == nil && result != nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}

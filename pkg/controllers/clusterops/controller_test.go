@@ -516,6 +516,9 @@ func TestController_HookCustomAction(t *testing.T) {
 		{
 			name: "specified configmap as actionSource, but actionSourceRef empty",
 			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+
 				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
 			},
 			wantErr: true,
@@ -523,10 +526,49 @@ func TestController_HookCustomAction(t *testing.T) {
 		{
 			name: "specified configmap as actionSource with actionSourceRef",
 			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+
 				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
 				clusterOps.Spec.ActionSourceRef = &apis.ConfigMapRef{
 					Name:      "myplaybook",
 					NameSpace: "mynamespace",
+				}
+			},
+			wantErr: false,
+		},
+		{
+			name: "run with preHook and postHook in built-in",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{{ActionSource: clusteroperationv1alpha1.BuiltinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
+				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: clusteroperationv1alpha1.BuiltinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
+			},
+			wantErr: false,
+		},
+		{
+			name: "run with preHook and postHook in customer-action",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{
+					{
+						ActionSource: clusteroperationv1alpha1.ConfigMapActionSource,
+						ActionSourceRef: &apis.ConfigMapRef{
+							Name:      "myplaybook",
+							NameSpace: "mynamespace",
+						},
+					},
+				}
+				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{
+					{
+						ActionSource: clusteroperationv1alpha1.ConfigMapActionSource,
+						ActionSourceRef: &apis.ConfigMapRef{
+							Name:      "myplaybook",
+							NameSpace: "mynamespace",
+						},
+					},
 				}
 			},
 			wantErr: false,
