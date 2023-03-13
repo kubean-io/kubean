@@ -267,19 +267,6 @@ func Test_UpdateStatus(t *testing.T) {
 		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
 		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
 	}
-	exampleCluster := &clusterv1alpha1.Cluster{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "Cluster",
-			APIVersion: "kubean.io/v1alpha1",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "cluster1",
-		},
-		Spec: clusterv1alpha1.Spec{
-			HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
-			VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
-		},
-	}
 	tests := []struct {
 		name string
 		args func() bool
@@ -288,6 +275,53 @@ func Test_UpdateStatus(t *testing.T) {
 		{
 			name: "get nothing",
 			args: func() bool {
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				return controller.UpdateStatus(exampleCluster) == nil
+			},
+			want: true,
+		},
+		{
+			name: "get some ops",
+			args: func() bool {
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
+					},
+				}
+				controller.Create(context.Background(), clusterOps)
+				controller.Create(context.Background(), exampleCluster)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
 				return controller.UpdateStatus(exampleCluster) == nil
 			},
 			want: true,
