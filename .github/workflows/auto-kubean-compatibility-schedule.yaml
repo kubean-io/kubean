@@ -49,7 +49,7 @@ jobs:
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
@@ -63,7 +63,7 @@ jobs:
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION

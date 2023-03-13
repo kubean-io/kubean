@@ -46,7 +46,7 @@ source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
 if [[ ${HELM_CHART_VERSION} =~ .*rc ]];then
-  echo "RC version, remain the the kube_version to 1.24.7"
+  echo "RC version, remain the the kube_version to 1.25.4"
 #else
    #sed -i '/kube_version: /d' ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml
 fi
