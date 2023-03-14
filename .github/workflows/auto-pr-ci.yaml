@@ -143,7 +143,7 @@ jobs:
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
-          VERSION=$(git describe --tags --abbrev=8 --dirty)
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
           docker tag $AIRGAP_PATCH_IMAGE_NAME $IMAGE_ID:$VERSION
@@ -168,7 +168,7 @@ jobs:
 
       - name: e2e
         run: |
-          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
           HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1}'`
           TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
           if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
