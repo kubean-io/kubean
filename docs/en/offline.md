@@ -77,7 +77,9 @@ $ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_addr
 
 ### 3. OS packages import of resources
 
-> Note: Only the OS Packages resource for the Centos distribution is currently supported.
+Note: 
+- [OS Packages](../../build/os-packages/README.md) resources for Centos / Redhat / Kylin / Ubuntu distributions are currently supported.
+- The OS Package of UnionTech V20 series needs to be built manually, see [README](../../build/os-packages/others/uos_v20/README.md) for the build method.
 
 You need to unzip the `os-pkgs-${linux_distribution}-${tag}.tar.gz` file, which contains:
 

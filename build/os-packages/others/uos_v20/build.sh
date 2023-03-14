@@ -5,7 +5,7 @@ set -eo pipefail
 
 IMPORT_SH=${IMPORT_SH:-"import_ospkgs.sh"}
 ARCH=$(uname -m)
-OS_DISTRO=uniontech
+OS_DISTRO=uos
 VERSION_ID=20
 BUILD_TOOLS="createrepo wget"
 PACKAGES="unzip conntrack-tools container-selinux"

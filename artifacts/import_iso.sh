@@ -84,6 +84,10 @@ function iso_os_version_arch() {
           echo "/redhat-iso/$version/os/$arch"
           return
         fi
+        if [[ "$os" =~ "UnionTechOS" ]]; then
+          echo "/uos-iso/$version/os/$arch"
+          return
+        fi
       fi
     fi
   done
