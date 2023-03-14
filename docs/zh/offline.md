@@ -80,7 +80,9 @@ $ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_addr
 
 ### 3. OS packages 资源的导入
 
-> 注: 当前仅支持 Centos 发行版的 OS Packages 资源
+注意: 
+- 目前支持 Centos / Redhat / Kylin / Ubuntu 等发行版的 [OS Packages](../../build/os-packages/README.md) 资源
+- 统信 UnionTech V20 系列的 OS Package 需要手动构建，构建方法见 [README](../../build/os-packages/others/uos_v20/README.md)
 
 需要解压 `os-pkgs-${linux_distribution}-${tag}.tar.gz` 文件, 其内部包含:
 
