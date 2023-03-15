@@ -5,6 +5,11 @@
   vars:
     repo_name: extension
     repo_list: []
+    redhat_os_family_extensions:
+      - "Kylin Linux Advanced Server"
+      - "openEuler"
+      - "UnionTech"
+      - "UniontechOS"
 
     yum_repo_src_path: /etc/yum.repos.d
     yum_repo_bak_path: /etc/yum.repos.d.bak
@@ -20,7 +25,7 @@
     - name: Set os_family fact for Kylin Linux Advanced Server
       set_fact:
         ansible_os_family: "RedHat"
-      when: ansible_distribution == "Kylin Linux Advanced Server"
+      when: ansible_distribution in redhat_os_family_extensions
 
     ## yum repository config
     - name: Checking if "{{ repo_name }}" exists
@@ -33,8 +38,7 @@
     - name: Move(Backup) original yum repo if "{{ repo_name }}" not exist
       shell: >-
         mkdir -p {{ yum_repo_bak_path }}/ &&
-        mv {{ yum_repo_src_path }}/ {{ yum_repo_bak_path }}/ &&
-        mkdir -p {{ yum_repo_src_path }}/
+        mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/
       when: 
         - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( repo_list | length > 0 )
