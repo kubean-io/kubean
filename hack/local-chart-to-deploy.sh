@@ -18,5 +18,7 @@ helm upgrade \
     --set kubeanOperator.image.registry=${IMAGE_REPO%/*} \
     --set kubeanOperator.image.repository=${IMAGE_REPO#*/}/kubean-operator \
     --set kubeanOperator.image.tag=${IMAGE_TAG} \
+    --set sprayJob.image.tag=${IMAGE_TAG} \
     --kubeconfig kubeconfig \
+    --timeout 1200s \
     charts/kubean/
