@@ -102,12 +102,16 @@ $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_addre
 
 ## 建立离线源
 
-### 1. 建立本地 ISO 镜像源
+下面的【建立本地ISO镜像源】与【建立在线ISO镜像源】只需要执行其中一个即可。
+### 1. 建立ISO镜像源
+
+#### 1.1 建立本地 ISO 镜像源
 
 OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地
 ISO 镜像源.
 
 > 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前支持 Centos、Redhat、Ubuntu 发行版的 ISO 镜像源创建;
+> 注：需要在每个创建kubernetes的集群上都执行本操作;
 
 这里可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可挂载 ISO 镜像文件, 并创建 Repo 配置文件:
 
@@ -130,7 +134,7 @@ gpgcheck=0
 sslverify=0
 ```
 
-#### 1.1. 建立在线 ISO 镜像源
+#### 1.2 建立在线 ISO 镜像源
 
 将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到
 minio server 中

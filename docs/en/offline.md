@@ -99,11 +99,15 @@ $ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_addre
 
 ## Create offline sources
 
-### 1. Create a local ISO image source
+### Create ISO image source
+The following [Create local ISO image source] and [Create online ISO image source] only need to execute one of them.
+
+#### 1.1 Create a local ISO image source
 
 OS Packages are primarily used to resolve docker-ce installation dependencies, but for offline deployments, other packages from the distribution may be used, and a local ISO image source will need to be created.
 
 > Note: We need to download the ISO system distribution image for the host in advance, currently only the ISO image source for the Centos distribution is supported;
+> Note: This operation needs to be performed on each cluster that creates kubernetes nodes;
 
 The script `artifacts/gen_repo_conf.sh` can be used to mount the ISO image and create the Repo configuration file by executing the following command:
 
@@ -126,7 +130,7 @@ gpgcheck=0
 sslverify=0
 ```
 
-#### 1.1. Create an online ISO image source
+#### 1.2 Create an online ISO image source
 
 To import the image source from the ISO into the minio server, use the script `artifacts/import_iso.sh`
 
