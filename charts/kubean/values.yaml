@@ -68,7 +68,7 @@ kubeanOperator:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
           matchLabels:
-            app: kubean-operator
+            app.kubernetes.io/instance: kubean
         topologyKey: "kubernetes.io/hostname"
 
 ## define spray-job configuration
