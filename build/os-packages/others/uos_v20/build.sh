@@ -3,7 +3,6 @@
 # set -x
 set -eo pipefail
 
-IMPORT_SH=${IMPORT_SH:-"import_ospkgs.sh"}
 ARCH=$(uname -m)
 OS_DISTRO=uos
 VERSION_ID=20
@@ -21,14 +20,6 @@ function require_arch(){
   esac
 }
 
-function check_dependencies() {
-  if [ ! -f "${IMPORT_SH}" ]; then
-    echo "${IMPORT_SH} does not exist."
-  fi
-}
-
-check_dependencies
-
 mkdir -p /${OS_DISTRO}/${VERSION_ID}/os
 pushd /${OS_DISTRO}/${VERSION_ID}/os
 dnf install -y ${BUILD_TOOLS}
@@ -44,5 +35,5 @@ mv /${OS_DISTRO} resources/${OS_DISTRO}
 tar -I pigz -cf os-pkgs/os-pkgs-$(require_arch).tar.gz resources --remove-files
 sha256sum os-pkgs/os-pkgs-$(require_arch).tar.gz > os-pkgs/os-pkgs.sha256sum.txt
 
-cp ${IMPORT_SH} os-pkgs/import_ospkgs.sh
+curl -Lo ./os-pkgs/import_ospkgs.sh https://raw.githubusercontent.com/kubean-io/kubean/main/artifacts/import_ospkgs.sh
 tar -I pigz -cf os-pkgs-${OS_DISTRO}-${VERSION_ID}.tar.gz os-pkgs/ --remove-files
