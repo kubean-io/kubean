@@ -13,6 +13,8 @@ OFFLINE_FILES_DIR=${OFFLINE_PACKAGE_DIR}/files
 OFFLINE_IMAGES_DIR=${OFFLINE_PACKAGE_DIR}/images
 OFFLINE_OSPKGS_DIR=${OFFLINE_PACKAGE_DIR}/os-pkgs
 
+ZONE=${ZONE:-"CN"}
+
 function generate_offline_dir() {
   mkdir -p $OFFLINE_FILES_DIR
   mkdir -p $OFFLINE_IMAGES_DIR
@@ -85,13 +87,30 @@ function create_images() {
     ## new_dir_name=${image_name#*/}     ## remote host
     new_dir_name=${image_name} ## keep host
     new_dir_name=${new_dir_name//\//%} ## replace all / with %
-    echo "download image $image_name to local $new_dir_name"
-    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$image_name" dir:offline-images/"$new_dir_name"
+    echo "download image $(replace_image_name "$image_name") to local $new_dir_name"
+    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$(replace_image_name "$image_name")" dir:offline-images/"$new_dir_name"
   done <<< "$images_list_content"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
 
   echo "zipping images completed!"
+}
+
+function replace_image_name() {
+  local origin_address=$1
+
+  if [ "$ZONE" != "CN" ]; then
+    echo "$origin_address" 
+    return
+  fi
+
+  origin_address=${origin_address/docker.io/docker.m.daocloud.io}
+  origin_address=${origin_address/gcr.io/gcr.m.daocloud.io} 
+  origin_address=${origin_address/ghcr.io/ghcr.m.daocloud.io}
+  origin_address=${origin_address/k8s.gcr.io/k8s-gcr.m.daocloud.io}
+  origin_address=${origin_address/registry.k8s.io/k8s.m.daocloud.io}
+  origin_address=${origin_address/quay.io/quay.m.daocloud.io}
+  echo "$origin_address"
 }
 
 function copy_import_sh() {

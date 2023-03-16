@@ -45,6 +45,10 @@ function import_files() {
     echo "unzip successfully"
   fi
 
+  if [ -d "offline-files/files.m.daocloud.io" ]; then
+    mv offline-files/files.m.daocloud.io/*  offline-files/
+  fi
+
   for dirName in offline-files/*; do
      mc cp --no-color --recursive "$dirName" "kubeaniominioserver/kubean/"
   done
