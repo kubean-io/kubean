@@ -11,11 +11,12 @@ This chapter explain the theory how the air-gapped packages come from.
 
 - Assets :   [Github Releases](https://github.com/kubean-io/kubean/releases)
 - Major contents:
-|  asset | description  |
-|  -----------------------  | :---------------------  |
-| files-*.tar.gz  | the binaries required in kubespray installation: example : kubeadm, runc |
-| images-*.tar.gz  | the k8s cluster images as well as CNI images  |
-| os-pkgs-${linux_distribution}-${tag}.tar.gz | deb/rpm required during k8s installion  |
+
+  |  asset | description  |
+  |  -----------------------  | :---------------------  |
+  | files-*.tar.gz  | the binaries required in kubespray installation: example : kubeadm, runc |
+  | images-*.tar.gz  | the k8s cluster images as well as CNI images  |
+  | os-pkgs-${linux_distribution}-${tag}.tar.gz | deb/rpm required during k8s installion  |
 
 
 ## How to build the assets
