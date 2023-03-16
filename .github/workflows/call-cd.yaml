@@ -9,6 +9,9 @@ on:
       ENRIRONMENT_CD:
         required: true
         type: string
+      CI_TYPE:
+        required: true
+        type: string
 
 jobs:
   cd:
@@ -31,6 +34,10 @@ jobs:
 
             if [ -n "${{ secrets.CD_IMAGE_TAG }}" ]; then
               export IMAGE_TAG="${{ secrets.CD_IMAGE_TAG }}"
+            fi
+          
+            if [ ${{ inputs.CI_TYPE }} == 'main' ]; then
+              export IMAGE_TAG=$(git describe --tags --abbrev=8 --dirty)-main
             fi
 
             if [ ${{ inputs.ENRIRONMENT_CD }} == 'dev' ]; then
