@@ -19,7 +19,7 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
     && mv yq_linux_$ARCH /usr/bin/yq \
     && ln -s /kubespray /kubean/kubespray
 
-CMD echo "printing supporting versions" \
+CMD echo "show supporting versions" \
     && bash artifacts/manage_version_cr.sh create_manifest \
     && echo $(yq -o=json  '.spec.components' charts/kubean/templates/manifest.cr.yaml) \
     && echo "starting generating airgap patch files" \

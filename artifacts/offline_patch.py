@@ -3,9 +3,9 @@ import re
 import shutil
 import subprocess
 import sys
-from datetime import datetime
-
 import yaml
+from datetime import datetime
+from pathlib import Path
 
 CUR_DIR = os.getcwd()
 
@@ -13,6 +13,7 @@ OPTION = os.getenv("OPTION", default="all")  # create_files create_images create
 
 KUBESPRAY_DIR = os.path.join(CUR_DIR, "kubespray")
 MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
+ZONE = os.getenv("ZONE", default="CN")
 
 OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
@@ -70,8 +71,8 @@ def check_dependencies():
 
 
 def parse_manifest_yml():
-    if not os.path.exists(MANIFEST_YML_FILE):
-        print("need manifest.yml")
+    if (not os.path.exists(MANIFEST_YML_FILE)) or (Path(MANIFEST_YML_FILE).read_text().replace("\n", "").strip() == ""):
+        print("MANIFEST_YML_FILE does not exist or empty.")
         sys.exit(1)
     result = {}
     f = open(MANIFEST_YML_FILE)
@@ -97,19 +98,22 @@ def execute_generate_offline_package(arg_option, arch):
         print("generate_offline_package.sh not found in artifacts")
         sys.exit(1)
     if subprocess.run(["bash", "artifacts/generate_offline_package.sh", "offline_dir"],
-                      env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch}).returncode != 0:
+                      env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch, "ZONE": ZONE}).returncode != 0:
         print("execute generate_offline_package.sh but failed")
         sys.exit(1)
     if subprocess.run(["bash", "artifacts/generate_offline_package.sh", str(arg_option)],
-                      env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch}).returncode != 0:
+                      env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch, "ZONE": ZONE}).returncode != 0:
         print("execute generate_offline_package.sh but failed")
         sys.exit(1)
 
 
 def create_files(file_urls, arch):
+    file_content = "\n".join(file_urls)
+    if ZONE == "CN":
+        file_content = file_content.replace("https://github.com", "https://files.m.daocloud.io/github.com")
     os.chdir(CUR_DIR)
     with open(FILE_LIST_TEMP_PATH, "w") as f:
-        f.write("\n".join(file_urls))
+        f.write(file_content)
         f.flush()
     execute_generate_offline_package("files", arch)
 
@@ -169,6 +173,7 @@ etcd_versions = []
 
 if __name__ == '__main__':
     print(f"OPTION:{OPTION}")
+    print(f"ZONE:{ZONE}")
     check_dependencies()
     manifest_dict = parse_manifest_yml()
     # global value setting
@@ -216,8 +221,10 @@ if __name__ == '__main__':
         images_urls = list(set(images_urls))
         print("file_urls:")
         print(file_urls)
+        print("")
         print("images_urls:")
         print(images_urls)
+        print("")
         if OPTION == "all":
             create_files(file_urls, arch=image_arch)
             create_images(images_urls, arch=image_arch)
