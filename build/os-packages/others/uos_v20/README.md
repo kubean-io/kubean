@@ -1,27 +1,14 @@
 ### How to build an os package based on unionTech server v20
 
-1. Upload the following two files to the unionTech server v20 operating system:
-* [`artifacts/import_ospkgs.sh`](https://github.com/kubean-io/kubean/blob/main/artifacts/import_ospkgs.sh)
-* [`build/os-packages/others/uos_v20/build.sh`](https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/build.sh)
+1. Prepare a `UnionTech V20 OS` environment and ensure unobstructed access to the extranet.
 
 2. Execute the following command to build the os package:
 
     ``` bash
-    $ pwd
-    /home/test
-
-    $ ls
-    build.sh  import_ospkgs.sh
-
-    $ IMPORT_SH=/home/test/import_ospkgs.sh bash build.sh
-    ...
-
-    $ ls
-    build.sh  import_ospkgs.sh  os-pkgs-uniontech-20.tar.gz
+    $ curl -Lo ./build.sh https://raw.githubusercontent.com/kubean-io/kubean/main/build/os-packages/others/uos_v20/build.sh
+    $ chmod +x build.sh && ./build.sh
     ```
-    Note:
-    * The `IMPORT_SH` environment variable is used to specify the path to the `import_ospkgs.sh` file
-    * After the build command is executed, the os package `os-pkgs-uniontech-20.tar.gz` will be generated in the current directory
+    Note: After the build command is executed, the os package `os-pkgs-uniontech-20.tar.gz` will be generated in the current directory
 
 ### Resolve missing python dependencies in unionTech server v20 (1020a) minimization system
 
