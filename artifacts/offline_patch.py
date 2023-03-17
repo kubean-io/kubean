@@ -15,6 +15,8 @@ KUBESPRAY_DIR = os.path.join(CUR_DIR, "kubespray")
 MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
 ZONE = os.getenv("ZONE", default="CN")
 
+EXTRA_PAUSE_URLS = os.getenv("EXTRA_PAUSE", "").split(",")  ## registry.k8s.io/pause:3.6
+
 OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
                                                      "artifacts/template/localartifactset.template.yml"))
@@ -163,6 +165,15 @@ def create_offlineversion_cr():
     kubeanofflineversion_file.close()
 
 
+def add_pause_image(origin_image_urls):
+    pause_images = []
+    for image_name in origin_image_urls:
+        if "registry.k8s.io/pause" in image_name:
+            new_version = format(float(image_name.split(":")[1]) - float(0.1), '.1f')
+            pause_images.append("registry.k8s.io/pause:" + new_version)
+    return list(pause_images)
+
+
 image_archs = []
 cni_versions = []
 containerd_versions = []
@@ -192,9 +203,13 @@ if __name__ == '__main__':
         images_urls = []
         for kube_version in kube_versions:
             tuple_data = fetch_info_list({"image_arch": image_arch, "kube_version": kube_version},
-                                         r"kubernetes-release.*/kube.*", r"registry.k8s.io/kube-.*")
+                                         r"kubernetes-release.*/kube.*", r"registry.k8s.io/kube-.*",
+                                         r"registry.k8s.io/pause.*")
             file_urls = list(file_urls) + list(tuple_data["files"])
             images_urls = list(images_urls) + list(tuple_data["images"])
+            images_urls = images_urls + add_pause_image(images_urls)
+            images_urls = images_urls + list(EXTRA_PAUSE_URLS)
+
         for cni_version in cni_versions:
             tuple_data = fetch_info_list({"image_arch": image_arch, "cni_version": cni_version},
                                          r"containernetworking.*cni-.*")
@@ -218,6 +233,7 @@ if __name__ == '__main__':
             file_urls = list(file_urls) + list(tuple_data["files"])
             images_urls = list(images_urls) + list(tuple_data["images"])
         file_urls = list(set(file_urls))
+        images_urls = filter(lambda item: item != "", images_urls)
         images_urls = list(set(images_urls))
         print("file_urls:")
         print(file_urls)
