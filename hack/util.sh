@@ -335,10 +335,10 @@ function util::vm_name_ip_init_online_by_os(){
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner1" ]; then
       case ${OS_NAME} in
           "CENTOS7")
-              vm_ip_addr1="172.30.41.81"
-              vm_ip_addr2="172.30.41.82"
-              vm_name1="gwt-kubean-e2e-node81"
-              vm_name2="gwt-kubean-e2e-node82"
+              vm_ip_addr1="10.6.178.211"
+              vm_ip_addr2="10.6.178.212"
+              vm_name1="gwt-kubean-e2e-node211"
+              vm_name2="gwt-kubean-e2e-node212"
               ;;
           "KYLINV10")
               vm_ip_addr1="10.6.178.83"
@@ -347,16 +347,16 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name2="gwt-kubean-e2e-node84"
           ;;
           "REDHAT8")
-              vm_ip_addr1="172.30.41.83"
-              vm_ip_addr2="172.30.41.84"
-              vm_name1="gwt-kubean-e2e-redhat8-node83"
-              vm_name2="gwt-kubean-e2e-redhat8-node84"
+              vm_ip_addr1="10.6.178.215"
+              vm_ip_addr2="10.6.178.216"
+              vm_name1="gwt-kubean-e2e-redhat8-node215"
+              vm_name2="gwt-kubean-e2e-redhat8-node216"
               ;;
           "REDHAT7")
-              vm_ip_addr1="172.30.41.85"
-              vm_ip_addr2="172.30.41.86"
-              vm_name1="gwt-kubean-e2e-redhat7-node85"
-              vm_name2="gwt-kubean-e2e-redhat7-node86"
+              vm_ip_addr1="10.6.178.213"
+              vm_ip_addr2="10.6.178.214"
+              vm_name1="gwt-kubean-e2e-redhat8-node213"
+              vm_name2="gwt-kubean-e2e-redhat8-node214"
               ;;
      esac
   fi
