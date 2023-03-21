@@ -43,6 +43,29 @@ function func_prepare_config_yaml_single_stack() {
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_path}/hosts-conf-cm.yml
     sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
 }
+
+export OS_NAME="REDHAT8"
+############# create cilium cluster ###################
+source_config_path="${REPO_ROOT}"/test/common
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+dest_config_path="${REPO_ROOT}"/test/kubean_cilium_cluster_e2e/e2e-install-cilium-cluster
+func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+
+CLUSTER_OPERATION_NAME1="cluster1-cilium-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+#set kube_network_plugin:cilium
+sed -i "s/kube_network_plugin: calico/kube_network_plugin: cilium/" "${dest_config_path}"/vars-conf-cm.yml
+#set  kube_service_addresses: 10.88.0.0/16    kube_pods_subnet: 192.88.128.0/20
+sed -i "s/10.96.0.0\/12/10.88.0.0\/16/" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
+# it will fail when spray-job tag is latest.
+sed -i "s/image:/image: ghcr.m.daocloud.io\/kubean-io\/spray-job:v0.4.5-rc3/" "${dest_path}"/kubeanClusterOps.yml
+util::power_on_2vms ${OS_NAME}
+
+ginkgo -v -race --fail-fast ./test/kubean_cilium_cluster_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
+
 ############## calico dual stuck ##############
 ### calico dual stack cluster need install on a Redhat8 os
 ### the vm  need add a ipv6 in snapshot
