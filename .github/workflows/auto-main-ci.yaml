@@ -74,3 +74,4 @@ jobs:
     with:
       ENVIRONMENT_RUNS_ON: ${{ needs.get-environment.outputs.environment_runs_on }}
       ENRIRONMENT_CD: ${{ needs.get-environment.outputs.enviroment_cd }}
+      CI_TYPE: "main"
