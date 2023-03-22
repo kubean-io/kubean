@@ -210,7 +210,6 @@ if __name__ == '__main__':
             images_urls = list(images_urls) + list(tuple_data["images"])
             images_urls = images_urls + add_pause_image(images_urls)
             images_urls = images_urls + list(EXTRA_PAUSE_URLS)
-
         for cni_version in cni_versions:
             tuple_data = fetch_info_list({"image_arch": image_arch, "cni_version": cni_version},
                                          r"containernetworking.*cni-.*")
@@ -236,6 +235,8 @@ if __name__ == '__main__':
         file_urls = list(set(file_urls))
         images_urls = filter(lambda item: item != "", images_urls)
         images_urls = list(set(images_urls))
+        if "registry.k8s.io/pause:3.4" in images_urls:
+            images_urls.remove("registry.k8s.io/pause:3.4")
         print("file_urls:")
         print(file_urls)
         print("")
