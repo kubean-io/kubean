@@ -332,6 +332,34 @@ function util::vm_name_ip_init_online_by_os(){
               ;;
      esac
   fi
+  if [ "${RUNNER_NAME}" == "debug2" ]; then
+        case ${OS_NAME} in
+            "CENTOS7")
+               vm_ip_addr1="10.6.178.221"
+               vm_ip_addr2="10.6.178.222"
+               vm_name1="gwt-kubean-e2e-node221"
+               vm_name2="gwt-kubean-e2e-node222"
+               ;;
+            "KYLINV10")
+                vm_ip_addr1="10.6.178.73"
+                vm_ip_addr2="10.6.178.74"
+                vm_name1="gwt-kubean-e2e-node73"
+                vm_name2="gwt-kubean-e2e-node74"
+                ;;
+            "REDHAT8")
+                vm_ip_addr1="10.6.178.225"
+                vm_ip_addr2="10.6.178.226"
+                vm_name1="gwt-kubean-e2e-redhat8-node225"
+                vm_name2="gwt-kubean-e2e-redhat8-node226"
+                ;;
+            "REDHAT7")
+                vm_ip_addr1="10.6.178.223"
+                vm_ip_addr2="10.6.178.224"
+                vm_name1="gwt-kubean-e2e-redhat7-node223"
+                vm_name2="gwt-kubean-e2e-redhat7-node224"
+                ;;
+       esac
+    fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner1" ]; then
       case ${OS_NAME} in
           "CENTOS7")
