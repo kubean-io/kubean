@@ -351,4 +351,20 @@
     14. login master node, ping pod2; login worker, ping pod1
     15. login pod2, ping pod1
 
+### Create cilium cluster
+    1. prepare one master and one worker as basic cluster, the os should be redhat8.
+    2. set cni to cilium
+        kube_network_plugin: cilium
+    3. set kube_service_addresses and kube_pods_subnet in vars-conf-cm.yml, for example:
+        kube_service_addresses: 10.88.0.0/16
+        kube_pods_subnet: 192.88.128.0/20
+    4. set cluster topology: 1 master + 1 worker, change config of hosts
+    5. start setup cluster, use kubectl apply -f ***
+    6. check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+    7. check there are four pods named 'cilium-***'
+    8. create pod1 and pod2 on master, pod3 on worker
+    9. check ip, it should in the range of kube_pods_subnet
+    10. create a service, and check the ip of the service, it should in the range of kube_service_addresses
+    11. login master node, ping pod2 and pod3; login worker, ping pod1
+    12. login pod1, ping pod2 and pod3
 

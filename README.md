@@ -83,9 +83,9 @@ We cloud use the example in folder `artifacts/demo` which uses online resources 
 
 ## :ocean: Kubernetes compatibility
 
-|               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 |
-|---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
+|               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 | Kubernetes 1.26 |
+|---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
+| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
 ## :book: Documents
 - [Architecture](docs/zh/architecture.md)
