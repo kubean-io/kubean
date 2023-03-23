@@ -72,7 +72,21 @@
 
 - hosts: localhost
   gather_facts: false
+  vars:
+    cluster_name: "{{ lookup('env','CLUSTER_NAME') }}"
+    configmap_name: "{{ cluster_name }}-precheck-result-{{ ansible_date_time.iso8601_micro | lower | replace(':' , '' ) | replace('.' , '') }}"
+    spray_job_pod_namespace: 'kubean-system'
   tasks:
+    - name: Try to Fetch Spray Job Pod Namespace
+      shell: 'cat /run/secrets/kubernetes.io/serviceaccount/namespace'
+      ignore_errors: true
+      register: namespace_content
+
+    - name: Update Spray Job Pod Namespace
+      set_fact:
+        spray_job_pod_namespace: "{{ namespace_content.stdout | trim }}"
+      when: namespace_content.rc == 0
+
     - name: Get precheck result
       shell: 'yq -o=json /tmp/kubean_data_temp_cache || echo {} '
       register: yq_cmd
@@ -84,3 +98,24 @@
 
     - name: Show precheck result
       debug: var=check_result
+
+    - name: Create configmap
+      shell: "/usr/local/bin/kubectl -n {{ spray_job_pod_namespace }} create configmap {{ configmap_name }} --from-file=/tmp/kubean_data_temp_cache "
+      args:
+        executable: /bin/bash
+      register: create_cm_result
+      until: create_cm_result.rc == 0
+      retries: 5
+      delay: 5
+      when: namespace_content.rc == 0
+
+    - name: Patch preCheckResultRef info
+      shell: >
+        /usr/local/bin/kubectl patch --type=merge clusters.kubean.io {{ cluster_name }} -p '{"spec": {"preCheckRef": {"name": "'{{ configmap_name }}'", "namespace": "'{{ spray_job_pod_namespace }}'"}}}'
+      args:
+        executable: /bin/bash
+      register: patch_ref_result
+      until: patch_ref_result.rc == 0
+      retries: 5
+      delay: 5
+      when: namespace_content.rc == 0
