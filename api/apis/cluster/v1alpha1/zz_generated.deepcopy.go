@@ -118,6 +118,11 @@ func (in *Spec) DeepCopyInto(out *Spec) {
 		*out = new(apis.DataRef)
 		**out = **in
 	}
+	if in.PreCheckRef != nil {
+		in, out := &in.PreCheckRef, &out.PreCheckRef
+		*out = new(apis.DataRef)
+		**out = **in
+	}
 	return
 }
 

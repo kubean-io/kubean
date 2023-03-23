@@ -61,6 +61,16 @@ spec:
                 - name
                 - namespace
                 type: object
+              preCheckRef:
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
+                type: object
               sshAuthRef:
                 description: SSHAuthRef stores ssh key and if it is empty ,then use
                   sshpass.

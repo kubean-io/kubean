@@ -74,7 +74,7 @@
   gather_facts: false
   vars:
     cluster_name: "{{ lookup('env','CLUSTER_NAME') }}"
-    configmap_name: "{{ cluster_name }}-precheck-result-{{ ansible_date_time.iso8601_micro | lower | replace(':' , '' ) | replace('.' , '') }}"
+    configmap_name: "{{ cluster_name }}-precheck-result"
     spray_job_pod_namespace: 'kubean-system'
   tasks:
     - name: Try to Fetch Spray Job Pod Namespace
@@ -99,6 +99,17 @@
     - name: Show precheck result
       debug: var=check_result
 
+    - name: Clean configmap
+      shell: "/usr/local/bin/kubectl -n {{ spray_job_pod_namespace }} delete configmap {{ configmap_name }} "
+      args:
+        executable: /bin/bash
+      ignore_errors: true
+      register: clean_cm_result
+      until: clean_cm_result.rc == 0
+      retries: 3
+      delay: 3
+      when: namespace_content.rc == 0
+
     - name: Create configmap
       shell: "/usr/local/bin/kubectl -n {{ spray_job_pod_namespace }} create configmap {{ configmap_name }} --from-file=/tmp/kubean_data_temp_cache "
       args:
@@ -107,6 +118,7 @@
       until: create_cm_result.rc == 0
       retries: 5
       delay: 5
+      ignore_errors: true
       when: namespace_content.rc == 0
 
     - name: Patch preCheckResultRef info
@@ -118,4 +130,5 @@
       until: patch_ref_result.rc == 0
       retries: 5
       delay: 5
+      ignore_errors: true
       when: namespace_content.rc == 0
