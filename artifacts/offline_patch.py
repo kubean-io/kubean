@@ -205,7 +205,7 @@ if __name__ == '__main__':
             tuple_data = fetch_info_list({"image_arch": image_arch, "kube_version": kube_version},
                                          r"kubernetes-release.*/kube.*", r"registry.k8s.io/kube-.*",
                                          r"registry.k8s.io/pause.*", r".*crictl.*", r".*kubelet.*",
-                                         r".*kubectl.*", r".*kubeadm.*", r".*coredns.*")
+                                         r".*kubectl.*", r".*kubeadm.*", r".*coredns.*", r".*etcd.*")
             file_urls = list(file_urls) + list(tuple_data["files"])
             images_urls = list(images_urls) + list(tuple_data["images"])
             images_urls = images_urls + add_pause_image(images_urls)
