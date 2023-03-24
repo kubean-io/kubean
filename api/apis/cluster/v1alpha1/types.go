@@ -38,6 +38,8 @@ type Spec struct {
 	// SSHAuthRef stores ssh key and if it is empty ,then use sshpass.
 	// +optional
 	SSHAuthRef *apis.SecretRef `json:"sshAuthRef"`
+	// +optional
+	PreCheckRef *apis.ConfigMapRef `json:"preCheckRef"`
 }
 
 type ClusterConditionType string
