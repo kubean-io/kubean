@@ -62,14 +62,19 @@ kubeanOperator:
   nodeSelector: {}
 
   tolerations: []
-  
+
   affinity:
     podAntiAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            app.kubernetes.io/instance: kubean
-        topologyKey: "kubernetes.io/hostname"
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/instance
+              operator: In
+              values:
+              - kubean
+          topologyKey: kubernetes.io/hostname
 
 ## define spray-job configuration
 sprayJob:
