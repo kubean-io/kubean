@@ -6,6 +6,40 @@ on:
     - cron: '0 20 * * *'
 
 jobs:
+
+  download_files:
+    runs-on: [ self-hosted, offline ]
+    continue-on-error: true
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to registry
+        # This is where you will update the PAT to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: download_files
+        env:
+          VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
+          VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+
+        run: |
+          CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1}'`
+          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+          fi
+          echo ${{ runner.name }}
+          echo "${CONTAINER_TAG}"
+          echo "${HELM_CHART_VERSION}"
+          bash hack/download-offline-files.sh  "${HELM_CHART_VERSION}" "${VSPHERE_USER}" "${VSPHERE_PASSWD}"
+
+
   offline_e2e:
     runs-on: [self-hosted, offline]
     permissions:
