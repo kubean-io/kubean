@@ -41,6 +41,20 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		klog.Info("nginx image is: ", nginxImage)
 		klog.Info("offlineFlag is: ", offlineFlag)
 		klog.Info("arch is: ", tools.Arch)
+		//check kubean deployment status
+		ginkgo.It("check kubean deployment status", func() {
+			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+
+			deploymentList, _ := cluster1Client.AppsV1().Deployments(tools.KubeanNamespace).List(context.TODO(), metav1.ListOptions{})
+			for _, dm := range deploymentList.Items {
+				if dm.Name == "kubean" {
+					gomega.Expect(dm.Status.AvailableReplicas).To(gomega.Equal(3))
+				}
+			}
+		})
 
 		ginkgo.It("Create cilium cluster and all kube-system pods be running", func() {
 			clusterInstallYamlsPath := "e2e-install-cilium-cluster"
