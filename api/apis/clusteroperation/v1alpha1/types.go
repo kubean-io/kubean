@@ -63,7 +63,7 @@ type Spec struct {
 	Action string `json:"action"`
 	// +optional
 	// +kubebuilder:default="builtin"
-	ActionSource ActionSource `json:"actionSource"`
+	ActionSource *ActionSource `json:"actionSource"`
 	// +optional
 	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
 	// +optional
@@ -89,7 +89,7 @@ type HookAction struct {
 	Action string `json:"action"`
 	// +optional
 	// +kubebuilder:default="builtin"
-	ActionSource ActionSource `json:"actionSource"`
+	ActionSource *ActionSource `json:"actionSource"`
 	// +optional
 	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
 	// +optional
