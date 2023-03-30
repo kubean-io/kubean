@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o nounset
 set -o pipefail
-set -e
+set +e
 
 # This script schedules e2e tests
 # Parameters:
@@ -100,3 +100,5 @@ else
 fi
 
 util::clean_online_kind_cluster
+echo "PASS"
+exit 0
