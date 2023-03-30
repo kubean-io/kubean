@@ -42,6 +42,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		}
 
 		ginkgo.It("Create cluster and all kube-system pods be running", func() {
+			if disable_rhel8 {
+				ginkgo.Skip("Skip this test case on RHEL8")
+			}
 			clusterInstallYamlsPath := "e2e-install-calico-dual-stack-cluster"
 			kubeanClusterOpsName := tools.ClusterOperationName
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
@@ -62,6 +65,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		})
 
 		ginkgo.It("Calico pod check", func() {
+			if disable_rhel8 {
+				ginkgo.Skip("Skip this test case on RHEL8")
+			}
 			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
@@ -79,6 +85,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		})
 
 		ginkgo.It("check calico tunnel valid", func() {
+			if disable_rhel8 {
+				ginkgo.Skip("Skip this test case on RHEL8")
+			}
 			tunnelModeConfig := tools.OtherLabel
 			klog.Info("tunnelModeConfig: ", tools.OtherLabel)
 			klog.Info("tunal_mode is: ", tunnelModeConfig)
@@ -128,6 +137,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 			}
 		})
 		ginkgo.It("check nginx pod has ipv4 and ipv6", func() {
+			if disable_rhel8 {
+				ginkgo.Skip("Skip this test case on RHEL8")
+			}
 			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
