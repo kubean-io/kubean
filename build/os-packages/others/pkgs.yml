@@ -1,0 +1,41 @@
+yum:
+  build_tools:
+  - createrepo
+  - yum-utils
+  required_pkgs:
+  - libselinux-python
+  - python3-libselinux
+  - device-mapper-libs
+  - nss-tools
+  - conntrack
+  - container-selinux
+  - libseccomp
+  - chrony
+
+apt:
+  build_tools:
+  - dpkg-dev
+  required_pkgs:
+  - python-apt
+  - python3-apt
+  - aufs-tools
+  - apt-transport-https
+  - software-properties-common
+  - conntrack
+  - apparmor
+  - libseccomp2
+  - ntp
+
+commons:
+- openssl
+- curl
+- rsync
+- socat
+- unzip
+- e2fsprogs
+- xfsprogs
+- ebtables
+- bash-completion
+- tar
+- ipvsadm
+- ipset
