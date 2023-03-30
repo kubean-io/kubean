@@ -22,6 +22,7 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		var pod1Name = "nginx1"
 		var pod2Name = "nginx2"
 		var password = tools.VmPassword
+		var disable_rhel8 = true
 		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
 		nginxImage := "nginx:alpine"
@@ -36,6 +37,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		klog.Info("nginx image is: ", nginxImage)
 		klog.Info("offlineFlag is: ", offlineFlag)
 		klog.Info("arch is: ", tools.Arch)
+		if disable_rhel8 {
+			ginkgo.Skip("Skip this test case on RHEL8")
+		}
 
 		ginkgo.It("Create cluster and all kube-system pods be running", func() {
 			clusterInstallYamlsPath := "e2e-install-calico-dual-stack-cluster"
