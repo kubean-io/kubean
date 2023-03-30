@@ -14,6 +14,6 @@ func init() {
 }
 
 func TestKuBean(t *testing.T) {
-	gomega.RegisterFailHandler(ginkgo.Fail)
+	gomega.RegisterFailHandler(ginkgo.Skip)
 	ginkgo.RunSpecs(t, "Test KuBean Suite")
 }

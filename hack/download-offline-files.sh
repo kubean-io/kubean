@@ -28,7 +28,7 @@ file_down_list=(${f_files_amd64_tgz}  ${f_images_amd64_tgz} ${f_files_arm64__tgz
                 ${f_os_centos7} ${f_os_kylin10} ${f_os_redhat8} ${f_os_redhat7})
 for (( i=0; i<${#file_down_list[@]};i++)); do
   echo "${file_down_list[$i]}"
-  timeout 1h wget -q -c  -P  "${DOWNLOAD_FOLDER}"  "${file_down_list[$i]}"
+  timeout 1m wget -q -c  -P  "${DOWNLOAD_FOLDER}"  "${file_down_list[$i]}"
 done
 
 rm -fr "${DOWNLOAD_FOLDER}"
