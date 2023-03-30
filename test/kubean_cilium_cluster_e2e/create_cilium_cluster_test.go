@@ -174,6 +174,5 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 			gomega.Expect(ipSub1).Should(gomega.Equal(10))
 			gomega.Expect(ipSub2).Should(gomega.Equal(88))
 		})
-
 	})
 })
