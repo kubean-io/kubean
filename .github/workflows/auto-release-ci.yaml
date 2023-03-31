@@ -124,6 +124,7 @@ jobs:
 
   download_files:
     runs-on: [ self-hosted, offline ]
+    needs: get-environment
     continue-on-error: true
     permissions:
       packages: write
