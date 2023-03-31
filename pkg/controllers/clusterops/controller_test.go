@@ -487,6 +487,8 @@ func TestNewKubesprayJob(t *testing.T) {
 
 func TestController_HookCustomAction(t *testing.T) {
 	os.Setenv("POD_NAMESPACE", "mynamespace")
+	builtinActionSource := clusteroperationv1alpha1.BuiltinActionSource
+	configmapActionSource := clusteroperationv1alpha1.ConfigMapActionSource
 	controller := Controller{
 		Client:                newFakeClient(),
 		ClientSet:             clientsetfake.NewSimpleClientset(),
@@ -519,7 +521,7 @@ func TestController_HookCustomAction(t *testing.T) {
 				clusterOps.Spec.PreHook = nil
 				clusterOps.Spec.PostHook = nil
 
-				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
+				clusterOps.Spec.ActionSource = &configmapActionSource
 			},
 			wantErr: true,
 		},
@@ -529,7 +531,7 @@ func TestController_HookCustomAction(t *testing.T) {
 				clusterOps.Spec.PreHook = nil
 				clusterOps.Spec.PostHook = nil
 
-				clusterOps.Spec.ActionSource = clusteroperationv1alpha1.ConfigMapActionSource
+				clusterOps.Spec.ActionSource = &configmapActionSource
 				clusterOps.Spec.ActionSourceRef = &apis.ConfigMapRef{
 					Name:      "myplaybook",
 					NameSpace: "mynamespace",
@@ -542,8 +544,8 @@ func TestController_HookCustomAction(t *testing.T) {
 			setAction: func() {
 				clusterOps.Spec.PreHook = nil
 				clusterOps.Spec.PostHook = nil
-				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{{ActionSource: clusteroperationv1alpha1.BuiltinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
-				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: clusteroperationv1alpha1.BuiltinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &builtinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
+				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &builtinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
 			},
 			wantErr: false,
 		},
@@ -554,7 +556,7 @@ func TestController_HookCustomAction(t *testing.T) {
 				clusterOps.Spec.PostHook = nil
 				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{
 					{
-						ActionSource: clusteroperationv1alpha1.ConfigMapActionSource,
+						ActionSource: &configmapActionSource,
 						ActionSourceRef: &apis.ConfigMapRef{
 							Name:      "myplaybook",
 							NameSpace: "mynamespace",
@@ -563,7 +565,7 @@ func TestController_HookCustomAction(t *testing.T) {
 				}
 				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{
 					{
-						ActionSource: clusteroperationv1alpha1.ConfigMapActionSource,
+						ActionSource: &configmapActionSource,
 						ActionSourceRef: &apis.ConfigMapRef{
 							Name:      "myplaybook",
 							NameSpace: "mynamespace",
