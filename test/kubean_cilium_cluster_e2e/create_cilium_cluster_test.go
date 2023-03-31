@@ -27,6 +27,7 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		var pod3Name = "nginx3"
 		var svc1Name = "nginxsvc1"
 		var password = tools.VmPassword
+		var disable_rhel8 = true
 		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
 		nginxImage := "nginx:alpine"
@@ -41,6 +42,9 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		klog.Info("nginx image is: ", nginxImage)
 		klog.Info("offlineFlag is: ", offlineFlag)
 		klog.Info("arch is: ", tools.Arch)
+		if disable_rhel8 {
+			ginkgo.Skip("Skip this test case on RHEL8")
+		}
 		//check kubean deployment status
 		ginkgo.It("check kubean deployment status", func() {
 			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)

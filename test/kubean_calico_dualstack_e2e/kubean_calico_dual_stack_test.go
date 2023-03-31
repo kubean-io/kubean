@@ -37,6 +37,9 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		klog.Info("nginx image is: ", nginxImage)
 		klog.Info("offlineFlag is: ", offlineFlag)
 		klog.Info("arch is: ", tools.Arch)
+		if disable_rhel8 {
+			ginkgo.Skip("Skip this test case on RHEL8")
+		}
 
 		ginkgo.It("Create cluster and all kube-system pods be running", func() {
 			if disable_rhel8 {
