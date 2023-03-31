@@ -535,16 +535,17 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 	}
 	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
+	builtinActionSource := clusteroperationv1alpha1.BuiltinActionSource
 	for _, action := range clusterOps.Spec.PreHook {
-		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
+		if err := entryPointData.PreHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == nil || *action.ActionSource == builtinActionSource); err != nil {
 			return false, err
 		}
 	}
-	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey, clusterOps.Spec.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
+	if err := entryPointData.SprayRunPart(string(clusterOps.Spec.ActionType), clusterOps.Spec.Action, clusterOps.Spec.ExtraArgs, isPrivateKey, clusterOps.Spec.ActionSource == nil || *clusterOps.Spec.ActionSource == builtinActionSource); err != nil {
 		return false, err
 	}
 	for _, action := range clusterOps.Spec.PostHook {
-		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == clusteroperationv1alpha1.BuiltinActionSource); err != nil {
+		if err := entryPointData.PostHookRunPart(string(action.ActionType), action.Action, action.ExtraArgs, isPrivateKey, action.ActionSource == nil || *action.ActionSource == builtinActionSource); err != nil {
 			return false, err
 		}
 	}
@@ -582,7 +583,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.ClusterOperation, job *batchv1.Job) error {
 	errMsg := "actionSourceRef must be specified if actionSource set as configmap"
 	for _, action := range clusterOps.Spec.PreHook {
-		if action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+		if action.ActionSource != nil && *action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 			if action.ActionSourceRef.IsEmpty() {
 				return fmt.Errorf(errMsg)
 			}
@@ -591,7 +592,7 @@ func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.Clust
 			}
 		}
 	}
-	if clusterOps.Spec.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+	if clusterOps.Spec.ActionSource != nil && *clusterOps.Spec.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 		if clusterOps.Spec.ActionSourceRef.IsEmpty() {
 			return fmt.Errorf(errMsg)
 		}
@@ -600,7 +601,7 @@ func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.Clust
 		}
 	}
 	for _, action := range clusterOps.Spec.PostHook {
-		if action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
+		if action.ActionSource != nil && *action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 			if action.ActionSourceRef.IsEmpty() {
 				return fmt.Errorf(errMsg)
 			}
