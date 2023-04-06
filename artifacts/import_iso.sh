@@ -47,7 +47,7 @@ function ensure_kubean_bucket() {
 
 function unmount_iso_file() {
   echo "unmount ISO file"
-  umount ${ISO_MOUNT_PATH}
+  umount ${ISO_MOUNT_PATH} || true
 }
 
 function iso_os_version_arch() {
@@ -102,6 +102,13 @@ function mount_iso_file() {
   fi
 
   mkdir -p ${ISO_MOUNT_PATH}
+
+  if ls $ISO_MOUNT_PATH | grep -i -E "EFI|images|isolinux|LiveOS|Packages|repodata|boot|dists|live|pool" >/dev/null 2>&1 ; then
+    ## try to umount.
+    echo "try to umount $ISO_MOUNT_PATH first"
+    unmount_iso_file || true
+  fi
+
   echo "mount ISO file"
   if ! mount -o loop,ro "${ISO_IMG_FILE}" ${ISO_MOUNT_PATH}; then
     echo "mount ${ISO_IMG_FILE} failed"
@@ -153,6 +160,8 @@ function import_iso_data() {
   fi
 }
 
+trap unmount_iso_file EXIT
+
 start=$(date +%s)
 
 check_mc_cmd
@@ -161,7 +170,6 @@ ensure_kubean_bucket
 mount_iso_file
 export -f import_iso_data iso_os_version_arch
 flock -s $PARALLEL_LOCK bash -c 'import_iso_data'
-unmount_iso_file
 remove_mc_host_conf
 
 end=$(date +%s)
