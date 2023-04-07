@@ -23,5 +23,9 @@ spec:
       versionRange: [ ]
     - name: "cilium"
       versionRange: [ ]
+    - name: "flannel"
+      versionRange: [ ]
+    - name: "kube-ovn"
+      versionRange: [ ]
     - name: "etcd"
       versionRange: [ ]

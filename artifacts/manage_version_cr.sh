@@ -96,6 +96,8 @@ function create_offline_version_cr() {
 
   calico_version=$(extract_version "calico_version")
   cilium_version=$(extract_version "cilium_version")
+  flannel_version=$(extract_version "flannel_version")
+  kube_ovn_version=$(extract_version "kube_ovn_version")
   etcd_version=$(extract_etcd_version "$kube_version")
 
   docker_version_range_redhat7=["18.09","19.03","20.10"]
@@ -110,7 +112,9 @@ function create_offline_version_cr() {
   update_offline_version_cr "2" "kube" "$kube_version"
   update_offline_version_cr "3" "calico" "$calico_version"
   update_offline_version_cr "4" "cilium" "$cilium_version"
-  update_offline_version_cr "5" "etcd" "$etcd_version"
+  update_offline_version_cr "5" "flannel" "$flannel_version"
+  update_offline_version_cr "6" "kube-ovn" "$kube_ovn_version"
+  update_offline_version_cr "7" "etcd" "$etcd_version"
   update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
 }
 
@@ -166,6 +170,12 @@ function create_info_manifest_cr() {
   cilium_version_default=$(extract_version "cilium_version")
   cilium_version_range="[]" ## anything
 
+  flannel_version_default=$(extract_version "flannel_version")
+  flannel_version_range="[]"
+
+  kube_ovn_version_default=$(extract_version "kube_ovn_version")
+  kube_ovn_version_range="[]"
+
   etcd_version_default=$(extract_etcd_version "${kube_version_default}")
   etcd_version_range=$(extract_version_range ".etcd_binary_checksums.amd64")
 
@@ -184,7 +194,9 @@ function create_info_manifest_cr() {
   update_info_manifest_cr 2 kube "${kube_version_default}" "${kube_version_range}"
   update_info_manifest_cr 3 calico "${calico_version_default}" "${calico_version_range}"
   update_info_manifest_cr 4 cilium "${cilium_version_default}" "${cilium_version_range}"
-  update_info_manifest_cr 5 etcd "${etcd_version_default}" "${etcd_version_range}"
+  update_info_manifest_cr 5 flannel "${flannel_version_default}" "${flannel_version_range}"
+  update_info_manifest_cr 6 kube-ovn "${kube_ovn_version_default}" "${kube_ovn_version_range}"
+  update_info_manifest_cr 7 etcd "${etcd_version_default}" "${etcd_version_range}"
   update_docker_component_version "redhat-7" "${docker_version_default}" "${docker_version_range_redhat7}"
   update_docker_component_version "debian" "${docker_version_default}" "${docker_version_range_debian}"
   update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"

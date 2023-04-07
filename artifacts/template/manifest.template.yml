@@ -31,6 +31,10 @@ spec:
     - name: "cilium"
       defaultVersion: ""
       versionRange: [ ]
+    - name: "flannel"
+      versionRange: [ ]
+    - name: "kube-ovn"
+      versionRange: [ ]
     - name: "etcd"
       defaultVersion: ""
       versionRange: [ ]
