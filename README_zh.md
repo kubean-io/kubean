@@ -4,7 +4,7 @@
 <img src="https://us-central1-trackgit-analytics.cloudfunctions.net/token/ping/la6t1t81jgv27ys97ila" alt="trackgit-views" />
 </a>
 
-> [简体中文](./README_zh.md)
+> [English](./README.md)
 
 <div align="center">
 
@@ -20,7 +20,7 @@ Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certifie
 
   <p>
 
-kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray).
+Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构建的集群生命周期管理工具。
 
   </p>
 
@@ -40,62 +40,69 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 
 ---
 
-## :anchor: Awesome features
+## :anchor: 功能超赞
 
-- **Simplicity:** Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.
-- **Offline Supported**: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.
-- **Compatibility**: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
-- **Expandability**: Allowing custom actions be added to cluster without any changes for Kubespray. 
+- **简单易用**：通过声明式 API 实现 Kubean 和 K8s 集群强劲生命周期管理的部署。
+- **支持离线**：每个版本都会发布离线包（os-pkgs、镜像、二进制包）。你不必担心如何收集所需的资源。
+- **兼容性**：支持多架构交付：AMD、ARM；常见的 Linux 发行版；以及基于鲲鹏构建的麒麟操作系统。
+- **可扩展性**：允许使用原生 Kubespray 自定义集群。
 
-## :surfing_man: Quick Start
+## :surfing_man: 快速入门
 
-#### 1. Ensure that a Kubernetes Cluster exists and Helm installed
+#### 1. 确保有一个 Kubernetes 集群且安装了 Helm
 
-#### 2. Deploy Kubean-Operator
+#### 2. 部署 Kubean-Operator
 
 ``` shell
 $ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
 $ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 ```
 
-Then check kubean-operator status by running:
+检查 kubean-operator 状态：
 
-```shell 
+```shell
 $ kubectl get pods -n kubean-system | grep 'kubean'
 ```
 
-#### 3. Start ClusterOperation for cluster.yml playbook
+#### 3. 为 cluster.yml 启动 ClusterOperation
 
-You can use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
+你可以使用 `artifacts/demo` 文件夹中的例子，这些例子使用在线资源安装 K8s 集群。
 
-  1. cd resources path
-     ```shell
-     $ cd artifacts/
-     ```
-  2. modify `demo/hosts-conf-cm.yml` by replacing `IP1`, `IP2`... with the real ip where we want to install k8s cluster
-  3. start kubeanClusterOps which will start the kubespray job
-     ```shell
-     $ kubectl apply -f demo/
-     ```
-  4. check the kubespray job status
-     ```shell
-     $ kubectl get job -n kubean-system
-     ```
+1. 进入资源路径
+
+   ```shell
+   $ cd artifacts/
+   ```
+
+2. 修改 `demo/hosts-conf-cm.yml`，将 `IP1`、`IP2`... 替换为要安装 K8s 集群的真实 IP
+
+3. 启动 kubeanClusterOps，这将启动 kubespray job
+
+   ```shell
+   $ kubectl apply -f demo/
+   ```
+
+4. 检查 kubespray job 状态
+
+   ```shell
+   $ kubectl get job -n kubean-system
+   ```
 
 [![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
 
-## :ocean: Kubernetes compatibility
+## :ocean: Kubernetes 兼容性
 
 |               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 | Kubernetes 1.26 |
 |---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
 | Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 | Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
-## :book: Documents
+## :book: 参考文档
 
-- [Architecture](docs/architecture.md)
-- [Kubean vs Kubespray](docs/comparisons.md)
-- [CRD Outline](docs/crds.md)
-- [Deploy cluster using SSH secret key method](docs/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/offline.md)
-- [Generate and use incremental offline packages](docs/airgap_patch_usage.md)
+- [架构](docs/zh/architecture.md)
+- [Kubean 与 Kubespray](docs/zh/comparisons.md)
+- [CRD 概述](docs/zh/crds.md)
+- [使用 SSH Secret 密钥方法部署集群](docs/zh/sshkey_deploy_cluster.md)
+- [为离线环境部署集群](docs/zh/offline.md)
+- [自定义操作](docs/zh/custom_action.md)
+- [增量离线包的生成和使用](docs/zh/airgap_patch_usage.md)
