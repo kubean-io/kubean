@@ -19,25 +19,19 @@ docker:
   centos7:
     - containerd.io-1.4.12-3.1.el7
     - containerd.io-1.6.4-3.1.el7
-    - docker-ce-19.03.15-3.el7
     - docker-ce-20.10.20-3.el7
-    - docker-ce-cli-19.03.15-3.el7
     - docker-ce-cli-20.10.20-3.el7
 
   redhat7:
     - containerd.io-1.4.12-3.1.el7
     - containerd.io-1.6.4-3.1.el7
-    - docker-ce-19.03.15-3.el7
     - docker-ce-20.10.20-3.el7
-    - docker-ce-cli-19.03.15-3.el7
     - docker-ce-cli-20.10.20-3.el7
 
   redhat8:
     - containerd.io-1.4.12-3.1.el8
     - containerd.io-1.6.4-3.1.el8
-    - docker-ce-3:19.03.15-3.el8
     - docker-ce-3:20.10.20-3.el8
-    - docker-ce-cli-1:19.03.15-3.el8
     - docker-ce-cli-1:20.10.20-3.el8
 
   kylinv10:
@@ -53,15 +47,11 @@ docker:
   ubuntu1804:
     - containerd.io=1.4.12-1
     - containerd.io=1.6.4-1
-    - docker-ce=5:19.03.15~3-0~ubuntu-bionic
     - docker-ce=5:20.10.20~3-0~ubuntu-bionic
-    - docker-ce-cli=5:19.03.15~3-0~ubuntu-bionic
     - docker-ce-cli=5:20.10.20~3-0~ubuntu-bionic
 
   ubuntu2004:
     - containerd.io=1.4.12-1
     - containerd.io=1.6.4-1
-    - docker-ce=5:19.03.15~3-0~ubuntu-focal
     - docker-ce=5:20.10.20~3-0~ubuntu-focal
-    - docker-ce-cli=5:19.03.15~3-0~ubuntu-focal
     - docker-ce-cli=5:20.10.20~3-0~ubuntu-focal
