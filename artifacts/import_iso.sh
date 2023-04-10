@@ -71,6 +71,13 @@ function iso_os_version_arch() {
         local arch=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/arch = //p' | head -1)
         local os=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/name = //p' | head -1)
         local version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | cut -d. -f1)
+
+        if [[ "$os" =~ "openEuler" ]]; then
+          local euler_version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | tr -d '-') ## 22.03LTS
+          echo "/openeuler-iso/$euler_version/os/$arch"
+          return
+        fi
+
         if [[ "$os" =~ "CentOS" ]]; then
           echo "/centos-iso/$version/os/$arch"
           return

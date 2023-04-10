@@ -55,3 +55,7 @@ docker:
     - containerd.io=1.6.4-1
     - docker-ce=5:20.10.20~3-0~ubuntu-focal
     - docker-ce-cli=5:20.10.20~3-0~ubuntu-focal
+
+  openeuler:
+    - socat
+    - libselinux-python

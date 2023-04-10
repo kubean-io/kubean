@@ -1,0 +1,24 @@
+FROM openeuler/openeuler:22.03-lts as openeuler-system
+ARG OS_VERSION=22.03LTS
+ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo wget"
+
+WORKDIR /openeuler/${OS_VERSION}/os
+COPY build/os-packages/repos/openeuler.repo /etc/yum.repos.d/
+COPY build/os-packages/packages.yml .
+COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.yum[],.docker.openeuler[]' packages.yml > packages.list
+
+RUN ARCH=$(uname -m) \
+    && rm -rf /etc/yum.repos.d/openEuler* \
+    && dnf install -y ${BUILD_TOOLS} \
+    && dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
+    && sed -i 's/$releasever/8/g' /etc/yum.repos.d/docker-ce.repo \
+    && dnf clean all && dnf makecache \
+    && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line} --nobest --allowerasing; done <<<"$(sort -u packages.list)" \
+    && createrepo -d ${ARCH}
+
+FROM scratch
+COPY --from=openeuler-system /openeuler /resources/openeuler
+
+# One way to make a openeuler docker image:
+# https://github.com/moby/moby/blob/master/contrib/mkimage-yum.sh
