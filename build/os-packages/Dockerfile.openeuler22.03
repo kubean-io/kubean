@@ -1,9 +1,9 @@
 FROM openeuler/openeuler:22.03-lts as openeuler-system
-ARG OS_VERSION=22.03LTS
+ARG OS_VERSION=22.03
 ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo wget"
 
 WORKDIR /openeuler/${OS_VERSION}/os
-COPY build/os-packages/repos/openeuler.repo /etc/yum.repos.d/
+COPY build/os-packages/repos/openeuler_22.03.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.yum[],.docker.openeuler[]' packages.yml > packages.list

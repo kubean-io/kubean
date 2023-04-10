@@ -73,7 +73,7 @@ function iso_os_version_arch() {
         local version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | cut -d. -f1)
 
         if [[ "$os" =~ "openEuler" ]]; then
-          local euler_version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1 | tr -d '-') ## 22.03LTS
+          local euler_version=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/version = //p' | head -1  | sed -e 's/LTS//g' | sed -e 's/SP[0-9]//g' | sed -e 's/sp[0-9]//g'  |  tr -d '-') ## 22.03LTS => 22.03 , 22.03LTS SP1 => 22.03
           echo "/openeuler-iso/$euler_version/os/$arch"
           return
         fi

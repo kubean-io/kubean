@@ -17,8 +17,8 @@ jobs:
           dockerfile: build/os-packages/Dockerfile.redhat8
         - name: kylinv10
           dockerfile: build/os-packages/Dockerfile.kylinv10
-        - name: openeuler
-          dockerfile: build/os-packages/Dockerfile.openeuler
+        - name: openeuler22.03
+          dockerfile: build/os-packages/Dockerfile.openeuler22.03
         - name: ubuntu1804
           dockerfile: build/os-packages/Dockerfile.ubuntu1804
         - name: ubuntu2004
