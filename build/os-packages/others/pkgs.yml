@@ -11,6 +11,7 @@ yum:
   - container-selinux
   - libseccomp
   - chrony
+  - iputils
 
 apt:
   build_tools:
@@ -25,6 +26,7 @@ apt:
   - apparmor
   - libseccomp2
   - ntp
+  - iputils-ping
 
 commons:
 - openssl
