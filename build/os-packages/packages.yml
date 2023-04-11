@@ -58,4 +58,5 @@ docker:
 
   openeuler:
     - socat
-    - libselinux-python
+    - libnetfilter_cttimeout
+    - libnetfilter_cthelper
