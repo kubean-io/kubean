@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 	"os"
@@ -17,13 +18,6 @@ import (
 	"strings"
 	"time"
 )
-
-func CreateClusterByApply(installYamlPath string) {
-	cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", installYamlPath)
-	out, _ := DoCmd(*cmd)
-	klog.Info("create cluster result:", out.String())
-
-}
 
 func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, podName, expectedStatus string) {
 	klog.Info("---- Waiting kubean job-related pod ", podName, " success ----")
@@ -100,6 +94,13 @@ func WaitPodSInKubeSystemBeRunning(kubeClient *kubernetes.Clientset, timeTotalSe
 	}
 }
 
+func GenerateClusterClient(localKubeConfigPath string) *kubernetes.Clientset {
+	cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
+	cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+	return cluster1Client
+}
 func WaitPodBeRunning(kubeClient *kubernetes.Clientset, namespace, podName string, timeTotalSecond time.Duration, ops ...time.Duration) *v1.Pod {
 	klog.Info("---- Waiting Pods in [%s] to be Running ---", namespace)
 	var timeInterval time.Duration = 10
@@ -118,32 +119,50 @@ func WaitPodBeRunning(kubeClient *kubernetes.Clientset, namespace, podName strin
 	return pod1
 }
 
-func NodePingPod(sshNode, podIP string) {
-	pingPodIpCmd1 := RemoteSSHCmdArray([]string{sshNode, "ping", "-c 1", podIP})
-	pingNginx1IpCmd1Out, _ := NewDoCmd("sshpass", pingPodIpCmd1...)
-	klog.Info(sshNode, "ping pod IP ", podIP, "result: ", pingNginx1IpCmd1Out.String())
-	gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
-}
-
-func PodPingPod(node, podFromNs, podFromName, podToIP string) {
-	podsPingCmd1 := RemoteSSHCmdArray([]string{node, "kubectl", "exec", "-it", podFromName, "-n", podFromNs, "--", "ping", "-c 1", podToIP})
-	podsPingCmdOut1, _ := NewDoCmd("sshpass", podsPingCmd1...)
-	fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
-	gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
-}
-
 func NodePingPodByPasswd(password, sshNode, podIP string) {
-	pingPodIpCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "ping", "-c 1", podIP})
-	pingNginx1IpCmd1Out, _ := NewDoCmd("sshpass", pingPodIpCmd1...)
-	klog.Info(sshNode, "ping pod IP ", podIP, "result: ", pingNginx1IpCmd1Out.String())
-	gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
+	pingCmd := "ping"
+	if strings.Contains(podIP, ":") {
+		osTypeCmd := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "cat ", "/etc/redhat-release"})
+		osTypeCmdOut, _ := NewDoCmd("sshpass", osTypeCmd...)
+		if strings.Contains(osTypeCmdOut.String(), "CentOS") {
+			pingCmd = "ping6"
+		}
+		if strings.Contains(osTypeCmdOut.String(), "Red Hat") && strings.Contains(osTypeCmdOut.String(), "7.") {
+			pingCmd = "ping6"
+		}
+	}
+
+	pingPodIpCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, pingCmd, "-c 1", podIP})
+	count := 3
+	for i := 0; i <= count; i++ {
+		pingNginx1IpCmd1Out, cmdError := NewDoCmdSoft("sshpass", pingPodIpCmd1...)
+		if cmdError == nil {
+			klog.Info(sshNode, "ping pod IP ", podIP, "result: ", pingNginx1IpCmd1Out.String())
+			gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
+			break
+		} else {
+			klog.Info("excute cmd error, retry...")
+			time.Sleep(5 * time.Second)
+			gomega.Expect(i == count).Should(gomega.BeFalse())
+		}
+	}
 }
 
 func PodPingPodByPasswd(password, node, podFromNs, podFromName, podToIP string) {
 	podsPingCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{node, "kubectl", "exec", "-it", podFromName, "-n", podFromNs, "--", "ping", "-c 1", podToIP})
-	podsPingCmdOut1, _ := NewDoCmd("sshpass", podsPingCmd1...)
-	fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
-	gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
+	count := 3
+	for i := 0; i <= count; i++ {
+		podsPingCmdOut1, cmdError := NewDoCmdSoft("sshpass", podsPingCmd1...)
+		if cmdError == nil {
+			fmt.Println("pod ping pod: ", podsPingCmdOut1.String())
+			gomega.Expect(podsPingCmdOut1.String()).Should(gomega.ContainSubstring("1 packets received"))
+			break
+		} else {
+			klog.Info("excute cmd error, retry...")
+			time.Sleep(5 * time.Second)
+			gomega.Expect(i == count).Should(gomega.BeFalse())
+		}
+	}
 }
 
 func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Duration, ops ...time.Duration) {

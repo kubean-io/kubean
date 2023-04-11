@@ -1,4 +1,4 @@
-package kubean_calico_nightlye2e
+package kubean_calico_single_stack_e2e
 
 import (
 	"testing"

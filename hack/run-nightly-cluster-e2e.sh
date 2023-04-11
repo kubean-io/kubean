@@ -8,7 +8,7 @@ source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "ARCH: ${ARCH}"
 echo "OS_NAME: ${OS_NAME}"
-echo "IS_OFFLINE: ${ISOFFLINE}"
+echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 
 function func_prepare_config_yaml() {
     local source_path=$1
@@ -123,7 +123,7 @@ sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_config_path}"/kubeanClusterOps.ym
 sed -i "s/action: cluster.yml/action: remove-node.yml\n  extraArgs: -e node=node2/"  ${dest_config_path}/kubeanClusterOps.yml
 ginkgo -v -timeout=3h -race --fail-fast ./test/kubean_add_remove_worker_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
 
 ### k8s upgrade test ####
 util::power_on_2vms ${OS_NAME}
@@ -156,7 +156,7 @@ sed -i "s/v1.24.7/v1.25.5/"  "${dest_config_path}"/vars-conf-cm.yml
 
 ginkgo -v -race -timeout=6h --fail-fast ./test/kubean_sonobouy_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
 
 SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"

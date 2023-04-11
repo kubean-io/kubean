@@ -29,7 +29,7 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		var password = tools.VmPassword
 		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
-		nginxImage := "nginx:alpine"
+		nginxImage := tools.NginxAlpha
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
@@ -43,15 +43,15 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		klog.Info("arch is: ", tools.Arch)
 		//check kubean deployment status
 		ginkgo.It("check kubean deployment status", func() {
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new kindConfig set")
+			kindClient, err := kubernetes.NewForConfig(kindConfig)
+			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new kindClient")
 
-			deploymentList, _ := cluster1Client.AppsV1().Deployments(tools.KubeanNamespace).List(context.TODO(), metav1.ListOptions{})
+			deploymentList, _ := kindClient.AppsV1().Deployments(tools.KubeanNamespace).List(context.TODO(), metav1.ListOptions{})
 			for _, dm := range deploymentList.Items {
 				if dm.Name == "kubean" {
-					gomega.Expect(dm.Status.AvailableReplicas).To(gomega.Equal(3))
+					gomega.Expect(dm.Status.AvailableReplicas).To(gomega.Equal(int32(3)))
 				}
 			}
 		})

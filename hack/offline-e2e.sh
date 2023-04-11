@@ -34,10 +34,13 @@ echo "HELM_CHART_VERSION: ${HELM_CHART_VERSION}"
 NETWORK_CARD="ens192"
 export RUNNER_NODE_IP=$(ip a |grep ${NETWORK_CARD}|grep inet|grep global|awk -F ' ' '{print $2}'|awk -F '/' '{print $1}')
 export MINIO_URL=http://${RUNNER_NODE_IP}:${MINIOPORT}
+export POWER_ON_SNAPSHOT_NAME="os-installed"
+export POWER_DOWN_SNAPSHOT_NAME="power-down"
 
 chmod +x ${REPO_ROOT}/hack/offline_run_amd64.sh
 chmod +x ${REPO_ROOT}/hack/offline_run_arm64.sh
 chmod +x ${REPO_ROOT}/hack/offline_run_centos.sh
+chmod +x ${REPO_ROOT}/hack/run-network-e2e.sh
 
 registry_addr_amd64=${RUNNER_NODE_IP}:${REGISTRY_PORT_AMD64}
 registry_addr_arm64=${RUNNER_NODE_IP}:${REGISTRY_PORT_ARM64}
@@ -65,7 +68,6 @@ helm repo list
 
 KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
 ./hack/local-up-kindcluster.sh "${HELM_CHART_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
-
 ### Helm install Registry: AMD64 registry and ARM64 registry
 util::install_registry "${REGISTRY_PORT_AMD64}" "${KUBECONFIG_FILE}" "registry-amd64"
 util::install_registry "${REGISTRY_PORT_ARM64}" "${KUBECONFIG_FILE}" "registry-arm64"
