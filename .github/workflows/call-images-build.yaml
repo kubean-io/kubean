@@ -84,6 +84,7 @@ jobs:
         file: ./build/images/airgap-patch/Dockerfile
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
+        provenance: false
         platforms: ${{ env.BUILD_PLATFORM }}
         tags: |
           ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/airgap-patch:${{ needs.output-variable.outputs.container_tag }}
@@ -101,6 +102,7 @@ jobs:
         file: ./build/images/spray-job/Dockerfile
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
+        provenance: false
         platforms: ${{ env.BUILD_PLATFORM }}
         tags: |
           ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/spray-job:${{ needs.output-variable.outputs.container_tag }}
@@ -118,6 +120,7 @@ jobs:
         file: ./build/images/kubean-operator/Dockerfile
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
+        provenance: false
         platforms: ${{ env.BUILD_PLATFORM }}
         tags: |
           ${{ env.ONLINE_REGISTER }}/${{ needs.output-variable.outputs.repo }}/kubean-operator:${{ needs.output-variable.outputs.container_tag }}

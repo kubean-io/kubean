@@ -32,6 +32,9 @@ jobs:
     uses: ./.github/workflows/call-images-build.yaml
     secrets: inherit
     needs: get-spray-ref
+    permissions:
+      packages: write
+      contents: read
     with:
       SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
       CI_TYPE: "release"
@@ -117,6 +120,9 @@ jobs:
     uses: ./.github/workflows/call-cd.yaml
     secrets: inherit
     needs: get-environment
+    permissions:
+      packages: write
+      contents: read
     with:
       ENVIRONMENT_RUNS_ON: ${{ needs.get-environment.outputs.environment_runs_on }}
       ENRIRONMENT_CD: ${{ needs.get-environment.outputs.enviroment_cd }}
