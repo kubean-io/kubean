@@ -35,7 +35,7 @@ function log_info() {
 }
 
 function log_erro() {
-  echo -e "${RED}[error]\t${WHITE} $@${WHITE}" 1>&2
+  echo -e "${RED}[ERRO]\t${WHITE} $@${WHITE}" 1>&2
   exit -1
 }
 
