@@ -49,7 +49,7 @@ jobs:
 
     - name: Set up Docker Buildx
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-      uses: docker/setup-buildx-action@v2.2.1
+      uses: docker/setup-buildx-action@v2.5.0
 
     - name: Build OS packages to local
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
