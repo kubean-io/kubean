@@ -3,14 +3,21 @@
 set -eo pipefail
 
 MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
+TARGET_DIR="${MINIO_API_ADDR}"
 
 ISO_IMG_FILE=${2} ##  CentOS-7-XXX.ISO CentOS-8XXX.ISO
-
-export ISO_MOUNT_PATH="/mnt/kubean-temp-iso"
 
 Minio_Server_PATH=""
 
 readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
+
+copy_dir=false
+if [[ "${TARGET_DIR}" != "https://*" ]] && [[ "${TARGET_DIR}" != "http://*" ]] ; then
+  copy_dir=true
+  mkdir -p "${TARGET_DIR}"
+fi
+
+export ISO_MOUNT_PATH="/mnt/kubean-temp-iso" TARGET_DIR copy_dir
 
 function add_mc_host_conf() {
   if [ -z "$MINIO_USER" ]; then
@@ -124,7 +131,11 @@ function mount_iso_file() {
 }
 
 function import_iso_data() {
-  echo "start push ISO data into minio"
+  if [ "$copy_dir" == "false" ]; then
+    echo "start push ISO data into minio"
+  else
+    echo "start copy ISO data into $TARGET_DIR"
+  fi
   Minio_Server_PATH=$(iso_os_version_arch)
 
   if [ -z "$Minio_Server_PATH" ]; then
@@ -158,8 +169,13 @@ function import_iso_data() {
   
   if [ "${#dirArray[@]}" -gt 0 ]; then
     for dirName in "${dirArray[@]}"; do
-      ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
-      mc cp --no-color --recursive "$dirName" "$minioFileName"
+      if [ "$copy_dir" == "true" ]; then
+        mkdir -p "${TARGET_DIR}/${Minio_Server_PATH}"
+        cp -vr "${dirName}" "${TARGET_DIR}/${Minio_Server_PATH}"
+      else
+        ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
+        mc cp --no-color --recursive "$dirName" "$minioFileName"
+      fi
     done
   else
     echo "cannot find valid repo data from $ISO_IMG_FILE"
@@ -171,13 +187,17 @@ trap unmount_iso_file EXIT
 
 start=$(date +%s)
 
-check_mc_cmd
-add_mc_host_conf
-ensure_kubean_bucket
+if [ "$copy_dir" == "false" ]; then
+  check_mc_cmd
+  add_mc_host_conf
+  ensure_kubean_bucket
+fi
 mount_iso_file
 export -f import_iso_data iso_os_version_arch
 flock -s $PARALLEL_LOCK bash -c 'import_iso_data'
-remove_mc_host_conf
+if [ "$copy_dir" == "false" ]; then
+  remove_mc_host_conf
+fi
 
 end=$(date +%s)
 take=$((end - start))

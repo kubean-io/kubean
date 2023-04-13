@@ -136,6 +136,8 @@ sslverify=0
 
 #### 1.2 建立在线 ISO 镜像源
 
+##### 导入至Minio
+
 将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到
 minio server 中
 
@@ -174,6 +176,25 @@ sslverify=0
 ```
 
 - 需要将 `${minio_address}` 替换为 minio API Server 地址
+
+##### 导入至本地目录
+
+将 ISO 中的镜像源导入到本地目录中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到指定的本地目录中
+
+```bash
+./import_iso.sh ${you_local_path} Centos-XXXX.ISO
+```
+
+repo配置方式类似上方 [导入至Minio](#导入至Minio)
+
+```
+[kubean-iso-online]
+name=Kubean ISO Repo Online
+baseurl=${your_local_path}/centos-iso/$releasever/os/$basearch
+enabled=1
+gpgcheck=0
+sslverify=0
+```
 
 ### 2. 建立 extras 软件源
 
