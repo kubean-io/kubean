@@ -12,7 +12,7 @@ Minio_Server_PATH=""
 readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
 
 copy_dir=false
-if [[ "${TARGET_DIR}" != "https://*" ]] && [[ "${TARGET_DIR}" != "http://*" ]] ; then
+if [[ "${TARGET_DIR}" != "https://"* ]] && [[ "${TARGET_DIR}" != "http://"* ]] ; then
   copy_dir=true
   mkdir -p "${TARGET_DIR}"
 fi
