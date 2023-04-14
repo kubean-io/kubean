@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: 1.18.2
 
@@ -70,7 +70,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: 1.18.2
 
@@ -162,7 +162,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: 1.18.2
 
