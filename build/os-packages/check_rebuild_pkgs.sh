@@ -25,6 +25,8 @@ if [ "${OS_NAME}" == "kylinv10" ]; then
   git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.repo || { echo "true"; exit; }
 fi
 
+git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }
+
 # centos7 / kylinv10 / redhat7 / redhat8
 if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ]; then
   late_digest=$(echo "${late_packages_yml}" | yq eval ".yum[],.docker.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
