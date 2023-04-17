@@ -8,6 +8,7 @@ on:
 jobs:
   offline_e2e:
     runs-on: [self-hosted, offline]
+    timeout-minutes: 900
     permissions:
       packages: write
       contents: read

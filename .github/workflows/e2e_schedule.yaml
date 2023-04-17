@@ -74,6 +74,7 @@ jobs:
   schedule_sonobouy_e2e:
     needs: build-push-for-e2e
     runs-on: [self-hosted, online]
+    timeout-minutes: 900
     permissions:
       packages: write
       contents: read
