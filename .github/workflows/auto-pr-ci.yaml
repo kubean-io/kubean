@@ -152,6 +152,7 @@ jobs:
   e2e:
     needs: [ build-push-for-e2e,get_ref ]
     runs-on: [self-hosted, online]
+    timeout-minutes: 900
     permissions:
       packages: write
       contents: read
