@@ -1,0 +1,36 @@
+name: SPEEDUP OFFLINE PACKAGES
+on: [workflow_call,workflow_dispatch]
+jobs:
+  speedup_offline_packages:
+      runs-on: ubuntu-latest
+      continue-on-error: true
+      permissions:
+        packages: write
+        contents: read
+      env:
+        SPEEDUP_BASE_URL: ${{ secrets.SPEEDUP_BASE_URL }}
+      strategy:
+        fail-fast: false
+        matrix:
+          include:
+            - name: files_amd64
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/files-amd64-${GITHUB_REF_NAME}.tar.gz
+            - name: images_amd64
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/images-amd64-${GITHUB_REF_NAME}.tar.gz
+            - name: files_arm64
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/files-arm64-${GITHUB_REF_NAME}.tar.gz
+            - name: images_arm64
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/images-arm64-${GITHUB_REF_NAME}.tar.gz
+            - name: os_centos7
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-centos7-${GITHUB_REF_NAME}.tar.gz
+            - name: os_kylinv10
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-kylinv10-${GITHUB_REF_NAME}.tar.gz
+            - name: os_redhat8
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-redhat8-${GITHUB_REF_NAME}.tar.gz
+            - name: os_redhat7
+              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-redhat7-${GITHUB_REF_NAME}.tar.gz
+      steps:
+        - name: wget_files
+          run: |
+            echo "Start speed up ${{ matrix.name }}"
+            wget -q -c -T 1m ${{ matrix.file }}
