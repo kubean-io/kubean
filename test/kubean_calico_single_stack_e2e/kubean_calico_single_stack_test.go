@@ -1,4 +1,4 @@
-package kubean_calico_nightlye2e
+package kubean_calico_single_stack_e2e
 
 import (
 	"context"
@@ -32,7 +32,7 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 		//var svc1Name = "nginxsvc1"
 		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
-		nginxImage := "nginx:alpine"
+		nginxImage := tools.NginxAlpha
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {

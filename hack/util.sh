@@ -330,7 +330,13 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-redhat7-node75"
               vm_name2="gwt-kubean-e2e-redhat7-node76"
               ;;
-     esac
+          "CENTOS7-HK")
+              vm_ip_addr1="172.30.41.77"
+              vm_ip_addr2="172.30.41.78"
+              vm_name1="gwt-kubean-e2e-hk-node77"
+              vm_name2="gwt-kubean-e2e-hk-node78"
+              ;;
+      esac
   fi
   if [ "${RUNNER_NAME}" == "debug2" ]; then
         case ${OS_NAME} in
@@ -386,6 +392,12 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-redhat8-node213"
               vm_name2="gwt-kubean-e2e-redhat8-node214"
               ;;
+          "CENTOS7-HK")
+              vm_ip_addr1="10.6.178.217"
+              vm_ip_addr2="10.6.178.218"
+              vm_name1="gwt-kubean-e2e-hk-node217"
+              vm_name2="gwt-kubean-e2e-hk-node218"
+              ;;
      esac
   fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner2" ]; then
@@ -414,6 +426,12 @@ function util::vm_name_ip_init_online_by_os(){
                   vm_name1="gwt-kubean-e2e-redhat7-node203"
                   vm_name2="gwt-kubean-e2e-redhat7-node204"
                   ;;
+              "CENTOS7-HK")
+                  vm_ip_addr1="10.6.178.207"
+                  vm_ip_addr2="10.6.178.208"
+                  vm_name1="gwt-kubean-e2e-hk-node207"
+                  vm_name2="gwt-kubean-e2e-hk-node208"
+                  ;;
         esac
   fi
 
@@ -434,7 +452,7 @@ function util::clean_online_kind_cluster() {
 }
 
 ###### Clean Up #######
-function utils::clean_up(){
+function util::clean_up(){
     echo "======= cluster prefix: ${CLUSTER_PREFIX}"
     local auto_cleanup="true"
     if [ "$auto_cleanup" == "true" ];then
@@ -446,7 +464,7 @@ function utils::clean_up(){
     exit $EXIT_CODE
 }
 
-function utils::create_os_e2e_vms(){
+function util::create_os_e2e_vms(){
     # create 1master+1worker cluster
     if [ -f $(pwd)/Vagrantfile ]; then
         rm -f $(pwd)/Vagrantfile
@@ -472,7 +490,11 @@ function utils::create_os_e2e_vms(){
 function util::power_on_2vms(){
   local OS_NAME=$1
   echo "OS_NAME is: ${OS_NAME}"
-  util::vm_name_ip_init_online_by_os ${OS_NAME}
+  if [[ ${OFFLINE_FLAG} == "true" ]]; then
+    util::vm_name_ip_init_offline_by_os ${OS_NAME}
+  else
+    util::vm_name_ip_init_online_by_os ${OS_NAME}
+  fi
   echo "vm_name1: ${vm_name1}"
   echo "vm_name2: ${vm_name2}"
   SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
@@ -510,7 +532,7 @@ function util::power_on_vm_second(){
 }
 
 
-function utils::install_sshpass(){
+function util::install_sshpass(){
     local CMD=$(command -v ${1})
     if [[ ! -x ${CMD} ]]; then
         echo "Installing sshpass: "

@@ -434,3 +434,27 @@ function util::set_k8s_version_by_tag(){
     echo "RC Version"
   fi
 }
+
+
+function util::init_yum_repo_config_when_offline(){
+  local dest_yaml_path=$1
+  echo "init yum repo when offline..."
+  if [[ "${OFFLINE_FLAG}" == "true" ]] &&  [[ ${OS_NAME} =~ REDHAT.* ]]; then
+        if [[ ${OS_NAME} == REDHAT8 ]]; then
+          echo "REDHAT8 OS."
+          sed -i 's#basearch#basearch/AppStream,{offline_minio_url}/kubean/redhat-iso/\\\$releasever/os/\\\$basearch/BaseOS#2' ${dest_yaml_path}/kubeanClusterOps.yml
+          sed -i "s#m,{#m','{#g" ${dest_yaml_path}/kubeanClusterOps.yml
+        fi
+        #sed -i "s#{offline_minio_url}#${MINIO_URL}#g" ${dest_yaml_path}/kubeanClusterOps.yml
+        sed -i  "s#centos#redhat#g" ${dest_yaml_path}/kubeanClusterOps.yml
+        # vars-conf-cm.yml set
+        sed -i "s#{{ files_repo }}/centos#{{ files_repo }}/redhat#" ${dest_yaml_path}/vars-conf-cm.yml
+        sed -i "$ a\    rhel_enable_repos: false"  ${dest_yaml_path}/vars-conf-cm.yml
+  fi
+  if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+    sed -i "s#{offline_minio_url}#${MINIO_URL}#g" ${dest_yaml_path}/kubeanClusterOps.yml
+    sed -i "s#registry_host:#registry_host: ${registry_addr_amd64}#"    ${dest_yaml_path}/vars-conf-cm.yml
+    sed -i "s#minio_address:#minio_address: ${MINIO_URL}#"    ${dest_yaml_path}/vars-conf-cm.yml
+    sed -i "s#registry_host_key#${registry_addr_amd64}#g"    ${dest_yaml_path}/vars-conf-cm.yml
+  fi
+}
