@@ -93,9 +93,9 @@ You can use the example in folder `artifacts/demo` which uses online resources t
 
 ## :book: Documents
 
-- [Architecture](docs/architecture.md)
-- [Kubean vs Kubespray](docs/comparisons.md)
-- [CRD Outline](docs/crds.md)
-- [Deploy cluster using SSH secret key method](docs/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/offline.md)
-- [Generate and use incremental offline packages](docs/airgap_patch_usage.md)
+- [Architecture](docs/en/architecture.md)
+- [Kubean vs Kubespray](docs/en/comparisons.md)
+- [CRD Outline](docs/en/crds.md)
+- [Deploy cluster using SSH secret key method](docs/en/sshkey_deploy_cluster.md)
+- [Cluster deployment for air gap environments](docs/en/offline.md)
+- [Generate and use incremental offline packages](docs/en/airgap_patch_usage.md)
