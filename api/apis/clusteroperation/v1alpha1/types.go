@@ -65,7 +65,7 @@ type Spec struct {
 	// +kubebuilder:default="builtin"
 	ActionSource *ActionSource `json:"actionSource"`
 	// +optional
-	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
+	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef,omitempty"`
 	// +optional
 	ExtraArgs string `json:"extraArgs"`
 	// +required
@@ -91,7 +91,7 @@ type HookAction struct {
 	// +kubebuilder:default="builtin"
 	ActionSource *ActionSource `json:"actionSource"`
 	// +optional
-	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef"`
+	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef,omitempty"`
 	// +optional
 	ExtraArgs string `json:"extraArgs"`
 }
