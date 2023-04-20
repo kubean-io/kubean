@@ -24,7 +24,7 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 		var password = tools.VmPassword
 		//kubeanNamespace := tools.KubeanNamespace
 		testClusterName := tools.TestClusterName
-		nginxImage := "nginx:alpine"
+		nginxImage := tools.NginxAlpha
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
@@ -43,12 +43,8 @@ var _ = ginkgo.Describe("e2e add worker node operation", func() {
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
 			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
-
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
-			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Config set")
-			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
-			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
+			cluster1Client := tools.GenerateClusterClient(localKubeConfigPath)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 			// do sonobuoy check
 			if strings.ToUpper(offlineFlag) != "TRUE" {

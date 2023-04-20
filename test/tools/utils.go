@@ -124,6 +124,21 @@ func NewDoCmd(cmd string, args ...string) (bytes.Buffer, bytes.Buffer) {
 	return out, stderr
 }
 
+func NewDoCmdSoft(cmd string, args ...string) (bytes.Buffer, error) {
+	icmd := exec.Command(cmd, args...)
+	fmt.Println("NewDoCmd: ", icmd.String())
+	var out, stderr bytes.Buffer
+	icmd.Stdout = &out
+	icmd.Stderr = &stderr
+
+	err := icmd.Run()
+	if err != nil {
+		ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
+		return out, err
+	}
+	return out, nil
+}
+
 func DoErrCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
 	ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
 	var out, stderr bytes.Buffer

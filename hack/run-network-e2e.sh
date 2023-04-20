@@ -7,9 +7,7 @@ set -o pipefail
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "ARCH: ${ARCH}"
-echo "OS_NAME: ${OS_NAME}"
-echo "IS_OFFLINE: ${ISOFFLINE}"
-
+echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 
 function func_prepare_config_yaml_dual_stack() {
     local source_path=$1
@@ -44,120 +42,133 @@ function func_prepare_config_yaml_single_stack() {
     sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
 }
 
-#export OS_NAME="REDHAT8"
 ############## create cilium cluster ###################
-#echo "create cilium cluster....."
-#echo "OS_NAME: ${OS_NAME}"
-#source_config_path="${REPO_ROOT}"/test/common
-#util::power_on_2vms ${OS_NAME}
-#sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-#dest_config_path="${REPO_ROOT}"/test/kubean_cilium_cluster_e2e/e2e-install-cilium-cluster
-#func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
-#
-#CLUSTER_OPERATION_NAME1="cluster1-cilium-"`date "+%H-%M-%S"`
-#sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
-##set kube_network_plugin:cilium
-#sed -i "s/kube_network_plugin: calico/kube_network_plugin: cilium/" "${dest_config_path}"/vars-conf-cm.yml
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  export OS_NAME="REDHAT8"
+  source_config_path="${REPO_ROOT}"/test/offline-common
+else
+  export OS_NAME="CENTOS7-HK"
+  source_config_path="${REPO_ROOT}"/test/common
+fi
+echo "create cilium cluster....."
+echo "OS_NAME: ${OS_NAME}"
+util::power_on_2vms ${OS_NAME}
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+dest_config_path="${REPO_ROOT}"/test/kubean_cilium_cluster_e2e/e2e-install-cilium-cluster
+func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
+
+CLUSTER_OPERATION_NAME1="cluster1-cilium-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "s/kube_network_plugin: calico/kube_network_plugin: cilium/" "${dest_config_path}"/vars-conf-cm.yml
 ##set  kube_service_addresses: 10.88.0.0/16    kube_pods_subnet: 192.88.128.0/20
-#sed -i "s/10.96.0.0\/12/10.88.0.0\/16/" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/10.96.0.0\/12/10.88.0.0\/16/" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
 ##add this line to set cilium_kube_proxy_replacement: partial, if kubespray update the cilium_kube_proxy_replacement default value to partial, this line can be deleted
-#sed -i "$ a\    cilium_kube_proxy_replacement: partial" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    cilium_kube_proxy_replacement: partial" "${dest_config_path}"/vars-conf-cm.yml
+
 ##set kubean operator replicas to 3
-#kubectl scale deployment kubean -n kubean-system --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
-#
-#ginkgo -v -race -timeout=3h  --fail-fast ./test/kubean_cilium_cluster_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
-#          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-#          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
-#
+kubectl scale deployment kubean -n kubean-system --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
+
+ginkgo -v -race -timeout=3h  --fail-fast ./test/kubean_cilium_cluster_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
+
 ############### calico dual stuck ##############
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
-#export OS_NAME="REDHAT8"
-#util::vm_name_ip_init_online_by_os ${OS_NAME}
-#echo "vm_name1: ${vm_name1}"
-#echo "vm_name2: ${vm_name2}"
-#source_config_path="${REPO_ROOT}"/test/common
-#dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
-#
-#### calico  VXLAN_ALWAYS-VXLAN_ALWAYS
-#func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
-#CLUSTER_OPERATION_NAME1="cluster1-vxlan-always-vxlan-always-"`date "+%H-%M-%S"`
-#sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
-#sed -i "$ a\    calico_ipip_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode_ipv6: Always" "${dest_config_path}"/vars-conf-cm.yml
-#util::power_on_2vms ${OS_NAME}
-#sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-#ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
-#          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-#          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_ALWAYS-VXLAN_ALWAYS"
-#
-#### calico  VXLAN_CrossSubnet-VXLAN_ALWAYS
-#func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
-#CLUSTER_OPERATION_NAME1="cluster1-vxlan-cross-vxlan-always-"`date "+%H-%M-%S"`
-#sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
-#sed -i "$ a\    calico_ipip_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode_ipv6: Always" "${dest_config_path}"/vars-conf-cm.yml
-#util::power_on_2vms ${OS_NAME}
-#sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-#ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
-#          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-#          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_CrossSubnet-VXLAN_ALWAYS"
-#
-#### calico  IPIP_ALWAYS-VXLAN_CrossSubnet
-#func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
-#CLUSTER_OPERATION_NAME1="cluster1-ipip-always-vxlan-cross-"`date "+%H-%M-%S"`
-#sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
-#sed -i "$ a\    calico_ipip_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode_ipv6: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
-#
-#util::power_on_2vms ${OS_NAME}
-#sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-#ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
-#          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-#          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always-VXLAN_CrossSubnet"
-#
-#### calico  IPIP_CrossSubnet-VXLAN_CrossSubnet
-#func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
-#CLUSTER_OPERATION_NAME1="cluster1-ipip-cross-vxlan-cross-"`date "+%H-%M-%S"`
-#sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
-#sed -i "$ a\    calico_ipip_mode: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
-#sed -i "$ a\    calico_vxlan_mode_ipv6: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
-#
-#util::power_on_2vms ${OS_NAME}
-#sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-#ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
-#          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-#          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_CrossSubnet-VXLAN_CrossSubnet"
-#
-#SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
-#util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
-#util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  export OS_NAME="REDHAT8"
+  source_config_path="${REPO_ROOT}"/test/offline-common
+else
+  export OS_NAME="CENTOS7-HK"
+  source_config_path="${REPO_ROOT}"/test/common
+fi
+
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
+
+#### calico dual stuck: VXLAN_ALWAYS-VXLAN_ALWAYS ####
+util::power_on_2vms ${OS_NAME}
+func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
+CLUSTER_OPERATION_NAME1="cluster1-vxlan-always-vxlan-always-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "$ a\    calico_ipip_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode_ipv6: Always" "${dest_config_path}"/vars-conf-cm.yml
+
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_ALWAYS-VXLAN_ALWAYS"
+
+#### calico dual stuck: VXLAN_CrossSubnet-VXLAN_ALWAYS ####
+util::power_on_2vms ${OS_NAME}
+func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
+CLUSTER_OPERATION_NAME1="cluster1-vxlan-cross-vxlan-always-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "$ a\    calico_ipip_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode_ipv6: Always" "${dest_config_path}"/vars-conf-cm.yml
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_CrossSubnet-VXLAN_ALWAYS"
+
+#### calico dual stuck: IPIP_ALWAYS-VXLAN_CrossSubnet ####
+util::power_on_2vms ${OS_NAME}
+func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
+CLUSTER_OPERATION_NAME1="cluster1-ipip-always-vxlan-cross-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "$ a\    calico_ipip_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode_ipv6: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
+
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always-VXLAN_CrossSubnet"
+
+#### calico dual stuck: IPIP_CrossSubnet-VXLAN_CrossSubnet ####
+util::power_on_2vms ${OS_NAME}
+func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
+CLUSTER_OPERATION_NAME1="cluster1-ipip-cross-vxlan-cross-"`date "+%H-%M-%S"`
+sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "$ a\    calico_ipip_mode: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_ipip_mode_ipv6: Never" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    calico_vxlan_mode_ipv6: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
+
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
+ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+          --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_CrossSubnet-VXLAN_CrossSubnet"
+
+SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
+util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
 
 ############## calico single stuck ##############
 export OS_NAME="CENTOS7"
-util::vm_name_ip_init_online_by_os ${OS_NAME}
-echo "vm_name1: ${vm_name1}"
-echo "vm_name2: ${vm_name2}"
-
-
-### do network calico e2e
-## CALICO: IPIP_ALWAYS
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  source_config_path="${REPO_ROOT}"/test/offline-common
+else
+  source_config_path="${REPO_ROOT}"/test/common
+fi
+### CALICO: IPIP_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-source_config_path="${REPO_ROOT}"/test/common
-dest_config_path="${REPO_ROOT}"/test/kubean_calico_nightlye2e/e2e-install-calico-cluster
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-ipip-always-"`date "+%H-%M-%S"`
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -167,14 +178,15 @@ sed -i "$ a\    calico_ipip_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast ./test/kubean_calico_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always"
 
-## CALICO: IPIP_CrossSubnet
+### CALICO: IPIP_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-ipip-cross-"`date "+%H-%M-%S"`
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -184,14 +196,15 @@ sed -i "$ a\    calico_ipip_mode:  CrossSubnet" "${dest_config_path}"/vars-conf-
 sed -i "$ a\    calico_vxlan_mode: Never" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast ./test/kubean_calico_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_CrossSubnet"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_CrossSubnet"
 
-## CALICO: VXLAN_ALWAYS
+### CALICO: VXLAN_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-vxlan-always-"`date "+%H-%M-%S"`
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -200,14 +213,15 @@ sed -i "$ a\    calico_ip6_auto_method: kubernetes-internal-ip" "${dest_config_p
 sed -i "$ a\    calico_ipip_mode:  Never" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    calico_vxlan_mode: Always" "${dest_config_path}"/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast ./test/kubean_calico_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_Always"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_Always"
 
-## CALICO: VXLAN_CrossSubnet
+### CALICO: VXLAN_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 func_prepare_config_yaml_single_stack "${source_config_path}"  "${dest_config_path}"
+util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-vxlan-cross-"`date "+%H-%M-%S"`
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -216,9 +230,9 @@ sed -i "$ a\    calico_ip6_auto_method: kubernetes-internal-ip" "${dest_config_p
 sed -i "$ a\    calico_ipip_mode:  Never" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    calico_vxlan_mode: CrossSubnet" "${dest_config_path}"/vars-conf-cm.yml
 
-ginkgo -v -race --fail-fast ./test/kubean_calico_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
+ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
-          --isOffline="${ISOFFLINE}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_CrossSubnet"
+          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_CrossSubnet"
 
 SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
