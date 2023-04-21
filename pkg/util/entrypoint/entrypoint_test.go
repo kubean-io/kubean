@@ -238,6 +238,63 @@ func TestEntrypoint(t *testing.T) {
 	}
 }
 
+func Test_SprayRunPart(t *testing.T) {
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "right builtin action",
+			args: func() bool {
+				ep := NewEntryPoint()
+				return ep.SprayRunPart(PBAction, ResetPB, "-vvv", false, true) == nil
+			},
+			want: true,
+		},
+		{
+			name: "right builtin action",
+			args: func() bool {
+				ep := NewEntryPoint()
+				return ep.SprayRunPart(PBAction, ResetPB, "-vvv", false, true) == nil
+			},
+			want: true,
+		},
+		{
+			name: "wrong builtin action",
+			args: func() bool {
+				ep := NewEntryPoint()
+				return ep.SprayRunPart(PBAction, "abc.yml", "-vvv", false, true) == nil
+			},
+			want: false,
+		},
+		{
+			name: "shell action",
+			args: func() bool {
+				ep := NewEntryPoint()
+				return ep.SprayRunPart(SHAction, "sleep 10", "", false, true) == nil
+			},
+			want: true,
+		},
+		{
+			name: "other wrong action",
+			args: func() bool {
+				ep := NewEntryPoint()
+				return ep.SprayRunPart("OtherAction", "sleep 10", "", false, true) == nil
+			},
+			want: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestPBActionValue(t *testing.T) {
 	if clusteroperationv1alpha1.PlaybookActionType != PBAction {
 		t.Fatal()
