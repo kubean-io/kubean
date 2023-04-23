@@ -30,20 +30,22 @@ export KUBECONFIG_FILE="${KUBECONFIG_PATH}/${CLUSTER_PREFIX}-host.config"
 export REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 export POWER_ON_SNAPSHOT_NAME="os-installed"
 export POWER_DOWN_SNAPSHOT_NAME="power-down"
+export LOCAL_REPO_ALIAS="kubean_release"
+export LOCAL_RELEASE_NAME=kubean
+export SOURCE_CONFIG_PATH="${REPO_ROOT}/test/common"
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
 echo "IMAGE_VERSION: ${IMAGE_VERSION}"
-local_helm_repo_alias="kubean_release"
 
 # add kubean repo locally
 repoCount=true
-helm repo list |awk '{print $1}'| grep "${local_helm_repo_alias}" || repoCount=false
+helm repo list |awk '{print $1}'| grep "${LOCAL_REPO_ALIAS}" || repoCount=false
 echo "repoCount: $repoCount"
 if [ "$repoCount" != "false" ]; then
-    helm repo remove ${local_helm_repo_alias}
+    helm repo remove ${LOCAL_REPO_ALIAS}
 fi
-helm repo add ${local_helm_repo_alias} ${HELM_REPO}
+helm repo add ${LOCAL_REPO_ALIAS} ${HELM_REPO}
 helm repo update
 helm repo list
 

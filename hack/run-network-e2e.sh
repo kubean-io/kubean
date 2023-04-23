@@ -52,6 +52,17 @@ else
 fi
 echo "create cilium cluster....."
 echo "OS_NAME: ${OS_NAME}"
+
+echo "uninstall kubean ..."
+helm uninstall ${LOCAL_RELEASE_NAME} -n kubean-system --kubeconfig=${KUBECONFIG_FILE}
+
+echo "install kubean... "
+new_kubean_namespace="new-kubean-system"
+helm upgrade --install  --create-namespace --cleanup-on-fail \
+             ${LOCAL_RELEASE_NAME}     ${LOCAL_REPO_ALIAS}/kubean   \
+             -n "${new_kubean_namespace}"  --version ${TARGET_VERSION} \
+             --kubeconfig ${KUBECONFIG_FILE}
+sleep 10
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 dest_config_path="${REPO_ROOT}"/test/kubean_cilium_cluster_e2e/e2e-install-cilium-cluster
@@ -68,12 +79,19 @@ sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "$ a\    cilium_kube_proxy_replacement: partial" "${dest_config_path}"/vars-conf-cm.yml
 
 ##set kubean operator replicas to 3
-kubectl scale deployment kubean -n kubean-system --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
+kubectl scale deployment kubean -n  ${new_kubean_namespace} --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
 
 ginkgo -v -race -timeout=3h  --fail-fast ./test/kubean_cilium_cluster_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
 
+helm uninstall ${LOCAL_RELEASE_NAME} -n${new_kubean_namespace}  --kubeconfig=${KUBECONFIG_FILE}
+helm upgrade --install  --create-namespace --cleanup-on-fail \
+             ${LOCAL_RELEASE_NAME}     ${LOCAL_REPO_ALIAS}/kubean   \
+             -n kubean-system  --version ${TARGET_VERSION} \
+             --kubeconfig ${KUBECONFIG_FILE}
+sleep 10
+kubectl get pod -n kubean-system --kubeconfig=${KUBECONFIG_FILE}
 ############### calico dual stuck ##############
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
@@ -88,6 +106,7 @@ fi
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 
 #### calico dual stuck: VXLAN_ALWAYS-VXLAN_ALWAYS ####
+
 util::power_on_2vms ${OS_NAME}
 func_prepare_config_yaml_dual_stack "${source_config_path}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
