@@ -28,6 +28,7 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 		var svc1Name = "nginxsvc1"
 		var password = tools.VmPassword
 		//kubeanNamespace := tools.KubeanNamespace
+		var newKubeanNamespace = "new-kubean-system"
 		testClusterName := tools.TestClusterName
 		nginxImage := tools.NginxAlpha
 		offlineFlag := tools.IsOffline
@@ -48,7 +49,7 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new kindClient")
 
-			deploymentList, _ := kindClient.AppsV1().Deployments(tools.KubeanNamespace).List(context.TODO(), metav1.ListOptions{})
+			deploymentList, _ := kindClient.AppsV1().Deployments(newKubeanNamespace).List(context.TODO(), metav1.ListOptions{})
 			for _, dm := range deploymentList.Items {
 				if dm.Name == "kubean" {
 					gomega.Expect(dm.Status.AvailableReplicas).To(gomega.Equal(int32(3)))
@@ -61,7 +62,7 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 			kubeanClusterOpsName := tools.ClusterOperationName
 			kindConfig, err := clientcmd.BuildConfigFromFlags("", tools.Kubeconfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed build config")
-			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig)
+			tools.OperateClusterByYaml(clusterInstallYamlsPath, kubeanClusterOpsName, kindConfig, newKubeanNamespace)
 
 			tools.SaveKubeConf(kindConfig, testClusterName, localKubeConfigPath)
 			cluster1Config, err := clientcmd.BuildConfigFromFlags("", localKubeConfigPath)
