@@ -130,7 +130,6 @@ jobs:
 
   call_speedup_offline_packages:
     uses: ./.github/workflows/call-speedup-offline-packags.yaml
-    secrets: inherit
     needs: get-environment
     permissions:
       packages: write

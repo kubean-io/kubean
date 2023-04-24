@@ -1,36 +1,34 @@
 name: SPEEDUP OFFLINE PACKAGES
-on: [workflow_call,workflow_dispatch]
+on: workflow_call
 jobs:
   speedup_offline_packages:
       runs-on: ubuntu-latest
       continue-on-error: true
-      permissions:
-        packages: write
-        contents: read
-      env:
-        SPEEDUP_BASE_URL: ${{ secrets.SPEEDUP_BASE_URL }}
       strategy:
         fail-fast: false
         matrix:
-          include:
-            - name: files_amd64
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/files-amd64-${GITHUB_REF_NAME}.tar.gz
-            - name: images_amd64
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/images-amd64-${GITHUB_REF_NAME}.tar.gz
-            - name: files_arm64
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/files-arm64-${GITHUB_REF_NAME}.tar.gz
-            - name: images_arm64
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/images-arm64-${GITHUB_REF_NAME}.tar.gz
-            - name: os_centos7
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-centos7-${GITHUB_REF_NAME}.tar.gz
-            - name: os_kylinv10
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-kylinv10-${GITHUB_REF_NAME}.tar.gz
-            - name: os_redhat8
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-redhat8-${GITHUB_REF_NAME}.tar.gz
-            - name: os_redhat7
-              file: ${SPEEDUP_BASE_URL}/${GITHUB_REF_NAME}/os-pkgs-redhat7-${GITHUB_REF_NAME}.tar.gz
+          file_name: [ files-amd64, images-amd64, files-arm64, images-arm64, os-pkgs-centos7, os-pkgs-kylinv10, os-pkgs-redhat8, os-pkgs-redhat7 ]
+      permissions:
+        packages: write
+        contents: read
       steps:
-        - name: wget_files
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
+        - uses: wei/wget@v1
+          with:
+            args: -qO- https://httpbin.org/get
+        - name: wget-file
           run: |
-            echo "Start speed up ${{ matrix.name }}"
-            wget -q -c -T 1m ${{ matrix.file }}
+            GIT_TAG=$(git describe --tags --abbrev=8 --dirty)
+            TAG=`echo ${GIT_TAG}|awk -F "-" '{print $1}'`
+            TAG_SECOND_PART=`echo ${GIT_TAG}|awk  -F "-" '{print $2 }'`
+            if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+              TAG=`echo ${GIT_TAG}|awk -F "-" '{print $1"-"$2 }'`
+            fi
+            echo "Start speed up ${{ matrix.file_name }}"
+            echo "${TAG}"
+            SPEEDUP_BASE_URL="https://github.com/kubean-io/kubean/releases/download"
+            file="${SPEEDUP_BASE_URL}/${TAG}/${{ matrix.file_name }}-${TAG}.tar.gz"
+            wget -q -c -T 1m ${file}
+            echo "Download ${file} end"
