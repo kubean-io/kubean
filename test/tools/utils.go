@@ -3,15 +3,14 @@ package tools
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	_ "embed"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	"gopkg.in/yaml.v2"
@@ -71,7 +70,7 @@ func InitOfflineConfig() OfflineConfig {
 
 func UpdateOpsYml(content string, filePath string) {
 	// read in Ops yaml file content
-	yamlfileCotent, err := ioutil.ReadFile(filePath)
+	yamlfileCotent, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal("fail to read insight yml file: ", err)
 	}
@@ -81,12 +80,12 @@ func UpdateOpsYml(content string, filePath string) {
 	kubeanOpsYml.Metadata.Name = content
 	data, _ := yaml.Marshal(kubeanOpsYml)
 	// write back to yml file
-	_ = ioutil.WriteFile(filePath, data, 0777)
+	_ = os.WriteFile(filePath, data, 0777)
 }
 
 func UpdateBackoffLimit(content int, filePath string) {
 	// read in Ops yaml file content
-	yamlfileCotent, err := ioutil.ReadFile(filePath)
+	yamlfileCotent, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal("fail to read insight yml file: ", err)
 	}
@@ -96,7 +95,7 @@ func UpdateBackoffLimit(content int, filePath string) {
 	kubeanOpsYml.Spec.BackoffLimit = content
 	data, _ := yaml.Marshal(kubeanOpsYml)
 	// write back to yml file
-	_ = ioutil.WriteFile(filePath, data, 0777)
+	_ = os.WriteFile(filePath, data, 0777)
 }
 
 func DoCmd(cmd exec.Cmd) (bytes.Buffer, bytes.Buffer) {
@@ -311,7 +310,7 @@ func CreatVarsCM(subStr string) {
 // containerd_download_url: "{{ files_repo }}/github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ image_arch }}.tar.gz"
 // nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 // cri_dockerd_download_url: "{{ files_repo }}/github.com/Mirantis/cri-dockerd/releases/download/v{{ cri_dockerd_version }}/cri-dockerd-{{ cri_dockerd_version }}.{{ image_arch }}.tgz"
-//`
+// `
 
 var internalSource = `# offline
     registry_host: "10.6.170.10:5000"
