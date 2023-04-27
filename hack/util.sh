@@ -560,3 +560,13 @@ function vm_clean_up_by_name(){
      done
    echo "destroy vagrant vm end."
 }
+
+function util::set_config_path(){
+  if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+    source_config_path="${REPO_ROOT}"/test/offline-common
+  else
+    source_config_path="${REPO_ROOT}"/test/common
+  fi
+  export SOURCE_CONFIG_PATH=${source_config_path}
+  echo "Set SOURCE_CONFIG_PATH: ${SOURCE_CONFIG_PATH}"
+}

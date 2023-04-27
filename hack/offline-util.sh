@@ -142,7 +142,7 @@ function util::import_files_minio_by_arch(){
   local minio_password=${2:-adminPassword}
   local minio_url=${3:-"http://172.18.0.2:32000"}
   local download_floder=${4}
-  local tag=${TAG_VERSION}
+  local tag=${TARGET_VERSION}
   local arch=${5}
   echo "Import binary files to minio:${arch}..."
   local files_name=files-${arch}-${tag}.tar.gz
@@ -166,7 +166,7 @@ function util::import_os_package_minio(){
   local minio_url=${3:-"http://172.18.0.2:32000"}
   local download_folder=${4}
   local os_name=${5}
-  local tag=${TAG_VERSION}
+  local tag=${TARGET_VERSION}
   echo "Import os pkgs to minio: ${os_name}..."
   local untgz_folder=os-pkgs-${os_name}
   pushd "${download_folder}"
@@ -184,7 +184,7 @@ function util::push_registry_by_arch(){
   registry_addr=$1
   download_folder=$2
   arch=$3
-  local tag=${TAG_VERSION}
+  local tag=${TARGET_VERSION}
   echo "Push Registry：${arch}... "
   file_name=images-${arch}-${tag}.tar.gz
 

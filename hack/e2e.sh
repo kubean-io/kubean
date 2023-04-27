@@ -6,7 +6,7 @@ set -e
 # This script schedules e2e tests
 # Parameters:
 #[TARGET_VERSION] apps ta ge images/helm-chart revision( image and helm versions should be the same)
-#[IMG_REPO](optional) the image repository to be pulled from
+#[IMG_REGISTRY](optional) the image repository to be pulled from
 #[HELM_REPO](optional) the helm chart repo to be pulled from
 
 export TARGET_VERSION=${1}
@@ -20,7 +20,7 @@ export KYLIN_VM_PASSWORD=${7}
 export E2E_TYPE=${8:-"PR"}
 export SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 export HELM_REPO="https://kubean-io.github.io/kubean-helm-chart"
-export IMG_REPO="ghcr.io/kubean-io"
+export IMG_REGISTRY="ghcr.m.daocloud.io"
 export VSPHERE_HOST="10.64.56.11"
 export OFFLINE_FLAG=false
 export KUBECONFIG_PATH="${HOME}/.kube"
@@ -32,7 +32,8 @@ export POWER_ON_SNAPSHOT_NAME="os-installed"
 export POWER_DOWN_SNAPSHOT_NAME="power-down"
 export LOCAL_REPO_ALIAS="kubean_release"
 export LOCAL_RELEASE_NAME=kubean
-export SOURCE_CONFIG_PATH="${REPO_ROOT}/test/common"
+export E2eInstallClusterYamlFolder="e2e-install-cluster"
+
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
@@ -68,15 +69,15 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
         echo "***************k8s version is: ${k8s} ***************"
         util::clean_online_kind_cluster
         KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:"${k8s}
-        ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
+        ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
         ./hack/kubean_compatibility_e2e.sh
     done
 
 else
     util::clean_online_kind_cluster
     KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.0"
-    ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REPO}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
-
+    ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
+    util::set_config_path
     if [ "${E2E_TYPE}" == "PR" ]; then
         echo "RUN PR E2E......."
         ./hack/run-e2e.sh

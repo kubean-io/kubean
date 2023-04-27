@@ -13,10 +13,8 @@ os_compability_e2e(){
     OS_NAME=${1}
     ARCH="amd64"
     if [ "${OFFLINE_FLAG}" == "false" ];then
-      source_yaml_path="${REPO_ROOT}/test/common"
       util::vm_name_ip_init_online_by_os ${OS_NAME}
     else
-      source_yaml_path="${REPO_ROOT}/test/offline-common"
       util::vm_name_ip_init_offline_by_os ${OS_NAME}
     fi
     echo "vm_name1: ${vm_name1}"
@@ -40,10 +38,10 @@ os_compability_e2e(){
     echo "CLUSTER_OPERATION_NAME1: $CLUSTER_OPERATION_NAME1"
     rm -fr "${dest_yaml_path}"
     mkdir "${dest_yaml_path}"
-    cp -f "${source_yaml_path}"/hosts-conf-cm-2nodes.yml "${dest_yaml_path}"/hosts-conf-cm.yml
-    cp -f "${source_yaml_path}"/vars-conf-cm.yml  "${dest_yaml_path}"
-    cp -f "${source_yaml_path}"/kubeanCluster.yml "${dest_yaml_path}"
-    cp -f "${source_yaml_path}"/kubeanClusterOps.yml  "${dest_yaml_path}"
+    cp -f "${SOURCE_CONFIG_PATH}"/hosts-conf-cm-2nodes.yml "${dest_yaml_path}"/hosts-conf-cm.yml
+    cp -f "${SOURCE_CONFIG_PATH}"/vars-conf-cm.yml  "${dest_yaml_path}"
+    cp -f "${SOURCE_CONFIG_PATH}"/kubeanCluster.yml "${dest_yaml_path}"
+    cp -f "${SOURCE_CONFIG_PATH}"/kubeanClusterOps.yml  "${dest_yaml_path}"
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" ${dest_yaml_path}/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" ${dest_yaml_path}/hosts-conf-cm.yml
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_yaml_path}/hosts-conf-cm.yml

@@ -1,18 +1,20 @@
 package tools
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
+	"math"
 	"os"
 	"os/exec"
 	"strings"
@@ -165,28 +167,48 @@ func PodPingPodByPasswd(password, node, podFromNs, podFromName, podToIP string) 
 	}
 }
 
-func SvcCurl(ip string, port int32, checkString string, timeTotalSecond time.Duration, ops ...time.Duration) {
-	var timeInterval time.Duration = 5
-	var flag bool = false
+// curlPlace parameter explain:
+// 1. local: curl a service on runner node by nodeIP:NodePort
+// 2. node: curl a service on k8s cluster node by serviceClusterIP:Port
+// 3. pod: curl a service on k8s cluster pod by serviceClusterIP:Port
+
+func SvcCurl(curIP string, curPort int32, checkString string, timeTotalSecond time.Duration, ops ...string) {
+	curlPlace := "local"
+	var curCmd []string
+	loopNum := int(math.Ceil(float64(timeTotalSecond / 5)))
 	if len(ops) != 0 {
-		timeInterval = ops[0]
-	}
-	nginxReq := fmt.Sprintf("%s:%d", ip, port)
-	cmd := exec.Command("curl", nginxReq)
-	klog.Info("cmd exec: ", cmd)
-	var out, stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	gomega.Eventually(func() bool {
-		err := cmd.Run()
-		if err != nil {
-			klog.Info("curl error:", err.Error())
-			return false
+		curlPlace = ops[0]
+		nginxReq := fmt.Sprintf("%s:%d", curIP, curPort)
+		if curlPlace == "local" {
+			curCmd = RemoteSSHCmdArray([]string{"curl", nginxReq})
 		}
-		flag = strings.Contains(out.String(), checkString)
-		return flag
-	}, timeTotalSecond*time.Second, timeInterval*time.Second).Should(gomega.BeTrue())
-	gomega.Expect(flag).Should(gomega.BeTrue())
+		if curlPlace == "node" {
+			password := ops[1]
+			sshNode := ops[2]
+			curCmd = RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "curl", nginxReq})
+		}
+		if curlPlace == "pod" {
+			password := ops[1]
+			sshNode := ops[2]
+			podName := ops[3]
+			podNamespace := ops[4]
+			curCmd = RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "kubectl", "exec", "-it", podName, "-n", podNamespace, "--", "curl", nginxReq})
+
+		}
+		klog.Info("cur cmd :", curCmd)
+
+		for i := 0; i <= loopNum; i++ {
+			curlCmdOut, cmdError := NewDoCmdSoft("sshpass", curCmd...)
+			if cmdError == nil {
+				gomega.Expect(curlCmdOut.String()).Should(gomega.ContainSubstring(checkString))
+				break
+			} else {
+				klog.Info("Execute cmd failed, retry...")
+				time.Sleep(5 * time.Second)
+				gomega.Expect(i == loopNum).Should(gomega.BeFalse())
+			}
+		}
+	}
 }
 
 func DoSonoBuoyCheckByPasswd(password, masterSSH string) {
@@ -213,6 +235,84 @@ func CreatePod(podName, namespace, nodeName, image, kubeconfigFile string) {
 	createCmd := exec.Command("kubectl", "run", podName, "-n", namespace, "--image", image, "--overrides", overrideStr, "--kubeconfig", kubeconfigFile)
 	createCmdOut, err1 := DoErrCmd(*createCmd)
 	fmt.Println("create nginx1: ", createCmdOut.String(), err1.String())
+}
+
+func ExposeServiceToDaemonset(serviceName, serviceNamespace, svcType, sourceSelector string, clientSet *kubernetes.Clientset) *corev1.Service {
+	serviceType := corev1.ServiceType(svcType)
+	serviceBody := &corev1.Service{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apps/v1",
+			Kind:       "Service",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: serviceName,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{
+				"name": sourceSelector,
+			},
+			Type: serviceType,
+			Ports: []corev1.ServicePort{
+				{
+					Name:     "http",
+					Port:     8000,
+					Protocol: "TCP",
+					TargetPort: intstr.IntOrString{
+						IntVal: 80,
+					},
+					NodePort: 31800,
+				},
+			},
+		},
+	}
+	service, error1 := clientSet.CoreV1().Services(serviceNamespace).Create(context.Background(), serviceBody, metav1.CreateOptions{})
+	if error1 != nil {
+		klog.Info("Create service error: ", error1.Error())
+	}
+	gomega.Expect(error1 == nil).Should(gomega.BeTrue())
+	return service
+}
+
+func CreateDaemonSet(daemonsetName, namespace, imageName string, client *kubernetes.Clientset) *appsv1.DaemonSet {
+
+	daemonSetsBody := &appsv1.DaemonSet{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apps/v1",
+			Kind:       "DaemonSet",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: daemonsetName,
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"name": daemonsetName,
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{
+						"name": daemonsetName,
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  daemonsetName,
+							Image: imageName,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	daemonSet, error1 := client.AppsV1().DaemonSets(namespace).Create(context.Background(), daemonSetsBody, metav1.CreateOptions{})
+	if error1 != nil {
+		klog.Info("Create daemonset error: ", error1.Error())
+	}
+	gomega.Expect(error1 == nil).Should(gomega.BeTrue())
+	return daemonSet
 }
 
 func OperateClusterByYaml(clusterInstallYamlsPath, operatorName string, kindConfig *restclient.Config, args ...string) {
