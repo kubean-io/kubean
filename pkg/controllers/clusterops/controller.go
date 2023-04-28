@@ -566,7 +566,14 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 		Data: map[string]string{"entrypoint.sh": strings.TrimSpace(configMapData)}, // |2+
 	}
 	c.SetOwnerReferences(&newConfigMap.ObjectMeta, clusterOps)
-	if newConfigMap, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{}); err != nil {
+	_, err = c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Create(context.Background(), newConfigMap, metav1.CreateOptions{})
+	if apierrors.IsAlreadyExists(err) {
+		// exist and update
+		klog.Warningf("entrypoint configmap %s already exist and update it.", newConfigMap.Name)
+		if _, err := c.ClientSet.CoreV1().ConfigMaps(newConfigMap.Namespace).Update(context.Background(), newConfigMap, metav1.UpdateOptions{}); err != nil {
+			return false, err
+		}
+	} else if err != nil {
 		return false, err
 	}
 	clusterOps.Spec.EntrypointSHRef = &apis.ConfigMapRef{
