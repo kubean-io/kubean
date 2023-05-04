@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airgap-hosts-conf
+  namespace: kubean-system
+data:
+  hosts.yml: |
+    all:
+      hosts:
+        node1:
+          ip: <IP1>
+          access_ip: <IP1>
+          ansible_host: <IP1>
+          ansible_connection: ssh
+          ansible_user: <USERNAME>
+          ansible_password: <PASSWORD>
+        node2:
+          ip: <IP2>
+          access_ip: <IP2>
+          ansible_host: <IP2>
+          ansible_connection: ssh
+          ansible_user: <USERNAME>
+          ansible_password: <PASSWORD>
+      children:
+        kube_control_plane:
+          hosts:
+            node1:
+        kube_node:
+          hosts:
+            node1:
+            node2:
+        etcd:
+          hosts:
+            node1:
+        k8s_cluster:
+          children:
+            kube_control_plane:
+            kube_node:
+        calico_rr:
+          hosts: {}

@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-demo-hosts-conf
+  name: online-hosts-conf
   namespace: kubean-system
 data:
   hosts.yml: |
     all:
       hosts:
         node1:
-          ip: IP1
-          access_ip: IP1
-          ansible_host: IP1
+          ip: <IP1>
+          access_ip: <IP1>
+          ansible_host: <IP1>
           ansible_connection: ssh
-          ansible_user: who
-          ansible_password: xxx
+          ansible_user: <USERNAME>
+          ansible_password: <PASSWORD>
         node2:
-          ip: IP2
-          access_ip: IP2
-          ansible_host: IP2
+          ip: <IP2>
+          access_ip: <IP2>
+          ansible_host: <IP2>
           ansible_connection: ssh
-          ansible_user: who
-          ansible_password: xxx
+          ansible_user: <USERNAME>
+          ansible_password: <PASSWORD>
       children:
         kube_control_plane:
           hosts:
