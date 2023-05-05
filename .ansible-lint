@@ -28,20 +28,25 @@ skip_list:
   # In Kubespray we use variables that use camelCase to match their k8s counterparts
   # (Disabled in June 2021)
   - 'var-naming'
+  
+  # [fqcn-builtins]
+  # Roles in kubespray don't need fully qualified collection names
+  - 'fqcn-builtins'
 warn_list:
   - command-instead-of-module  # Using command rather than module.
   - command-instead-of-shell  # Use shell only when shell functionality is required.
   - deprecated-command-syntax  # Using command rather than an argument to e.g. file.
   - experimental  # all rules tagged as experimental
-  - fqcn[action-core]  # Use FQCN for builtin actions.
   - jinja[spacing]  # Rule that looks inside jinja2 templates.
   - name[missing]  # Rule for checking task and play names.
   - name[template]  # Rule for checking task and play names.
   - name[play]  # Rule for checking task and play names.
   - no-changed-when  # Commands should not change things if nothing needs doing.
   - risky-shell-pipe  # Shells that use pipes should set the pipefail option.
-  - syntax-check[missing-file]  # Ansible syntax check failed.
   - yaml[line-length]  # Violations reported by yamllint.
   - yaml[new-line-at-end-of-file]  # Violations reported by yamllint.
   - yaml[trailing-spaces]  # Violations reported by yamllint.
   - yaml[truthy]  # Violations reported by yamllint.
+  - ignore-errors # Use failed_when and specify error conditions instead of using ignore_errors.
+exclude_paths:
+  - playbooks/disable-firewalld.yml
