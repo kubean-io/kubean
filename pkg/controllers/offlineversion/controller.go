@@ -82,7 +82,9 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&localartifactsetv1alpha1.LocalArtifactSet{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).
+			For(&localartifactsetv1alpha1.LocalArtifactSet{}).
+			Complete(c),
 		mgr.Add(c),
 	})
 }
