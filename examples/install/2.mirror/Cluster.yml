@@ -1,13 +1,13 @@
 apiVersion: kubean.io/v1alpha1
 kind: Cluster
 metadata:
-  name: cluster1-demo
+  name: cluster1-online
   labels:
-    clusterName: cluster1-demo
+    clusterName: cluster1-online
 spec:
   hostsConfRef:
     namespace: kubean-system
-    name: cluster1-demo-hosts-conf
+    name: online-hosts-conf
   varsConfRef:
     namespace: kubean-system
-    name: cluster1-demo-vars-conf
+    name: online-vars-conf

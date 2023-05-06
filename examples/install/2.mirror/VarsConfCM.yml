@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-demo-vars-conf
+  name: online-vars-conf
   namespace: kubean-system
 data:
   group_vars.yml: |

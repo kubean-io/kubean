@@ -1,13 +1,13 @@
 apiVersion: kubean.io/v1alpha1
 kind: Cluster
 metadata:
-  name: cluster1-offline-demo
+  name: cluster2-airgap
   labels:
-    clusterName: cluster1-offline-demo
+    clusterName: cluster2-airgap
 spec:
   hostsConfRef:
     namespace: kubean-system
-    name: cluster1-offline-demo-hosts-conf
+    name: airgap-hosts-conf
   varsConfRef:
     namespace: kubean-system
-    name: cluster1-offline-demo-vars-conf
+    name: airgap-vars-conf

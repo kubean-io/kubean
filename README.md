@@ -64,20 +64,16 @@ Then check kubean-operator status by running:
 $ kubectl get pods -n kubean-system | grep 'kubean'
 ```
 
-#### 3. Start ClusterOperation for cluster.yml playbook
+#### 3. Online mode deployment of minimal all-in-one clusters
 
-You can use the example in folder `artifacts/demo` which uses online resources to install k8s cluster.
+You can use the example in folder `examples/install/1.minimal` which uses online resources to install k8s cluster.
 
-  1. cd resources path
+  1. modify `examples/install/1.minimal/AllInOne.yml` by replacing `<IP1>`, `<USERNAME>`... etc. to their real values
+  2. start kubeanClusterOps which will start the kubespray job
      ```shell
-     $ cd artifacts/
+     $ kubectl apply -f examples/install/1.minimal
      ```
-  2. modify `demo/hosts-conf-cm.yml` by replacing `IP1`, `IP2`... with the real ip where we want to install k8s cluster
-  3. start kubeanClusterOps which will start the kubespray job
-     ```shell
-     $ kubectl apply -f demo/
-     ```
-  4. check the kubespray job status
+  3. check the kubespray job status
      ```shell
      $ kubectl get job -n kubean-system
      ```

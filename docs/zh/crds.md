@@ -28,11 +28,11 @@ spec:
 
 #### 属性关联
 
-- `hostConfRef`：hostConfRef 是一个 ConfigMap 资源，它的内容应满足 ansible inventory 的格式，包含集群节点信息、类型分组信息。内容可参考 [demo](../../artifacts/demo/hosts-conf-cm.yml)。
+- `hostConfRef`：hostConfRef 是一个 ConfigMap 资源，它的内容应满足 ansible inventory 的格式，包含集群节点信息、类型分组信息。内容可参考 [demo](../../examples/install/2.mirror/HostsConfCM.yml)。
   - `name`：表示其引用的 ConfigMap 的名称
   - `namespace`：表示其引用的 ConfigMap 所在的命名空间
   
-- `varsConfRef`：varsConfRef 是一个 ConfigMap 资源，用作初始化或覆盖 Kubespray 中声明的变量值。如果有离线需求，这将很有用。内容可参考 [demo](../../artifacts/demo/vars-conf-cm.yml)。
+- `varsConfRef`：varsConfRef 是一个 ConfigMap 资源，用作初始化或覆盖 Kubespray 中声明的变量值。如果有离线需求，这将很有用。内容可参考 [demo](../../examples/install/2.mirror/VarsConfCM.yml)。
   - `name`：表示其引用的 ConfigMap 的名称
   - `namespace`：表示其引用的 ConfigMap 所在的命名空间
 

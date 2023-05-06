@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster1-offline-demo-vars-conf
+  name: airgap-vars-conf
   namespace: kubean-system
 data:
   group_vars.yml: |
-    registry_host: "REGISTRY_HOST:REGISTRY_PORT"
-    minio_address: "http://MINIO_API_HOST:MINIO_API_PORT"
+    registry_host: "<REGISTRY_HOST>:<REGISTRY_PORT>"
+    minio_address: "http://<MINIO_API_HOST>:<MINIO_API_PORT>"
 
     files_repo: "{{ minio_address }}/kubean"
     container_manager: docker ## containerd
@@ -34,7 +34,7 @@ data:
 
     additional_sysctl:
     - { name: kernel.pid_max, value: 4194304 }
-    
+
     calico_cni_name: calico
     calico_felix_premetheusmetricsenabled: true
 

@@ -16,26 +16,26 @@
 1. Generate a pair of public-private keys with `ssh-keygen` command:
 
     ``` bash
-    $ ssh-keygen
+    $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/id_rsa
     Generating public/private rsa key pair.
-    Enter file in which to save the key (/root/.ssh/id_rsa):
+    Created directory '/root/.ssh'.
     Enter passphrase (empty for no passphrase):
     Enter same passphrase again:
     Your identification has been saved in /root/.ssh/id_rsa.
     Your public key has been saved in /root/.ssh/id_rsa.pub.
     The key fingerprint is:
-    SHA256:XBSD2HY1Lp8ZRfTC82cFEXzW/BRgEMd+SWiKzBNSUHN root@localhost.localdomain
-    The key's randomart image is:
-    +---[RSA 2048]----+
-    |       +B=E*XO*O.|
-    |      . =X =o=O.=|
-    |      .oo o oo++o|
-    |       + =   + .+|
-    |        S     . .|
-    |                 |
-    |                 |
-    |                 |
-    |                 |
+    SHA256:oMqlhL8wLuYycOkUNXyiDso62C+ryNYc9k3LMDltQZs your_email@example.com
+    The keys randomart image is:
+    +---[RSA 4096]----+
+    |   .             |
+    |    = ..         |
+    |   o +o o        |
+    |..o  . E         |
+    |+o.oo o S        |
+    |o==* = +         |
+    |*=O o O .        |
+    |@=++ . +         |
+    |OBo+.            |
     +----[SHA256]-----+
 
     $ ls /root/.ssh/id_rsa* -lh
@@ -62,28 +62,30 @@
         create secret generic sample-ssh-auth \             # specify the name of Secret: sample-ssh-auth
         --type='kubernetes.io/ssh-auth' \                   # specify the type of Secret: kubernetes.io/ssh-auth
         --from-file=ssh-privatekey=/root/.ssh/id_rsa \      # specify the filepath of the ssh private key
-        --dry-run=client -o yaml > ssh_auth_sec.yaml        # specify the target path of the new Secret YAML
+        --dry-run=client -o yaml > SSHAuthSec.yml           # specify the target path of the new Secret YAML
     ```
 
-The expected Secret YAML looks like:
+The expected `SSHAuthSec.yml` looks like:
 
-``` yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  creationTimestamp: null
-  name: sample-ssh-auth
-  namespace: kubean-system
-type: kubernetes.io/ssh-auth
-data:
-  ssh-privatekey: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...
-```
+    ``` yaml
+    # SSHAuthSec.yml
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      creationTimestamp: null
+      name: sample-ssh-auth
+      namespace: kubean-system
+    type: kubernetes.io/ssh-auth
+    data:
+      ssh-privatekey: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...
+    ```
 
 ## Create a host configuration file
 
-The `hosts_conf_cm.yaml` file looks like:
+The `HostsConfCM.yml` file looks like:
 
 ``` yaml
+# HostsConfCM.yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -124,9 +126,10 @@ data:
 
 ## Provision parameters for cluster deployment
 
-For contents of `vars_conf_cm.yaml`, refer to [demo vars conf](../../artifacts/demo/vars-conf-cm.yml).
+For contents of `VarsConfCM.yaml`, refer to [demo vars conf](../../examples/install/2.mirror/VarsConfCM.yml).
 
 ``` yaml
+# VarsConfCM.yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -149,6 +152,7 @@ data:
 * Example of a `Cluster` CR:
 
     ``` yaml
+    # Cluster.yml
     apiVersion: kubean.io/v1alpha1
     kind: Cluster
     metadata:
@@ -168,6 +172,7 @@ data:
 * Example of a `ClusterOperation` CR:
 
     ``` yaml
+    # ClusterOperation.yml
     apiVersion: kubean.io/v1alpha1
     kind: ClusterOperation
     metadata:
@@ -197,11 +202,11 @@ Suppose all our YAML manifests are stored in the `create_cluster` directory:
 ``` bash
 $ tree create_cluster/
 create_cluster
-├── hosts_conf_cm.yml       # host 
-├── ssh_auth_sec.yml        # SSH private key
-├── vars_conf_cm.yml        # cluster parameters
-├── kubeanCluster.yml       # Cluster CR
-└── kubeanClusterOps.yml    # ClusterOperation CR
+├── HostsConfCM.yml       # 主机清单
+├── SSHAuthSec.yml        # SSH私钥
+├── VarsConfCM.yml        # 集群参数
+├── Cluster.yml           # Cluster CR
+└── ClusterOperation.yml  # ClusterOperation CR
 ```
 
 Deploy a cluster with `kubectl apply`:

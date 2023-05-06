@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mini-vars-conf
+  namespace: kubean-system
+data:
+  group_vars.yml: |
+    kube_version: v1.25.8
+    # upgrade_cluster_setup: true
+    # upgrade_node_confirm: true
+    # upgrade_node_pause_seconds: 60
+
+    container_manager: containerd
+    kube_network_plugin: calico
+    etcd_deployment_type: kubeadm

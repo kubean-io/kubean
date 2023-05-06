@@ -64,25 +64,19 @@ $ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 $ kubectl get pods -n kubean-system | grep 'kubean'
 ```
 
-#### 3. 为 cluster.yml 启动 ClusterOperation
+#### 3. 在线模式部署最小化单节点集群
 
-你可以使用 `artifacts/demo` 文件夹中的例子，这些例子使用在线资源安装 K8s 集群。
+你可以使用 `examples/install/1.minimal` 文件夹中的例子，这些例子使用在线资源安装 K8s 集群。
 
-1. 进入资源路径
+1. 修改 `examples/install/1.minimal/AllInOne.yml`，替换 `<IP1>`、`<USERNAME>`... 等字符串为真实值
 
-   ```shell
-   $ cd artifacts/
-   ```
-
-2. 修改 `demo/hosts-conf-cm.yml`，将 `IP1`、`IP2`... 替换为要安装 K8s 集群的真实 IP
-
-3. 启动 kubeanClusterOps，这将启动 kubespray job
+2. 启动 kubeanClusterOps，这将启动 kubespray job
 
    ```shell
-   $ kubectl apply -f demo/
+   $ kubectl apply -f examples/install/1.minimal
    ```
 
-4. 检查 kubespray job 状态
+3. 检查 kubespray job 状态
 
    ```shell
    $ kubectl get job -n kubean-system

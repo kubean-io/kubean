@@ -286,15 +286,15 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ```
 
-We use `artifacts/offlineDemo` as a template,
+We use `examples/install/3.airgap` as a template,
 
-Adapt the offline configuration as above to your specific situation, especially if you need to replace `{{ registry_address }}` and `{{ minio_address }}`,
+Adapt the offline configuration as above to your specific situation, especially if you need to replace `<registry_address>` and `<minio_address>`,
 
-Finally add the configuration update to the `artifacts/offlineDemo/vars-conf-cm.yml`  file,
+Finally add the configuration update to the `examples/install/3.airgap/VarsConfCM.yml`  file,
 
-We also need to change the cluster node IP and username password in `artifacts/offlineDemo/hosts-conf-cm.yml`,
+We also need to change the cluster node IP and username password in `examples/install/3.airgap/HostsConfCM.yml`,
 
-Finally, the ClusterOperation task is started with `kubectl apply -f artifacts/offlineDemo` to install the k8s cluster.
+Finally, the ClusterOperation task is started with `kubectl apply -f examples/install/3.airgap` to install the k8s cluster.
 
 ## Generation and use of incremental offline packages
 

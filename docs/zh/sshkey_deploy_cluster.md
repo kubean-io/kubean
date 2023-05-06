@@ -15,26 +15,26 @@
 1. 通过 `ssh-keygen` 命令生成公私钥对，比如：
 
     ``` bash
-    $ ssh-keygen
+    $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/id_rsa
     Generating public/private rsa key pair.
-    Enter file in which to save the key (/root/.ssh/id_rsa):
+    Created directory '/root/.ssh'.
     Enter passphrase (empty for no passphrase):
     Enter same passphrase again:
     Your identification has been saved in /root/.ssh/id_rsa.
     Your public key has been saved in /root/.ssh/id_rsa.pub.
     The key fingerprint is:
-    SHA256:XBSD2HY1Lp8ZRfTC82cFEXzW/BRgEMd+SWiKzBNSUHN root@localhost.localdomain
-    The key's randomart image is:
-    +---[RSA 2048]----+
-    |       +B=E*XO*O.|
-    |      . =X =o=O.=|
-    |      .oo o oo++o|
-    |       + =   + .+|
-    |        S     . .|
-    |                 |
-    |                 |
-    |                 |
-    |                 |
+    SHA256:oMqlhL8wLuYycOkUNXyiDso62C+ryNYc9k3LMDltQZs your_email@example.com
+    The keys randomart image is:
+    +---[RSA 4096]----+
+    |   .             |
+    |    = ..         |
+    |   o +o o        |
+    |..o  . E         |
+    |+o.oo o S        |
+    |o==* = +         |
+    |*=O o O .        |
+    |@=++ . +         |
+    |OBo+.            |
     +----[SHA256]-----+
 
     $ ls /root/.ssh/id_rsa* -lh
@@ -61,12 +61,13 @@
         create secret generic sample-ssh-auth \             # 指定 secret 名称为 sample-ssh-auth
         --type='kubernetes.io/ssh-auth' \                   # 指定 secret 类型为 kubernetes.io/ssh-auth
         --from-file=ssh-privatekey=/root/.ssh/id_rsa \      # 指定 ssh 私钥文件路径
-        --dry-run=client -o yaml > ssh_auth_sec.yaml        # 指定 secret yaml 文件生成路径
+        --dry-run=client -o yaml > SSHAuthSec.yml           # 指定 secret yaml 文件生成路径
     ```
 
-2. 生成的 Secret YAML 内容大致如下所示：
+2. 生成的 `SSHAuthSec.yml` 内容大致如下所示：
 
     ``` yaml
+    # SSHAuthSec.yml
     apiVersion: v1
     kind: Secret
     metadata:
@@ -80,9 +81,10 @@
 
 ## 创建主机清单配置
 
-示例：主机清单 hosts_conf_cm.yaml 内容大致如下：
+示例：主机清单 HostsConfCM.yml 内容大致如下：
 
 ``` yaml
+# HostsConfCM.yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -123,9 +125,10 @@ data:
 
 ## 制备部署集群的配置参数
 
-集群配置参数 vars_conf_cm.yaml 的内容，可以参考: [demo vars conf](../../artifacts/demo/vars-conf-cm.yml)。
+集群配置参数 VarsConfCM.yml 的内容，可以参考: [demo vars conf](../../examples/install/2.mirror/VarsConfCM.yml)。
 
 ``` yaml
+# VarsConfCM.yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -148,6 +151,7 @@ data:
 1. Cluster 自定义资源内容示例
 
     ``` yaml
+    # Cluster.yml
     apiVersion: kubean.io/v1alpha1
     kind: Cluster
     metadata:
@@ -159,7 +163,7 @@ data:
       varsConfRef:
         namespace: kubean-system
         name: sample-vars-conf
-      sshAuthRef:                   # 关键属性，指定集群部署期间的 ssh 私钥 secret
+      sshAuthRef:                # 关键属性，指定集群部署期间的 ssh 私钥 secret
         namespace: kubean-system
         name: sample-ssh-auth
     ```
@@ -167,6 +171,7 @@ data:
 2. ClusterOperation 自定义资源内容示例
 
     ``` yaml
+    # ClusterOperation.yml
     apiVersion: kubean.io/v1alpha1
     kind: ClusterOperation
     metadata:
@@ -196,11 +201,11 @@ data:
 ``` bash
 $ tree create_cluster/
 create_cluster
-├── hosts_conf_cm.yml       # 主机清单
-├── ssh_auth_sec.yml        # SSH私钥
-├── vars_conf_cm.yml        # 集群参数
-├── kubeanCluster.yml       # Cluster CR
-└── kubeanClusterOps.yml    # ClusterOperation CR
+├── HostsConfCM.yml       # 主机清单
+├── SSHAuthSec.yml        # SSH私钥
+├── VarsConfCM.yml        # 集群参数
+├── Cluster.yml           # Cluster CR
+└── ClusterOperation.yml  # ClusterOperation CR
 ```
 
 通过 kubectl apply 开始部署集群:

@@ -32,12 +32,12 @@ Each field in this CRD is explained as follows:
 
 ### Spec Section
 
-- `hostConfRef`: a ConfigMap resource in the format of ansible inventory. It includes information about nodes in a cluster, types, and groups. For further details, refer to [demo](../../artifacts/demo/hosts-conf-cm.yml).
+- `hostConfRef`: a ConfigMap resource in the format of ansible inventory. It includes information about nodes in a cluster, types, and groups. For further details, refer to [demo](../../examples/install/2.mirror/HostsConfCM.yml).
 
   - `name`: name of the ConfigMap referenced by `hostConfRef`.
   - `namespace`: namespace of the ConfigMap referenced by `hostConfRef`.
   
-- `varsConfRef`: a ConfigMap resource to initialize or override variable values declared in Kubespray. This is very useful if you need to execute actions offline. For its specific content, refer to [demo](../../artifacts/demo/vars-conf-cm.yml).
+- `varsConfRef`: a ConfigMap resource to initialize or override variable values declared in Kubespray. This is very useful if you need to execute actions offline. For its specific content, refer to [demo](../../examples/install/2.mirror/VarsConfCM.yml).
 
   - `name`: name of the ConfigMap referenced by `varsConfRef`.
   - `namespace`: namespace of the ConfigMap referenced by `varsConfRef`.
