@@ -6,6 +6,8 @@ set -o pipefail
 
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
+source "${REPO_ROOT}"/hack/deploy.sh
+
 echo "ARCH: ${ARCH}"
 echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 
