@@ -286,6 +286,13 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ```
 
+For offline deployment, additional parameters are required for some special operating systems:
+
+|  OS | Additional parameters  |
+|  ------  | :-----  |
+| RHEL Series  | `rhel_enable_repos: false` |
+| Oracle Linux Series  | `use_oracle_public_repo: false` |
+
 We use `examples/install/3.airgap` as a template,
 
 Adapt the offline configuration as above to your specific situation, especially if you need to replace `<registry_address>` and `<minio_address>`,

@@ -1,7 +1,8 @@
 ---
 ## Only for RHEL 8 on offline environment currently
-- hosts: k8s_cluster
-  become: yes
+- name: Remove packages
+  hosts: k8s_cluster
+  become: true
   vars:
     rhel_enable_repos: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"

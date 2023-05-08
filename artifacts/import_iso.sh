@@ -102,6 +102,10 @@ function iso_os_version_arch() {
           echo "/uos-iso/$version/os/$arch"
           return
         fi
+        if [[ "$os" =~ "Oracle Linux" ]]; then
+          echo "/oracle-iso/$version/os/$arch"
+          return
+        fi
       fi
     fi
   done
