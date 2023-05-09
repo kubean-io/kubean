@@ -29,8 +29,8 @@ git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_
 
 # centos7 / kylinv10 / redhat7 / redhat8
 if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ]; then
-  late_digest=$(echo "${late_packages_yml}" | yq eval ".yum[],.docker.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
-  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".yum[],.docker.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  late_digest=$(echo "${late_packages_yml}" | yq eval ".yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then
     ret=0
     wget -c https://github.com/${ORG_NAME}/kubean/releases/download/${prev_tag}/os-pkgs-${OS_NAME}-${prev_tag}.tar.gz -O os-pkgs-${OS_NAME}-${late_tag}.tar.gz || ret=$?
@@ -42,8 +42,8 @@ fi
 
 # ubuntu1804 / ubuntu2004
 if [ "${OS_NAME}" == "ubuntu1804" ] || [ "${OS_NAME}" == "ubuntu2004" ]; then
-  late_digest=$(echo "${late_packages_yml}" | yq eval ".apt[],.docker.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
-  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".apt[],.docker.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  late_digest=$(echo "${late_packages_yml}" | yq eval ".apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then
     ret=0
     wget -c https://github.com/${ORG_NAME}/kubean/releases/download/${prev_tag}/os-pkgs-${OS_NAME}-${prev_tag}.tar.gz -O os-pkgs-${OS_NAME}-${late_tag}.tar.gz || ret=$?

@@ -1,6 +1,7 @@
 ---
-- hosts: k8s_cluster
-  become: yes
+- name: Enable additional package repo config in offline scenarios
+  hosts: k8s_cluster
+  become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   vars:
     repo_name: extension

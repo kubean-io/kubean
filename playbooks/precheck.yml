@@ -1,7 +1,8 @@
 ---
-- hosts: k8s_cluster
+- name: Pre-check
+  hosts: k8s_cluster
   gather_facts: false
-  become: yes
+  become: true
   vars:
     check_connection: true
     fetch_os_type: true

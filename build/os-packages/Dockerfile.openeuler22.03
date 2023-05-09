@@ -6,7 +6,7 @@ WORKDIR /openeuler/${OS_VERSION}/os
 COPY build/os-packages/repos/openeuler_22.03.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.yum[],.docker.openeuler[]' packages.yml > packages.list
+RUN yq eval '.yum[],.openeuler[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && rm -rf /etc/yum.repos.d/openEuler* \

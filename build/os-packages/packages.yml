@@ -12,51 +12,53 @@ apt:
 
 common: []
 
-docker:
-  # https://docs.docker.com/engine/installation/linux/centos/#install-from-a-package
-  # https://download.docker.com/linux/centos/<centos_version>>/x86_64/stable/Packages/
-  # or do 'yum --showduplicates list docker-engine'
-  centos7:
-    - containerd.io-1.4.12-3.1.el7
-    - containerd.io-1.6.4-3.1.el7
-    - docker-ce-20.10.20-3.el7
-    - docker-ce-cli-20.10.20-3.el7
+# https://docs.docker.com/engine/installation/linux/centos/#install-from-a-package
+# https://download.docker.com/linux/centos/<centos_version>>/x86_64/stable/Packages/
+# or do 'yum --showduplicates list docker-engine'
+centos7:
+  - containerd.io-1.4.12-3.1.el7
+  - containerd.io-1.6.4-3.1.el7
+  - docker-ce-20.10.20-3.el7
+  - docker-ce-cli-20.10.20-3.el7
 
-  redhat7:
-    - containerd.io-1.4.12-3.1.el7
-    - containerd.io-1.6.4-3.1.el7
-    - docker-ce-20.10.20-3.el7
-    - docker-ce-cli-20.10.20-3.el7
+redhat7:
+  - containerd.io-1.4.12-3.1.el7
+  - containerd.io-1.6.4-3.1.el7
+  - docker-ce-20.10.20-3.el7
+  - docker-ce-cli-20.10.20-3.el7
 
-  redhat8:
-    - containerd.io-1.4.12-3.1.el8
-    - containerd.io-1.6.4-3.1.el8
-    - docker-ce-3:20.10.20-3.el8
-    - docker-ce-cli-1:20.10.20-3.el8
+redhat8:
+  - containerd.io-1.4.12-3.1.el8
+  - containerd.io-1.6.4-3.1.el8
+  - docker-ce-3:20.10.20-3.el8
+  - docker-ce-cli-1:20.10.20-3.el8
 
-  kylinv10:
-    - socat
-    - libselinux-python
-    - libselinux-devel
-    - python3-libselinux
-    - containerd.io-1.4.12-3.1.el8
-    - containerd.io-1.6.4-3.1.el8
-    - docker-ce-3:19.03.15-3.el8
-    - docker-ce-cli-1:19.03.15-3.el8
+kylinv10:
+  - socat
+  - libselinux-python
+  - libselinux-devel
+  - python3-libselinux
+  - containerd.io-1.4.12-3.1.el8
+  - containerd.io-1.6.4-3.1.el8
+  - docker-ce-3:19.03.15-3.el8
+  - docker-ce-cli-1:19.03.15-3.el8
 
-  ubuntu1804:
-    - containerd.io=1.4.12-1
-    - containerd.io=1.6.4-1
-    - docker-ce=5:20.10.20~3-0~ubuntu-bionic
-    - docker-ce-cli=5:20.10.20~3-0~ubuntu-bionic
+ubuntu1804:
+  - containerd.io=1.4.12-1
+  - containerd.io=1.6.4-1
+  - docker-ce=5:20.10.20~3-0~ubuntu-bionic
+  - docker-ce-cli=5:20.10.20~3-0~ubuntu-bionic
 
-  ubuntu2004:
-    - containerd.io=1.4.12-1
-    - containerd.io=1.6.4-1
-    - docker-ce=5:20.10.20~3-0~ubuntu-focal
-    - docker-ce-cli=5:20.10.20~3-0~ubuntu-focal
+ubuntu2004:
+  - containerd.io=1.4.12-1
+  - containerd.io=1.6.4-1
+  - docker-ce=5:20.10.20~3-0~ubuntu-focal
+  - docker-ce-cli=5:20.10.20~3-0~ubuntu-focal
 
-  openeuler:
-    - socat
-    - libnetfilter_cttimeout
-    - libnetfilter_cthelper
+openeuler:
+  - socat
+  - libnetfilter_cttimeout
+  - libnetfilter_cthelper
+
+oracle9:
+  - socat

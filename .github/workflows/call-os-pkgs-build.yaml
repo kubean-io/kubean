@@ -19,6 +19,8 @@ jobs:
           dockerfile: build/os-packages/Dockerfile.kylinv10
         - name: openeuler22.03
           dockerfile: build/os-packages/Dockerfile.openeuler22.03
+        - name: oracle9
+          dockerfile: build/os-packages/Dockerfile.oracle9
         - name: ubuntu1804
           dockerfile: build/os-packages/Dockerfile.ubuntu1804
         - name: ubuntu2004

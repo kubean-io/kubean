@@ -362,7 +362,15 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 
 ```
 
-**额外说明：** 对于 RHEL 系列的离线安装，需添加配置 `rhel_enable_repos: false`
+**额外说明：**
+
+针对一些特殊的操作系统，在离线部署时，还需要添加一些额外参数：
+
+|  操作系统 | 额外参数  |
+|  ------  | :-----  |
+| RHEL 系列  | `rhel_enable_repos: false` |
+| Oracle Linux 系列  | `use_oracle_public_repo: false` |
+
 
 我们以 `examples/install/3.airgap` 作为模板,
 
@@ -373,6 +381,8 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 同时我们还需要修改 `examples/install/3.airgap/HostsConfCM.yml` 中的集群节点 IP 及用户名密码,
 
 最终, 通过 `kubectl apply -f examples/install/3.airgap` 启动 ClusterOperation 任务来安装 k8s 集群.
+
+---
 
 ## 增量离线包的生成和使用
 

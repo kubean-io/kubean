@@ -1,7 +1,8 @@
 ---
-- hosts: kube_control_plane[0]
+- name: Get information about the cluster
+  hosts: kube_control_plane[0]
   gather_facts: false
-  become: yes
+  become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   tasks:
     - name: Show cluster info

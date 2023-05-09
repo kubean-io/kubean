@@ -1,10 +1,11 @@
 ---
-- hosts: k8s_cluster
+- name: Update hosts config
+  hosts: k8s_cluster
   vars:
     ip: ''
     host: ''
   gather_facts: false
-  become: yes
+  become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   tasks:
     - name: 'Update {{ ip }} {{ host }} into /etc/hosts if necessary'
