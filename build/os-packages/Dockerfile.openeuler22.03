@@ -11,8 +11,6 @@ RUN yq eval '.yum[],.openeuler[]' packages.yml > packages.list
 RUN ARCH=$(uname -m) \
     && rm -rf /etc/yum.repos.d/openEuler* \
     && dnf install -y ${BUILD_TOOLS} \
-    && dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
-    && sed -i 's/$releasever/8/g' /etc/yum.repos.d/docker-ce.repo \
     && dnf clean all && dnf makecache \
     && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line} --nobest --allowerasing; done <<<"$(sort -u packages.list)" \
     && createrepo -d ${ARCH}
