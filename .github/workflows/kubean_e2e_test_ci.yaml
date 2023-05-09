@@ -1,0 +1,416 @@
+name: KUBEAN_E2E_TEST_CI
+
+on:
+  workflow_dispatch: #manual run
+  workflow_call: # called by Auto Release CI 
+  schedule: 
+    - cron: '0 0 * * FRI' # on every weekend for P3 jobs in weekend with if condition (if: github.event.schedule == '0 0 * * FRI')
+    - cron: '0 7 * * *' # default: on every night for P2 jobs
+
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBESPRAY_IMAGE_NAME: kubespray
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: latest
+  VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
+  VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+  AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}
+  KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
+
+jobs:
+  build-push-for-e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Set env
+        run: |
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Log in to registry
+        # This is where you will update the PAT to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: kubean-operator Build image
+        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+      - name: kubean-operator Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: spray-job Build image
+        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
+      - name: spray-job Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+  get_helm_version:
+    runs-on: ubuntu-latest
+    outputs:
+      CONTAINER_TAG: ${{ steps.get_variables.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ steps.get_variables.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ steps.get_variables.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ steps.get_variables.outputs.runner_name }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get HELM_CHART_VERSION
+        id: get_variables
+        run: |
+          CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
+          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+          fi
+          echo "CONTAINER_TAG=$CONTAINER_TAG" >> "$GITHUB_OUTPUT"
+          echo "HELM_CHART_VERSION=$HELM_CHART_VERSION" >> "$GITHUB_OUTPUT"
+          echo "TAG_SECOND_PART=$TAG_SECOND_PART" >> "$GITHUB_OUTPUT"
+          echo "runner_name=${{ runner.name }}" >> "$GITHUB_OUTPUT"
+
+  centos_calico_airgap:
+    runs-on: ubuntu-latest
+    needs: [get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="CENTOS7"
+          ARCH="amd64"
+          Network_TYPE="calico"
+          GAP_TYPE="OFFLINE"
+          echo "OS_TYPE=${OS_TYPE,,}"  >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="centos_calico_airgap"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          ref: kubean_ci_test
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: centos_calico_airgap
+        run: |
+          export -p
+          bash ./hack/newE2E.sh
+
+  centos_calico_online:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version, build-push-for-e2e]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="CENTOS7"
+          ARCH="amd64"
+          Network_TYPE="calico"
+          GAP_TYPE="ONLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="centos_calico_online"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: centos_calico_online
+        continue-on-error: ${{ vars.CENTOS_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  centos_cilium_online:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    if: github.event.schedule == '0 0 * * FRI'
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="CENTOS7"
+          ARCH="amd64"
+          Network_TYPE="cilium"
+          GAP_TYPE="ONLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="centos_cilium_online"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: centos_cilium_online
+        continue-on-error:  ${{ vars.CENTOS_CILIUM_ONLINE_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  centos_cilium_airgap:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="CENTOS7"
+          ARCH="amd64"
+          Network_TYPE="cilium"
+          GAP_TYPE="OFFLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="centos_cilium_airgap"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: centos_cilium_airgap
+        continue-on-error:  ${{ vars.CENTOS_CILIUM_AIRGAP_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  redhat_calico_online:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    if: github.event.schedule == '0 0 * * FRI'
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="REDHAT8"
+          ARCH="amd64"
+          Network_TYPE="calico"
+          GAP_TYPE="ONLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="redhat_calico_online"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: redhat_calico_online
+        continue-on-error:  ${{ vars.REDHAT_CALICO_ONLINE_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  redhat_calico_airgap:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="REDHAT8"
+          ARCH="amd64"
+          Network_TYPE="calico"
+          GAP_TYPE="OFFLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="redhat_calico_airgap"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: redhat_calico_airgap
+        continue-on-error:  ${{ vars.REDHAT_CALICO_AIRGAP_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  redhat_cilium_airgap:
+    runs-on: ubuntu-latest
+    needs: [centos_calico_airgap, get_helm_version]
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="REDHAT8"
+          ARCH="amd64"
+          Network_TYPE="cilium"
+          GAP_TYPE="OFFLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="redhat_cilium_airgap"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: redhat_cilium_airgap
+        continue-on-error:  ${{ vars.REDHAT_CILIUM_AIRGAP_ALLOW_FAILURE == 'false' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  redhat_cilium_online:
+    needs: [get_helm_version, centos_calico_online, centos_cilium_online, centos_cilium_airgap, redhat_calico_online, redhat_calico_airgap, redhat_cilium_airgap]
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    if: github.event.schedule == '0 0 * * FRI'
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="REDHAT8"
+          ARCH="amd64"
+          Network_TYPE="cilium"
+          GAP_TYPE="ONLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="redhat_cilium_online"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: redhat_cilium_online
+        continue-on-error:  ${{ vars.REDHAT_CILIUM_ONLINE_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  kylin_calico_online:
+    needs: [get_helm_version, centos_calico_online, centos_cilium_online, centos_cilium_airgap, redhat_calico_online, redhat_calico_airgap, redhat_cilium_airgap]
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    if: github.event.schedule == '0 0 * * FRI'
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="kylin"
+          ARCH="arm"
+          Network_TYPE="calico"
+          GAP_TYPE="ONLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="kylin_calico_online"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: kylin_calico_online
+        continue-on-error:  ${{ vars.KYLIN_CALICO_ONLINE_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
+
+  kylin_calico_airgap:
+    needs: [get_helm_version, centos_calico_online, centos_cilium_online, centos_cilium_airgap, redhat_calico_online, redhat_calico_airgap, redhat_cilium_airgap]
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
+      HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
+      TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
+      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
+    if: github.event.schedule == '0 0 * * FRI'
+    steps:
+      - name: Set env for this job
+        run: |
+          OS_TYPE="kylin"
+          ARCH="arm"
+          Network_TYPE="calico"
+          GAP_TYPE="OFFLINE"
+          echo "OS_TYPE=${OS_TYPE,,}" >> ${GITHUB_ENV}
+          echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
+          echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
+          echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
+          JOB_NAME="kylin_calico_airgap"
+          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.2
+      - name: kylin_calico_airgap
+        continue-on-error:  ${{ vars.KYLIN_CALICO_AIRGAP_ALLOW_FAILURE == 'true' }}
+        run: |
+          bash ./hack/newE2E.sh
