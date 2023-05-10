@@ -5,9 +5,9 @@ package v1alpha1
 import (
 	"net/http"
 
+	v1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
+	"github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
-	"kubean.io/api/generated/clusteroperation/clientset/versioned/scheme"
 )
 
 type KubeanV1alpha1Interface interface {

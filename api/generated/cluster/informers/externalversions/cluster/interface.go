@@ -3,8 +3,8 @@
 package cluster
 
 import (
-	v1alpha1 "kubean.io/api/generated/cluster/informers/externalversions/cluster/v1alpha1"
-	internalinterfaces "kubean.io/api/generated/cluster/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/cluster/informers/externalversions/cluster/v1alpha1"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/cluster/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.

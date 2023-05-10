@@ -3,12 +3,12 @@
 package scheme
 
 import (
+	kubeanv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	kubeanv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 )
 
 var Scheme = runtime.NewScheme()

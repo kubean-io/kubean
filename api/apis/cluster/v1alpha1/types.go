@@ -3,7 +3,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"kubean.io/api/apis"
+	"github.com/kubean-io/kubean-api/apis"
 )
 
 // +genclient

@@ -3,9 +3,9 @@
 package fake
 
 import (
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned/typed/clusteroperation/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-	v1alpha1 "kubean.io/api/generated/clusteroperation/clientset/versioned/typed/clusteroperation/v1alpha1"
 )
 
 type FakeKubeanV1alpha1 struct {
