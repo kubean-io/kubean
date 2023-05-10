@@ -97,6 +97,12 @@ git rm -r $TMP_DIR
 cp -r ${WORK_SPACE}/${SUBDIR}/* $TMP_DIR
 
 # commit(keep it consistent with the main library commit).
+
+## this cmds will not work well on Macos.
+find . -type f -name '*.go'     -not -path '*/vendor/*' -exec sed -i  's/kubean.io\/api/github.com\/kubean-io\/kubean-api/g' {} +
+find . -type f -name '*go.mod'  -not -path '*/vendor/*' -exec sed -i  's/kubean.io\/api/github.com\/kubean-io\/kubean-api/g' {} +
+
+
 git add -A
 git commit -m "$COMMIT_MESSAGE"
 
