@@ -180,6 +180,11 @@ function apk_build() {
 }
 
 function Build() {
+  # Check if tar is installed
+  if [ ! -x "$(command -v tar)" ]; then
+    log_erro "Please install the tar command line tool."
+  fi
+
   if [ -z "${PKGS_YML_PATH}" ] || [ ! -f ${PKGS_YML_PATH} ]; then
     log_erro "package config: \${PKGS_YML_PATH} should exist."
   fi
@@ -382,6 +387,10 @@ function Install() {
   yq_install
 
   for ip in ${HOST_IPS[@]}; do
+    if [ -z "$(ssh_run "${ip}" "command -v tar")" ]; then
+      log_erro "Node(${ip}) does not have the tar command line installed"
+    fi
+
     if [ -z "${DISTRO}" ]; then
       DISTRO=$(get_remote_os_release ${ip} 'ID')
     fi
@@ -396,6 +405,8 @@ function Install() {
     ssh_cp "${ip}" "${PKGS_TAR_PATH}" "${REMOTE_REPO_PATH}"
 
     # 2. Unzip the OS package
+    # gunzip os-pkgs.tar.gz
+    # cat os-pkgs.tar | cpio -i -d -H tar
     ssh_run "${ip}" "cd ${REMOTE_REPO_PATH} && tar -zxvf $(basename ${PKGS_TAR_PATH})"
     ssh_run "${ip}" "cd ${REMOTE_REPO_PATH}/os-pkgs/ && tar -zxvf os-pkgs-$(require_arch).tar.gz"
 

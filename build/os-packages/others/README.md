@@ -3,6 +3,7 @@
 Please make sure these tools are installed in your OS environment:
 * curl
 * sshpass
+* tar
 
 ## 1. How to download the tool script
 
