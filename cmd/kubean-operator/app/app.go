@@ -7,6 +7,10 @@ import (
 	"os"
 	"strconv"
 
+	kubeanClusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
+	kubeanClusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
+	kubeanLocalArtifactSetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
+	kubeaninfomanifestClientSet "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
 	"github.com/kubean-io/kubean/pkg/controllers/cluster"
 	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
 	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
@@ -19,10 +23,6 @@ import (
 	rest "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
-	kubeanClusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
-	kubeanLocalArtifactSetClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
-	kubeaninfomanifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )

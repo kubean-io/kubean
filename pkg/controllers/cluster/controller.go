@@ -6,10 +6,10 @@ import (
 	"sort"
 	"time"
 
-	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
-	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
-	clusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
-	clusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
+	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
+	clusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
+	clusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

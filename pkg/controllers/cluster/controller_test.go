@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"kubean.io/api/apis"
-	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
-	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
-	"kubean.io/api/constants"
-	clusterv1alpha1fake "kubean.io/api/generated/cluster/clientset/versioned/fake"
-	clusteroperationv1alpha1fake "kubean.io/api/generated/clusteroperation/clientset/versioned/fake"
+	"github.com/kubean-io/kubean-api/apis"
+	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
+	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
+	"github.com/kubean-io/kubean-api/constants"
+	clusterv1alpha1fake "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned/fake"
+	clusteroperationv1alpha1fake "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned/fake"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"

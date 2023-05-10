@@ -14,11 +14,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
-	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
-	"kubean.io/api/constants"
-	localartifactsetv1alpha1fake "kubean.io/api/generated/localartifactset/clientset/versioned/fake"
-	manifestv1alpha1fake "kubean.io/api/generated/manifest/clientset/versioned/fake"
+	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	"github.com/kubean-io/kubean-api/constants"
+	localartifactsetv1alpha1fake "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned/fake"
+	manifestv1alpha1fake "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned/fake"
 )
 
 func newFakeClient() client.Client {
