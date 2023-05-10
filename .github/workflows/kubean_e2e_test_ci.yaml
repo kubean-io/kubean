@@ -112,7 +112,6 @@ jobs:
           echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
-          ref: kubean_ci_test
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
@@ -124,7 +123,7 @@ jobs:
 
   centos_calico_online:
     runs-on: ubuntu-latest
-    needs: [centos_calico_airgap, get_helm_version, build-push-for-e2e]
+    needs: [centos_calico_airgap, get_helm_version]
     env:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
