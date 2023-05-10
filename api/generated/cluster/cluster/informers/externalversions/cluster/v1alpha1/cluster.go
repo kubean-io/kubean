@@ -6,14 +6,14 @@ import (
 	"context"
 	time "time"
 
+	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
+	versioned "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/cluster/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/cluster/listers/cluster/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
-	versioned "kubean.io/api/generated/cluster/clientset/versioned"
-	internalinterfaces "kubean.io/api/generated/cluster/informers/externalversions/internalinterfaces"
-	v1alpha1 "kubean.io/api/generated/cluster/listers/cluster/v1alpha1"
 )
 
 // ClusterInformer provides access to a shared informer and lister for

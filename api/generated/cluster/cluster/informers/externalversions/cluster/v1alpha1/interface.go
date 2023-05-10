@@ -3,7 +3,7 @@
 package v1alpha1
 
 import (
-	internalinterfaces "kubean.io/api/generated/cluster/informers/externalversions/internalinterfaces"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/cluster/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

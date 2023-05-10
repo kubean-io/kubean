@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	kubeanv1alpha1 "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned/typed/localartifactset/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	kubeanv1alpha1 "kubean.io/api/generated/localartifactset/clientset/versioned/typed/localartifactset/v1alpha1"
 )
 
 type Interface interface {

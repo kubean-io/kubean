@@ -12,5 +12,5 @@ bash "$API_REPO_ROOT/hack/update-codegen.sh" manifest
 bash "$API_REPO_ROOT/hack/update-codegen.sh" localartifactset
 bash "$API_REPO_ROOT/hack/update-crdgen.sh"
 
-go mod tidy
-go mod vendor
+# go mod tidy
+# go mod vendor

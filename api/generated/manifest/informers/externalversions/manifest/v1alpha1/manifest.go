@@ -6,14 +6,14 @@ import (
 	"context"
 	time "time"
 
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	versioned "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/manifest/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/manifest/listers/manifest/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
-	versioned "kubean.io/api/generated/manifest/clientset/versioned"
-	internalinterfaces "kubean.io/api/generated/manifest/informers/externalversions/internalinterfaces"
-	v1alpha1 "kubean.io/api/generated/manifest/listers/manifest/v1alpha1"
 )
 
 // ManifestInformer provides access to a shared informer and lister for

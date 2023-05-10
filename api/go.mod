@@ -1,4 +1,4 @@
-module kubean.io/api
+module github.com/kubean-io/kubean-api
 
 go 1.17
 

@@ -8,12 +8,12 @@ import (
 	"runtime"
 	"time"
 
+	kubeanClusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
 	"github.com/kubean-io/kubean/test/tools"
 	ginkgo "github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
-	kubeanClusterOperationClientSet "kubean.io/api/generated/clusteroperation/clientset/versioned"
 )
 
 var _ = ginkgo.Describe("kubean ops e2e test", func() {

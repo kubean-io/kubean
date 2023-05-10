@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	clusterv1alpha1 "kubean.io/api/apis/cluster/v1alpha1"
-	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
+	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 
-	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
-	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
+	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
+	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
