@@ -70,7 +70,6 @@ jobs:
       CONTAINER_TAG: ${{ steps.get_variables.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ steps.get_variables.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ steps.get_variables.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ steps.get_variables.outputs.runner_name }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -87,7 +86,6 @@ jobs:
           echo "CONTAINER_TAG=$CONTAINER_TAG" >> "$GITHUB_OUTPUT"
           echo "HELM_CHART_VERSION=$HELM_CHART_VERSION" >> "$GITHUB_OUTPUT"
           echo "TAG_SECOND_PART=$TAG_SECOND_PART" >> "$GITHUB_OUTPUT"
-          echo "runner_name=${{ runner.name }}" >> "$GITHUB_OUTPUT"
 
   centos_calico_airgap:
     runs-on:  [self-hosted, offline]
@@ -96,7 +94,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     steps:
       - name: Set env for this job
         run: |
@@ -108,8 +105,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="centos_calico_airgap"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -118,7 +113,7 @@ jobs:
           go-version: 1.18.2
       - name: centos_calico_airgap
         run: |
-          export -p
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   centos_calico_online:
@@ -128,7 +123,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     steps:
       - name: Set env for this job
         run: |
@@ -140,8 +134,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="centos_calico_online"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -151,6 +143,7 @@ jobs:
       - name: centos_calico_online
         continue-on-error: ${{ vars.CENTOS_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   centos_cilium_online:
@@ -160,8 +153,7 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
-    if: github.event.schedule == '0 0 * * FRI'
+    #if: github.event.schedule == '0 0 * * FRI'
     steps:
       - name: Set env for this job
         run: |
@@ -173,8 +165,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="centos_cilium_online"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -184,6 +174,7 @@ jobs:
       - name: centos_cilium_online
         continue-on-error: ${{ vars.CENTOS_CILIUM_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   centos_cilium_airgap:
@@ -193,7 +184,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     steps:
       - name: Set env for this job
         run: |
@@ -205,8 +195,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="centos_cilium_airgap"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -216,6 +204,7 @@ jobs:
       - name: centos_cilium_airgap
         continue-on-error: ${{ vars.CENTOS_CILIUM_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   redhat_calico_online:
@@ -225,7 +214,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     if: github.event.schedule == '0 0 * * FRI'
     steps:
       - name: Set env for this job
@@ -238,8 +226,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="redhat_calico_online"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -249,6 +235,7 @@ jobs:
       - name: redhat_calico_online
         continue-on-error: ${{ vars.REDHAT_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   redhat_calico_airgap:
@@ -258,7 +245,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     steps:
       - name: Set env for this job
         run: |
@@ -270,8 +256,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="redhat_calico_airgap"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -281,6 +265,7 @@ jobs:
       - name: redhat_calico_airgap
         continue-on-error: ${{ vars.REDHAT_CALICO_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   redhat_cilium_airgap:
@@ -290,7 +275,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     steps:
       - name: Set env for this job
         run: |
@@ -302,8 +286,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="redhat_cilium_airgap"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -313,6 +295,7 @@ jobs:
       - name: redhat_cilium_airgap
         continue-on-error: ${{ vars.REDHAT_CILIUM_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   redhat_cilium_online:
@@ -322,7 +305,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     if: github.event.schedule == '0 0 * * FRI'
     steps:
       - name: Set env for this job
@@ -335,8 +317,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="redhat_cilium_online"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -346,6 +326,7 @@ jobs:
       - name: redhat_cilium_online
         continue-on-error: ${{ vars.REDHAT_CILIUM_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   kylin_calico_online:
@@ -355,7 +336,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     if: github.event.schedule == '0 0 * * FRI'
     steps:
       - name: Set env for this job
@@ -368,8 +348,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="kylin_calico_online"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -379,6 +357,7 @@ jobs:
       - name: kylin_calico_online
         continue-on-error: ${{ vars.KYLIN_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh
 
   kylin_calico_airgap:
@@ -388,7 +367,6 @@ jobs:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
       HELM_CHART_VERSION: ${{ needs.get_helm_version.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ needs.get_helm_version.outputs.TAG_SECOND_PART }}
-      runner_name: ${{ needs.get_helm_version.outputs.runner_name }}
     if: github.event.schedule == '0 0 * * FRI'
     steps:
       - name: Set env for this job
@@ -401,8 +379,6 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-          JOB_NAME="kylin_calico_airgap"
-          echo "JOB_NAME=${JOB_NAME,,}" >> ${GITHUB_ENV}
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -412,4 +388,5 @@ jobs:
       - name: kylin_calico_airgap
         continue-on-error: ${{ vars.KYLIN_CALICO_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
+          export runner_name=${{ runner.name }}
           bash ./hack/newE2E.sh

@@ -4,11 +4,11 @@ set -o pipefail
 set -e
 
 function init_vars() {
-    echo $JOB_NAME $OS_TYPE $ARCH $Network_TYPE $GAP_TYPE
+    echo $GITHUB_JOB $OS_TYPE $ARCH $Network_TYPE $GAP_TYPE
 }
 
 function execute_case() {
-    case $JOB_NAME in 
+    case $GITHUB_JOB in 
         "centos_calico_airgap")
             #todo
             ;;
@@ -40,7 +40,7 @@ function execute_case() {
             #todo
             ;;
         "*")
-            echo "no such $JOB_NAME, exit"
+            echo "no such $GITHUB_JOB, exit"
             ;;
         esac
 }
