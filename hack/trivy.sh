@@ -9,5 +9,6 @@ set -o pipefail
 trivy -v
 for i in $*
 do
-  trivy image --ignore-unfixed --exit-code 0 --severity MEDIUM,HIGH,CRITICAL ${i}
+  ## MEDIUM,HIGH,CRITICAL
+  trivy image --ignore-unfixed --exit-code 1 --severity CRITICAL ${i}
 done
