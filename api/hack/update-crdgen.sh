@@ -15,6 +15,8 @@ util::install_tools ${CONTROLLER_GEN_PKG} ${CONTROLLER_GEN_VER} >/dev/null 2>&1
 # Unify the crds used by helm chart and the installation scripts
 controller-gen crd paths=./apis/... output:crd:dir=./charts/crds
 
+# test
+
 for f in ./charts/crds/* ; do
   ## f: "./charts/crds/kubean.io_clusteroperations.yaml"
   sed '/^[[:blank:]]*$/d' "$f" > "$f.tmp" ## remove blank
