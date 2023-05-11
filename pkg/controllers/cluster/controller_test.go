@@ -318,8 +318,8 @@ func Test_UpdateStatus(t *testing.T) {
 						Labels: map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
 					},
 				}
-				controller.Create(context.Background(), clusterOps)
-				controller.Create(context.Background(), exampleCluster)
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.Client.Create(context.Background(), exampleCluster)
 				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
 				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
 				return controller.UpdateStatus(exampleCluster) == nil

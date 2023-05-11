@@ -30,7 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -45,7 +45,7 @@ const (
 )
 
 type Controller struct {
-	client.Client
+	Client                client.Client
 	ClientSet             kubernetes.Interface
 	KubeanClusterSet      clusterClientSet.Interface
 	KubeanClusterOpsSet   clusterOperationClientSet.Interface
@@ -86,7 +86,7 @@ func (c *Controller) UpdateClusterOpsStatusDigest(clusterOps *clusteroperationv1
 	}
 	// init salt value.
 	clusterOps.Status.Digest = c.CalSalt(clusterOps)
-	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+	if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -107,7 +107,7 @@ func (c *Controller) UpdateStatusHasModified(clusterOps *clusteroperationv1alpha
 	if same := c.compareDigest(clusterOps); !same {
 		// compare
 		clusterOps.Status.HasModified = true
-		if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+		if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 			return false, err
 		}
 		klog.Warningf("clusterOps %s Spec has been modified", clusterOps.Name)
@@ -304,7 +304,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.Infof("clusterOps %s is blocked and waiting for other clusterOps completed", clusterOps.Name)
 		if clusterOps.Status.Status != clusteroperationv1alpha1.BlockedStatus {
 			clusterOps.Status.Status = clusteroperationv1alpha1.BlockedStatus
-			if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+			if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 				klog.Warningf("clusterOps %s update Status to Blocked but %s", clusterOps.Name, err.Error())
 				return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
 			}
@@ -517,7 +517,7 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *clusteroperationv1alpha1.Clu
 	clusterOps.Status.Status = clusteroperationv1alpha1.RunningStatus
 	clusterOps.Status.Action = clusterOps.Spec.Action
 
-	if err := c.Status().Update(context.Background(), clusterOps); err != nil {
+	if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 		return false, err
 	}
 	return true, nil

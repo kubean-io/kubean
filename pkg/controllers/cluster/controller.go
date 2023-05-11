@@ -15,7 +15,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -26,7 +26,7 @@ const (
 )
 
 type Controller struct {
-	client.Client
+	Client              client.Client
 	ClientSet           kubernetes.Interface
 	KubeanClusterSet    clusterClientSet.Interface
 	KubeanClusterOpsSet clusterOperationClientSet.Interface
@@ -93,7 +93,7 @@ func (c *Controller) UpdateStatus(cluster *clusterv1alpha1.Cluster) error {
 		// need update for newCondition
 		cluster.Status.Conditions = newConditions
 		klog.Warningf("update cluster %s status.condition", cluster.Name)
-		return c.Status().Update(context.Background(), cluster)
+		return c.Client.Status().Update(context.Background(), cluster)
 	}
 	return nil
 }

@@ -293,7 +293,7 @@ func TestReconcile(t *testing.T) {
 					},
 				}
 
-				controller.Create(context.Background(), &offlineVersionData)
+				controller.Client.Create(context.Background(), &offlineVersionData)
 				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
 
@@ -330,7 +330,7 @@ func TestReconcile(t *testing.T) {
 					},
 				}
 
-				controller.Create(context.Background(), &offlineVersionData)
+				controller.Client.Create(context.Background(), &offlineVersionData)
 				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})

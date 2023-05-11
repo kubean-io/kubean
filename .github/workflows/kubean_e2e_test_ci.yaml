@@ -110,7 +110,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: centos_calico_airgap
         run: |
           export runner_name=${{ runner.name }}
@@ -139,7 +139,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: centos_calico_online
         continue-on-error: ${{ vars.CENTOS_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
@@ -170,7 +170,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: centos_cilium_online
         continue-on-error: ${{ vars.CENTOS_CILIUM_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
@@ -200,7 +200,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: centos_cilium_airgap
         continue-on-error: ${{ vars.CENTOS_CILIUM_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
@@ -231,7 +231,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: redhat_calico_online
         continue-on-error: ${{ vars.REDHAT_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
@@ -261,7 +261,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: redhat_calico_airgap
         continue-on-error: ${{ vars.REDHAT_CALICO_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
@@ -291,7 +291,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: redhat_cilium_airgap
         continue-on-error: ${{ vars.REDHAT_CILIUM_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |
@@ -322,7 +322,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: redhat_cilium_online
         continue-on-error: ${{ vars.REDHAT_CILIUM_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
@@ -353,7 +353,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: kylin_calico_online
         continue-on-error: ${{ vars.KYLIN_CALICO_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
@@ -384,7 +384,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v3
         with:
-          go-version: 1.18.2
+          go-version: 1.20.4
       - name: kylin_calico_airgap
         continue-on-error: ${{ vars.KYLIN_CALICO_AIRGAP_ALLOW_FAILURE != 'false' }}
         run: |

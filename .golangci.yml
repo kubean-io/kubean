@@ -1,4 +1,5 @@
 run:
+  go: '1.20'
   timeout: 10m
 
   # The default concurrency value is the number of available CPU.
@@ -13,6 +14,8 @@ run:
   skip-dirs:
     - test/
     - hack
+    - vendor
+    - api/vendor
 
   # default is true. Enables skipping of directories:
   #   vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
@@ -25,6 +28,15 @@ run:
   #  - vendor: the go command assumes that the vendor directory holds the correct copies of dependencies and ignores
   #            the dependency descriptions in go.mod.
   modules-download-mode: readonly
+
+issues:
+  exclude-rules:
+    - path: pkg
+      linters:
+        - revive
+    - path: cmd
+      linters:
+        - revive
 
 linters-settings:
   depguard:
