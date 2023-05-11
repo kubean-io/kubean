@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	clusteroperationv1alpha1 "kubean.io/api/apis/clusteroperation/v1alpha1"
+	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 
 	"gopkg.in/yaml.v2"
 )

@@ -3,8 +3,8 @@
 package localartifactset
 
 import (
-	internalinterfaces "kubean.io/api/generated/localartifactset/informers/externalversions/internalinterfaces"
-	v1alpha1 "kubean.io/api/generated/localartifactset/informers/externalversions/localartifactset/v1alpha1"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/localartifactset/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/localartifactset/informers/externalversions/localartifactset/v1alpha1"
 )
 
 // Interface provides access to each of this group's versions.

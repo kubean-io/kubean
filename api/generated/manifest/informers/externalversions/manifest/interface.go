@@ -3,8 +3,8 @@
 package manifest
 
 import (
-	internalinterfaces "kubean.io/api/generated/manifest/informers/externalversions/internalinterfaces"
-	v1alpha1 "kubean.io/api/generated/manifest/informers/externalversions/manifest/v1alpha1"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/manifest/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/kubean-io/kubean-api/generated/manifest/informers/externalversions/manifest/v1alpha1"
 )
 
 // Interface provides access to each of this group's versions.

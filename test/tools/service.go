@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
+	kubeanClusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,7 +14,6 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	kubeanClusterClientSet "kubean.io/api/generated/cluster/clientset/versioned"
 	"math"
 	"os"
 	"os/exec"

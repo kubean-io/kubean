@@ -7,13 +7,13 @@ import (
 	sync "sync"
 	time "time"
 
+	versioned "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
+	internalinterfaces "github.com/kubean-io/kubean-api/generated/localartifactset/informers/externalversions/internalinterfaces"
+	localartifactset "github.com/kubean-io/kubean-api/generated/localartifactset/informers/externalversions/localartifactset"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
-	versioned "kubean.io/api/generated/localartifactset/clientset/versioned"
-	internalinterfaces "kubean.io/api/generated/localartifactset/informers/externalversions/internalinterfaces"
-	localartifactset "kubean.io/api/generated/localartifactset/informers/externalversions/localartifactset"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.

@@ -3,6 +3,7 @@ module github.com/kubean-io/kubean
 go 1.17
 
 require (
+	github.com/kubean-io/kubean-api v0.0.0
 	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.18.1
 	github.com/spf13/cobra v1.4.0
@@ -14,7 +15,6 @@ require (
 	k8s.io/client-go v0.24.1
 	k8s.io/component-base v0.24.0
 	k8s.io/klog/v2 v2.60.1
-	kubean.io/api v0.0.0
 	sigs.k8s.io/controller-runtime v0.12.1
 )
 
@@ -99,4 +99,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace kubean.io/api => ./api
+replace github.com/kubean-io/kubean-api => ./api

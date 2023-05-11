@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	localartifactsetv1alpha1 "kubean.io/api/apis/localartifactset/v1alpha1"
-	manifestv1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
-	"kubean.io/api/constants"
-	localartifactsetClientSet "kubean.io/api/generated/localartifactset/clientset/versioned"
-	manifestClientSet "kubean.io/api/generated/manifest/clientset/versioned"
+	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	"github.com/kubean-io/kubean-api/constants"
+	localartifactsetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
+	manifestClientSet "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

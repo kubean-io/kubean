@@ -5,10 +5,10 @@ package internalinterfaces
 import (
 	time "time"
 
+	versioned "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"
-	versioned "kubean.io/api/generated/cluster/clientset/versioned"
 )
 
 // NewInformerFunc takes versioned.Interface and time.Duration to return a SharedIndexInformer.

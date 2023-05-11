@@ -3,10 +3,10 @@
 package v1alpha1
 
 import (
+	v1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
-	v1alpha1 "kubean.io/api/apis/manifest/v1alpha1"
 )
 
 // ManifestLister helps list Manifests.
