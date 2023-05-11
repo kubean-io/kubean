@@ -6,7 +6,7 @@ set -o pipefail
 # Parameters:
 #[KUBEAN_VERSION] kubean helm-chart evision( image and helm versions should be the same)
 #[IMAGE_VERSION] kubean images vision ( image and helm versions should be the same)
-#[IMG_REPO](optional) the image repository to be pulled from
+#[IMG_REGISTRY](optional) the image repository to be pulled from
 #[HELM_REPO](optional) the helm chart repo to be pulled from
 #[KIND_VERSION](optional) k8s cluster revision by specific kind image
 #
@@ -17,7 +17,7 @@ set -o pipefail
 KUBEAN_VERSION=${1:-latest}
 KUBEAN_IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
-IMG_REPO=${4:-"ghcr.io/kubean-io"}
+IMG_REGISTRY=${4:-"ghcr.io"}
 KIND_VERSION=${5:-"kindest/node:v1.25.3"}
 HOST_CLUSTER_NAME=${6:-"kubean-host"}
 
@@ -59,7 +59,7 @@ else
 fi
 
 # check all images were existed
-IMAGE_LIST=$(images::manifest "$KUBEAN_IMAGE_VERSION" "$IMG_REPO")
+IMAGE_LIST=$(images::manifest "$KUBEAN_IMAGE_VERSION" "${IMG_REGISTRY}/kubean-io")
 echo "Preparing: pulling all images..."
 while read -r img2pull && [[ -n "$img2pull" ]] ; do
     docker pull $img2pull
@@ -81,17 +81,17 @@ util::check_clusters_ready "${MAIN_KUBECONFIG}" "${HOST_CLUSTER_NAME}"
 
 #step3. load components images to kind cluster
 ### FIXME : below lines should be removed when kind cluster configured to resolve DNS.
-echo "Loading images to kind cluster..."
-while read -r img2pull && [[ -n "$img2pull" ]] ; do
-    kind load docker-image $img2pull --name="${HOST_CLUSTER_NAME}"
-done <<< "$IMAGE_LIST"
+#= echo "Loading images to kind cluster..."
+#= while read -r img2pull && [[ -n "$img2pull" ]] ; do
+    #= kind load docker-image $img2pull --name="${HOST_CLUSTER_NAME}"
+#= done <<< "$IMAGE_LIST"
 
 #step4. install kubean control plane components
 echo "Installing kubean control plane components..."
 export KUBECONFIG="${MAIN_KUBECONFIG}" # kube.conf for helm and kubectl
 
-# deploy.sh (1)HELM_VER (2)IMG_VER (3)KUBE_CONF (4)TARGET_NS (5)HELM_REPO (6)IMG_REPO
-bash "${REPO_ROOT}"/hack/deploy.sh "${KUBEAN_VERSION}" "${KUBEAN_IMAGE_VERSION}"  "${MAIN_KUBECONFIG}"  "${KUBEAN_SYSTEM_NAMESPACE}"  "${HELM_REPO}" "${IMG_REPO}" "false" "E2E"
+# deploy.sh (1)HELM_VER (2)IMG_VER (3)KUBE_CONF (4)TARGET_NS (5)HELM_REPO (6)IMG_REGISTRY
+bash "${REPO_ROOT}"/hack/deploy.sh "${KUBEAN_VERSION}" "${KUBEAN_IMAGE_VERSION}"  "${MAIN_KUBECONFIG}"  "${KUBEAN_SYSTEM_NAMESPACE}"  "${HELM_REPO}" "${IMG_REGISTRY}" "E2E" "${REPO_ROOT}/kubean-helm-dir"
 
 # Wait and check kubean ready
 util::wait_pod_ready "${KUBEAN_POD_LABEL}" "${KUBEAN_SYSTEM_NAMESPACE}" 600s

@@ -20,7 +20,7 @@ IMG_VER=${2:-$HELM_VER} # by default, $IMG_VER is the same with $HELM_VER
 KUBE_CONF=${3:-"/root/.kube/config"}
 TARGET_NS=${4:-"kubean-system"}
 HELM_REPO=${5:-"https://release.daocloud.io/chartrepo/kubean"}
-IMG_REPO=${6:-} #default using what inside helm chart
+IMG_REGISTRY=${6:-} #default using what inside helm chart
 DEPLOY_ENV=${7:-}   # E2E/DEV/PROD
 
 LOCAL_REPO_ALIAS=kubean_release
@@ -28,12 +28,14 @@ LOCAL_RELEASE_NAME=kubean
 
 # replace the default values.yaml, the image repo or image revision
 value_override=""
-if [ "${IMG_REPO}" != "" ]; then
-    value_override=" $value_override --set image.repository=${IMG_REPO}/kubean-operator "
+if [ "${IMG_REGISTRY}" != "" ]; then
+    value_override=" $value_override --set kubeanOperator.image.registry=${IMG_REGISTRY} --set sprayJob.image.registry=${IMG_REGISTRY}"
 fi
 if [ "${IMG_VER}" != "" ]; then
-    value_override=" $value_override --set image.tag=${IMG_VER} "
+    value_override=" $value_override --set kubeanOperator.image.tag=${IMG_VER} --set sprayJob.image.tag=${IMG_VER}"
 fi
+
+echo "value_override: ${value_override}  ##########"
 
 #v0.1.1 --> 0.1.1 Match the helm chart version specification, remove the preceding prefix `v` character
 # KUBEAN_CHART_VERSION="$(echo "${HELM_VER}" |sed  's/^v//g' )"
