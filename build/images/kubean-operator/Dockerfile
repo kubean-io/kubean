@@ -1,4 +1,4 @@
-FROM golang:1.17.3 as build
+FROM golang:1.20.4 as build
 
 WORKDIR /kubean
 
