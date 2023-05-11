@@ -371,7 +371,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 				}
 				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
-				controller.Create(context.Background(), global)
+				controller.Client.Create(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
 				controller.UpdateGlobalLocalService()
 			},
@@ -439,7 +439,7 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 				}
 				addLocalArtifactSet(controller)
 				controller.ClientSet.CoreV1().ConfigMaps("default").Update(context.Background(), configMap, metav1.UpdateOptions{})
-				controller.Create(context.Background(), global)
+				controller.Client.Create(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
 				controller.UpdateGlobalLocalService()
 			},
@@ -507,7 +507,7 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 						KubeanVersion: "123",
 					},
 				}
-				controller.Create(context.Background(), global)
+				controller.Client.Create(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
 				controller.UpdateLocalAvailableImage()
 			},
@@ -533,7 +533,7 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 						KubeanVersion: "123456",
 					},
 				}
-				controller.Update(context.Background(), global)
+				controller.Client.Update(context.Background(), global)
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), global, metav1.UpdateOptions{})
 				controller.UpdateLocalAvailableImage()
 			},

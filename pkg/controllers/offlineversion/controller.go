@@ -14,7 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -22,7 +22,7 @@ import (
 const Loop = time.Second * 15
 
 type Controller struct {
-	client.Client
+	Client                    client.Client
 	ClientSet                 kubernetes.Interface
 	InfoManifestClientSet     manifestClientSet.Interface
 	LocalArtifactSetClientSet localartifactsetClientSet.Interface

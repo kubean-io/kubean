@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/template"
 
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 )
 
 // Generate kubespray job entrypoint script

@@ -5,7 +5,7 @@ import (
 
 	apiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/logs"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 
 	"github.com/kubean-io/kubean/cmd/kubean-operator/app"
 )

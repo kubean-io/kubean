@@ -20,7 +20,7 @@ import (
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/yaml"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
+	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -32,7 +32,7 @@ const OriginLabel = "origin"
 const LocalServiceConfigMap = "kubean-localservice"
 
 type Controller struct {
-	client.Client
+	Client                    client.Client
 	InfoManifestClientSet     manifestClientSet.Interface
 	ClientSet                 kubernetes.Interface
 	LocalArtifactSetClientSet localartifactsetClientSet.Interface

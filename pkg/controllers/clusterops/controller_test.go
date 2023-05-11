@@ -104,7 +104,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 					return clusteroperationv1alpha1.SucceededStatus, nil
 				})
 				resultOps := &clusteroperationv1alpha1.ClusterOperation{}
-				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
+				controller.Client.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
 				if resultOps.Status.Status != clusteroperationv1alpha1.SucceededStatus {
 					return false
 				}
@@ -115,7 +115,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 		{
 			name: "the status is Running and the result of fetchJobStatus is still Failed",
 			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
-				controller.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
+				controller.Client.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
 				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
 				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
