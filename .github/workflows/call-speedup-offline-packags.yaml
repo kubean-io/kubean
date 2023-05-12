@@ -7,7 +7,7 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          file_name: [ files-amd64, images-amd64, files-arm64, images-arm64, os-pkgs-centos7, os-pkgs-kylinv10, os-pkgs-redhat8, os-pkgs-redhat7 ]
+          file: [ files-amd64, images-amd64, files-arm64, images-arm64, os-pkgs-centos7, os-pkgs-kylinv10, os-pkgs-redhat8, os-pkgs-redhat7 ]
       permissions:
         packages: write
         contents: read
@@ -15,20 +15,17 @@ jobs:
         - uses: actions/checkout@v3
           with:
             fetch-depth: 0
-        - uses: wei/wget@v1
-          with:
-            args: -qO- https://httpbin.org/get
-        - name: wget-file
+        - name: download-file
           run: |
-            GIT_TAG=$(git describe --tags --abbrev=8 --dirty)
+            GIT_TAG=${{github.ref_name}}
             TAG=`echo ${GIT_TAG}|awk -F "-" '{print $1}'`
             TAG_SECOND_PART=`echo ${GIT_TAG}|awk  -F "-" '{print $2 }'`
             if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
               TAG=`echo ${GIT_TAG}|awk -F "-" '{print $1"-"$2 }'`
             fi
-            echo "Start speed up ${{ matrix.file_name }}"
+            echo "Start speed up ${{ matrix.file }}"
             echo "${TAG}"
-            SPEEDUP_BASE_URL="https://github.com/kubean-io/kubean/releases/download"
-            file="${SPEEDUP_BASE_URL}/${TAG}/${{ matrix.file_name }}-${TAG}.tar.gz"
-            wget -q -c -T 1m ${file}
+            SPEEDUP_BASE_URL="https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download"
+            file="${SPEEDUP_BASE_URL}/${TAG}/${{ matrix.file }}-${TAG}.tar.gz"
+            curl --retry 10 --retry-max-time 60 -LO ${file}
             echo "Download ${file} end"
