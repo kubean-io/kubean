@@ -1,12 +1,10 @@
 # 集群伸缩
 
-> [English](../../en/LCM/scale.md) | 中文
-
-我们以使用 [`minimal`](../../../examples/install/1.minimal/) 模板安装好的单节点集群为例，来进行集群节点的扩缩容操作；
+我们以使用 [`minimal`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/) 模板安装好的单节点集群为例，来进行集群节点的扩缩容操作；
 
 ## 新增一个工作节点
 
-> 可以参考 [`scale/1.addWorkNode/`](../../../examples/scale/1.addWorkNode/) 样例模板；
+> 可以参考 [`scale/1.addWorkNode/`](https://github.com/kubean-io/kubean/blob/main/examples/scale/1.addWorkNode/) 样例模板；
 
 ### 1. 新增节点参数配置
 
@@ -40,7 +38,7 @@ data:
 ```
 
 重要参数设置：
-* `all.hosts` 内配置新增的 node2 节点接入参数，这里采用用户名密码方式 (SSH私钥方式请见：[sshkey_deploy_cluster](../sshkey_deploy_cluster.md))
+* `all.hosts` 内配置新增的 node2 节点接入参数，这里采用用户名密码方式 (SSH私钥方式请见：[sshkey_deploy_cluster](./sshkey_deploy_cluster.md))
 * `all.children.kube_node.hosts` 内新增 node2 主机名称；
 
 
@@ -71,7 +69,7 @@ spec:
 
 ## 删除一个工作节点
 
-> 可以参考 [`scale/2.delWorkNode/`](../../../examples/scale/2.delWorkNode/) 样例模板；
+> 可以参考 [`scale/2.delWorkNode/`](https://github.com/kubean-io/kubean/blob/main/examples/scale/2.delWorkNode/) 样例模板；
 
 ### 1. 创建缩容节点操作任务
 
@@ -94,7 +92,7 @@ spec:
 
 ### 2. 删除节点参数配置
 
-删除 [HostsConfCM](../../../examples/scale/2.delWorkNode/HostsConfCM.yml) 中 node2 的信息；
+删除 [HostsConfCM](https://github.com/kubean-io/kubean/blob/main/examples/scale/2.delWorkNode/HostsConfCM.yml) 中 node2 的信息；
 
 删除重要关注参数：
 * `all.hosts` 内删除 node2 节点接入参数
