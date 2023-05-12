@@ -261,6 +261,8 @@ function dnf_install() {
   local yum_repos_path='/etc/yum.repos.d'
   local yum_repo_config='other-extra.repo'
   local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+
+  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak/ && mkdir -p /etc/yum.repos.d/"
   # Distribute yum repo configuration
   cat >${yum_repo_config} <<EOF
 [other-extra]
@@ -271,6 +273,7 @@ gpgcheck=0
 sslverify=0
 EOF
   ssh_cp "${ip}" "${yum_repo_config}" "${yum_repos_path}"
+  ssh_run "${ip}" "dnf clean all && dnf repolist"
   rm ${yum_repo_config} -rf
   # Installing yum packages
   set +e
@@ -283,8 +286,6 @@ EOF
     fi
   done
   set -e
-  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak"
-  ssh_run "${ip}" "dnf clean all && dnf repolist"
 }
 
 function yum_install() {
@@ -292,6 +293,8 @@ function yum_install() {
   local yum_repos_path='/etc/yum.repos.d'
   local yum_repo_config='other-extra.repo'
   local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+
+  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak/ && mkdir -p /etc/yum.repos.d/"
   # Distribute yum repo configuration
   cat >${yum_repo_config} <<EOF
 [other-extra]
@@ -302,6 +305,7 @@ gpgcheck=0
 sslverify=0
 EOF
   ssh_cp "${ip}" "${yum_repo_config}" "${yum_repos_path}"
+  ssh_run "${ip}" "yum clean all && yum repolist"
   rm ${yum_repo_config} -rf
   # Installing yum packages
   set +e
@@ -312,8 +316,6 @@ EOF
     fi
   done
   set -e
-  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak"
-  ssh_run "${ip}" "yum clean all && yum repolist"
 }
 
 function apt_install() {
