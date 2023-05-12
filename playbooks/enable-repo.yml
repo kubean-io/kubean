@@ -29,29 +29,29 @@
       when: ansible_distribution in redhat_os_family_extensions
 
     ## yum repository config
-    - name: Checking if "{{ repo_name }}" exists
+    - name: Checking if extension yum repo exists
       stat:
         path: "{{ yum_repo_src_path }}/{{ repo_name }}.repo"
       register: file_data
       when:
         - ansible_os_family == "RedHat"
 
-    - name: Move(Backup) original yum repo if "{{ repo_name }}" not exist
+    - name: Backup original yum repo if extension repo not exist
       shell: >-
-        mkdir -p {{ yum_repo_bak_path }}/ &&
-        mv {{ yum_repo_src_path }}/* {{ yum_repo_bak_path }}/ 2>/dev/null; true
+        mv {{ yum_repo_src_path }} {{ yum_repo_bak_path }} &&
+        mkdir -p {{ yum_repo_src_path }}
       when:
         - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( repo_list | length > 0 )
         - not undo|default(false)|bool
 
-    - name: Enable "{{ repo_name }}" yum repositories
+    - name: Enable extension yum repositories
       ansible.builtin.yum_repository:
         name: "{{ repo_name }}-{{ url_index }}"
         description: "kubean {{ repo_name }} {{ url_index }}"
         file: "{{ repo_name }}"
         baseurl: "{{ url_item }}"
-        gpgcheck: no
+        gpgcheck: false
       loop: "{{ repo_list }}"
       loop_control:
         loop_var: url_item
@@ -61,14 +61,14 @@
         - not undo|default(false)|bool
 
     ## apt repository config
-    - name: Checking if apt "{{ repo_name }}" exists
+    - name: Checking if extension apt repo exists
       stat:
         path: "{{ apt_repo_src_path }}/{{ repo_name }}.list"
       register: deb_repo_data
       when:
         - ansible_pkg_mgr == 'apt'
 
-    - name: Move(Backup) original apt repo if "{{ repo_name }}" not exist
+    - name: Backup original apt repo if extension repo not exist
       shell: >-
         mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }} &&
         mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/ &&
@@ -78,7 +78,7 @@
         - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
         - not undo|default(false)|bool
 
-    - name: Enable "{{ repo_name }}" apt repositories
+    - name: Enable extension apt repositories
       apt_repository:
         repo: "{{ item }}"
         state: present
@@ -106,7 +106,7 @@
         - ansible_os_family == "RedHat"
         - file_data.stat.exists
 
-    - name: Checking if "{{ yum_repo_bak_path }}" exists
+    - name: Checking if yum repo backup path exists
       stat:
         path: "{{ yum_repo_bak_path }}"
       register: repo_bak_path
@@ -114,10 +114,10 @@
         - undo|default(false)|bool
         - ansible_os_family == "RedHat"
 
-    - name: Restore "{{ yum_repo_src_path }}" repo
+    - name: Restore the original yum repo configuration
       shell: >
-        mv {{ yum_repo_bak_path }}/* {{ yum_repo_src_path }}/ 2>/dev/null; true &&
-        rm -rf {{ yum_repo_bak_path }}
+        rm -rf {{ yum_repo_src_path }} &&
+        mv {{ yum_repo_bak_path }}/ {{ yum_repo_src_path }}/
       args:
         executable: /bin/bash
       register: restore_repo_result
@@ -130,7 +130,7 @@
         - repo_bak_path.stat.exists
 
     ## apt repository config
-    - name: Checking if apt "{{ apt_repo_bak_file }}" exists
+    - name: Checking if backup apt repo exists
       stat:
         path: "{{ apt_repo_bak_file }}"
       register: list_file
@@ -138,7 +138,7 @@
         - undo|default(false)|bool
         - ansible_pkg_mgr == 'apt'
 
-    - name: Checking if apt "{{ apt_repo_bak_path }}" exists
+    - name: Checking if backup apt repo path exists
       stat:
         path: "{{ apt_repo_bak_path }}"
       register: list_path
@@ -146,7 +146,7 @@
         - undo|default(false)|bool
         - ansible_pkg_mgr == 'apt'
 
-    - name: Restore apt repositories
+    - name: Restore the original apt repo configuration
       shell: >-
         mv {{ apt_repo_bak_file }} {{ apt_repo_src_file }} &&
         rm {{ apt_repo_src_path }}/ -rf &&
