@@ -283,6 +283,8 @@ EOF
     fi
   done
   set -e
+  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak"
+  ssh_run "${ip}" "dnf clean all && dnf repolist"
 }
 
 function yum_install() {
@@ -310,6 +312,8 @@ EOF
     fi
   done
   set -e
+  ssh_run "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak"
+  ssh_run "${ip}" "yum clean all && yum repolist"
 }
 
 function apt_install() {
