@@ -99,4 +99,4 @@ If you have any question please reach out us, you can
 
 - join the wechat group to chat more
 
-  ![QR code for Wechat](./docs/images/wechat.png)
+  ![QR code for Wechat](docs/overrides/assets/images/wechat.png)
