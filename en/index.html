@@ -51,7 +51,18 @@
     
     
     
-  </head>
+   <link href="assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+        html.glightbox-open { overflow: initial; height: 100%; }
+        .gslide-title { margin-top: 0px; user-select: text; }
+        .gslide-desc { color: #666; user-select: text; }
+        .gslide-image img { background: white; }
+        
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}
+            </style> <script src="assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -71,6 +82,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#kubean" class="md-skip">
+          跳转至
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -271,10 +287,43 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Introduction
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="." class="md-nav__link md-nav__link--active">
         Introduction
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#awesome-features" class="md-nav__link">
+    Awesome features
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -837,14 +886,14 @@
       
       
         <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
-          Development Guide
+          Development
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
-          Development Guide
+          Development
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -885,6 +934,23 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#awesome-features" class="md-nav__link">
+    Awesome features
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -905,9 +971,17 @@
   
 
 
-  <h1>Introduction</h1>
-
-<p>hello world</p>
+<h1 id="kubean"><img alt="🌱" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@14.1.2/assets/svg/1f331.svg" title=":seedling:" /> Kubean<a class="headerlink" href="#kubean" title="Permanent link">&para;</a></h1>
+<p><a class="glightbox" href="/kubean/en/assets/images/kubean_logo_3.svg" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="Image title" src="/kubean/en/assets/images/kubean_logo_3.svg" width="400" /></a></p>
+<p>kubean is a cluster lifecycle management tool based on <a href="https://github.com/kubernetes-sigs/kubespray">kubespray</a>.</p>
+<hr />
+<h2 id="awesome-features"><img alt="⚓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@14.1.2/assets/svg/2693.svg" title=":anchor:" /> Awesome features<a class="headerlink" href="#awesome-features" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Simplicity:</strong> Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.</li>
+<li><strong>Offline Supported</strong>: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.</li>
+<li><strong>Compatibility</strong>: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.</li>
+<li><strong>Expandability</strong>: Allowing custom actions be added to cluster without any changes for Kubespray. </li>
+</ul>
 
 
 
@@ -953,5 +1027,5 @@
       <script src="assets/javascripts/bundle.c2be25ad.min.js"></script>
       
     
-  </body>
+  <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
 </html>
