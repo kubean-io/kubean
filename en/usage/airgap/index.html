@@ -1,0 +1,1511 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)">
+      
+      
+      
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/usage/airgap/">
+      
+      
+        <link rel="prev" href="../uninstall/">
+      
+      
+        <link rel="next" href="../airgap_patch_usage/">
+      
+      <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.12">
+    
+    
+      
+        <title>Use Kubean in offline scenes - Kubean</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSource+Sans+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Source Sans Pro"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#use-kubean-in-offline-scenes" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="Kubean" class="md-header__button md-logo" aria-label="Kubean" data-md-component="logo">
+      
+  <img src="../../assets/images/kubean_logo_1.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kubean
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Use Kubean in offline scenes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+            
+              <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_2" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+            
+            
+            
+            <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_2">
+            
+              <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+              </label>
+            
+          
+        </form>
+      
+    
+    
+      <div class="md-header__option">
+        <div class="md-select">
+          
+          <button class="md-header__button md-icon" aria-label="选择当前语言">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+              
+                <li class="md-select__item">
+                  <a href="/kubean/en/" hreflang="en" class="md-select__link">
+                    en - English
+                  </a>
+                </li>
+              
+                <li class="md-select__item">
+                  <a href="/kubean/zh/" hreflang="zh" class="md-select__link">
+                    zh - 中文
+                  </a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kubean-io/kubean" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kubean-io/kubean
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kubean" class="md-nav__button md-logo" aria-label="Kubean" data-md-component="logo">
+      
+  <img src="../../assets/images/kubean_logo_1.svg" alt="logo">
+
+    </a>
+    Kubean
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kubean-io/kubean" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kubean-io/kubean
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          Languages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Languages
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="/kubean/en/" class="md-nav__link">
+        en
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="/kubean/zh/" class="md-nav__link">
+        zh
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Releases
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Releases
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        V0.5.0
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.10/" class="md-nav__link">
+        V0.4.10
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.9/" class="md-nav__link">
+        V0.4.9
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.8/" class="md-nav__link">
+        V0.4.8
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.7/" class="md-nav__link">
+        V0.4.7
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.6/" class="md-nav__link">
+        V0.4.6
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.5/" class="md-nav__link">
+        V0.4.5
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.4/" class="md-nav__link">
+        V0.4.4
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.3/" class="md-nav__link">
+        V0.4.3
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.2/" class="md-nav__link">
+        V0.4.2
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.1/" class="md-nav__link">
+        V0.4.1
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        V0.4.0
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        Kubean Infrastructure
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/comparisons/" class="md-nav__link">
+        Kubean vs Kubespray
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/crds/" class="md-nav__link">
+        CRDs
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/custom_action/" class="md-nav__link">
+        自定义 Action
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
+        Theory of Air-gapped packages
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Quick Start
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Quick Start
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        集群部署
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          User Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          User Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sshkey_deploy_cluster/" class="md-nav__link">
+        Deploy Kubernetes clusters with SSH
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale/" class="md-nav__link">
+        集群伸缩
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        集群升级
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uninstall/" class="md-nav__link">
+        集群卸载
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Use Kubean in offline scenes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Use Kubean in offline scenes
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preparation" class="md-nav__link">
+    Preparation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#download-offline-resources" class="md-nav__link">
+    Download offline resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importing-offline-resources-into-the-corresponding-service" class="md-nav__link">
+    Importing offline resources into the corresponding service
+  </a>
+  
+    <nav class="md-nav" aria-label="Importing offline resources into the corresponding service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-import-binary-resources" class="md-nav__link">
+    1. Import binary resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-images-import-of-resources" class="md-nav__link">
+    2. Images  import of resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-os-packages-import-of-resources" class="md-nav__link">
+    3. OS packages import of resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-offline-sources" class="md-nav__link">
+    Create offline sources
+  </a>
+  
+    <nav class="md-nav" aria-label="Create offline sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-iso-image-source" class="md-nav__link">
+    Create ISO image source
+  </a>
+  
+    <nav class="md-nav" aria-label="Create ISO image source">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-create-a-local-iso-image-source" class="md-nav__link">
+    1.1 Create a local ISO image source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-create-an-online-iso-image-source" class="md-nav__link">
+    1.2 Create an online ISO image source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-extras-software-sources" class="md-nav__link">
+    2. Create extras software sources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-clusteroperation-combined-with-playbook-to-create-source-profiles" class="md-nav__link">
+    3. ClusterOperation combined with playbook to create source profiles
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-deployment-cluster-configuration" class="md-nav__link">
+    Pre-deployment cluster configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generation-and-use-of-incremental-offline-packages" class="md-nav__link">
+    Generation and use of incremental offline packages
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airgap_patch_usage/" class="md-nav__link">
+        Generation and use of incremental offline packages
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Development Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Development Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../develop/roadmap/" class="md-nav__link">
+        Kubean Roadmap
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preparation" class="md-nav__link">
+    Preparation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#download-offline-resources" class="md-nav__link">
+    Download offline resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#importing-offline-resources-into-the-corresponding-service" class="md-nav__link">
+    Importing offline resources into the corresponding service
+  </a>
+  
+    <nav class="md-nav" aria-label="Importing offline resources into the corresponding service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-import-binary-resources" class="md-nav__link">
+    1. Import binary resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-images-import-of-resources" class="md-nav__link">
+    2. Images  import of resources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-os-packages-import-of-resources" class="md-nav__link">
+    3. OS packages import of resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-offline-sources" class="md-nav__link">
+    Create offline sources
+  </a>
+  
+    <nav class="md-nav" aria-label="Create offline sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-iso-image-source" class="md-nav__link">
+    Create ISO image source
+  </a>
+  
+    <nav class="md-nav" aria-label="Create ISO image source">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-create-a-local-iso-image-source" class="md-nav__link">
+    1.1 Create a local ISO image source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-create-an-online-iso-image-source" class="md-nav__link">
+    1.2 Create an online ISO image source
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-extras-software-sources" class="md-nav__link">
+    2. Create extras software sources
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-clusteroperation-combined-with-playbook-to-create-source-profiles" class="md-nav__link">
+    3. ClusterOperation combined with playbook to create source profiles
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-deployment-cluster-configuration" class="md-nav__link">
+    Pre-deployment cluster configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generation-and-use-of-incremental-offline-packages" class="md-nav__link">
+    Generation and use of incremental offline packages
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+
+
+
+  
+  
+
+
+<h1 id="use-kubean-in-offline-scenes">Use Kubean in offline scenes<a class="headerlink" href="#use-kubean-in-offline-scenes" title="Permanent link">&para;</a></h1>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Services requiring pre-deployment:</li>
+<li>Document resource service <a href="https://docs.min.io/docs/minio-quickstart-guide.html"><code>minio</code></a></li>
+<li>
+<p>Image registry services: <a href="https://hub.docker.com/_/registry"><code>docker registry</code></a>（2.7 below）
+  or <a href="https://goharbor.io/docs/2.0.0/install-config/"><code>harbor</code></a></p>
+</li>
+<li>
+<p>Necessary tools to be installed:</p>
+</li>
+<li>
+<p>A tool for importing image files: <a href="https://github.com/containers/skopeo/blob/main/install.md"><code>skopeo</code></a>, Required &gt;=1.9.2</p>
+</li>
+<li>
+<p>A tool for importing binary files: <a href="https://docs.min.io/docs/minio-client-quickstart-guide.html"><code>minio client</code></a></p>
+</li>
+<li>
+<p>Deploy Kubean by Helm<a href="https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md"><code>kubean</code></a></p>
+</li>
+</ol>
+<h2 id="download-offline-resources">Download offline resources<a class="headerlink" href="#download-offline-resources" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/kubean-io/kubean/releases">Github Releases</a> page allows us to download the offline resources for the version we want</p>
+<p>Basic instructions for offline resources:</p>
+<div class="codehilite"><pre><span></span><code>├──<span class="w"> </span>files.list<span class="w">                                  </span><span class="c1"># List of file contents</span>
+├──<span class="w"> </span>files-<span class="si">${</span><span class="nv">tag</span><span class="si">}</span>.tar.gz<span class="w">                         </span><span class="c1"># File compression package, including import scripts</span>
+├──<span class="w"> </span>images.list<span class="w">                                 </span><span class="c1"># List of image contents</span>
+├──<span class="w"> </span>images-<span class="si">${</span><span class="nv">tag</span><span class="si">}</span>.tar.gz<span class="w">                        </span><span class="c1"># File compression package, including import scripts</span>
+└──<span class="w"> </span>os-pkgs-<span class="si">${</span><span class="nv">linux_distribution</span><span class="si">}</span>-<span class="si">${</span><span class="nv">tag</span><span class="si">}</span>.tar.gz<span class="w"> </span><span class="c1"># Compressed package of each system, including import script</span>
+</code></pre></div>
+
+<h2 id="importing-offline-resources-into-the-corresponding-service">Importing offline resources into the corresponding service<a class="headerlink" href="#importing-offline-resources-into-the-corresponding-service" title="Permanent link">&para;</a></h2>
+<h3 id="1-import-binary-resources">1. Import binary resources<a class="headerlink" href="#1-import-binary-resources" title="Permanent link">&para;</a></h3>
+<p>Please first unzip the <code>files-${tag}.tar.gz</code> file, which contains:</p>
+<div class="codehilite"><pre><span></span><code>files/
+├──<span class="w"> </span>import_files.sh<span class="w">       </span><span class="c1"># This script is used to import binary files into the minio file service</span>
+└──<span class="w"> </span>offline-files.tar.gz<span class="w">  </span><span class="c1"># Compressed package of binary </span>
+</code></pre></div>
+
+<p>Execute the following command to import the binary file into the minio service:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
+</code></pre></div>
+
+<ul>
+<li><code>minio_address</code> is the <code>minio API Server</code> address, typically on port 9000, e.g. <code>http://1.2.3.4:9000</code></li>
+</ul>
+<h3 id="2-images-import-of-resources">2. Images  import of resources<a class="headerlink" href="#2-images-import-of-resources" title="Permanent link">&para;</a></h3>
+<p>You need to unzip the <code>images-${tag}.tar.gz</code> file, which contains:</p>
+<div class="codehilite"><pre><span></span><code>images/
+├──<span class="w"> </span>import_images.sh<span class="w">       </span><span class="c1"># This script is used to import binary files into the minio file service</span>
+└──<span class="w"> </span>offline-images.tar.gz<span class="w">  </span><span class="c1"># Compressed package of image file</span>
+</code></pre></div>
+
+<p>Execute the following command to import the image file into the Docker Registry or the Harbor image repository service:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Non-secure password-free mode</span>
+$<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+
+<span class="c1"># 2. Username password mode</span>
+$<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+</code></pre></div>
+
+<ul>
+<li>When <code>DEST_TLS_VERIFY=false</code>, the image is uploaded in non-secure HTTP mode</li>
+<li><code>DEST_USER</code> and <code>DEST_PASS</code> need to be set when username and password authentication exists for the mirror repository</li>
+<li><code>registry_address</code> is the address of the mirror repository, e.g. <code>1.2.3.4:5000</code></li>
+</ul>
+<h3 id="3-os-packages-import-of-resources">3. OS packages import of resources<a class="headerlink" href="#3-os-packages-import-of-resources" title="Permanent link">&para;</a></h3>
+<p>Note: 
+- <a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/README.md">OS Packages</a> resources for Centos / Redhat / Kylin / Ubuntu distributions are currently supported.
+- The OS Package of UnionTech V20 series needs to be built manually, see <a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/README.md">README</a> for the build method.</p>
+<p>You need to unzip the <code>os-pkgs-${linux_distribution}-${tag}.tar.gz</code> file, which contains:</p>
+<div class="codehilite"><pre><span></span><code>os-pkgs
+├──<span class="w"> </span>import_ospkgs.sh<span class="w">       </span><span class="c1"># This script is used to import os packages to the minio file service</span>
+├──<span class="w"> </span>os-pkgs-amd64.tar.gz<span class="w">   </span><span class="c1"># os packages for the amd64 architecture</span>
+├──<span class="w"> </span>os-pkgs-arm64.tar.gz<span class="w">   </span><span class="c1"># os packages for the arm64 architecture</span>
+└──<span class="w"> </span>os-pkgs.sha256sum.txt<span class="w">  </span><span class="c1"># The sha256sum checksum file for the os packages</span>
+</code></pre></div>
+
+<p>Execute the following command to os packages into the minio file service:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_ospkgs.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span><span class="w"> </span>os-pkgs-<span class="si">${</span><span class="nv">arch</span><span class="si">}</span>.tar.gz
+</code></pre></div>
+
+<h2 id="create-offline-sources">Create offline sources<a class="headerlink" href="#create-offline-sources" title="Permanent link">&para;</a></h2>
+<h3 id="create-iso-image-source">Create ISO image source<a class="headerlink" href="#create-iso-image-source" title="Permanent link">&para;</a></h3>
+<p>The following [Create local ISO image source] and [Create online ISO image source] only need to execute one of them.</p>
+<h4 id="11-create-a-local-iso-image-source">1.1 Create a local ISO image source<a class="headerlink" href="#11-create-a-local-iso-image-source" title="Permanent link">&para;</a></h4>
+<p>OS Packages are primarily used to resolve docker-ce installation dependencies, but for offline deployments, other packages from the distribution may be used, and a local ISO image source will need to be created.</p>
+<blockquote>
+<p>Note: We need to download the ISO system distribution image for the host in advance, currently only the ISO image source for the Centos distribution is supported;
+Note: This operation needs to be performed on each cluster that creates kubernetes nodes;</p>
+</blockquote>
+<p>The script <code>artifacts/gen_repo_conf.sh</code> can be used to mount the ISO image and create the Repo configuration file by executing the following command:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Basic format</span>
+$<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--iso-mode<span class="w"> </span><span class="si">${</span><span class="nv">linux_distribution</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">iso_image_file</span><span class="si">}</span>
+
+<span class="c1"># Execute the script to create the ISO image source</span>
+$<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--iso-mode<span class="w"> </span>centos<span class="w"> </span>CentOS-7-x86_64-Everything-2207-02.iso
+<span class="c1"># Check ISO image mounts</span>
+$<span class="w"> </span>df<span class="w"> </span>-h<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mnt
+/dev/loop0<span class="w">               </span><span class="m">9</span>.6G<span class="w">  </span><span class="m">9</span>.6G<span class="w">     </span><span class="m">0</span><span class="w"> </span><span class="m">100</span>%<span class="w"> </span>/mnt/centos-iso
+<span class="c1"># Check ISO image source configuration</span>
+$<span class="w"> </span>cat<span class="w"> </span>/etc/yum.repos.d/Kubean-ISO.repo
+<span class="o">[</span>kubean-iso<span class="o">]</span>
+<span class="nv">name</span><span class="o">=</span>Kubean<span class="w"> </span>ISO<span class="w"> </span>Repo
+<span class="nv">baseurl</span><span class="o">=</span>file:///mnt/centos-iso
+<span class="nv">enabled</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">gpgcheck</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">sslverify</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+
+<h4 id="12-create-an-online-iso-image-source">1.2 Create an online ISO image source<a class="headerlink" href="#12-create-an-online-iso-image-source" title="Permanent link">&para;</a></h4>
+<p>To import the image source from the ISO into the minio server, use the script <code>artifacts/import_iso.sh</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_iso.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span><span class="w"> </span>Centos-XXXX.ISO
+</code></pre></div>
+
+<p>Create the following file for the host <code>/etc/yum.repos.d/centos-iso-online.repo</code> to use the online ISO image source:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">[kubean-iso-online]</span>
+<span class="na">name</span><span class="o">=</span><span class="s">Kubean ISO Repo Online</span>
+<span class="na">baseurl</span><span class="o">=</span><span class="s">${minio_address}/kubean/centos-iso/$releasever/os/$basearch</span>
+<span class="na">enabled</span><span class="o">=</span><span class="s">1</span>
+<span class="na">gpgcheck</span><span class="o">=</span><span class="s">0</span>
+<span class="na">sslverify</span><span class="o">=</span><span class="s">0</span>
+</code></pre></div>
+
+<ul>
+<li>Need to replace <code>${minio_address}</code> with the minio API Server address</li>
+</ul>
+<h3 id="2-create-extras-software-sources">2. Create extras software sources<a class="headerlink" href="#2-create-extras-software-sources" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Currently only supported on Centos distributions</p>
+</blockquote>
+<p>When installing a K8S cluster, it also relies on extras, such as <code>container-selinux</code>, which are not always provided in the ISO image source. This is supplemented by the OS packages offline package, which requires us to create an extra repo configuration file for each node after importing minio.</p>
+<p>The Extra Repo can also be created using the script <code>artifacts/gen_repo_conf.sh</code>, by executing the following command:</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--url-mode<span class="w"> </span><span class="si">${</span><span class="nv">linux_distribution</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">repo_base_url</span><span class="si">}</span>
+
+<span class="c1"># Execute the script to create a URL source profile</span>
+$<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--url-mode<span class="w"> </span>centos<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>/kubean/centos/<span class="se">\$</span>releasever/os/<span class="se">\$</span>basearch
+<span class="c1"># View URL source profile</span>
+$<span class="w"> </span>cat<span class="w"> </span>/etc/yum.repos.d/Kubean-URL.repo
+<span class="o">[</span>kubean-extra<span class="o">]</span>
+<span class="nv">name</span><span class="o">=</span>Kubean<span class="w"> </span>Extra<span class="w"> </span>Repo
+<span class="nv">baseurl</span><span class="o">=</span>http://10.20.30.40:9000/kubean/centos/<span class="nv">$releasever</span>/os/<span class="nv">$basearch</span>
+<span class="nv">enabled</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">gpgcheck</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">sslverify</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+
+<blockquote>
+<p>Note: If the <code>repo_base_url</code> parameter has a <code>$</code> symbol, it needs to be escaped <code>\$</code></p>
+<p>Need to replace <code>${minio_address}</code> with the actual <code>minio API Server</code> address</p>
+</blockquote>
+<h3 id="3-clusteroperation-combined-with-playbook-to-create-source-profiles">3. ClusterOperation combined with playbook to create source profiles<a class="headerlink" href="#3-clusteroperation-combined-with-playbook-to-create-source-profiles" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Only Centos yum repo additions are currently supported</p>
+</blockquote>
+<p>As the process of creating a source involves all the nodes in the cluster, manual scripting is relatively tedious, so a playbook solution is provided here:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-ops-01</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/kubean-io/spray-job:latest</span>
+<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
+<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># Before deploying the cluster, run the enable-repo playbook to create a source configuration for each node with the specified url</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e &quot;{repo_list: [&#39;http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch&#39;]}&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
+<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># After deploying the cluster, restore the yum repo configuration for each node. (Note: This step can be added as appropriate.)</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e undo=true</span>
+</code></pre></div>
+
+<h2 id="pre-deployment-cluster-configuration">Pre-deployment cluster configuration<a class="headerlink" href="#pre-deployment-cluster-configuration" title="Permanent link">&para;</a></h2>
+<p>Offline settings need to be referred to <a href="https://github.com/kubernetes-sigs/kubespray"><code>kubespray</code></a>
+Located in <code>kubespray/inventory/sample/group_vars/all/offline.yml</code> configuration file:</p>
+<div class="codehilite"><pre><span></span><code><span class="nn">---</span>
+<span class="c1">## Global offline configuration</span>
+<span class="c1">### Configure the address of the private container image repository service</span>
+<span class="nt">registry_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1">### Configuring the address of the binary file service</span>
+<span class="nt">files_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}/kubean&quot;</span>
+
+<span class="c1">### If you are using CentOS / RedHat / AlmaLinux / Fedora, you need to configure the yum source file service address:</span>
+<span class="nt">yum_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1">### If using Debian, configure:</span>
+<span class="nt">debian_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1">### If using Ubuntu, configure:</span>
+<span class="nt">ubuntu_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1">### If containerd uses a non-secure HTTP authentication-free method, it needs to be configured:</span>
+<span class="nt">containerd_insecure_registries</span><span class="p">:</span>
+<span class="w">  </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;http://{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1">### Required if docker uses non-secure HTTP authentication-free methods:</span>
+<span class="nt">docker_insecure_registries</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{{</span><span class="w"> </span><span class="nv">registry_address</span><span class="w"> </span><span class="p p-Indicator">}}</span>
+
+<span class="c1">## Kubernetes components</span>
+<span class="nt">kubeadm_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/storage.googleapis.com/kubernetes-release/release/{{</span><span class="nv"> </span><span class="s">kubeadm_version</span><span class="nv"> </span><span class="s">}}/bin/linux/{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}/kubeadm&quot;</span>
+<span class="nt">kubectl_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/storage.googleapis.com/kubernetes-release/release/{{</span><span class="nv"> </span><span class="s">kube_version</span><span class="nv"> </span><span class="s">}}/bin/linux/{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}/kubectl&quot;</span>
+<span class="nt">kubelet_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/storage.googleapis.com/kubernetes-release/release/{{</span><span class="nv"> </span><span class="s">kube_version</span><span class="nv"> </span><span class="s">}}/bin/linux/{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}/kubelet&quot;</span>
+
+<span class="c1">## CNI Plugins</span>
+<span class="nt">cni_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/containernetworking/plugins/releases/download/{{</span><span class="nv"> </span><span class="s">cni_version</span><span class="nv"> </span><span class="s">}}/cni-plugins-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">cni_version</span><span class="nv"> </span><span class="s">}}.tgz&quot;</span>
+
+<span class="c1">## cri-tools</span>
+<span class="nt">crictl_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/kubernetes-sigs/cri-tools/releases/download/{{</span><span class="nv"> </span><span class="s">crictl_version</span><span class="nv"> </span><span class="s">}}/crictl-{{</span><span class="nv"> </span><span class="s">crictl_version</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">ansible_system</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">lower</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+
+<span class="c1">## [Optional] etcd: only if you **DON&#39;T** use etcd_deployment=host</span>
+<span class="nt">etcd_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/etcd-io/etcd/releases/download/{{</span><span class="nv"> </span><span class="s">etcd_version</span><span class="nv"> </span><span class="s">}}/etcd-{{</span><span class="nv"> </span><span class="s">etcd_version</span><span class="nv"> </span><span class="s">}}-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+
+<span class="c1"># [Optional] Calico: If using Calico network plugin</span>
+<span class="nt">calicoctl_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/projectcalico/calico/releases/download/{{</span><span class="nv"> </span><span class="s">calico_ctl_version</span><span class="nv"> </span><span class="s">}}/calicoctl-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">calicoctl_alternate_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/projectcalico/calicoctl/releases/download/{{</span><span class="nv"> </span><span class="s">calico_ctl_version</span><span class="nv"> </span><span class="s">}}/calicoctl-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="c1"># [Optional] Calico with kdd: If using Calico network plugin with kdd datastore</span>
+<span class="nt">calico_crds_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/projectcalico/calico/archive/{{</span><span class="nv"> </span><span class="s">calico_version</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+
+<span class="c1"># [Optional] Flannel: If using Falnnel network plugin</span>
+<span class="nt">flannel_cni_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/kubernetes/flannel/{{</span><span class="nv"> </span><span class="s">flannel_cni_version</span><span class="nv"> </span><span class="s">}}/flannel-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1"># [Optional] helm: only if you set helm_enabled: true</span>
+<span class="nt">helm_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/get.helm.sh/helm-{{</span><span class="nv"> </span><span class="s">helm_version</span><span class="nv"> </span><span class="s">}}-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+
+<span class="c1"># [Optional] crun: only if you set crun_enabled: true</span>
+<span class="nt">crun_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/containers/crun/releases/download/{{</span><span class="nv"> </span><span class="s">crun_version</span><span class="nv"> </span><span class="s">}}/crun-{{</span><span class="nv"> </span><span class="s">crun_version</span><span class="nv"> </span><span class="s">}}-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}&quot;</span>
+
+<span class="c1"># [Optional] kata: only if you set kata_containers_enabled: true</span>
+<span class="nt">kata_containers_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/kata-containers/kata-containers/releases/download/{{</span><span class="nv"> </span><span class="s">kata_containers_version</span><span class="nv"> </span><span class="s">}}/kata-static-{{</span><span class="nv"> </span><span class="s">kata_containers_version</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">ansible_architecture</span><span class="nv"> </span><span class="s">}}.tar.xz&quot;</span>
+
+<span class="c1"># [Optional] cri-dockerd: only if you set container_manager: docker</span>
+<span class="nt">cri_dockerd_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/Mirantis/cri-dockerd/releases/download/v{{</span><span class="nv"> </span><span class="s">cri_dockerd_version</span><span class="nv"> </span><span class="s">}}/cri-dockerd-{{</span><span class="nv"> </span><span class="s">cri_dockerd_version</span><span class="nv"> </span><span class="s">}}.{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tgz&quot;</span>
+
+<span class="c1"># [Optional] runc,containerd: only if you set container_runtime: containerd</span>
+<span class="nt">runc_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/opencontainers/runc/releases/download/{{</span><span class="nv"> </span><span class="s">runc_version</span><span class="nv"> </span><span class="s">}}/runc.{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">containerd_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/containerd/containerd/releases/download/v{{</span><span class="nv"> </span><span class="s">containerd_version</span><span class="nv"> </span><span class="s">}}/containerd-{{</span><span class="nv"> </span><span class="s">containerd_version</span><span class="nv"> </span><span class="s">}}-linux-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+<span class="nt">nerdctl_download_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">files_repo</span><span class="nv"> </span><span class="s">}}/github.com/containerd/nerdctl/releases/download/v{{</span><span class="nv"> </span><span class="s">nerdctl_version</span><span class="nv"> </span><span class="s">}}/nerdctl-{{</span><span class="nv"> </span><span class="s">nerdctl_version</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">ansible_system</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">lower</span><span class="nv"> </span><span class="s">}}-{{</span><span class="nv"> </span><span class="s">image_arch</span><span class="nv"> </span><span class="s">}}.tar.gz&quot;</span>
+</code></pre></div>
+
+<p>For offline deployment, additional parameters are required for some special operating systems:</p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th align="left">Additional parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RHEL Series</td>
+<td align="left"><code>rhel_enable_repos: false</code></td>
+</tr>
+<tr>
+<td>Oracle Linux Series</td>
+<td align="left"><code>use_oracle_public_repo: false</code></td>
+</tr>
+</tbody>
+</table>
+<p>We use <code>examples/install/3.airgap</code> as a template,</p>
+<p>Adapt the offline configuration as above to your specific situation, especially if you need to replace <code>&lt;registry_address&gt;</code> and <code>&lt;minio_address&gt;</code>,</p>
+<p>Finally add the configuration update to the <code>examples/install/3.airgap/VarsConfCM.yml</code>  file,</p>
+<p>We also need to change the cluster node IP and username password in <code>examples/install/3.airgap/HostsConfCM.yml</code>,</p>
+<p>Finally, the ClusterOperation task is started with <code>kubectl apply -f examples/install/3.airgap</code> to install the k8s cluster.</p>
+<h2 id="generation-and-use-of-incremental-offline-packages">Generation and use of incremental offline packages<a class="headerlink" href="#generation-and-use-of-incremental-offline-packages" title="Permanent link">&para;</a></h2>
+<p>For detailed documentation see: <a href="../airgap_patch_usage/">Air gap patch usage</a>.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c2be25ad.min.js"></script>
+      
+    
+  </body>
+</html>
