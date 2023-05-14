@@ -93,10 +93,4 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 
 ## :book: 参考文档
 
-- [架构](docs/zh/architecture.md)
-- [Kubean 与 Kubespray](docs/zh/comparisons.md)
-- [CRD 概述](docs/zh/crds.md)
-- [使用 SSH Secret 密钥方法部署集群](docs/zh/sshkey_deploy_cluster.md)
-- [为离线环境部署集群](docs/zh/offline.md)
-- [自定义操作](docs/zh/custom_action.md)
-- [增量离线包的生成和使用](docs/zh/airgap_patch_usage.md)
+请浏览: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)

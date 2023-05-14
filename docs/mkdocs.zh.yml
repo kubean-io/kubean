@@ -8,6 +8,7 @@ site_dir: './site/zh'
 plugins:
 - tags
 - search
+- glightbox
 - awesome-pages
 
 theme:

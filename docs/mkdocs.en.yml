@@ -8,6 +8,7 @@ site_dir: './site/en'
 plugins:
 - tags
 - search
+- glightbox
 - awesome-pages
 
 theme:
@@ -61,7 +62,7 @@ nav:
   - usage/uninstall.md
   - usage/airgap.md
   - usage/airgap_patch_usage.md
-- Development Guide:
+- Development:
   - develop/roadmap.md
 
 markdown_extensions:
