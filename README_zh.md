@@ -10,8 +10,8 @@
 
   <p>
 
-[<img src="docs/images/certified-kubernetes-color.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
-[<img src="docs/images/kubean-logo.png" height=120>](https://kubean-io.github.io/website/)
+[<img src="docs/overrides/assets/images/certified_k8s.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/overrides/assets/images/kubean_logo.png" height=120>](https://kubean-io.github.io/website/)
 <!--
 Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
 -->
@@ -82,7 +82,7 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
    $ kubectl get job -n kubean-system
    ```
 
-[![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
+[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
 
 ## :ocean: Kubernetes 兼容性
 

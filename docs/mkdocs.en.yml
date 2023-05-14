@@ -1,0 +1,91 @@
+site_name: Kubean
+site_description: kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)
+site_url: https://kubean-io.github.io/kubean/en
+repo_name: kubean-io/kubean
+repo_url: https://github.com/kubean-io/kubean
+docs_dir: './en'
+site_dir: './site/en'
+plugins:
+- tags
+- search
+- awesome-pages
+
+theme:
+  name: material
+  custom_dir: './overrides/'
+  logo: 'assets/images/kubean_logo_1.svg'
+  favicon: 'assets/images/kubean_logo_1.svg'
+  language: zh
+  font:
+    code: Source Sans Pro
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: blue
+    accent: amber
+    toggle:
+      icon: material/brightness-7
+      name: Switch to light mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: grey
+    accent: amber
+    toggle:
+      icon: material/brightness-4
+      name: Switch to dark mode
+  features:
+  - search.suggest
+  - search.highlight
+  - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github-alt
+
+nav:
+- Introduction: index.md
+- Languages:
+  - en: /kubean/en/
+  - zh: /kubean/zh/
+- ... | releases/v*.md
+- Concepts:
+  - concepts/architecture.md
+  - concepts/comparisons.md
+  - concepts/crds.md
+  - concepts/custom_action.md
+  - concepts/theory_of_airgapped_package.md
+- Quick Start:
+  - usage/install.md
+- User Guide:
+  - usage/sshkey_deploy_cluster.md
+  - usage/scale.md
+  - usage/upgrade.md
+  - usage/uninstall.md
+  - usage/airgap.md
+  - usage/airgap_patch_usage.md
+- Development Guide:
+  - develop/roadmap.md
+
+markdown_extensions:
+- toc:
+    permalink: true
+- markdown.extensions.codehilite:
+    guess_lang: false
+- admonition
+- codehilite
+- extra
+- pymdownx.tabbed:
+    alternate_style: true
+- attr_list
+- md_in_html
+- attr_list
+- pymdownx.emoji:
+    emoji_index: !!python/name:materialx.emoji.twemoji
+    emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra:
+  alternate:
+  - link: /kubean/en/
+    name: en - English
+    lang: en
+  - link: /kubean/zh/
+    name: zh - 中文
+    lang: zh

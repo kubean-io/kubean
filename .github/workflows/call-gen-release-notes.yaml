@@ -1,0 +1,32 @@
+name: save release notes
+
+on: [workflow_call,workflow_dispatch]
+jobs:
+  save-release-notes-to-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Generate release notes
+        run: |
+            latest_release=$(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest |yq '.name')
+            curl \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest |yq '.body' > docs/overrides/releases/${latest_release}.md
+
+      - name: Push release notes
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@v1.5.1
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: .
+          destination-github-username: ${{ github.repository_owner }}
+          destination-repository-name: 'kubean'
+          user-email: kubean-robot@kubean-io
+          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          target-branch: main

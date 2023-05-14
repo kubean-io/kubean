@@ -8,3 +8,6 @@ dist/
 kubespray/
 /kubespray/generate_list.yml
 venv
+
+docs/site/en/
+docs/site/zh/
