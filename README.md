@@ -89,9 +89,4 @@ You can use the example in folder `examples/install/1.minimal` which uses online
 
 ## :book: Documents
 
-- [Architecture](docs/en/architecture.md)
-- [Kubean vs Kubespray](docs/en/comparisons.md)
-- [CRD Outline](docs/en/crds.md)
-- [Deploy cluster using SSH secret key method](docs/en/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/en/offline.md)
-- [Generate and use incremental offline packages](docs/en/airgap_patch_usage.md)
+Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)

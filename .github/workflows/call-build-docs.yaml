@@ -24,6 +24,7 @@ jobs:
       - name: Install mkdocs-material
         run: |
           pip install mkdocs-material
+          pip install mkdocs-glightbox
           pip install mkdocs-awesome-pages-plugin
       - name: Build en docs
         run: |
