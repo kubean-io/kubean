@@ -12,6 +12,8 @@ yum:
   - libseccomp
   - chrony
   - iputils
+  required_mods:
+  - container-tools
 
 apt:
   build_tools:
