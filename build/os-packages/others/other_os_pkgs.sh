@@ -122,6 +122,7 @@ function dnf_build() {
   local build_path="/${DISTRO}/${VERSION}/os"
   local build_tools=$(cat ${PKGS_YML_PATH} | yq eval '.yum.build_tools[]' | tr '\n' ' ')
   local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local modules=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_mods[]' | tr '\n' ' ')
 
   mkdir -p ${build_path}
   pushd ${build_path}
@@ -139,6 +140,11 @@ function dnf_build() {
   done
   set -e
   createrepo -d ${ARCH}
+
+  # create a repo in ${ARCH}/modules/ with previously downloaded packages and modular metadata
+  dnf module install ${modules} --downloadonly --destdir=${ARCH}/modules/ -y
+  dnf install 'dnf-command(modulesync)' -y
+  dnf modulesync --destdir=${ARCH}/modules/
 
   popd
 }
@@ -268,6 +274,12 @@ function dnf_install() {
 [other-extra]
 name=Other Extra Repo
 baseurl=file://${REMOTE_REPO_PATH}/os-pkgs/resources/${DISTRO}/${VERSION}/os/\$basearch/
+enabled=1
+gpgcheck=0
+sslverify=0
+[other-module]
+name=Other Extra Module
+baseurl=file://${REMOTE_REPO_PATH}/os-pkgs/resources/${DISTRO}/${VERSION}/os/\$basearch/modules/
 enabled=1
 gpgcheck=0
 sslverify=0
