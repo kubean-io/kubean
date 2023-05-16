@@ -6,7 +6,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 14 * * *'
-
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
   KUBESPRAY_IMAGE_NAME: kubespray
