@@ -14,7 +14,7 @@ data:
     etcd_deployment_type: kubeadm
     override_system_hostname: false
     ntp_enabled: true
-    
+
     download_run_once: true
     download_container: false
     download_force_cache: true
@@ -22,11 +22,11 @@ data:
 
     additional_sysctl:
     - { name: kernel.pid_max, value: 4194304 }
-    
+
     calico_cni_name: calico
     calico_felix_premetheusmetricsenabled: true
     calico_feature_detect_override: "ChecksumOffloadBroken=true" # FIX https://github.com/kubernetes-sigs/kubespray/pull/9261
-    
+
     ##https://github.com/kubernetes-sigs/kubespray/blob/master/docs/mirror.md
     gcr_image_repo: "gcr.m.daocloud.io"
     kube_image_repo: "k8s.m.daocloud.io"
@@ -34,10 +34,10 @@ data:
     quay_image_repo: "quay.m.daocloud.io"
     github_image_repo: "ghcr.m.daocloud.io"
     files_repo: "https://files.m.daocloud.io"
-    
-    kubeadm_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
-    kubectl_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
-    kubelet_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
+
+    kubeadm_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+    kubectl_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
+    kubelet_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
     cni_download_url: "{{ files_repo }}/github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
     crictl_download_url: "{{ files_repo }}/github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
     etcd_download_url: "{{ files_repo }}/github.com/etcd-io/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
