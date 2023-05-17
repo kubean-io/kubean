@@ -29,13 +29,13 @@ data:
 
     calico_cni_name: calico
     calico_felix_premetheusmetricsenabled: true
- 
+
     # Download Config
     download_run_once: true
     download_container: false
     download_force_cache: true
     download_localhost: true
-     
+
     # gcr and kubernetes image repo define
     gcr_image_repo: "gcr.m.daocloud.io"
     kube_image_repo: "k8s.m.daocloud.io"
@@ -52,9 +52,9 @@ data:
     files_repo: "https://files.m.daocloud.io"
 
     ## Kubernetes components
-    kubeadm_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
-    kubectl_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
-    kubelet_download_url: "{{ files_repo }}/storage.googleapis.com/kubernetes-release/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
+    kubeadm_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
+    kubectl_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubectl"
+    kubelet_download_url: "{{ files_repo }}/dl.k8s.io/release/{{ kube_version }}/bin/linux/{{ image_arch }}/kubelet"
 
     ## CNI Plugins
     cni_download_url: "{{ files_repo }}/github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
