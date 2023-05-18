@@ -332,9 +332,9 @@ function util::vm_name_ip_init_online_by_os(){
               ;;
           "CENTOS7-HK")
               vm_ip_addr1="10.6.178.217"
-              vm_ip_addr2="10.6.178.217"
-              vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node78"
+              vm_ip_addr2="10.6.178.218"
+              vm_name1="gwt-kubean-e2e-hk-node217"
+              vm_name2="gwt-kubean-e2e-hk-node218"
               ;;
       esac
   fi
@@ -396,7 +396,7 @@ function util::vm_name_ip_init_online_by_os(){
               vm_ip_addr1="172.30.41.77"
               vm_ip_addr2="172.30.41.78"
               vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node88"
+              vm_name2="gwt-kubean-e2e-hk-node78"
               ;;
      esac
   fi
