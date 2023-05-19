@@ -332,9 +332,9 @@ function util::vm_name_ip_init_online_by_os(){
               ;;
           "CENTOS7-HK")
               vm_ip_addr1="10.6.178.217"
-              vm_ip_addr2="10.6.178.217"
-              vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node78"
+              vm_ip_addr2="10.6.178.218"
+              vm_name1="gwt-kubean-e2e-hk-node217"
+              vm_name2="gwt-kubean-e2e-hk-node218"
               ;;
       esac
   fi
@@ -396,7 +396,7 @@ function util::vm_name_ip_init_online_by_os(){
               vm_ip_addr1="172.30.41.77"
               vm_ip_addr2="172.30.41.78"
               vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node88"
+              vm_name2="gwt-kubean-e2e-hk-node78"
               ;;
      esac
   fi
@@ -444,8 +444,8 @@ function util::clean_online_kind_cluster() {
    echo "======= container prefix: ${CONTAINERS_PREFIX}"
     kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
     if [ "${kubean_containers_num}" ];then
-      echo "Remove exist containers name contains kubean..."
-      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f
+      echo "Remove exist containers name contains ${CONTAINERS_PREFIX}..."
+      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f || true
     else
       echo "No container name contains kubean to delete."
     fi
@@ -501,8 +501,8 @@ function util::power_on_2vms(){
   util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
   util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
   sleep 20
-  util::wait_ip_reachable "${vm_ip_addr1}" 30
-  util::wait_ip_reachable "${vm_ip_addr2}" 30
+  util::wait_ip_reachable "${vm_ip_addr1}" 60
+  util::wait_ip_reachable "${vm_ip_addr2}" 60
   ping -c 5 ${vm_ip_addr1}
   ping -c 5 ${vm_ip_addr2}
 }
@@ -569,4 +569,24 @@ function util::set_config_path(){
   fi
   export SOURCE_CONFIG_PATH=${source_config_path}
   echo "Set SOURCE_CONFIG_PATH: ${SOURCE_CONFIG_PATH}"
+}
+
+function util::debug_runner_vm_match(){
+  echo "RUNNER_NAME: ${RUNNER_NAME}"
+  export OS_NAME="CENTOS7-HK"
+  echo "OS_NAME: ${OS_NAME}"
+  util::power_on_2vms ${OS_NAME}
+
+  export OS_NAME="CENTOS7"
+  echo "OS_NAME: ${OS_NAME}"
+  util::power_on_2vms ${OS_NAME}
+
+  export OS_NAME="REDHAT8"
+  echo "OS_NAME: ${OS_NAME}"
+  util::power_on_2vms ${OS_NAME}
+
+  export OS_NAME="REDHAT7"
+  echo "OS_NAME: ${OS_NAME}"
+  util::power_on_2vms ${OS_NAME}
+  echo " vm test end...."
 }
