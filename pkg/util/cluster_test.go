@@ -1,6 +1,8 @@
 package util
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -52,5 +54,61 @@ func TestNewSchema(t *testing.T) {
 func TestGetCurrentNSOrDefault(t *testing.T) {
 	if namespace := GetCurrentNSOrDefault(); namespace == "" {
 		t.Fatal()
+	}
+}
+
+func TestGetCurrentNS(t *testing.T) {
+	tests := []struct {
+		name string
+		args func() string
+		want string
+	}{
+		{
+			name: "get nothing",
+			args: func() string {
+				os.Setenv("POD_NAMESPACE", "")
+				ns, _ := GetCurrentNS()
+				return ns
+			},
+			want: "",
+		},
+		{
+			name: "get from env",
+			args: func() string {
+				os.Setenv("POD_NAMESPACE", "pod-name-space-123")
+				ns, _ := GetCurrentNS()
+				return ns
+			},
+			want: "pod-name-space-123",
+		},
+		{
+			name: "get from file",
+			args: func() string {
+				os.Setenv("POD_NAMESPACE", "")
+				tempFile, err := os.CreateTemp(os.TempDir(), "kubean-test")
+				if err != nil {
+					return ""
+				}
+				tempFilePath, err := filepath.Abs(tempFile.Name())
+				if err != nil {
+					return ""
+				}
+				tempFile.WriteString("abc-namespace-123")
+				tempFile.Sync()
+				tempFile.Close()
+				defer os.Remove(tempFilePath)
+				ServiceAccountNamespaceFile = tempFilePath
+				ns, _ := GetCurrentNS()
+				return ns
+			},
+			want: "abc-namespace-123",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
 	}
 }

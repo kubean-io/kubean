@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"testing"
@@ -12,23 +13,32 @@ import (
 	"github.com/kubean-io/kubean-api/apis"
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
+	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
 	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 	"github.com/kubean-io/kubean-api/constants"
 	clusterv1alpha1fake "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned/fake"
 	clusteroperationv1alpha1fake "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned/fake"
 	manifestv1alpha1fake "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned/fake"
+	"github.com/kubean-io/kubean/pkg/util"
 
+	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	clientsetfake "k8s.io/client-go/kubernetes/fake"
-
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-
-	"github.com/kubean-io/kubean/pkg/util"
+	"sigs.k8s.io/controller-runtime/pkg/config/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
 func newFakeClient() client.Client {
@@ -806,8 +816,59 @@ func TestIsValidImageName(t *testing.T) {
 	}
 }
 
-func TestCreateKubeSprayJob(t *testing.T) {
+func TestGetServiceAccountName(t *testing.T) {
 	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "nothing to get",
+			args: func() bool {
+				result, _ := controller.GetServiceAccountName("kubean-system", ServiceAccount)
+				return result == ""
+			},
+			want: true,
+		},
+		{
+			name: "good result",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("kubean-system").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				result, _ := controller.GetServiceAccountName("kubean-system", ServiceAccount)
+				return result == "sa1"
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestCreateKubeSprayJob(t *testing.T) {
+	controller := &Controller{
 		Client:                newFakeClient(),
 		ClientSet:             clientsetfake.NewSimpleClientset(),
 		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
@@ -830,7 +891,10 @@ func TestCreateKubeSprayJob(t *testing.T) {
 		NameSpace: "mynamespace",
 		Name:      "entrypoint",
 	}
-	controller.CreateKubeSprayJob(clusterOps)
+	clusterOps.Spec.SSHAuthRef = &apis.SecretRef{
+		NameSpace: "mynamespace",
+		Name:      "ssh-auth-ref",
+	}
 	tests := []struct {
 		name string
 		args func() bool
@@ -839,6 +903,18 @@ func TestCreateKubeSprayJob(t *testing.T) {
 		{
 			name: "create job successfully",
 			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+
 				needRequeue, err := controller.CreateKubeSprayJob(clusterOps)
 				return needRequeue && err == nil
 			},
@@ -1234,6 +1310,18 @@ func Test_CreateEntryPointShellConfigMap(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestStart(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	controller.Start(ctx)
 }
 
 func Test_FetchJobStatus(t *testing.T) {
@@ -1874,4 +1962,74 @@ func Test_FetchGlobalManifestImageTag(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSetupWithManager(t *testing.T) {
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+	if controller.SetupWithManager(MockManager{}) != nil {
+		t.Fatal()
+	}
+}
+
+type MockClusterForManager struct {
+	_ string
+}
+
+func (MockClusterForManager) SetFields(interface{}) error { return nil }
+
+func (MockClusterForManager) GetConfig() *rest.Config { return &rest.Config{} }
+
+func (MockClusterForManager) GetScheme() *runtime.Scheme {
+	sch := scheme.Scheme
+	if err := manifestv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	if err := localartifactsetv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	return sch
+}
+
+func (MockClusterForManager) GetClient() client.Client { return nil }
+
+func (MockClusterForManager) GetFieldIndexer() client.FieldIndexer { return nil }
+
+func (MockClusterForManager) GetCache() cache.Cache { return nil }
+
+func (MockClusterForManager) GetEventRecorderFor(name string) record.EventRecorder { return nil }
+
+func (MockClusterForManager) GetRESTMapper() meta.RESTMapper { return nil }
+
+func (MockClusterForManager) GetAPIReader() client.Reader { return nil }
+
+func (MockClusterForManager) Start(ctx context.Context) error { return nil }
+
+type MockManager struct {
+	MockClusterForManager
+}
+
+func (MockManager) Add(manager.Runnable) error { return nil }
+
+func (MockManager) Elected() <-chan struct{} { return nil }
+
+func (MockManager) AddMetricsExtraHandler(path string, handler http.Handler) error { return nil }
+
+func (MockManager) AddHealthzCheck(name string, check healthz.Checker) error { return nil }
+
+func (MockManager) AddReadyzCheck(name string, check healthz.Checker) error { return nil }
+
+func (MockManager) Start(ctx context.Context) error { return nil }
+
+func (MockManager) GetWebhookServer() *webhook.Server { return nil }
+
+func (MockManager) GetLogger() logr.Logger { return logr.Logger{} }
+
+func (MockManager) GetControllerOptions() v1alpha1.ControllerConfigurationSpec {
+	return v1alpha1.ControllerConfigurationSpec{}
 }

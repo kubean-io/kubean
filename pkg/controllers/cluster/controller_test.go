@@ -3,9 +3,25 @@ package cluster
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
+
+	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+
+	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/record"
+	controllerruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/config/v1alpha1"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/kubean-io/kubean-api/apis"
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
@@ -14,6 +30,7 @@ import (
 	clusterv1alpha1fake "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned/fake"
 	clusteroperationv1alpha1fake "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned/fake"
 
+	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -346,4 +363,115 @@ func newFakeClient() client.Client {
 	}
 	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&clusteroperationv1alpha1.ClusterOperation{}).WithRuntimeObjects(&clusterv1alpha1.Cluster{}).Build()
 	return client
+}
+
+func TestReconcile(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name        string
+		args        func() bool
+		needRequeue bool
+	}{
+		{
+			name: "cluster not found",
+			args: func() bool {
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
+				return result.Requeue
+			},
+			needRequeue: false,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.needRequeue {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestStart(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	controller.Start(ctx)
+}
+
+func TestSetupWithManager(t *testing.T) {
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	if controller.SetupWithManager(MockManager{}) != nil {
+		t.Fatal()
+	}
+}
+
+type MockClusterForManager struct {
+	_ string
+}
+
+func (MockClusterForManager) SetFields(interface{}) error { return nil }
+
+func (MockClusterForManager) GetConfig() *rest.Config { return &rest.Config{} }
+
+func (MockClusterForManager) GetScheme() *runtime.Scheme {
+	sch := scheme.Scheme
+	if err := manifestv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	if err := localartifactsetv1alpha1.AddToScheme(sch); err != nil {
+		panic(err)
+	}
+	return sch
+}
+
+func (MockClusterForManager) GetClient() client.Client { return nil }
+
+func (MockClusterForManager) GetFieldIndexer() client.FieldIndexer { return nil }
+
+func (MockClusterForManager) GetCache() cache.Cache { return nil }
+
+func (MockClusterForManager) GetEventRecorderFor(name string) record.EventRecorder { return nil }
+
+func (MockClusterForManager) GetRESTMapper() meta.RESTMapper { return nil }
+
+func (MockClusterForManager) GetAPIReader() client.Reader { return nil }
+
+func (MockClusterForManager) Start(ctx context.Context) error { return nil }
+
+type MockManager struct {
+	MockClusterForManager
+}
+
+func (MockManager) Add(manager.Runnable) error { return nil }
+
+func (MockManager) Elected() <-chan struct{} { return nil }
+
+func (MockManager) AddMetricsExtraHandler(path string, handler http.Handler) error { return nil }
+
+func (MockManager) AddHealthzCheck(name string, check healthz.Checker) error { return nil }
+
+func (MockManager) AddReadyzCheck(name string, check healthz.Checker) error { return nil }
+
+func (MockManager) Start(ctx context.Context) error { return nil }
+
+func (MockManager) GetWebhookServer() *webhook.Server { return nil }
+
+func (MockManager) GetLogger() logr.Logger { return logr.Logger{} }
+
+func (MockManager) GetControllerOptions() v1alpha1.ControllerConfigurationSpec {
+	return v1alpha1.ControllerConfigurationSpec{}
 }

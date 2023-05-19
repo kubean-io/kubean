@@ -13,8 +13,6 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // aggregatedScheme aggregates Kubernetes and extended schemes.
@@ -33,12 +31,14 @@ func NewSchema() *runtime.Scheme {
 	return aggregatedScheme
 }
 
-// NewForConfig creates a new client for the given config.
-func NewForConfig(config *rest.Config) (client.Client, error) {
-	return client.New(config, client.Options{
-		Scheme: aggregatedScheme,
-	})
-}
+//// NewForConfig creates a new client for the given config.
+//func NewForConfig(config *rest.Config) (client.Client, error) {
+//	return client.New(config, client.Options{
+//		Scheme: aggregatedScheme,
+//	})
+//}
+
+var ServiceAccountNamespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 // GetCurrentNS fetch namespace the current pod running in. reference to client-go (config *inClusterClientConfig) Namespace() (string, bool, error).
 func GetCurrentNS() (string, error) {
@@ -46,7 +46,7 @@ func GetCurrentNS() (string, error) {
 		return ns, nil
 	}
 
-	if data, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+	if data, err := os.ReadFile(ServiceAccountNamespaceFile); err == nil {
 		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
 			return ns, nil
 		}
