@@ -54,7 +54,8 @@ nav:
   - concepts/custom_action.md
   - concepts/theory_of_airgapped_package.md
 - 快速入门:
-  - usage/install.md
+  - usage/helm-install-kubean.md
+  - usage/all-in-one-install.md
 - 用户指南:
   - usage/sshkey_deploy_cluster.md
   - usage/scale.md
