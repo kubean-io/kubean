@@ -1,41 +1,30 @@
 #!/bin/bash
 
-set -eo pipefail
+set -e
 
-MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
-TARGET_DIR="${MINIO_API_ADDR}"
+MINIO_USER=${MINIO_USER:-""}
+MINIO_PASS=${MINIO_PASS:-""}
 
-ISO_IMG_FILE=${2} ##  CentOS-7-XXX.ISO CentOS-8XXX.ISO
-
-Minio_Server_PATH=""
-
-readonly PARALLEL_LOCK="/var/lock/kubean-import.lock"
-
-copy_dir=false
-if [[ "${TARGET_DIR}" != "https://"* ]] && [[ "${TARGET_DIR}" != "http://"* ]] ; then
-  copy_dir=true
-  mkdir -p "${TARGET_DIR}"
-fi
-
-export ISO_MOUNT_PATH="/mnt/kubean-temp-iso" TARGET_DIR copy_dir
-
-function add_mc_host_conf() {
-  if [ -z "$MINIO_USER" ]; then
+function iso::add_mc_host_conf() {
+  local minio_addr=$1
+  local minio_user=$2
+  local minio_pass=$3
+  if [ -z "${minio_user}" ]; then
     echo "need MINIO_USER and MINIO_PASS"
     exit 1
   fi
-  if ! mc config host add kubeaniominioserver "$MINIO_API_ADDR" "$MINIO_USER" "$MINIO_PASS"; then
-    echo "mc add $MINIO_API_ADDR server failed"
+  if ! mc config host add kubeaniominioserver "${minio_addr}" "${minio_user}" "${minio_pass}"; then
+    echo "mc add ${minio_addr} server failed"
     exit 1
   fi
 }
 
-function remove_mc_host_conf() {
+function iso::del_mc_host_conf() {
   echo "remove mc config"
-  flock $PARALLEL_LOCK mc config host remove kubeaniominioserver || true
+  flock ${ISO_PARALLEL_LOCK} mc config host remove kubeaniominioserver || true
 }
 
-function check_mc_cmd() {
+function iso::check_mc_cmd() {
   if which mc; then
     echo "mc check successfully"
   else
@@ -44,7 +33,7 @@ function check_mc_cmd() {
   fi
 }
 
-function ensure_kubean_bucket() {
+function iso::ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
     mc mb -p kubeaniominioserver/kubean
@@ -52,13 +41,9 @@ function ensure_kubean_bucket() {
   fi
 }
 
-function unmount_iso_file() {
-  echo "unmount ISO file"
-  umount ${ISO_MOUNT_PATH} || true
-}
-
-function iso_os_version_arch() {
-  for path in $(find $ISO_MOUNT_PATH); do
+function iso::mk_server_path() {
+  local iso_mnt_path=$1 
+  for path in $(find $iso_mnt_path); do
     if [ -L "$path" ]; then
       if echo "$path" | grep 'ubuntu' &>/dev/null; then
         echo "/ubuntu-iso"
@@ -113,96 +98,130 @@ function iso_os_version_arch() {
   return
 }
 
-function mount_iso_file() {
-  if [ -z "$ISO_IMG_FILE" ]; then
-    echo "empty ISO_IMG_FILE"
+function iso::mount_file() {
+  local iso_file_path=$1
+  local iso_mnt_path=$2
+  if [ -z "${iso_file_path}" ]; then
+    echo "empty ISO IMAGE PATH"
     exit 1
   fi
 
-  mkdir -p ${ISO_MOUNT_PATH}
+  mkdir -p ${iso_mnt_path}
 
-  if ls $ISO_MOUNT_PATH | grep -i -E "EFI|images|isolinux|LiveOS|Packages|repodata|boot|dists|live|pool" >/dev/null 2>&1 ; then
+  if ls ${iso_mnt_path} | grep -i -E "EFI|images|isolinux|LiveOS|Packages|repodata|boot|dists|live|pool" >/dev/null 2>&1 ; then
     ## try to umount.
-    echo "try to umount $ISO_MOUNT_PATH first"
-    unmount_iso_file || true
+    echo "try to umount ${iso_mnt_path} first"
+    iso::unmount_file "${iso_mnt_path}" || true
   fi
 
   echo "mount ISO file"
-  if ! mount -o loop,ro "${ISO_IMG_FILE}" ${ISO_MOUNT_PATH}; then
-    echo "mount ${ISO_IMG_FILE} failed"
+  if ! mount -o loop,ro "${iso_file_path}" ${iso_mnt_path}; then
+    echo "mount ${iso_file_path} failed"
     exit 1
   fi
 }
 
-function import_iso_data() {
-  if [ "$copy_dir" == "false" ]; then
+function iso::unmount_file() {
+  local iso_mnt_path=$1
+  echo "unmount ISO file"
+  umount ${iso_mnt_path} || true
+}
+
+function iso::import_data() {
+  local iso_file_path=$1
+  local iso_mnt_path=$2
+  local is_cp_path=$3
+  local target_path=$4
+  
+  if [ "${is_cp_path}" == "false" ]; then
     echo "start push ISO data into minio"
   else
-    echo "start copy ISO data into $TARGET_DIR"
+    echo "start copy ISO data into ${target_path}"
   fi
-  Minio_Server_PATH=$(iso_os_version_arch)
+  local minio_server_path=$(iso::mk_server_path "${iso_mnt_path}")
 
-  if [ -z "$Minio_Server_PATH" ]; then
-    echo "can not find os version and arch info from $ISO_IMG_FILE"
+  if [ -z "${minio_server_path}" ]; then
+    echo "can not find os version and arch info from ${iso_file_path}"
     exit 1
   fi
-  minioFileName="kubeaniominioserver/kubean$Minio_Server_PATH"
-  dirArray=()
+  local minio_files_path="kubeaniominioserver/kubean${minio_server_path}"
+  local path_list=()
 
-  if [ -d "$ISO_MOUNT_PATH/Packages" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/Packages")
-  fi
-
-  if [ -d "$ISO_MOUNT_PATH/repodata" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/repodata")
+  if [ -d "${iso_mnt_path}/Packages" ]; then
+    path_list+=("${iso_mnt_path}/Packages")
   fi
 
-  if [ -d "$ISO_MOUNT_PATH/BaseOS" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/BaseOS")
-  fi
-  if [ -d "$ISO_MOUNT_PATH/AppStream" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/AppStream")
+  if [ -d "${iso_mnt_path}/repodata" ]; then
+    path_list+=("${iso_mnt_path}/repodata")
   fi
 
-  if [ -d "$ISO_MOUNT_PATH/dists" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/dists")
+  if [ -d "${iso_mnt_path}/BaseOS" ]; then
+    path_list+=("${iso_mnt_path}/BaseOS")
   fi
-  if [ -d "$ISO_MOUNT_PATH/pool" ]; then
-    dirArray+=("$ISO_MOUNT_PATH/pool")
+  if [ -d "${iso_mnt_path}/AppStream" ]; then
+    path_list+=("${iso_mnt_path}/AppStream")
+  fi
+
+  if [ -d "${iso_mnt_path}/dists" ]; then
+    path_list+=("${iso_mnt_path}/dists")
+  fi
+  if [ -d "${iso_mnt_path}/pool" ]; then
+    path_list+=("${iso_mnt_path}/pool")
   fi
   
-  if [ "${#dirArray[@]}" -gt 0 ]; then
-    for dirName in "${dirArray[@]}"; do
-      if [ "$copy_dir" == "true" ]; then
-        mkdir -p "${TARGET_DIR}/${Minio_Server_PATH}"
-        cp -vr "${dirName}" "${TARGET_DIR}/${Minio_Server_PATH}"
+  if [ "${#path_list[@]}" -gt 0 ]; then
+    for path_name in "${path_list[@]}"; do
+      if [ "${is_cp_path}" == "true" ]; then
+        mkdir -p "${target_path}/${minio_server_path}"
+        cp -vr "${path_name}" "${target_path}/${minio_server_path}"
       else
         ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
-        mc cp --no-color --recursive "$dirName" "$minioFileName"
+        mc cp --no-color --recursive "${path_name}" "${minio_files_path}"
       fi
     done
   else
-    echo "cannot find valid repo data from $ISO_IMG_FILE"
+    echo "cannot find valid repo data from ${iso_file_path}"
     exit 1
   fi
 }
 
-trap unmount_iso_file EXIT
+readonly ISO_PARALLEL_LOCK="/var/lock/kubean-import.lock"
 
-start=$(date +%s)
+function import_iso::main() {
+  local minio_api_addr=${1:-'http://127.0.0.1:9000'}
+  local iso_file_path=${2}
 
-if [ "$copy_dir" == "false" ]; then
-  check_mc_cmd
-  add_mc_host_conf
-  ensure_kubean_bucket
+  local is_cp_path=false
+  local target_path="${minio_api_addr}"
+  local iso_mnt_path="/mnt/kubean-temp-iso"
+
+  if [[ "${target_path}" != "https://"* ]] && [[ "${target_path}" != "http://"* ]] ; then
+    is_cp_path=true
+    mkdir -p "${target_path}"
+  fi
+
+  trap "iso::unmount_file ${iso_mnt_path}" EXIT
+
+  start=$(date +%s)
+
+  if [ "${is_cp_path}" == "false" ]; then
+    iso::check_mc_cmd
+    iso::add_mc_host_conf "${minio_api_addr}" "${MINIO_USER}" "${MINIO_PASS}"
+    iso::ensure_kubean_bucket
+  fi
+  iso::mount_file "${iso_file_path}" "${iso_mnt_path}"
+  export -f iso::import_data iso::mk_server_path
+  flock -s ${ISO_PARALLEL_LOCK} bash -c "iso::import_data '${iso_file_path}' '${iso_mnt_path}' '${is_cp_path}' '${target_path}'"
+  if [ "${is_cp_path}" == "false" ]; then
+    iso::del_mc_host_conf
+  fi
+
+  end=$(date +%s)
+  take=$((end - start))
+  echo "Importing ISO spends ${take} seconds"
+
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    import_iso::main "$@"
 fi
-mount_iso_file
-export -f import_iso_data iso_os_version_arch
-flock -s $PARALLEL_LOCK bash -c 'import_iso_data'
-if [ "$copy_dir" == "false" ]; then
-  remove_mc_host_conf
-fi
-
-end=$(date +%s)
-take=$((end - start))
-echo "Importing ISO spends ${take} seconds"
