@@ -10,20 +10,20 @@
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/usage/install/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/usage/helm-install-kubean/">
       
       
-        <link rel="prev" href="../../concepts/theory_of_airgapped_package/">
+        <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../sshkey_deploy_cluster/">
+        <link rel="next" href="../all-in-one-install/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.14">
     
     
       
-        <title>集群部署 - Kubean</title>
+        <title>使用 Helm 部署 kubean chart - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#helm-kubean-chart" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              集群部署
+              使用 Helm 部署 kubean chart
             
           </span>
         </div>
@@ -359,6 +359,146 @@
 
   
   
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          快速入门
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          快速入门
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          使用 Helm 部署 kubean chart
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        使用 Helm 部署 kubean chart
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    前置条件
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    开始部署
+  </a>
+  
+    <nav class="md-nav" aria-label="开始部署">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kubean-helm" class="md-nav__link">
+    1. 添加 kubean Helm 仓库
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-kubean" class="md-nav__link">
+    2. 安装 kubean
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-kubean-release" class="md-nav__link">
+    3. 查看已安装的 kubean release
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all-in-one-install/" class="md-nav__link">
+        使用 all-in-one 模式部署单节点集群
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
   
     
     <li class="md-nav__item md-nav__item--nested">
@@ -366,17 +506,290 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
       
       
       
-        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          功能架构
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          功能架构
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        Kubean 基础架构
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/comparisons/" class="md-nav__link">
+        对比参考
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/crds/" class="md-nav__link">
+        CRD 概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/custom_action/" class="md-nav__link">
+        自定义 Action
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
+        离线安装包的原理
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          用户指南
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          用户指南
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sshkey_deploy_cluster/" class="md-nav__link">
+        以SSH秘钥方式部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale/" class="md-nav__link">
+        集群伸缩
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        集群升级
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../uninstall/" class="md-nav__link">
+        集群卸载
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airgap/" class="md-nav__link">
+        离线场景的使用
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../airgap_patch_usage/" class="md-nav__link">
+        增量离线包的生成和使用
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          开发指南
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          开发指南
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../develop/roadmap/" class="md-nav__link">
+        Kubean 路线图
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
           Releases
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_3">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_7">
           <span class="md-nav__icon md-icon"></span>
           Releases
         </label>
@@ -598,439 +1011,6 @@
   
 
     
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-          功能架构
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4">
-          <span class="md-nav__icon md-icon"></span>
-          功能架构
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
-        Kubean 基础架构
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/comparisons/" class="md-nav__link">
-        对比参考
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/crds/" class="md-nav__link">
-        CRD 概述
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/custom_action/" class="md-nav__link">
-        自定义 Action
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
-        离线安装包的原理
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
-      
-      
-      
-        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-          快速入门
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_5">
-          <span class="md-nav__icon md-icon"></span>
-          快速入门
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          集群部署
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        集群部署
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    单节点集群部署
-  </a>
-  
-    <nav class="md-nav" aria-label="单节点集群部署">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-allinoneyml" class="md-nav__link">
-    1. 更新 AllInOne.yml 中的占位符为真实值
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-allinoneyml" class="md-nav__link">
-    2. 应用 AllInOne.yml
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    加速器模式部署
-  </a>
-  
-    <nav class="md-nav" aria-label="加速器模式部署">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-2mirror-yaml" class="md-nav__link">
-    1. 更新 2.mirror 目录中 yaml 清单的占位符为真实值
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-2mirror-yaml" class="md-nav__link">
-    2. 应用 2.mirror 中的 yaml 清单
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-varsconfcm" class="md-nav__link">
-    3. 加速器镜像设置请见 VarsConfCM
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    纯离线模式部署
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ssh" class="md-nav__link">
-    SSH秘钥模式部署
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-          用户指南
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_6">
-          <span class="md-nav__icon md-icon"></span>
-          用户指南
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../sshkey_deploy_cluster/" class="md-nav__link">
-        以SSH秘钥方式部署集群
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../scale/" class="md-nav__link">
-        集群伸缩
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../upgrade/" class="md-nav__link">
-        集群升级
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../uninstall/" class="md-nav__link">
-        集群卸载
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../airgap/" class="md-nav__link">
-        离线场景的使用
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../airgap_patch_usage/" class="md-nav__link">
-        增量离线包的生成和使用
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
-          开发指南
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_7">
-          <span class="md-nav__icon md-icon"></span>
-          开发指南
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../develop/roadmap/" class="md-nav__link">
-        Kubean 路线图
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1058,77 +1038,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    前置条件
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
-    单节点集群部署
+    开始部署
   </a>
   
-    <nav class="md-nav" aria-label="单节点集群部署">
+    <nav class="md-nav" aria-label="开始部署">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-allinoneyml" class="md-nav__link">
-    1. 更新 AllInOne.yml 中的占位符为真实值
+  <a href="#1-kubean-helm" class="md-nav__link">
+    1. 添加 kubean Helm 仓库
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-allinoneyml" class="md-nav__link">
-    2. 应用 AllInOne.yml
+  <a href="#2-kubean" class="md-nav__link">
+    2. 安装 kubean
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-kubean-release" class="md-nav__link">
+    3. 查看已安装的 kubean release
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    加速器模式部署
-  </a>
-  
-    <nav class="md-nav" aria-label="加速器模式部署">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-2mirror-yaml" class="md-nav__link">
-    1. 更新 2.mirror 目录中 yaml 清单的占位符为真实值
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-2mirror-yaml" class="md-nav__link">
-    2. 应用 2.mirror 中的 yaml 清单
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-varsconfcm" class="md-nav__link">
-    3. 加速器镜像设置请见 VarsConfCM
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    纯离线模式部署
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ssh" class="md-nav__link">
-    SSH秘钥模式部署
-  </a>
   
 </li>
       
@@ -1153,55 +1099,51 @@
   
 
 
-<h1 id="_1">集群部署<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>前置条件：通过 helm 安装 <a href="https://github.com/kubean-io/kubean-helm-chart">kubean charts</a>.</p>
+<h1 id="helm-kubean-chart">使用 Helm 部署 kubean chart<a class="headerlink" href="#helm-kubean-chart" title="Permanent link">&para;</a></h1>
+<h2 id="_1">前置条件<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ol>
+<li>您已拥有一个标准 kubernetes 集群或云厂商提供的集群。</li>
+<li>在您的集群控制节点或云终端上已完成 Helm 工具的安装。<a href="https://helm.sh/docs/intro/install/">如何安装 Helm 工具</a>。</li>
+</ol>
 <hr />
-<h2 id="_2">单节点集群部署<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>参考 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/"><code>minimal</code></a> 样例模板</p>
-</blockquote>
-<p>参照模板，我们将创建一个多合一的单节点集群：</p>
-<h4 id="1-allinoneyml">1. 更新 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml"><code>AllInOne.yml</code></a> 中的占位符为真实值<a class="headerlink" href="#1-allinoneyml" title="Permanent link">&para;</a></h4>
-<ul>
-<li><code>&lt;IP1&gt;</code></li>
-<li><code>&lt;USERNAME&gt;</code></li>
-<li><code>&lt;PASSWORD&gt;</code></li>
-<li><code>&lt;TAG&gt;</code></li>
-</ul>
-<h4 id="2-allinoneyml">2. 应用 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml"><code>AllInOne.yml</code></a><a class="headerlink" href="#2-allinoneyml" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/1.minimal/
+<h2 id="_2">开始部署<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h4 id="1-kubean-helm">1. 添加 kubean Helm 仓库<a class="headerlink" href="#1-kubean-helm" title="Permanent link">&para;</a></h4>
+<p>将 kubean Helm 仓库添加到本地 Helm 仓库，在现有集群控制节点或云终端上执行如下命令。</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>kubean-io<span class="w"> </span>https://kubean-io.github.io/kubean-helm-chart/
 </code></pre></div>
 
-<hr />
-<h2 id="_3">加速器模式部署<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>参考 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/"><code>mirror</code></a> 样例模板</p>
-</blockquote>
-<h4 id="1-2mirror-yaml">1. 更新 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/"><code>2.mirror</code></a> 目录中 yaml 清单的占位符为真实值<a class="headerlink" href="#1-2mirror-yaml" title="Permanent link">&para;</a></h4>
-<ul>
-<li><code>&lt;IP1&gt;</code> / <code>&lt;IP2&gt;</code> ...</li>
-<li><code>&lt;USERNAME&gt;</code></li>
-<li><code>&lt;PASSWORD&gt;</code></li>
-<li><code>&lt;TAG&gt;</code></li>
-</ul>
-<h4 id="2-2mirror-yaml">2. 应用 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/"><code>2.mirror</code></a> 中的 yaml 清单<a class="headerlink" href="#2-2mirror-yaml" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/2.mirror/
+<p>完成上一步后检查 kubean 仓库是否已经正确添加至本地 Helm 仓库。</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>list
+<span class="c1"># 预期输出如下：</span>
+NAME<span class="w">            </span>URL
+kubean-io<span class="w">       </span>https://kubean-io.github.io/kubean-helm-chart/
 </code></pre></div>
 
-<h4 id="3-varsconfcm">3. 加速器镜像设置请见 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml"><code>VarsConfCM</code></a><a class="headerlink" href="#3-varsconfcm" title="Permanent link">&para;</a></h4>
-<p>本例中使用到的加速器:
-* 二进制加速：<a href="https://github.com/DaoCloud/public-binary-files-mirror">public binary files mirror</a>
-* 镜像加速：<a href="https://github.com/DaoCloud/public-image-mirror">public image mirror</a></p>
-<hr />
-<h2 id="_4">纯离线模式部署<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p>参考 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/3.airgap/"><code>airgap</code></a> 样例模板</p>
-</blockquote>
-<p>详细请浏览 <a href="../airgap/">离线场景的使用</a></p>
-<hr />
-<h2 id="ssh">SSH秘钥模式部署<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h2>
-<p>详细请浏览 <a href="../sshkey_deploy_cluster/">使用 SSH 秘钥方式部署 K8S 集群</a></p>
-<hr />
+<h4 id="2-kubean">2. 安装 kubean<a class="headerlink" href="#2-kubean" title="Permanent link">&para;</a></h4>
+<p>检查 kubean Helm 仓库中可用的 Chart 及其版本，执行下面命令将列出 kubean Helm 仓库内所有的 Chart 列表。</p>
+<div class="codehilite"><pre><span></span><code>helm<span class="w"> </span>search<span class="w"> </span>repo<span class="w"> </span>kubean
+
+<span class="c1"># 预期输出如下：</span>
+NAME<span class="w">                </span>CHART<span class="w"> </span>VERSION<span class="w">   </span>APP<span class="w"> </span>VERSION<span class="w"> </span>DESCRIPTION
+kubean-io/kubean<span class="w">    </span>v0.5.2<span class="w">          </span>v0.5.2<span class="w">      </span>A<span class="w"> </span>Helm<span class="w"> </span>chart<span class="w"> </span><span class="k">for</span><span class="w"> </span>kubean
+</code></pre></div>
+
+<p>完成上述步骤后，，执行如下命令安装 kubean。</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>kubean<span class="w"> </span>kubean-io/kubean<span class="w"> </span>--create-namespace<span class="w"> </span>-n<span class="w"> </span>kubean-system
+</code></pre></div>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>您还可以使用 "--version" 参数来指定 kubean 的版本。</p>
+</div>
+<h4 id="3-kubean-release">3. 查看已安装的 kubean release<a class="headerlink" href="#3-kubean-release" title="Permanent link">&para;</a></h4>
+<p>至此，您已经完成了 kubean helm chart 的部署，您可以执行如下命令查看 kubean-system 命名空间下的 helm release。</p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>ls<span class="w"> </span>-n<span class="w"> </span>kubean-system
+
+<span class="c1"># 预期输出如下：</span>
+NAME<span class="w">    </span>NAMESPACE<span class="w">       </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                     </span>STATUS<span class="w">      </span>CHART<span class="w">               </span>APP<span class="w"> </span>VERSION
+kubean<span class="w">  </span>kubean-system<span class="w">   </span><span class="m">1</span><span class="w">           </span><span class="m">2023</span>-05-15<span class="w"> </span><span class="m">00</span>:24:32.719770617<span class="w"> </span>-0400<span class="w"> </span>-0400<span class="w">   </span>deployed<span class="w">    </span>kubean-v0.4.9-rc1<span class="w">   </span>v0.4.9-rc1
+</code></pre></div>
 
 
 
