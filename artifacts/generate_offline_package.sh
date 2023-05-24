@@ -80,6 +80,8 @@ function create_images() {
     mkdir offline-images
   fi
 
+  local ignore_img_name="pause:4"
+
   while read -r image_name; do
     ## quay.io/metallb/controller:v0.12.1 => dir:somedir/metallb%controller:v0.12.1
     ## quay.io/metallb/controller:v0.12.1 => dir:somedir/quay.io%metallb%controller:v0.12.1 ## keep host with multi harbor projects
@@ -88,7 +90,12 @@ function create_images() {
     new_dir_name=${image_name} ## keep host
     new_dir_name=${new_dir_name//\//%} ## replace all / with %
     echo "download image $(replace_image_name "$image_name") to local $new_dir_name"
-    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$(replace_image_name "$image_name")" dir:offline-images/"$new_dir_name"
+    ret=0
+    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$(replace_image_name "$image_name")" dir:offline-images/"$new_dir_name" || ret=$?
+    if [ ${ret} -ne 0 ] && [ ! -z "${image_name##*$ignore_img_name*}" ]; then
+      echo "skopeo copy image failed, image name: ${image_name}."
+      exit 1
+    fi
   done <<< "$images_list_content"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
