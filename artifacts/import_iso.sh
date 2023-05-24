@@ -187,7 +187,7 @@ function iso::import_data() {
 
 readonly ISO_PARALLEL_LOCK="/var/lock/kubean-import.lock"
 
-function import_iso::main() {
+function iso::import_main() {
   local minio_api_addr=${1:-'http://127.0.0.1:9000'}
   local iso_file_path=${2}
 
@@ -223,5 +223,5 @@ function import_iso::main() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    import_iso::main "$@"
+    iso::import_main "$@"
 fi
