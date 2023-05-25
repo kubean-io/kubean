@@ -147,7 +147,7 @@ jobs:
           bash ./hack/newE2E.sh
 
   centos_cilium_online:
-    runs-on:  [self-hosted, online]
+    runs-on:  [self-hosted, offline]
     needs: [centos_calico_airgap, get_helm_version]
     env:
       CONTAINER_TAG: ${{ needs.get_helm_version.outputs.CONTAINER_TAG }}
