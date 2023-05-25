@@ -7,7 +7,7 @@ data:
   group_vars.yml: |
     # k8s-cluster
     unsafe_show_logs: true
-    kube_version: "v1.24.7"
+    kube_version: "v1.25.3"
     container_manager: containerd
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico

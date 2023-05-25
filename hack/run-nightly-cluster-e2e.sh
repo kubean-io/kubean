@@ -136,21 +136,21 @@ CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
 
 
-## prepare cluster upgrade job yml --> upgrade from v1.24.7 to v1.25.3
+## prepare cluster upgrade job yml --> upgrade from v1.25.3 to v1.26.0
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-y/
 func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME2="cluster1-upgrade-y"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME2}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s/v1.24.7/v1.25.3/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/v1.25.3/v1.26.0/"  "${dest_config_path}"/vars-conf-cm.yml
 
-## prepare cluster upgrade job yml --> upgrade from v1.25.3 to v1.25.5
+## prepare cluster upgrade job yml --> upgrade from v1.25.3 to v1.26.5
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-z/
 func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME3="cluster1-upgrade-z"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s/v1.24.7/v1.25.5/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/v1.25.3/v1.26.5/"  "${dest_config_path}"/vars-conf-cm.yml
 
 ginkgo -v -race -timeout=6h --fail-fast ./test/kubean_sonobouy_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
