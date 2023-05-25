@@ -63,11 +63,6 @@ jobs:
 
               # cd to alpha
               make local-chart-to-deploy $KUBEAN_IMAGE_REPO
-
-              echo "${{ secrets.ALPHA_ARM_KUBECONFIG }}" > kubeconfig
-
-              # cd to alpha-arm
-              make local-chart-to-deploy
               
             else
               echo 'enviroment not exist'
