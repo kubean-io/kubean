@@ -21,7 +21,8 @@ function iso::add_mc_host_conf() {
 
 function iso::del_mc_host_conf() {
   echo "remove mc config"
-  flock ${ISO_PARALLEL_LOCK} mc config host remove kubeaniominioserver || true
+  local iso_parallel_lock=$1
+  flock ${iso_parallel_lock} mc config host remove kubeaniominioserver || true
 }
 
 function iso::check_mc_cmd() {
@@ -185,8 +186,6 @@ function iso::import_data() {
   fi
 }
 
-readonly ISO_PARALLEL_LOCK="/var/lock/kubean-import.lock"
-
 function iso::import_main() {
   local minio_api_addr=${1:-'http://127.0.0.1:9000'}
   local iso_file_path=${2}
@@ -194,6 +193,7 @@ function iso::import_main() {
   local is_cp_path=false
   local target_path="${minio_api_addr}"
   local iso_mnt_path="/mnt/kubean-temp-iso"
+  local iso_parallel_lock="/var/lock/kubean-import.lock"
 
   if [[ "${target_path}" != "https://"* ]] && [[ "${target_path}" != "http://"* ]] ; then
     is_cp_path=true
@@ -211,9 +211,9 @@ function iso::import_main() {
   fi
   iso::mount_file "${iso_file_path}" "${iso_mnt_path}"
   export -f iso::import_data iso::mk_server_path
-  flock -s ${ISO_PARALLEL_LOCK} bash -c "iso::import_data '${iso_file_path}' '${iso_mnt_path}' '${is_cp_path}' '${target_path}'"
+  flock -s ${iso_parallel_lock} bash -c "iso::import_data '${iso_file_path}' '${iso_mnt_path}' '${is_cp_path}' '${target_path}'"
   if [ "${is_cp_path}" == "false" ]; then
-    iso::del_mc_host_conf
+    iso::del_mc_host_conf "${iso_parallel_lock}"
   fi
 
   end=$(date +%s)
