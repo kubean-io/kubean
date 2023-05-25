@@ -50,7 +50,7 @@ function generate_temp_list() {
   remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
   cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
-  add_pause_image_addr contrib/offline/temp/images.list
+  # add_pause_image_addr contrib/offline/temp/images.list
   cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
 }
 
@@ -80,8 +80,6 @@ function create_images() {
     mkdir offline-images
   fi
 
-  local ignore_img_name="pause:4"
-
   while read -r image_name; do
     ## quay.io/metallb/controller:v0.12.1 => dir:somedir/metallb%controller:v0.12.1
     ## quay.io/metallb/controller:v0.12.1 => dir:somedir/quay.io%metallb%controller:v0.12.1 ## keep host with multi harbor projects
@@ -92,7 +90,7 @@ function create_images() {
     echo "download image $(replace_image_name "$image_name") to local $new_dir_name"
     ret=0
     skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} docker://"$(replace_image_name "$image_name")" dir:offline-images/"$new_dir_name" || ret=$?
-    if [ ${ret} -ne 0 ] && [ ! -z "${image_name##*$ignore_img_name*}" ]; then
+    if [ ${ret} -ne 0 ]; then
       echo "skopeo copy image failed, image name: ${image_name}."
       exit 1
     fi
