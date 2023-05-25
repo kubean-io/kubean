@@ -132,7 +132,7 @@ $ vi kubean/examples/install/2.mirror/ClusterOperation.yml
 
 #### 3.应用 2.mirror 文件下所有的配置
 
-完成上述步骤并保存 AllInOne.yml 文件后，执行如下命令：
+完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：
 
 ```bash
 $ kubectl apply -f examples/install/2.mirror
