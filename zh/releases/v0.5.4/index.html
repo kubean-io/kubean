@@ -6,24 +6,24 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)">
+        <meta name="description" content="kubean 是一款基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 的集群生命周期管理工具.">
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/releases/v0.4.9/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/releases/v0.5.4/">
       
       
-        <link rel="prev" href="../v0.4.10/">
+        <link rel="prev" href="../../develop/roadmap/">
       
       
-        <link rel="next" href="../v0.4.8/">
+        <link rel="next" href="../v0.5.3/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.14">
     
     
       
-        <title>V0.4.9 - Kubean</title>
+        <title>V0.5.4 - Kubean</title>
       
     
     
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              V0.4.9
+              V0.5.4
             
           </span>
         </div>
@@ -284,7 +284,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Introduction
+        简介
       </a>
     </li>
   
@@ -308,14 +308,14 @@
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-          Languages
+          语言选择
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          Languages
+          语言选择
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -359,28 +359,26 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
       
       
       
         <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-          Releases
+          快速入门
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
-          Releases
+          快速入门
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -390,9 +388,384 @@
   
   
     <li class="md-nav__item">
-      <a href="../v0.5.4/" class="md-nav__link">
+      <a href="../../usage/helm-install-kubean/" class="md-nav__link">
+        使用 Helm 部署 kubean chart
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/all-in-one-install/" class="md-nav__link">
+        使用 all-in-one 模式部署单节点集群
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          功能架构
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          功能架构
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        Kubean 基础架构
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/comparisons/" class="md-nav__link">
+        对比参考
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/crds/" class="md-nav__link">
+        CRD 概述
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/custom_action/" class="md-nav__link">
+        自定义 Action
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
+        离线安装包的原理
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          用户指南
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          用户指南
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/sshkey_deploy_cluster/" class="md-nav__link">
+        以SSH秘钥方式部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/scale/" class="md-nav__link">
+        集群伸缩
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/upgrade/" class="md-nav__link">
+        集群升级
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/uninstall/" class="md-nav__link">
+        集群卸载
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/airgap/" class="md-nav__link">
+        离线场景的使用
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/airgap_patch_usage/" class="md-nav__link">
+        增量离线包的生成和使用
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          开发指南
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          开发指南
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../develop/roadmap/" class="md-nav__link">
+        Kubean 路线图
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          Releases
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_7">
+          <span class="md-nav__icon md-icon"></span>
+          Releases
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          V0.5.4
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         V0.5.4
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-changed" class="md-nav__link">
+    What's Changed
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -486,55 +859,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          V0.4.9
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../v0.4.9/" class="md-nav__link">
         V0.4.9
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#whats-changed" class="md-nav__link">
-    What's Changed
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#new-contributors" class="md-nav__link">
-    New Contributors
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -672,328 +1001,6 @@
   
 
     
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-          Concepts
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_4">
-          <span class="md-nav__icon md-icon"></span>
-          Concepts
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
-        Kubean Infrastructure
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/comparisons/" class="md-nav__link">
-        Kubean vs Kubespray
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/crds/" class="md-nav__link">
-        CRDs
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/custom_action/" class="md-nav__link">
-        自定义 Action
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
-        Theory of Air-gapped packages
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-          Quick Start
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_5">
-          <span class="md-nav__icon md-icon"></span>
-          Quick Start
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/install/" class="md-nav__link">
-        集群部署
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-          User Guide
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_6">
-          <span class="md-nav__icon md-icon"></span>
-          User Guide
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/sshkey_deploy_cluster/" class="md-nav__link">
-        Deploy Kubernetes clusters with SSH
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/scale/" class="md-nav__link">
-        集群伸缩
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/upgrade/" class="md-nav__link">
-        集群升级
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/uninstall/" class="md-nav__link">
-        集群卸载
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/airgap/" class="md-nav__link">
-        Use Kubean in offline scenes
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../usage/airgap_patch_usage/" class="md-nav__link">
-        Generation and use of incremental offline packages
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
-          Development
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_7">
-          <span class="md-nav__icon md-icon"></span>
-          Development
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../develop/roadmap/" class="md-nav__link">
-        Kubean Roadmap
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -1025,13 +1032,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#new-contributors" class="md-nav__link">
-    New Contributors
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1053,44 +1053,16 @@
   
 
 
-  <h1>V0.4.9</h1>
+  <h1>V0.5.4</h1>
 
 <h2 id="whats-changed">What's Changed<a class="headerlink" href="#whats-changed" title="Permanent link">&para;</a></h2>
 <ul>
-<li>fix download files job by @XiuguangHuang in https://github.com/kubean-io/kubean/pull/620</li>
-<li>fix remount iso by @hangscer8 in https://github.com/kubean-io/kubean/pull/624</li>
-<li>adding flannel、kube-ovn to manifest cr by @cyclinder in https://github.com/kubean-io/kubean/pull/622</li>
-<li>[docs] add readme_zh.md by @windsonsea in https://github.com/kubean-io/kubean/pull/623</li>
-<li>Add code-of-conduct and CONTRIBUTING documentation by @tu1h in https://github.com/kubean-io/kubean/pull/625</li>
-<li>remove redundant docker os_pkgs by @hangscer8 in https://github.com/kubean-io/kubean/pull/626</li>
-<li>support openEuler by @hangscer8 in https://github.com/kubean-io/kubean/pull/628</li>
-<li>optimize import iso openeuler by @hangscer8 in https://github.com/kubean-io/kubean/pull/629</li>
-<li>support other linux in AirGap scenario by @ErikJiang in https://github.com/kubean-io/kubean/pull/627</li>
-<li>update pkgs.yml by @ErikJiang in https://github.com/kubean-io/kubean/pull/630</li>
-<li>fix unkonwn arch image by @ErikJiang in https://github.com/kubean-io/kubean/pull/631</li>
-<li>add openeuler ospkg by @hangscer8 in https://github.com/kubean-io/kubean/pull/632</li>
-<li>Support import ISO data to local path by @tu1h in https://github.com/kubean-io/kubean/pull/640</li>
-<li>Add Dependabot by @ErikJiang in https://github.com/kubean-io/kubean/pull/641</li>
-<li>Bump mikefarah/yq from 4.30.8 to 4.33.3 by @dependabot in https://github.com/kubean-io/kubean/pull/645</li>
-<li>Bump docker/build-push-action from 3.3.0 to 4.0.0 by @dependabot in https://github.com/kubean-io/kubean/pull/642</li>
-<li>Fix import_iso.sh by @tu1h in https://github.com/kubean-io/kubean/pull/651</li>
-<li>Bump docker/setup-buildx-action from 2.2.1 to 2.5.0 by @dependabot in https://github.com/kubean-io/kubean/pull/644</li>
-<li>Bump actions/setup-go from 3 to 4 by @dependabot in https://github.com/kubean-io/kubean/pull/643</li>
-<li>set pr-ci nightly-ci run time-limit to 15h by @wenting-guo in https://github.com/kubean-io/kubean/pull/653</li>
-<li>include dockerfile on ospkg cache judgment include by @tu1h in https://github.com/kubean-io/kubean/pull/655</li>
-<li>doc: fix english doc broken link by @jonyhy96 in https://github.com/kubean-io/kubean/pull/656</li>
-<li>add speedup offline packages by @wenting-guo in https://github.com/kubean-io/kubean/pull/657</li>
-<li>Add Roadmap by @ErikJiang in https://github.com/kubean-io/kubean/pull/661</li>
-<li>generate offline package for flannel by @cyclinder in https://github.com/kubean-io/kubean/pull/662</li>
-<li>add unsafe_show_logs to debug the download failed resource by @wenting-guo in https://github.com/kubean-io/kubean/pull/663</li>
+<li>remove alpha_arm by @hangscer8 in https://github.com/kubean-io/kubean/pull/759</li>
+<li>centos_cilium_online should use offline runner by @tukwila in https://github.com/kubean-io/kubean/pull/761</li>
+<li>e2e:update worker cluster k8s version by @yulng in https://github.com/kubean-io/kubean/pull/760</li>
+<li>update import iso by @ErikJiang in https://github.com/kubean-io/kubean/pull/762</li>
 </ul>
-<h2 id="new-contributors">New Contributors<a class="headerlink" href="#new-contributors" title="Permanent link">&para;</a></h2>
-<ul>
-<li>@cyclinder made their first contribution in https://github.com/kubean-io/kubean/pull/622</li>
-<li>@dependabot made their first contribution in https://github.com/kubean-io/kubean/pull/645</li>
-<li>@jonyhy96 made their first contribution in https://github.com/kubean-io/kubean/pull/656</li>
-</ul>
-<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.4.8...v0.4.9</p>
+<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.5.3...v0.5.4</p>
 
 
 
