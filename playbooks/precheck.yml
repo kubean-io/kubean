@@ -1,11 +1,12 @@
 ---
 - name: Pre-check
   hosts: k8s_cluster
-  gather_facts: false
+  gather_facts: true
   become: true
   vars:
     check_connection: true
     fetch_os_type: true
+    fetch_os_kernel_version: true
     check_existing_k8s_service: true
 
   tasks:
@@ -70,6 +71,16 @@
       delegate_to: localhost
       when:
         - check_existing_k8s_service
+
+    - name: Store os_kernel_version result to localhost
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
+        yq -i '.{{inventory_hostname}}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache
+        yq -i '.{{inventory_hostname}}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache
+      ignore_errors: true
+      delegate_to: localhost
+      when:
+        - fetch_os_kernel_version
 
 - hosts: localhost
   gather_facts: false

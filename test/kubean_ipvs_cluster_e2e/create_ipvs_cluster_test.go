@@ -92,7 +92,11 @@ var _ = ginkgo.Describe("Create ipvs cluster", func() {
 			clusterPort := service1.Spec.Ports[0].Port
 			clusterIP0 := service1.Spec.ClusterIP
 			labelSelectorStr := "name=" + daemonSetName
-			podList, _ := cluster1Client.CoreV1().Pods(tools.DefaultNamespace).List(context.Background(), metav1.ListOptions{LabelSelector: labelSelectorStr})
+			podList, err1 := cluster1Client.CoreV1().Pods(tools.DefaultNamespace).List(context.Background(), metav1.ListOptions{LabelSelector: labelSelectorStr})
+			if err1 != nil {
+				klog.Info("Get podlist of service failed: ", err1.Error())
+			}
+			gomega.Expect(err1).Should(gomega.BeNil())
 			fromPodName := podList.Items[0].Name
 			klog.Info(nodePort0)
 			klog.Info(clusterPort)

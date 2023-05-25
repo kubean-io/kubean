@@ -10,8 +10,8 @@
 
   <p>
 
-[<img src="docs/images/certified-kubernetes-color.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
-[<img src="docs/images/kubean-logo.png" height=120>](https://kubean-io.github.io/website/)
+[<img src="docs/overrides/assets/images/certified_k8s.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/overrides/assets/images/kubean_logo.png" height=120>](https://kubean-io.github.io/website/)
 <!--
 Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
 -->
@@ -78,20 +78,15 @@ You can use the example in folder `examples/install/1.minimal` which uses online
      $ kubectl get job -n kubean-system
      ```
 
-[![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
+[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
 
 ## :ocean: Kubernetes compatibility
 
-|               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 | Kubernetes 1.26 |
+|               | Kubernetes 1.26 | Kubernetes 1.25 | Kubernetes 1.24 | Kubernetes 1.23 | Kubernetes 1.22 | Kubernetes 1.21 | Kubernetes 1.20 |
 |---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 | Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
+| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
 ## :book: Documents
 
-- [Architecture](docs/en/architecture.md)
-- [Kubean vs Kubespray](docs/en/comparisons.md)
-- [CRD Outline](docs/en/crds.md)
-- [Deploy cluster using SSH secret key method](docs/en/sshkey_deploy_cluster.md)
-- [Cluster deployment for air gap environments](docs/en/offline.md)
-- [Generate and use incremental offline packages](docs/en/airgap_patch_usage.md)
+Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)

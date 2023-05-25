@@ -10,8 +10,8 @@
 
   <p>
 
-[<img src="docs/images/certified-kubernetes-color.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
-[<img src="docs/images/kubean-logo.png" height=120>](https://kubean-io.github.io/website/)
+[<img src="docs/overrides/assets/images/certified_k8s.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
+[<img src="docs/overrides/assets/images/kubean_logo.png" height=120>](https://kubean-io.github.io/website/)
 <!--
 Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
 -->
@@ -82,21 +82,15 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
    $ kubectl get job -n kubean-system
    ```
 
-[![quick_start_image](docs/images/quick_start.gif)](https://asciinema.org/a/511386)
+[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
 
 ## :ocean: Kubernetes 兼容性
 
-|               | Kubernetes 1.20 | Kubernetes 1.21 | Kubernetes 1.22 | Kubernetes 1.23 | Kubernetes 1.24 | Kubernetes 1.25 | Kubernetes 1.26 |
+|               | Kubernetes 1.26 | Kubernetes 1.25 | Kubernetes 1.24 | Kubernetes 1.23 | Kubernetes 1.22 | Kubernetes 1.21 | Kubernetes 1.20 |
 |---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 | Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
+| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
 ## :book: 参考文档
 
-- [架构](docs/zh/architecture.md)
-- [Kubean 与 Kubespray](docs/zh/comparisons.md)
-- [CRD 概述](docs/zh/crds.md)
-- [使用 SSH Secret 密钥方法部署集群](docs/zh/sshkey_deploy_cluster.md)
-- [为离线环境部署集群](docs/zh/offline.md)
-- [自定义操作](docs/zh/custom_action.md)
-- [增量离线包的生成和使用](docs/zh/airgap_patch_usage.md)
+请浏览: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)

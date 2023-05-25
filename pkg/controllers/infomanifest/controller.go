@@ -230,7 +230,10 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&manifestv1alpha1.Manifest{}).Complete(c),
+		controllerruntime.
+			NewControllerManagedBy(mgr).
+			For(&manifestv1alpha1.Manifest{}).
+			Complete(c),
 		mgr.Add(c),
 	})
 }
