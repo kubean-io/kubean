@@ -147,6 +147,7 @@ jobs:
           bash ./hack/newE2E.sh
 
   centos_cilium_online:
+    # This is actually e2e_offline action
     runs-on:  [self-hosted, offline]
     needs: [centos_calico_airgap, get_helm_version]
     env:
@@ -168,9 +169,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.4
+      # - uses: actions/setup-go@v3
+      #   with:
+      #     go-version: 1.20.4
       - name: centos_cilium_online
         continue-on-error: ${{ vars.CENTOS_CILIUM_ONLINE_ALLOW_FAILURE != 'false' }}
         run: |
