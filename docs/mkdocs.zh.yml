@@ -49,6 +49,7 @@ nav:
 - 快速入门:
   - usage/helm-install-kubean.md
   - usage/all-in-one-install.md
+  - usage/mirror-install.md
 - 功能架构:
   - concepts/architecture.md
   - concepts/comparisons.md
