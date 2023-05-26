@@ -133,24 +133,26 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	cluster := &clusterv1alpha1.Cluster{}
 	if err := c.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
 		if apierrors.IsNotFound(err) {
-			return controllerruntime.Result{Requeue: false}, nil
+			return controllerruntime.Result{}, nil
 		}
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to get cluster", "cluster", req.String())
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
 	needRequeue, err := c.CleanExcessClusterOps(cluster)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to clean excess cluster ops", "cluster", cluster.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
 	if err := c.UpdateStatus(cluster); err != nil {
-		klog.Error(err)
+		klog.ErrorS(err, "failed to update cluster status", "cluster", cluster.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
+
 	return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil // loop
 }
 
