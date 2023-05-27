@@ -1,4 +1,4 @@
-# 使用 Helm 部署 kubean chart
+# 安装 kubean helm 应用
 
 ## 前置条件
 

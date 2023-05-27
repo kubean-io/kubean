@@ -6,7 +6,6 @@ repo_url: https://github.com/kubean-io/kubean
 docs_dir: './zh'
 site_dir: './site/zh'
 plugins:
-- tags
 - search
 - glightbox
 - awesome-pages
@@ -22,14 +21,14 @@ theme:
   palette:
   - media: "(prefers-color-scheme: light)"
     scheme: default
-    primary: blue
+    primary: indigo
     accent: amber
     toggle:
       icon: material/brightness-7
       name: Switch to light mode
   - media: "(prefers-color-scheme: dark)"
     scheme: slate
-    primary: grey
+    primary: white
     accent: amber
     toggle:
       icon: material/brightness-4
@@ -38,14 +37,13 @@ theme:
   - search.suggest
   - search.highlight
   - content.tabs.link
+  - content.code.copy
+  - navigation.footer
   icon:
     repo: fontawesome/brands/github-alt
 
 nav:
 - 简介: index.md
-- 语言选择:
-  - en: /kubean/en/
-  - zh: /kubean/zh/
 - 快速入门:
   - usage/helm-install-kubean.md
   - usage/all-in-one-install.md
@@ -75,6 +73,7 @@ markdown_extensions:
 - admonition
 - codehilite
 - extra
+- pymdownx.superfences
 - pymdownx.tabbed:
     alternate_style: true
 - attr_list
@@ -92,3 +91,4 @@ extra:
   - link: /kubean/zh/
     name: zh - 中文
     lang: zh
+  generator: false
