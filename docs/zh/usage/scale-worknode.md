@@ -1,4 +1,4 @@
-# 使用 kubean 扩缩容集群工作节点
+# 集群工作节点扩缩容
 
 在软件开发运维的过程中，业务的发展往往需要添加集群的工作节点以满足业务增长，对于使用 kubean 部署的集群，在 kubean 中我们可以使用声明式的方式，快速扩缩容集群工作节点。
 
@@ -24,9 +24,11 @@
 
 ## 扩容工作节点
 
-#### 1. 配置主机配置参数 HostsConfCM.yml
+#### 1. 向 HostsConfCM.yml 增加新节点主机参数
 
-进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑待建集群节点配置信息模版 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
+我们要在原有的 all-in-one 模式中，对名为 `mini-hosts-conf` 的 ConfigMap 进行新增节点配置，在原来 `node1` 主节点的基础上, 新增 `node2` 工作节点；
+
+具体地，我们可以进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑已准备好的节点配置 ConfigMap 模版 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
 
   - `<IP2>`：节点 IP。
   - `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
@@ -34,6 +36,8 @@
 
 `kubean/examples/scale/1.addWorkNode/` 路径下 **`HostsConfCM.yml`** 的模版内容如下：
 
+<details>
+<summary> HostsConfCM.yml 模板</summary>
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -76,65 +80,100 @@ data:
         calico_rr:
           hosts: {}
 ```
-**重要参数：**
->* `all.hosts.node1` 指的是集群中已存在的节点信息。
->* `all.hosts.node2` 指的是集群中待新增节点信息。
->* `all.children.kube_node.hosts` 集群内所有节点名称集合
-
-例如，下面展示了一个 HostsConfCM.yml 示例：
-<details>
-<summary> HostsConfCM.yml 示例</summary>
-``` yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mini-hosts-conf
-  namespace: kubean-system
-data:
-  hosts.yml: |
-    all:
-      hosts:
-        node1:
-          ip: 10.6.175.10 # 你的节点 IP
-          access_ip: 10.6.175.10 # 你的节点 IP
-          ansible_host: 10.6.175.10 # 你的节点 IP
-          ansible_connection: ssh
-          ansible_user: root # 登陆节点的用户名
-          ansible_password: password01 # 登陆节点的密码
-        node2:
-          ip: 10.6.175.20 # 新增节点 2 的 IP
-          access_ip: 10.6.175.20 # 新增节点 2 IP
-          ansible_host: 10.6.175.20 # 新增节点的 2 IP
-          ansible_connection: ssh
-          ansible_user: root # 登陆节点 2 的用户名
-          ansible_password: password01 # 登陆节点 2 的密码
-      children:
-        kube_control_plane:
-          hosts:
-            node1:
-        kube_node:
-          hosts:
-            node1:
-            node2:
-        etcd:
-          hosts:
-            node1:
-        k8s_cluster:
-          children:
-            kube_control_plane:
-            kube_node:
-        calico_rr:
-          hosts: {}
-```
 </details>
 
+**重要参数：**
+>* `all.hosts.node1`: 原集群中已存在的主节点
+>* `all.hosts.node2`: 集群扩容待新增的工作节点
+>* `all.children.kube_node.hosts`: 集群中的工作节点组
 
-执行如下命令编辑 HostsConfCM.yml 配置模版：
 
-```bash
-$ vi kubean/examples/install/scale/1.addWorkNode/HostsConfCM.yml
-```
-#### 2. 配置扩容任务 ClusterOperation.yml 配置参数 
+!!! 新增工作节点主机参数的示例
+
+    === "新增节点前"
+
+        ``` yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-hosts-conf
+          namespace: kubean-system
+        data:
+          hosts.yml: |
+            all:
+              hosts:
+                node1:
+                  ip: 10.6.175.10 # 你的节点 IP
+                  access_ip: 10.6.175.10 # 你的节点 IP
+                  ansible_host: 10.6.175.10 # 你的节点 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点的用户名
+                  ansible_password: password01 # 登陆节点的密码
+              children:
+                kube_control_plane:
+                  hosts:
+                    node1:
+                kube_node:
+                  hosts:
+                    node1:
+                etcd:
+                  hosts:
+                    node1:
+                k8s_cluster:
+                  children:
+                    kube_control_plane:
+                    kube_node:
+                calico_rr:
+                  hosts: {}
+        ```
+
+    === "新增节点后"
+
+        ``` yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-hosts-conf
+          namespace: kubean-system
+        data:
+          hosts.yml: |
+            all:
+              hosts:
+                node1:
+                  ip: 10.6.175.10 # 你的节点 IP
+                  access_ip: 10.6.175.10 # 你的节点 IP
+                  ansible_host: 10.6.175.10 # 你的节点 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点的用户名
+                  ansible_password: password01 # 登陆节点的密码
+                node2:
+                  ip: 10.6.175.20 # 新增节点 2 的 IP
+                  access_ip: 10.6.175.20 # 新增节点 2 IP
+                  ansible_host: 10.6.175.20 # 新增节点的 2 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点 2 的用户名
+                  ansible_password: password01 # 登陆节点 2 的密码
+              children:
+                kube_control_plane:
+                  hosts:
+                    node1:
+                kube_node:
+                  hosts:
+                    node1:
+                    node2:
+                etcd:
+                  hosts:
+                    node1:
+                k8s_cluster:
+                  children:
+                    kube_control_plane:
+                    kube_node:
+                calico_rr:
+                  hosts: {}
+        ```
+
+
+#### 2. 通过 ClusterOperation.yml 新增扩容任务  
 
 进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
@@ -180,12 +219,6 @@ spec:
 ```
 </details>
 
-执行如下命令编辑 ClusterOperation.yml 配置模版：
-
-```bash
-$ vi kubean/examples/install/scale/1.addWorkNode/ClusterOperation.yml
-```
-
 #### 3.应用 `scale/1.addWorkNode` 文件下所有的配置
 
 完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：
@@ -198,60 +231,7 @@ $ kubectl apply -f examples/install/scale/1.addWorkNode/
 
 ## 缩容工作节点
 
-#### 1. 配置主机配置参数 HostsConfCM.yml
-
-进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑待建集群节点配置信息模版 `HostsConfCM.yml`，删除需要移除的节点及配置。
-
-**删除参数如下：**
-
-* `all.hosts` 下的 node2 节点接入参数。
-* `all.children.kube_node.hosts` 内的主机名称 node2 。
-
-例如，下面展示了一个 HostsConfCM.yml 示例：
-<details>
-<summary> HostsConfCM.yml 示例</summary>
-``` yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mini-hosts-conf
-  namespace: kubean-system
-data:
-  hosts.yml: |
-    all:
-      hosts:
-        node1:
-          ip: 10.6.175.10 # 你的节点 IP
-          access_ip: 10.6.175.10 # 你的节点 IP
-          ansible_host: 10.6.175.10 # 你的节点 IP
-          ansible_connection: ssh
-          ansible_user: root # 登陆节点的用户名
-          ansible_password: password01 # 登陆节点的密
-      children:
-        kube_control_plane:
-          hosts:
-            node1:
-        kube_node:
-          hosts:
-            node1:
-        etcd:
-          hosts:
-            node1:
-        k8s_cluster:
-          children:
-            kube_control_plane:
-            kube_node:
-        calico_rr:
-          hosts: {}
-```
-</details>
-
-执行如下命令编辑 HostsConfCM.yml 配置模版：
-
-```bash
-$ vi kubean/examples/install/scale/2.delWorkNode/HostsConfCM.yml
-```
-#### 2. 配置扩容任务 ClusterOperation.yml 配置参数 
+#### 1. 通过 ClusterOperation.yml 新增缩容任务 
 
 进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
@@ -296,18 +276,122 @@ spec:
 ```
 </details>
 
-执行如下命令编辑 ClusterOperation.yml 配置模版：
+
+#### 2.应用 `scale/2.delWorkNode` 目录下的 ClusterOperation 缩容任务清单
+
+完成上述步骤并保存 ClusterOperation.yml 文件后，执行如下命令：
 
 ```bash
-$ vi kubean/examples/install/scale/2.delWorkNode/ClusterOperation.yml
+$ kubectl apply -f examples/install/scale/2.delWorkNode/ClusterOperation.yml
 ```
 
-#### 3.应用 `scale/2.delWorkNode` 文件下所有的配置
+默认进入 kubean-system 命名空间，查看缩容任务执行状态：
+``` bash
+$ kubectl -n kubean-system get pod | grep cluster-mini-dwn-ops
+```
+了解缩容任务执行进度，可查看该 pod 日志；
 
-完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：
+#### 3. 通过 HostsConfCM.yml 删除工作节点主机参数
+
+我们已经通过如上两步操作执行了缩容任务，待缩容任务执行完成后，`node2` 将从现有集群中永久移除，则此时我们还需要完成最后一步，将节点配置相关 Configmap 中的 node2 信息移除;
+
+进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑已准备好的节点配置模版 `HostsConfCM.yml`，删除需要移除的工作节点配置。
+
+**删除参数如下：**
+
+* `all.hosts` 下的 node2 节点接入参数。
+* `all.children.kube_node.hosts` 内的主机名称 node2 。
+
+
+!!! 移除工作节点主机参数的示例
+
+    === "移除节点前"
+
+        ``` yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-hosts-conf
+          namespace: kubean-system
+        data:
+          hosts.yml: |
+            all:
+              hosts:
+                node1:
+                  ip: 10.6.175.10 # 你的节点 IP
+                  access_ip: 10.6.175.10 # 你的节点 IP
+                  ansible_host: 10.6.175.10 # 你的节点 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点的用户名
+                  ansible_password: password01 # 登陆节点的密码
+                node2:
+                  ip: 10.6.175.20 # 新增节点 2 的 IP
+                  access_ip: 10.6.175.20 # 新增节点 2 IP
+                  ansible_host: 10.6.175.20 # 新增节点的 2 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点 2 的用户名
+                  ansible_password: password01 # 登陆节点 2 的密码
+              children:
+                kube_control_plane:
+                  hosts:
+                    node1:
+                kube_node:
+                  hosts:
+                    node1:
+                    node2:
+                etcd:
+                  hosts:
+                    node1:
+                k8s_cluster:
+                  children:
+                    kube_control_plane:
+                    kube_node:
+                calico_rr:
+                  hosts: {}
+        ```
+
+    === "移除节点后"
+
+        ``` yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-hosts-conf
+          namespace: kubean-system
+        data:
+          hosts.yml: |
+            all:
+              hosts:
+                node1:
+                  ip: 10.6.175.10 # 你的节点 IP
+                  access_ip: 10.6.175.10 # 你的节点 IP
+                  ansible_host: 10.6.175.10 # 你的节点 IP
+                  ansible_connection: ssh
+                  ansible_user: root # 登陆节点的用户名
+                  ansible_password: password01 # 登陆节点的密码
+              children:
+                kube_control_plane:
+                  hosts:
+                    node1:
+                kube_node:
+                  hosts:
+                    node1:
+                etcd:
+                  hosts:
+                    node1:
+                k8s_cluster:
+                  children:
+                    kube_control_plane:
+                    kube_node:
+                calico_rr:
+                  hosts: {}
+        ```
+
+完成上述步骤并保存 HostsConfCM.yml 文件后，执行如下命令：
 
 ```bash
-$ kubectl apply -f examples/install/scale/2.delWorkNode/
+$ kubectl apply -f examples/install/scale/2.delWorkNode/HostsConfCM.yml
 ```
 
-至此，您已经完成了一个集群工作节点的缩容操作。
+此时，我们已将 node2 工作节点从集群中移除，并且清理掉了有关 node2 的主机信息，整个缩容操作就此结束；
+
