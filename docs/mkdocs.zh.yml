@@ -58,7 +58,7 @@ nav:
   - concepts/theory_of_airgapped_package.md
 - 用户指南:
   - usage/sshkey_deploy_cluster.md
-  - usage/scale.md
+  - usage/scale-worknode.md
   - usage/upgrade.md
   - usage/uninstall.md
   - usage/airgap.md
