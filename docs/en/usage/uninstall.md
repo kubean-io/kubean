@@ -1,29 +1,49 @@
-# 集群卸载
+# Cluster Uninstallation
 
-我们以使用 [`minimal`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/) 模板安装好的单节点集群为例，来进行集群卸载操作；
+This section will show you how to use kubean to uninstall a cluster. In the `kubean/example/uninstall` directory that you cloned to your local machine, there is a sample template for uninstalling a cluster:
 
-假设当前名为 cluster-mini 的单节点集群已经部署完毕，我们要执行卸载集群的操作，需要使用 `kubectl apply` 下发 `action` 为 `reset.yml` 的 CluterOperation 自定义资源；
+<details open>
+<summary> The main configuration files and their purposes in the uninstall directory are as follows:</summary>
 
-ClusterOperation 的关键配置大体如下：
+```yaml
+    uninstall
+    ├── ClusterOperation.yml                # Uninstall cluster task
+```
+</details>
 
-``` yaml
----
+In the following example, we will [use a single-node cluster deployed in all-in-one mode](./all-in-one-install.md) to demonstrate the cluster upgrade operation.
+> Note: Before performing a cluster uninstallation, you must have completed the deployment of a cluster using kubean.
+
+#### 1. Add an uninstallation task
+
+Go to the `kubean/examples/uninstall/` directory and edit the template `ClusterOperation.yml`, replacing the following parameters with your actual parameters:
+
+  - `<TAG>`：The kubean image version. It is recommended to use the latest version.[Refer to the kubean version list](https://github.com/kubean-io/kubean/tags).
+
+The template content of `kubean/examples/uninstall/`  **`ClusterOperation.yml`** path is as follows:
+
+```yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
 metadata:
-  name: sample-uninstall-ops
+  name: cluster-mini-uninstall-ops
 spec:
-  ...
   cluster: cluster-mini
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
+  backoffLimit: 0
+  actionType: playbook
   action: reset.yml
-  ...
+```
+**Important Parameters:**
+>* `spec.cluster`: Specifies the name of the cluster to be uninstalled. In the example above, the cluster named `cluster-mini` is the target for uninstallation.
+>* `spec.action:`：: Specifies the Kubespray playbook for uninstallation. Here it is set to `reset.yml`.
 
+#### 2.Apply the Configuration in the uninstall Directory
+
+After completing the above steps and saving the ClusterOperation.yml file, execute the following command:
+
+```bash
+$ kubectl apply -f examples/uninstall/
 ```
 
-关键配置：
-
-* `spec.cluster`: 指定需要卸载的集群名称, 上述指定的是名为 `cluster-mini` 的集群为卸载目标
-* `spec.action`: 指定卸载相关的 kubespray 剧本, 这里设置为 `reset.yml`
-
-
-更具体的配置可以参考 [`uninstall/ClusterOperation.yml`](https://github.com/kubean-io/kubean/blob/main/examples/uninstall/ClusterOperation.yml) 样例模板；
+At this point, you have successfully uninstalled a cluster.
