@@ -3,19 +3,19 @@
 本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 `kubean/example/upgrade` 文件内，同样提供了集群版本升级的样例模版：
 
 <details open>
-<summary> sacle 文件内主要的配置文件及用途如下：</summary>
+<summary> upgrade 文件内主要的配置文件及用途如下：</summary>
 
 ```yaml
     upgrade
-    ├── ClusterOperation.yml
-    └── VarsConfCM.yml
+    ├── ClusterOperation.yml                  # 升级集群任务
+    └── VarsConfCM.yml                        # 集群升级版本等参数配置
 ```
 </details>
 
 下面以[使用 all-in-one 模式部署的单节点集群](./all-in-one-install.md)为例，来演示集群版本升级操作。
 > 注意：执行集群版本升级前，您必须已经使用 kubean 完成了一套集群的部署。
 
-#### 1. 通过 ClusterOperation.yml 新增升级任务
+#### 1. 新增升级任务
 
 进入 `kubean/examples/upgrade/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
@@ -39,7 +39,7 @@ spec:
 >* `spec.cluster`: 指定需要升级的集群名称，上述指定的是名为 `cluster-mini` 的集群为升级目标。
 >* `spec.action:` 指定升级相关的 kubespray 剧本, 这里设置为 `upgrade-cluster.yml`。
 
-#### 2. 通过 VarsConfCM.yml 指定集群版本
+#### 2. 指定集群升级版本
 
 进入 `kubean/examples/upgrade/` 路径，编辑模版 `VarsConfCM.yml`，通过配置 `kube_version` 参数，指定集群升级的版本。
 
@@ -81,4 +81,4 @@ data:
 $ kubectl apply -f examples/upgrade/
 ```
 
-至此，您已经使完成了一个集群的工作节点扩容。
+至此，您已经使完成了一个集群的 kuberntes 版本的升级。
