@@ -65,6 +65,48 @@ data:
 **重要参数：**
 >* `kube_version`: 指定需要升级的集群版本, 上述指定了要升级到 k8s v1.25.8 版本。
 
+!!! 移除工作节点主机参数的示例
+    === "升级版本前"
+
+        ```yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-vars-conf
+          namespace: kubean-system
+        data:
+          group_vars.yml: |
+            kube_version: v1.25.0
+            # upgrade_cluster_setup: true
+            # upgrade_node_confirm: true
+            # upgrade_node_pause_seconds: 60
+
+            container_manager: containerd
+            kube_network_plugin: calico
+            etcd_deployment_type: kubeadm
+        ```
+
+    === "升级版本后"
+
+        ```yaml
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: mini-vars-conf
+          namespace: kubean-system
+        data:
+          group_vars.yml: |
+            kube_version: v1.25.8
+            # upgrade_cluster_setup: true
+            # upgrade_node_confirm: true
+            # upgrade_node_pause_seconds: 60
+
+            container_manager: containerd
+            kube_network_plugin: calico
+            etcd_deployment_type: kubeadm
+        ```
+
+
 附：kubean 集群版本支持机制：
 
 | kubean 版本 | 推荐的 kubernetes 版本 | 支持的 kubernetes 版本范围                                   |

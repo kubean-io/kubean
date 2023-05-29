@@ -12,7 +12,7 @@
 </details>
 
 下面以[使用 all-in-one 模式部署的单节点集群](./all-in-one-install.md)为例，来演示集群版本升级操作。
-> 注意：执行集群版本升级前，您必须已经使用 kubean 完成了一套集群的部署。
+> 注意：执行集群卸载前，您必须已经使用 kubean 完成了一套集群的部署。
 
 #### 1. 新增卸载任务
 进入 `kubean/examples/uninstall/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
