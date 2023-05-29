@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="kubean 是一款基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 的集群生命周期管理工具.">
+        <meta name="description" content="kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)">
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/usage/scale-worknode/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/usage/scale-worknode/">
       
       
         <link rel="prev" href="../sshkey_deploy_cluster/">
@@ -23,7 +23,7 @@
     
     
       
-        <title>集群工作节点扩缩容 - Kubean</title>
+        <title>Scaling Cluster Worker Nodes - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#scaling-cluster-worker-nodes" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              集群工作节点扩缩容
+              Scaling Cluster Worker Nodes
             
           </span>
         </div>
@@ -284,7 +284,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        简介
+        Introduction
       </a>
     </li>
   
@@ -308,14 +308,14 @@
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-          快速入门
+          Quick Start
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          快速入门
+          Quick Start
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -326,7 +326,7 @@
   
     <li class="md-nav__item">
       <a href="../helm-install-kubean/" class="md-nav__link">
-        安装 kubean helm 应用
+        Installing kubean Helm application
       </a>
     </li>
   
@@ -340,7 +340,7 @@
   
     <li class="md-nav__item">
       <a href="../all-in-one-install/" class="md-nav__link">
-        多合一模式最小化部署集群
+        Minimal Deployment
       </a>
     </li>
   
@@ -354,7 +354,7 @@
   
     <li class="md-nav__item">
       <a href="../mirror-install/" class="md-nav__link">
-        使用加速模式部署集群
+        Deploying a Cluster using Accelerated Mode
       </a>
     </li>
   
@@ -385,14 +385,14 @@
       
       
         <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-          功能架构
+          Functional Framework
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
-          功能架构
+          Functional Framework
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -403,7 +403,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/architecture/" class="md-nav__link">
-        Kubean 基础架构
+        Kubean Infrastructure
       </a>
     </li>
   
@@ -417,7 +417,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/comparisons/" class="md-nav__link">
-        对比参考
+        Kubean vs Kubespray
       </a>
     </li>
   
@@ -431,7 +431,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/crds/" class="md-nav__link">
-        CRD 概述
+        CRDs
       </a>
     </li>
   
@@ -459,7 +459,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
-        离线安装包的原理
+        Theory of Air-gapped packages
       </a>
     </li>
   
@@ -492,14 +492,14 @@
       
       
         <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-          用户指南
+          User Guide
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
-          用户指南
+          User Guide
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -510,7 +510,7 @@
   
     <li class="md-nav__item">
       <a href="../sshkey_deploy_cluster/" class="md-nav__link">
-        以SSH秘钥方式部署集群
+        Deploy Kubernetes clusters with SSH
       </a>
     </li>
   
@@ -533,12 +533,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          集群工作节点扩缩容
+          Scaling Cluster Worker Nodes
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        集群工作节点扩缩容
+        Scaling Cluster Worker Nodes
       </a>
       
         
@@ -557,30 +557,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    扩容工作节点
+  <a href="#scaling-worker-nodes" class="md-nav__link">
+    Scaling Worker Nodes
   </a>
   
-    <nav class="md-nav" aria-label="扩容工作节点">
+    <nav class="md-nav" aria-label="Scaling Worker Nodes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-hostsconfcmyml" class="md-nav__link">
-    1. 向 HostsConfCM.yml 增加新节点主机参数
+  <a href="#1-add-new-node-host-parameters-to-hostsconfcmyml" class="md-nav__link">
+    1. Add New Node Host Parameters to HostsConfCM.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-clusteroperationyml" class="md-nav__link">
-    2. 通过 ClusterOperation.yml 新增扩容任务
+  <a href="#2-add-scaling-task-through-clusteroperationyml" class="md-nav__link">
+    2. Add Scaling Task through ClusterOperation.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-scale1addworknode" class="md-nav__link">
-    3.应用 scale/1.addWorkNode 文件下所有的配置
+  <a href="#3apply-all-configurations-under-scale1addworknode-folder" class="md-nav__link">
+    3.Apply all configurations under scale/1.addWorkNode folder
   </a>
   
 </li>
@@ -591,30 +591,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    缩容工作节点
+  <a href="#shrink-working-nodes" class="md-nav__link">
+    Shrink Working Nodes
   </a>
   
-    <nav class="md-nav" aria-label="缩容工作节点">
+    <nav class="md-nav" aria-label="Shrink Working Nodes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-clusteroperationyml" class="md-nav__link">
-    1. 通过 ClusterOperation.yml 新增缩容任务
+  <a href="#1-add-scaling-task-through-clusteroperationyml" class="md-nav__link">
+    1. Add Scaling Task through ClusterOperation.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-scale2delworknode-clusteroperation" class="md-nav__link">
-    2.应用 scale/2.delWorkNode 目录下的 ClusterOperation 缩容任务清单
+  <a href="#2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory" class="md-nav__link">
+    2.Apply the ClusterOperation scaling task list under the scale/2.delWorkNode directory
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-hostsconfcmyml" class="md-nav__link">
-    3. 通过 HostsConfCM.yml 删除工作节点主机参数
+  <a href="#3-delete-the-working-node-host-parameters-through-hostsconfcmyml" class="md-nav__link">
+    3. Delete the working node host parameters through HostsConfCM.yml
   </a>
   
 </li>
@@ -640,7 +640,7 @@
   
     <li class="md-nav__item">
       <a href="../upgrade/" class="md-nav__link">
-        Cluster Version Upgrade
+        集群版本升级
       </a>
     </li>
   
@@ -654,7 +654,7 @@
   
     <li class="md-nav__item">
       <a href="../uninstall/" class="md-nav__link">
-        集群卸载
+        Cluster Uninstallation
       </a>
     </li>
   
@@ -668,7 +668,7 @@
   
     <li class="md-nav__item">
       <a href="../airgap/" class="md-nav__link">
-        离线场景的使用
+        Use Kubean in offline scenes
       </a>
     </li>
   
@@ -682,7 +682,7 @@
   
     <li class="md-nav__item">
       <a href="../airgap_patch_usage/" class="md-nav__link">
-        增量离线包的生成和使用
+        Generation and use of incremental offline packages
       </a>
     </li>
   
@@ -713,14 +713,14 @@
       
       
         <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-          开发指南
+          Development
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
-          开发指南
+          Development
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -731,7 +731,7 @@
   
     <li class="md-nav__item">
       <a href="../../develop/roadmap/" class="md-nav__link">
-        Kubean 路线图
+        Kubean Roadmap
       </a>
     </li>
   
@@ -1044,30 +1044,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    扩容工作节点
+  <a href="#scaling-worker-nodes" class="md-nav__link">
+    Scaling Worker Nodes
   </a>
   
-    <nav class="md-nav" aria-label="扩容工作节点">
+    <nav class="md-nav" aria-label="Scaling Worker Nodes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-hostsconfcmyml" class="md-nav__link">
-    1. 向 HostsConfCM.yml 增加新节点主机参数
+  <a href="#1-add-new-node-host-parameters-to-hostsconfcmyml" class="md-nav__link">
+    1. Add New Node Host Parameters to HostsConfCM.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-clusteroperationyml" class="md-nav__link">
-    2. 通过 ClusterOperation.yml 新增扩容任务
+  <a href="#2-add-scaling-task-through-clusteroperationyml" class="md-nav__link">
+    2. Add Scaling Task through ClusterOperation.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-scale1addworknode" class="md-nav__link">
-    3.应用 scale/1.addWorkNode 文件下所有的配置
+  <a href="#3apply-all-configurations-under-scale1addworknode-folder" class="md-nav__link">
+    3.Apply all configurations under scale/1.addWorkNode folder
   </a>
   
 </li>
@@ -1078,30 +1078,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    缩容工作节点
+  <a href="#shrink-working-nodes" class="md-nav__link">
+    Shrink Working Nodes
   </a>
   
-    <nav class="md-nav" aria-label="缩容工作节点">
+    <nav class="md-nav" aria-label="Shrink Working Nodes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-clusteroperationyml" class="md-nav__link">
-    1. 通过 ClusterOperation.yml 新增缩容任务
+  <a href="#1-add-scaling-task-through-clusteroperationyml" class="md-nav__link">
+    1. Add Scaling Task through ClusterOperation.yml
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-scale2delworknode-clusteroperation" class="md-nav__link">
-    2.应用 scale/2.delWorkNode 目录下的 ClusterOperation 缩容任务清单
+  <a href="#2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory" class="md-nav__link">
+    2.Apply the ClusterOperation scaling task list under the scale/2.delWorkNode directory
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-hostsconfcmyml" class="md-nav__link">
-    3. 通过 HostsConfCM.yml 删除工作节点主机参数
+  <a href="#3-delete-the-working-node-host-parameters-through-hostsconfcmyml" class="md-nav__link">
+    3. Delete the working node host parameters through HostsConfCM.yml
   </a>
   
 </li>
@@ -1129,37 +1129,37 @@
   
 
 
-<h1 id="_1">集群工作节点扩缩容<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>在软件开发运维的过程中，业务的发展往往需要添加集群的工作节点以满足业务增长，对于使用 kubean 部署的集群，在 kubean 中我们可以使用声明式的方式，快速扩缩容集群工作节点。</p>
-<p>在您克隆至本地的 <code>kubean/example/scale</code> 文件内，同样提供了工作节点扩缩容的样例模版：</p>
+<h1 id="scaling-cluster-worker-nodes">Scaling Cluster Worker Nodes<a class="headerlink" href="#scaling-cluster-worker-nodes" title="Permanent link">&para;</a></h1>
+<p>In the process of software development and operation, business growth often requires adding worker nodes to a cluster to meet the demand. For clusters deployed using kubean, we can use a declarative approach to quickly scale the cluster's worker nodes.</p>
+<p>In the <code>kubean/example/scale</code> directory cloned to your local machine, there is a sample template for scaling worker nodes:</p>
 <details open>
-<summary> sacle 文件内主要的配置文件及用途如下：</summary>
+<summary> The main configuration files and purposes in the scale file are as follows: </summary>
 
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">scale</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── 1.addWorkNode</span><span class="w">                             </span><span class="c1"># 增加工作节点模版</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   ├── ClusterOperation.yml</span><span class="w">                       </span><span class="c1"># kubean 版本及任务配置</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   └── HostsConfCM.yml</span><span class="w">                            </span><span class="c1">#当前集群的节点信息配置</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── 2.delWorkNode</span><span class="w">                             </span><span class="c1"># 删除工作节点模版</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   ├── ClusterOperation.yml</span><span class="w">                       </span><span class="c1"># kubean 版本及任务配置</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   └── HostsConfCM.yml</span><span class="w">                             </span><span class="c1">#当前集群的节点信息配置</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── 1.addWorkNode</span><span class="w">                             </span><span class="c1"># Template for adding worker nodes</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   ├── ClusterOperation.yml</span><span class="w">                       </span><span class="c1"># kubean version and task configuration</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   └── HostsConfCM.yml</span><span class="w">                            </span><span class="c1"># configuration of current cluster node information</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── 2.delWorkNode</span><span class="w">                             </span><span class="c1"># Template for deleting worker nodes</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   ├── ClusterOperation.yml</span><span class="w">                       </span><span class="c1"># kubean version and task configuration</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">│   └── HostsConfCM.yml</span><span class="w">                             </span><span class="c1"># configuration of current cluster node information</span>
 </code></pre></div>
 </details>
 
-<p>观察伸缩配置模版 <code>scale</code> 文件可以发现，对集群工作节点进行扩缩容只需执行 <code>HostsConfCM.yml</code> 和 <code>ClusterOperation.yml</code> 两个配置文件，并将新增节点信息等参数改成替换成您的真实参数。</p>
-<p>下面以<a href="../all-in-one-install/">使用 all-in-one 模式部署的单节点集群</a>为例，来演示集群节点的扩缩容操作。</p>
+<p>By observing the scaling configuration template in the <code>scale</code> file, it can be seen that scaling the cluster's worker nodes only requires executing two configuration files: <code>HostsConfCM.yml</code> and <code>ClusterOperation.yml</code>. You will need to replace the parameters such as the information of the new node with your actual parameters.</p>
+<p><a href="../all-in-one-install/">Using the example of a single-node cluster deployed in all-in-one mode</a> let's demonstrate how to scale the cluster's worker nodes.</p>
 <blockquote>
-<p>注意：执行集群扩缩容前，您必须已经使用 kubean 完成了一套集群的部署。</p>
+<p>Note: Before scaling the cluster, you must have completed the deployment of a set of cluster using kubean.</p>
 </blockquote>
-<h2 id="_2">扩容工作节点<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h4 id="1-hostsconfcmyml">1. 向 HostsConfCM.yml 增加新节点主机参数<a class="headerlink" href="#1-hostsconfcmyml" title="Permanent link">&para;</a></h4>
-<p>我们要在原有的 all-in-one 模式中，对名为 <code>mini-hosts-conf</code> 的 ConfigMap 进行新增节点配置，在原来 <code>node1</code> 主节点的基础上, 新增 <code>node2</code> 工作节点；</p>
-<p>具体地，我们可以进入 <code>kubean/examples/scale/1.addWorkNode/</code> 路径，编辑已准备好的节点配置 ConfigMap 模版 <code>HostsConfCM.yml</code>，将下列参数替换为您的真实参数：</p>
+<h2 id="scaling-worker-nodes">Scaling Worker Nodes<a class="headerlink" href="#scaling-worker-nodes" title="Permanent link">&para;</a></h2>
+<h4 id="1-add-new-node-host-parameters-to-hostsconfcmyml">1. Add New Node Host Parameters to HostsConfCM.yml<a class="headerlink" href="#1-add-new-node-host-parameters-to-hostsconfcmyml" title="Permanent link">&para;</a></h4>
+<p>To add a new node configuration to the ConfigMap named <code>mini-hosts-conf</code> in the existing all-in-one mode, we will add a new worker node <code>node2</code> based on the original main node <code>node1</code>.</p>
+<p>Specifically, we can go to the path <code>kubean/examples/scale/1.addWorkNode/</code>, edit the prepared node configuration ConfigMap template <code>HostsConfCM.yml</code>, and replace the following parameters with your actual parameters:</p>
 <ul>
-<li><code>&lt;IP2&gt;</code>：节点 IP。</li>
-<li><code>&lt;USERNAME&gt;</code>：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。</li>
-<li><code>&lt;PASSWORD&gt;</code>：登陆节点的密码。</li>
+<li><code>&lt;IP2&gt;</code>: the IP address of the node.</li>
+<li><code>&lt;USERNAME&gt;</code>: the username to log in to the node. We recommend using either "root" or a user with root privileges.</li>
+<li><code>&lt;PASSWORD&gt;</code>: the password to log in to the node.</li>
 </ul>
-<p><code>kubean/examples/scale/1.addWorkNode/</code> 路径下 <strong><code>HostsConfCM.yml</code></strong> 的模版内容如下：</p>
+<p>The template content of <strong><code>HostsConfCM.yml</code></strong>  in the <code>kubean/examples/scale/1.addWorkNode/</code> path is as follows:</p>
 <details>
 <summary> HostsConfCM.yml 模板</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1205,17 +1205,17 @@
 </code></pre></div>
 </details>
 
-<p><strong>重要参数：</strong></p>
+<p><strong>Important Parameters:</strong></p>
 <blockquote>
 <ul>
-<li><code>all.hosts.node1</code>: 原集群中已存在的主节点</li>
-<li><code>all.hosts.node2</code>: 集群扩容待新增的工作节点</li>
-<li><code>all.children.kube_node.hosts</code>: 集群中的工作节点组</li>
+<li><code>all.hosts.node1</code>: The original main node that already exists in the cluster.</li>
+<li><code>all.hosts.node2</code>: The worker node to be added to the cluster.</li>
+<li><code>all.children.kube_node.hosts</code>:  The group of worker nodes in the cluster.</li>
 </ul>
 </blockquote>
-<div class="admonition 新增工作节点主机参数的示例">
-<p class="admonition-title">新增工作节点主机参数的示例</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">新增节点前</label><label for="__tabbed_1_2">新增节点后</label></div>
+<div class="admonition example of adding new node host parameters">
+<p class="admonition-title">Example</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Before Adding New Node</label><label for="__tabbed_1_2">After Adding New Node</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1228,12 +1228,12 @@
 <span class="w">    </span><span class="no">all:</span>
 <span class="w">      </span><span class="no">hosts:</span>
 <span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # 你的节点 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node&#39;s IP</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # The password to log in to the node</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1263,19 +1263,19 @@
 <span class="w">    </span><span class="no">all:</span>
 <span class="w">      </span><span class="no">hosts:</span>
 <span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # 你的节点 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node&#39;s IP</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # The password to log in to the node</span>
 <span class="w">        </span><span class="no">node2:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.20 # 新增节点 2 的 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # 新增节点 2 的 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # 新增节点的 2 的 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.20 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # Your node&#39;s IP</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点 2 的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点 2 的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # The password to log in to the node</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1298,12 +1298,12 @@
 </div>
 </div>
 </div>
-<h4 id="2-clusteroperationyml">2. 通过 ClusterOperation.yml 新增扩容任务<a class="headerlink" href="#2-clusteroperationyml" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/scale/1.addWorkNode/</code> 路径，编辑模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
+<h4 id="2-add-scaling-task-through-clusteroperationyml">2. Add Scaling Task through ClusterOperation.yml<a class="headerlink" href="#2-add-scaling-task-through-clusteroperationyml" title="Permanent link">&para;</a></h4>
+<p>Go to the path <code>kubean/examples/scale/1.addWorkNode/</code> and edit the template <code>ClusterOperation.yml</code>,replacing the following parameter with your actual parameter:</p>
 <ul>
-<li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
+<li><code>&lt;TAG&gt;</code>: the kubean image version. We recommend using the latest version. <a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a>.</li>
 </ul>
-<p><code>kubean/examples/scale/1.addWorkNode/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模版内容如下：</p>
+<p>The template content of <strong><code>ClusterOperation.yml</code></strong> in the <code>kubean/examples/scale/1.addWorkNode/</code> path is as follows:</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1316,17 +1316,17 @@
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scale.yml</span>
 <span class="w">  </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--limit=node2</span>
 </code></pre></div>
-<strong>重要参数：</strong></p>
+<strong>Important Parameters:</strong></p>
 <blockquote>
 <ul>
-<li><code>spec.cluster</code>: 指定需要扩容节点的集群名称，上述指定的是名为 <code>cluster-mini</code> 的集群为扩容目标。</li>
-<li><code>spec.action:</code> 指定扩容节点的 kubespray 剧本, 这里设置为 <code>scale.yml</code>.</li>
-<li><code>spec.extraArgs</code>: 指定扩容的节点限制，这里通过 <code>--limit=</code> 参数限定扩容 node2 节点</li>
+<li><code>spec.cluster</code>: specifies the name of the cluster to be scaled. The above example specifies the cluster named <code>cluster-mini</code> as the scaling target.</li>
+<li><code>spec.action:</code>: specifies the kubespray script for scaling the node, which is set to <code>scale.yml</code> here.</li>
+<li><code>spec.extraArgs</code>: specifies the limit of the nodes to be scaled. Here, the <code>--limit=</code> parameter is used to limit the scaling to the node2.</li>
 </ul>
 </blockquote>
-<p>例如，下面展示了一个 ClusterOperation.yml 示例：</p>
+<p>For example, the following is an example of ClusterOperation.yml:</p>
 <details>
-<summary> ClusterOperation.yml 示例</summary>
+<summary> ClusterOperation.yml Example</summary>
 <div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
@@ -1342,18 +1342,18 @@
 </code></pre></div>
 </details>
 
-<h4 id="3-scale1addworknode">3.应用 <code>scale/1.addWorkNode</code> 文件下所有的配置<a class="headerlink" href="#3-scale1addworknode" title="Permanent link">&para;</a></h4>
-<p>完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：</p>
+<h4 id="3apply-all-configurations-under-scale1addworknode-folder">3.Apply all configurations under <code>scale/1.addWorkNode</code> folder<a class="headerlink" href="#3apply-all-configurations-under-scale1addworknode-folder" title="Permanent link">&para;</a></h4>
+<p>After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/1.addWorkNode/
 </code></pre></div>
-<p>至此，您已经使完成了一个集群的工作节点扩容。</p>
-<h2 id="_3">缩容工作节点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<h4 id="1-clusteroperationyml">1. 通过 ClusterOperation.yml 新增缩容任务<a class="headerlink" href="#1-clusteroperationyml" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/scale/2.delWorkNode/</code> 路径，编辑模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
+<p>At this point, you have completed the scaling of a working node in a cluster.</p>
+<h2 id="shrink-working-nodes">Shrink Working Nodes<a class="headerlink" href="#shrink-working-nodes" title="Permanent link">&para;</a></h2>
+<h4 id="1-add-scaling-task-through-clusteroperationyml">1. Add Scaling Task through ClusterOperation.yml<a class="headerlink" href="#1-add-scaling-task-through-clusteroperationyml" title="Permanent link">&para;</a></h4>
+<p>Go to the path <code>kubean/examples/scale/2.delWorkNode/</code> and edit the template <code>ClusterOperation.yml</code>, replacing the following parameter with your actual parameter:</p>
 <ul>
-<li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
+<li><code>&lt;TAG&gt;</code>：the kubean image version. We recommend using the latest version. <a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a>.</li>
 </ul>
-<p><code>kubean/examples/scale/2.delWorkNode/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模版内容如下：</p>
+<p>The template content of <strong><code>ClusterOperation.yml</code></strong> in the <code>kubean/examples/scale/2.delWoorkNode/</code> path is as follows:</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1369,14 +1369,14 @@
 <strong>重要参数：</strong></p>
 <blockquote>
 <ul>
-<li><code>spec.cluster</code>: 指定需要缩容节点的集群名称, 上述指定的是名为 cluster-mini 的集群为缩容目标。</li>
-<li><code>spec.action</code>: 指定缩容节点的 kubespray 剧本, 这里设置为 remove-node.yml。</li>
-<li><code>spec.extraArgs</code>: 指定缩容的节点，这里通过 -e 参数指定缩容 node2 节点</li>
+<li><code>spec.cluster</code>: specifies the name of the cluster to be scaled. The above example specifies the cluster named cluster-mini as the scaling target.</li>
+<li><code>spec.action</code>: specifies the kubespray script for scaling the node, which is set to remove-node.yml here.</li>
+<li><code>spec.extraArgs</code>: specifies the nodes to be scaled down. Here, the -e parameter is used to specify the node2 to be scaled down.</li>
 </ul>
 </blockquote>
-<p>例如，下面展示了一个 ClusterOperation.yml 示例：</p>
+<p>For example, the following is an example of ClusterOperation.yml:</p>
 <details>
-<summary> ClusterOperation.yml 示例</summary>
+<summary> ClusterOperation.yml Example</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1391,25 +1391,25 @@
 </code></pre></div>
 </details>
 
-<h4 id="2-scale2delworknode-clusteroperation">2.应用 <code>scale/2.delWorkNode</code> 目录下的 ClusterOperation 缩容任务清单<a class="headerlink" href="#2-scale2delworknode-clusteroperation" title="Permanent link">&para;</a></h4>
-<p>完成上述步骤并保存 ClusterOperation.yml 文件后，执行如下命令：</p>
+<h4 id="2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory">2.Apply the ClusterOperation scaling task list under the <code>scale/2.delWorkNode</code> directory<a class="headerlink" href="#2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory" title="Permanent link">&para;</a></h4>
+<p>After completing the above steps and saving the ClusterOperation.yml file, run the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/ClusterOperation.yml
 </code></pre></div>
-<p>默认进入 kubean-system 命名空间，查看缩容任务执行状态：
+<p>By default, enter the kubean-system namespace and check the execution status of the scaling task:
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cluster-mini-dwn-ops
 </code></pre></div>
-了解缩容任务执行进度，可查看该 pod 日志；</p>
-<h4 id="3-hostsconfcmyml">3. 通过 HostsConfCM.yml 删除工作节点主机参数<a class="headerlink" href="#3-hostsconfcmyml" title="Permanent link">&para;</a></h4>
-<p>我们已经通过如上两步操作执行了缩容任务，待缩容任务执行完成后，<code>node2</code> 将从现有集群中永久移除，则此时我们还需要完成最后一步，将节点配置相关 Configmap 中的 node2 信息移除;</p>
-<p>进入 <code>kubean/examples/scale/2.delWorkNode/</code> 路径，编辑已准备好的节点配置模版 <code>HostsConfCM.yml</code>，删除需要移除的工作节点配置。</p>
-<p><strong>删除参数如下：</strong></p>
+To learn about the progress of the scaling task, you can view the logs of the pod.</p>
+<h4 id="3-delete-the-working-node-host-parameters-through-hostsconfcmyml">3. Delete the working node host parameters through HostsConfCM.yml<a class="headerlink" href="#3-delete-the-working-node-host-parameters-through-hostsconfcmyml" title="Permanent link">&para;</a></h4>
+<p>We have executed the scaling task through the above two steps. After the scaling task is completed, node2 will be permanently removed from the existing cluster. Then, we need to complete the final step, which is to remove the <code>node2</code> information from the node configuration related Configmap.</p>
+<p>Go to the path <code>kubean/examples/scale/2.delWorkNode/</code> and edit the prepared node configuration template <code>HostsConfCM.yml</code> to remove the configuration of the working node that needs to be removed.</p>
+<p><strong>The deleted parameters are as follows:</strong></p>
 <ul>
-<li><code>all.hosts</code> 下的 node2 节点接入参数。</li>
-<li><code>all.children.kube_node.hosts</code> 内的主机名称 node2 。</li>
+<li><code>all.hosts</code>: The node2 node access parameters.</li>
+<li><code>all.children.kube_node.hosts</code>: The node name node2.</li>
 </ul>
-<div class="admonition 移除工作节点主机参数的示例">
-<p class="admonition-title">移除工作节点主机参数的示例</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">移除节点前</label><label for="__tabbed_2_2">移除节点后</label></div>
+<div class="admonition example of removing working node host parameters">
+<p class="admonition-title">Example</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Before removing the node</label><label for="__tabbed_2_2">After removing a node</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1422,19 +1422,19 @@
 <span class="w">    </span><span class="no">all:</span>
 <span class="w">      </span><span class="no">hosts:</span>
 <span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # 你的节点 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node&#39;s IP</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # The password to log in to the node</span>
 <span class="w">        </span><span class="no">node2:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.20 # 新增节点 2 的 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # 新增节点 2 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # 新增节点的 2 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.20 # The IP address of node 2 is added</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # The IP address of node 2 is added</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # The IP address of node 2 is added</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点 2 的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点 2 的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node2</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # password to log in to the node2</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1465,12 +1465,12 @@
 <span class="w">    </span><span class="no">all:</span>
 <span class="w">      </span><span class="no">hosts:</span>
 <span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # 你的节点 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # 你的节点 IP</span>
+<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node&#39;s IP</span>
+<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node&#39;s IP</span>
 <span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # 登陆节点的用户名</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # 登陆节点的密码</span>
+<span class="w">          </span><span class="no">ansible_user: root # The username to log in to the node</span>
+<span class="w">          </span><span class="no">ansible_password: password01 # The password to log in to the node</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1492,10 +1492,10 @@
 </div>
 </div>
 </div>
-<p>完成上述步骤并保存 HostsConfCM.yml 文件后，执行如下命令：</p>
+<p>After completing the above steps and saving the HostsConfCM.yml file, execute the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/HostsConfCM.yml
 </code></pre></div>
-<p>此时，我们已将 node2 工作节点从集群中移除，并且清理掉了有关 node2 的主机信息，整个缩容操作就此结束；</p>
+<p>At this point, we have removed the node2 worker node from the cluster and cleaned up all the host information related to node2. The entire scaling down operation is now complete.</p>
 
 
 
@@ -1519,7 +1519,7 @@
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../sshkey_deploy_cluster/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 以SSH秘钥方式部署集群" rel="prev">
+          <a href="../sshkey_deploy_cluster/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Deploy Kubernetes clusters with SSH" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1528,20 +1528,20 @@
                 上一页
               </span>
               <div class="md-ellipsis">
-                以SSH秘钥方式部署集群
+                Deploy Kubernetes clusters with SSH
               </div>
             </div>
           </a>
         
         
           
-          <a href="../upgrade/" class="md-footer__link md-footer__link--next" aria-label="下一页: Cluster Version Upgrade" rel="next">
+          <a href="../upgrade/" class="md-footer__link md-footer__link--next" aria-label="下一页: 集群版本升级" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                Cluster Version Upgrade
+                集群版本升级
               </div>
             </div>
             <div class="md-footer__button md-icon">

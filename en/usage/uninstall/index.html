@@ -23,7 +23,7 @@
     
     
       
-        <title>集群卸载 - Kubean</title>
+        <title>Cluster Uninstallation - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#cluster-uninstallation" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              集群卸载
+              Cluster Uninstallation
             
           </span>
         </div>
@@ -308,14 +308,91 @@
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-          Concepts
+          Quick Start
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          Concepts
+          Quick Start
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helm-install-kubean/" class="md-nav__link">
+        Installing kubean Helm application
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all-in-one-install/" class="md-nav__link">
+        Minimal Deployment
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mirror-install/" class="md-nav__link">
+        Deploying a Cluster using Accelerated Mode
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Functional Framework
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Functional Framework
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -401,55 +478,6 @@
 
   
   
-  
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-      
-      
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-          Quick Start
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-        <label class="md-nav__title" for="__nav_3">
-          <span class="md-nav__icon md-icon"></span>
-          Quick Start
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../install/" class="md-nav__link">
-        集群部署
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
     
   
   
@@ -495,8 +523,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale/" class="md-nav__link">
-        集群伸缩
+      <a href="../scale-worknode/" class="md-nav__link">
+        Scaling Cluster Worker Nodes
       </a>
     </li>
   
@@ -510,7 +538,7 @@
   
     <li class="md-nav__item">
       <a href="../upgrade/" class="md-nav__link">
-        集群升级
+        集群版本升级
       </a>
     </li>
   
@@ -532,9 +560,47 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Cluster Uninstallation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
-        集群卸载
+        Cluster Uninstallation
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-add-an-uninstallation-task" class="md-nav__link">
+    1. Add an uninstallation task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2apply-the-configuration-in-the-uninstall-directory" class="md-nav__link">
+    2.Apply the Configuration in the uninstall Directory
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -917,6 +983,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-add-an-uninstallation-task" class="md-nav__link">
+    1. Add an uninstallation task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2apply-the-configuration-in-the-uninstall-directory" class="md-nav__link">
+    2.Apply the Configuration in the uninstall Directory
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -933,27 +1021,49 @@
   
 
 
-<h1 id="_1">集群卸载<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>我们以使用 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/"><code>minimal</code></a> 模板安装好的单节点集群为例，来进行集群卸载操作；</p>
-<p>假设当前名为 cluster-mini 的单节点集群已经部署完毕，我们要执行卸载集群的操作，需要使用 <code>kubectl apply</code> 下发 <code>action</code> 为 <code>reset.yml</code> 的 CluterOperation 自定义资源；</p>
-<p>ClusterOperation 的关键配置大体如下：</p>
-<div class="highlight"><pre><span></span><code><span class="nn">---</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<h1 id="cluster-uninstallation">Cluster Uninstallation<a class="headerlink" href="#cluster-uninstallation" title="Permanent link">&para;</a></h1>
+<p>This section will show you how to use kubean to uninstall a cluster. In the <code>kubean/example/uninstall</code> directory that you cloned to your local machine, there is a sample template for uninstalling a cluster:</p>
+<details open>
+<summary> The main configuration files and their purposes in the uninstall directory are as follows:</summary>
+
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">uninstall</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">                </span><span class="c1"># Uninstall cluster task</span>
+</code></pre></div>
+</details>
+
+<p>In the following example, we will <a href="../all-in-one-install/">use a single-node cluster deployed in all-in-one mode</a> to demonstrate the cluster upgrade operation.</p>
+<blockquote>
+<p>Note: Before performing a cluster uninstallation, you must have completed the deployment of a cluster using kubean.</p>
+</blockquote>
+<h4 id="1-add-an-uninstallation-task">1. Add an uninstallation task<a class="headerlink" href="#1-add-an-uninstallation-task" title="Permanent link">&para;</a></h4>
+<p>Go to the <code>kubean/examples/uninstall/</code> directory and edit the template <code>ClusterOperation.yml</code>, replacing the following parameters with your actual parameters:</p>
+<ul>
+<li><code>&lt;TAG&gt;</code>：The kubean image version. It is recommended to use the latest version.<a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a>.</li>
+</ul>
+<p>The template content of <code>kubean/examples/uninstall/</code>  <strong><code>ClusterOperation.yml</code></strong> path is as follows:</p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-uninstall-ops</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini-uninstall-ops</span>
 <span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">cluster</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:&lt;TAG&gt;</span><span class="w"> </span><span class="c1"># Please replace &lt;TAG&gt; with the specified version, such as v0.4.9</span>
+<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reset.yml</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
-<p>关键配置：</p>
+<strong>Important Parameters:</strong></p>
+<blockquote>
 <ul>
-<li><code>spec.cluster</code>: 指定需要卸载的集群名称, 上述指定的是名为 <code>cluster-mini</code> 的集群为卸载目标</li>
-<li><code>spec.action</code>: 指定卸载相关的 kubespray 剧本, 这里设置为 <code>reset.yml</code></li>
+<li><code>spec.cluster</code>: Specifies the name of the cluster to be uninstalled. In the example above, the cluster named <code>cluster-mini</code> is the target for uninstallation.</li>
+<li><code>spec.action:</code>：: Specifies the Kubespray playbook for uninstallation. Here it is set to <code>reset.yml</code>.</li>
 </ul>
-<p>更具体的配置可以参考 <a href="https://github.com/kubean-io/kubean/blob/main/examples/uninstall/ClusterOperation.yml"><code>uninstall/ClusterOperation.yml</code></a> 样例模板；</p>
+</blockquote>
+<h4 id="2apply-the-configuration-in-the-uninstall-directory">2.Apply the Configuration in the uninstall Directory<a class="headerlink" href="#2apply-the-configuration-in-the-uninstall-directory" title="Permanent link">&para;</a></h4>
+<p>After completing the above steps and saving the ClusterOperation.yml file, execute the following command:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/uninstall/
+</code></pre></div>
+<p>At this point, you have successfully uninstalled a cluster.</p>
 
 
 
@@ -977,7 +1087,7 @@
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../upgrade/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 集群升级" rel="prev">
+          <a href="../upgrade/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 集群版本升级" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -986,7 +1096,7 @@
                 上一页
               </span>
               <div class="md-ellipsis">
-                集群升级
+                集群版本升级
               </div>
             </div>
           </a>

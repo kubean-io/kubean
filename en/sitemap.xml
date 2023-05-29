@@ -146,7 +146,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/en/usage/scale/</loc>
+         <loc>https://kubean-io.github.io/kubean/en/usage/mirror-install/</loc>
+         <lastmod>2023-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://kubean-io.github.io/kubean/en/usage/scale-worknode/</loc>
          <lastmod>2023-05-29</lastmod>
          <changefreq>daily</changefreq>
     </url>
