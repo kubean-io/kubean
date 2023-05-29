@@ -149,8 +149,8 @@ data:
                   ansible_password: password01 # 登陆节点的密码
                 node2:
                   ip: 10.6.175.20 # 新增节点 2 的 IP
-                  access_ip: 10.6.175.20 # 新增节点 2 IP
-                  ansible_host: 10.6.175.20 # 新增节点的 2 IP
+                  access_ip: 10.6.175.20 # 新增节点 2 的 IP
+                  ansible_host: 10.6.175.20 # 新增节点的 2 的 IP
                   ansible_connection: ssh
                   ansible_user: root # 登陆节点 2 的用户名
                   ansible_password: password01 # 登陆节点 2 的密码
