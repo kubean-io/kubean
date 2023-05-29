@@ -131,6 +131,16 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/en/usage/all-in-one-install/</loc>
+         <lastmod>2023-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://kubean-io.github.io/kubean/en/usage/helm-install-kubean/</loc>
+         <lastmod>2023-05-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/en/usage/install/</loc>
          <lastmod>2023-05-29</lastmod>
          <changefreq>daily</changefreq>
