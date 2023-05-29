@@ -538,7 +538,7 @@
   
     <li class="md-nav__item">
       <a href="../upgrade/" class="md-nav__link">
-        集群升级
+        集群版本升级
       </a>
     </li>
   
@@ -560,9 +560,47 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          集群卸载
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         集群卸载
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    1. 新增卸载任务
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-uninstall" class="md-nav__link">
+    2.应用 uninstall 文件下的配置
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -945,6 +983,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    1. 新增卸载任务
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-uninstall" class="md-nav__link">
+    2.应用 uninstall 文件下的配置
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -962,26 +1022,48 @@
 
 
 <h1 id="_1">集群卸载<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>我们以使用 <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/"><code>minimal</code></a> 模板安装好的单节点集群为例，来进行集群卸载操作；</p>
-<p>假设当前名为 cluster-mini 的单节点集群已经部署完毕，我们要执行卸载集群的操作，需要使用 <code>kubectl apply</code> 下发 <code>action</code> 为 <code>reset.yml</code> 的 CluterOperation 自定义资源；</p>
-<p>ClusterOperation 的关键配置大体如下：</p>
-<div class="highlight"><pre><span></span><code><span class="nn">---</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<p>本节将向您介绍如何使用 kubean 卸载集群。在您克隆至本地的 <code>kubean/example/uninstall</code> 文件内，同样提供了卸载集群的样例模版：</p>
+<details open>
+<summary> uninsatall 文件内主要的配置文件及用途如下：</summary>
+
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">uninstall</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">                </span><span class="c1"># 卸载集群任务</span>
+</code></pre></div>
+</details>
+
+<p>下面以<a href="../all-in-one-install/">使用 all-in-one 模式部署的单节点集群</a>为例，来演示集群版本升级操作。</p>
+<blockquote>
+<p>注意：执行集群卸载前，您必须已经使用 kubean 完成了一套集群的部署。</p>
+</blockquote>
+<h4 id="1">1. 新增卸载任务<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<p>进入 <code>kubean/examples/uninstall/</code> 路径，编辑模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
+<ul>
+<li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
+</ul>
+<p><code>kubean/examples/uninstall/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模版内容如下：</p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-uninstall-ops</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini-uninstall-ops</span>
 <span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">cluster</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-mini</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:&lt;TAG&gt;</span><span class="w"> </span><span class="c1"># Please replace &lt;TAG&gt; with the specified version, such as v0.4.9</span>
+<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reset.yml</span>
-<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
-<p>关键配置：</p>
+<strong>重要参数：</strong></p>
+<blockquote>
 <ul>
-<li><code>spec.cluster</code>: 指定需要卸载的集群名称, 上述指定的是名为 <code>cluster-mini</code> 的集群为卸载目标</li>
-<li><code>spec.action</code>: 指定卸载相关的 kubespray 剧本, 这里设置为 <code>reset.yml</code></li>
+<li><code>spec.cluster</code>：指定需要卸载的集群名称, 上述指定的是名为 <code>cluster-mini</code> 的集群为卸载目标。</li>
+<li><code>spec.action:</code>：指定卸载相关的 kubespray 剧本, 这里设置为 <code>reset.yml</code>。</li>
 </ul>
-<p>更具体的配置可以参考 <a href="https://github.com/kubean-io/kubean/blob/main/examples/uninstall/ClusterOperation.yml"><code>uninstall/ClusterOperation.yml</code></a> 样例模板；</p>
+</blockquote>
+<h4 id="2-uninstall">2.应用 <code>uninstall</code> 文件下的配置<a class="headerlink" href="#2-uninstall" title="Permanent link">&para;</a></h4>
+<p>完成上述步骤并保存 ClusterOperation.yml 文件后，执行如下命令：</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/uninstall/
+</code></pre></div>
+<p>至此，您已经使完成了一个集群的卸载。</p>
 
 
 
@@ -1005,7 +1087,7 @@
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../upgrade/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 集群升级" rel="prev">
+          <a href="../upgrade/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 集群版本升级" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1014,7 +1096,7 @@
                 上一页
               </span>
               <div class="md-ellipsis">
-                集群升级
+                集群版本升级
               </div>
             </div>
           </a>
