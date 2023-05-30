@@ -6,6 +6,9 @@ on:
       - opened
       - synchronize
       - reopened
+    paths-ignore:
+      - docs/**
+      - examples/**
 
 env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
