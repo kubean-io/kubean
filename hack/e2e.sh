@@ -39,6 +39,7 @@ source "${REPO_ROOT}"/hack/offline-util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
 echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 
+echo "shell changed"
 # add kubean repo locally
 repoCount=true
 helm repo list |awk '{print $1}'| grep "${LOCAL_REPO_ALIAS}" || repoCount=false
