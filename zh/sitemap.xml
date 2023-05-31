@@ -156,6 +156,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/support-k8s-version/</loc>
+         <lastmod>2023-05-31</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/zh/usage/uninstall/</loc>
          <lastmod>2023-05-31</lastmod>
          <changefreq>daily</changefreq>
