@@ -80,6 +80,10 @@ You can use the example in folder `examples/install/1.minimal` which uses online
 
 [![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
 
+## :ocean: Support Kubernetes versions
+
+Support k8s versions: [ k8s versions list ](./docs/zh/usage/support-k8s-version.md)
+
 ## :ocean: Kubernetes compatibility
 
 |               | Kubernetes 1.27 | Kubernetes 1.26 | Kubernetes 1.25 | Kubernetes 1.24 | Kubernetes 1.23 | Kubernetes 1.22 | Kubernetes 1.21 | Kubernetes 1.20 |
