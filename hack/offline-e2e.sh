@@ -97,3 +97,5 @@ util::set_config_path
 ./hack/offline_run_arm64.sh
 
 util::clean_offline_kind_cluster
+
+echo "shell changed"
