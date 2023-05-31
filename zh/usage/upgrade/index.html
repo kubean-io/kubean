@@ -23,7 +23,7 @@
     
     
       
-        <title>Cluster Version Upgrade - Kubean</title>
+        <title>集群版本升级 - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cluster-version-upgrade" class="md-skip">
+        <a href="#_1" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Cluster Version Upgrade
+              集群版本升级
             
           </span>
         </div>
@@ -547,12 +547,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Cluster Version Upgrade
+          集群版本升级
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Cluster Version Upgrade
+        集群版本升级
       </a>
       
         
@@ -571,22 +571,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-add-an-upgrade-task" class="md-nav__link">
-    1. Add an upgrade task
+  <a href="#1" class="md-nav__link">
+    1. 新增升级任务
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-specify-the-upgraded-version-of-the-cluster" class="md-nav__link">
-    2. Specify the upgraded version of the cluster
+  <a href="#2" class="md-nav__link">
+    2. 指定集群升级版本
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3apply-all-configurations-under-the-upgrade-directory" class="md-nav__link">
-    3.Apply all configurations under the upgrade directory
+  <a href="#3-upgrade" class="md-nav__link">
+    3.应用 upgrade 文件下所有的配置
   </a>
   
 </li>
@@ -997,22 +997,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-add-an-upgrade-task" class="md-nav__link">
-    1. Add an upgrade task
+  <a href="#1" class="md-nav__link">
+    1. 新增升级任务
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-specify-the-upgraded-version-of-the-cluster" class="md-nav__link">
-    2. Specify the upgraded version of the cluster
+  <a href="#2" class="md-nav__link">
+    2. 指定集群升级版本
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#3apply-all-configurations-under-the-upgrade-directory" class="md-nav__link">
-    3.Apply all configurations under the upgrade directory
+  <a href="#3-upgrade" class="md-nav__link">
+    3.应用 upgrade 文件下所有的配置
   </a>
   
 </li>
@@ -1035,27 +1035,27 @@
   
 
 
-<h1 id="cluster-version-upgrade">Cluster Version Upgrade<a class="headerlink" href="#cluster-version-upgrade" title="Permanent link">&para;</a></h1>
-<p>This section will introduce how to upgrade the Kubernetes version of a cluster using kubean. The <code>kubean/example/upgrade</code> directory that you cloned locally provides a sample template for cluster version upgrades:</p>
+<h1 id="_1">集群版本升级<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 <code>kubean/example/upgrade</code> 文件内，同样提供了集群版本升级的样例模版：</p>
 <details open>
-<summary> The main configuration files and their purposes in the upgrade directory are as follows:</summary>
+<summary> upgrade 文件内主要的配置文件及用途如下：</summary>
 
 <div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">upgrade</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">                  </span><span class="c1"># Upgrade cluster tasks</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── VarsConfCM.yml</span><span class="w">                        </span><span class="c1"># Configuration parameters for cluster version upgrades</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">                  </span><span class="c1"># 升级集群任务</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── VarsConfCM.yml</span><span class="w">                        </span><span class="c1"># 集群升级版本等参数配置</span>
 </code></pre></div>
 </details>
 
-<p>To demonstrate the process of upgrading a cluster version, we will use the example of <a href="../all-in-one-install/">a single node cluster deployed using the all-in-one mode</a>.</p>
+<p>下面以<a href="../all-in-one-install/">使用 all-in-one 模式部署的单节点集群</a>为例，来演示集群版本升级操作。</p>
 <blockquote>
-<p>Note: that before upgrading the cluster version, you must have completed the deployment of a cluster using kubean.</p>
+<p>注意：执行集群版本升级前，您必须已经使用 kubean 完成了一套集群的部署。</p>
 </blockquote>
-<h4 id="1-add-an-upgrade-task">1. Add an upgrade task<a class="headerlink" href="#1-add-an-upgrade-task" title="Permanent link">&para;</a></h4>
-<p>Go to the <code>kubean/examples/upgrade/</code> directory and edit the <code>ClusterOperation.yml</code> template. Replace the following parameters with your actual parameters:</p>
+<h4 id="1">1. 新增升级任务<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
 <ul>
-<li><code>&lt;TAG&gt;</code>：The version of the kubean image. We recommend using the latest version.<a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a>.</li>
+<li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
 </ul>
-<p>The template for <strong><code>ClusterOperation.yml</code></strong> in the <code>kubean/examples/upgrade/</code> directory is as follows:</p>
+<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模版内容如下：</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1067,16 +1067,16 @@
 <span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">upgrade-cluster.yml</span>
 </code></pre></div>
-<strong>Important Parameters:</strong></p>
+<strong>重要参数：</strong></p>
 <blockquote>
 <ul>
-<li><code>spec.cluster</code>: Specifies the name of the cluster to be upgraded. In the above example, the cluster named <code>cluster-mini</code> is the upgrade target.</li>
-<li><code>spec.action:</code> Specifies the kubespray playbook related to the upgrade. Here it is set to <code>upgrade-cluster.yml</code>.</li>
+<li><code>spec.cluster</code>: 指定需要升级的集群名称，上述指定的是名为 <code>cluster-mini</code> 的集群为升级目标。</li>
+<li><code>spec.action:</code> 指定升级相关的 kubespray 剧本, 这里设置为 <code>upgrade-cluster.yml</code>。</li>
 </ul>
 </blockquote>
-<h4 id="2-specify-the-upgraded-version-of-the-cluster">2. Specify the upgraded version of the cluster<a class="headerlink" href="#2-specify-the-upgraded-version-of-the-cluster" title="Permanent link">&para;</a></h4>
-<p>Go to the <code>kubean/examples/upgrade/</code> directory and edit the <code>VarsConfCM.yml</code> template. Specify the version of the cluster upgrade by configuring the <code>kube_version</code> parameter.</p>
-<p>The template for <code>VarsConfCM.yml</code> in the <code>kubean/examples/upgrade/</code> directory is as follows:</p>
+<h4 id="2">2. 指定集群升级版本<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模版 <code>VarsConfCM.yml</code>，通过配置 <code>kube_version</code> 参数，指定集群升级的版本。</p>
+<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>VarsConfCM.yml</code></strong> 的模版内容如下：</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1093,15 +1093,15 @@
 <span class="w">    </span><span class="no">kube_network_plugin: calico</span>
 <span class="w">    </span><span class="no">etcd_deployment_type: kubeadm</span>
 </code></pre></div>
-<strong>Important Parameters:</strong></p>
+<strong>重要参数：</strong></p>
 <blockquote>
 <ul>
-<li><code>kube_version</code>: Specifies the version of the cluster to be upgraded. In the above example, it is set to upgrade to k8s v1.25.8.</li>
+<li><code>kube_version</code>: 指定需要升级的集群版本, 上述指定了要升级到 k8s v1.25.8 版本。</li>
 </ul>
 </blockquote>
-<div class="admonition example of upgrading the cluster version parameter">
-<p class="admonition-title">Example</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Before upgrading the version</label><label for="__tabbed_1_2">After upgrading the version</label></div>
+<div class="admonition 升级集群版本参数的示例">
+<p class="admonition-title">升级集群版本参数的示例</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">升级版本前</label><label for="__tabbed_1_2">升级版本后</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
@@ -1142,13 +1142,13 @@
 </div>
 </div>
 </div>
-<p>Bonus: kubean cluster version support mechanism:</p>
+<p>附：kubean 集群版本支持机制：</p>
 <table>
 <thead>
 <tr>
-<th>kubean Version</th>
-<th>Recommended Kubernetes Version</th>
-<th>Supported Kubernetes Version Range</th>
+<th>kubean 版本</th>
+<th>推荐的 kubernetes 版本</th>
+<th>支持的 kubernetes 版本范围</th>
 </tr>
 </thead>
 <tbody>
@@ -1159,12 +1159,12 @@
 </tr>
 </tbody>
 </table>
-<p>For more detailed information about upgrading parameters, please refer to the kubespray documentation:<a href="https://github.com/kubernetes-sigs/kubespray/blob/master/docs/upgrades.md">Updating Kubernetes with Kubespray</a>.</p>
-<h4 id="3apply-all-configurations-under-the-upgrade-directory">3.Apply all configurations under the <code>upgrade</code> directory<a class="headerlink" href="#3apply-all-configurations-under-the-upgrade-directory" title="Permanent link">&para;</a></h4>
-<p>After completing the above steps andsaving the ClusterOperation.yml and VarsConfCM.yml files, run the following command:</p>
+<p>更多升级操作参数的详细说明，请参考 kubespray 文档：<a href="https://github.com/kubernetes-sigs/kubespray/blob/master/docs/upgrades.md">通过Kubespray 更新 kubernetes</a>。</p>
+<h4 id="3-upgrade">3.应用 <code>upgrade</code> 文件下所有的配置<a class="headerlink" href="#3-upgrade" title="Permanent link">&para;</a></h4>
+<p>完成上述步骤并保存 ClusterOperation.yml 和 VarsConfCM.yml 文件后，执行如下命令：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/upgrade/
 </code></pre></div>
-<p>With this, you have completed the upgrade of the Kubernetes version for a cluster.</p>
+<p>至此，您已经使完成了一个集群的 kuberntes 版本的升级。</p>
 
 
 
