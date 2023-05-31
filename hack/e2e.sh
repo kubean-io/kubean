@@ -103,3 +103,5 @@ else
 fi
 
 util::clean_online_kind_cluster
+
+echo " shell change"

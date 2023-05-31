@@ -73,3 +73,5 @@
     2. start a bound to fail jod
     3. check the job-related pod status is "Error"
     4. wait 100s, check the job-related pod total count is 1
+
+#### md change
