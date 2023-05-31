@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	RequeueAfter     = time.Millisecond * 500
+	RequeueAfter     = time.Second * 5
 	LoopForJobStatus = time.Second * 3
 	RetryInterval    = time.Millisecond * 300
 	RetryCount       = 5

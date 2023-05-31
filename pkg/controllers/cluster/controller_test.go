@@ -366,11 +366,13 @@ func newFakeClient() client.Client {
 }
 
 func TestReconcile(t *testing.T) {
-	controller := &Controller{
-		Client:              newFakeClient(),
-		ClientSet:           clientsetfake.NewSimpleClientset(),
-		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
-		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	genController := func() *Controller {
+		return &Controller{
+			Client:              newFakeClient(),
+			ClientSet:           clientsetfake.NewSimpleClientset(),
+			KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+			KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+		}
 	}
 	tests := []struct {
 		name        string
@@ -380,10 +382,47 @@ func TestReconcile(t *testing.T) {
 		{
 			name: "cluster not found",
 			args: func() bool {
+				controller := genController()
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
 				return result.Requeue
 			},
 			needRequeue: false,
+		},
+		{
+			name: "cluster found successfully",
+			args: func() bool {
+				controller := genController()
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.Client.Create(context.Background(), exampleCluster)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
+				return result.RequeueAfter > 0
+			},
+			needRequeue: true,
 		},
 	}
 	for _, test := range tests {
