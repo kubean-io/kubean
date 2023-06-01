@@ -136,6 +136,11 @@ func (in *LocalService) DeepCopyInto(out *LocalService) {
 		*out = make([]ImageRepoPasswordAuth, len(*in))
 		copy(*out, *in)
 	}
+	if in.ImageRepoScheme != nil {
+		in, out := &in.ImageRepoScheme, &out.ImageRepoScheme
+		*out = new(ImageRepoScheme)
+		**out = **in
+	}
 	if in.YumRepos != nil {
 		in, out := &in.YumRepos, &out.YumRepos
 		*out = make(map[string][]string, len(*in))

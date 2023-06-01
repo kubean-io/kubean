@@ -56,6 +56,8 @@ type LocalService struct {
 	// +optional
 	ImageRepoAuth []ImageRepoPasswordAuth `json:"imageRepoAuth,omitempty" yaml:"imageRepoAuth,omitempty"`
 	// +optional
+	ImageRepoScheme string `json:"imageRepoScheme,omitempty"`
+	// +optional
 	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
 	YumRepos map[string][]string `json:"yumRepos,omitempty" yaml:"yumRepos,omitempty"`
