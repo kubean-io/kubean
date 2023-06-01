@@ -50,11 +50,21 @@ type ImageRepoPasswordAuth struct {
 	PasswordBase64 string `json:"passwordBase64" yaml:"passwordBase64"`
 }
 
+type ImageRepoScheme string
+
+const (
+	HTTP  ImageRepoScheme = "http"
+	HTTPS ImageRepoScheme = "https"
+)
+
 type LocalService struct {
 	// +optional
 	ImageRepo map[ImageRepoType]string `json:"imageRepo,omitempty" yaml:"imageRepo,omitempty"`
 	// +optional
 	ImageRepoAuth []ImageRepoPasswordAuth `json:"imageRepoAuth,omitempty" yaml:"imageRepoAuth,omitempty"`
+	// +optional
+	// +kubebuilder:default="https"
+	ImageRepoScheme *ImageRepoScheme `json:"imageRepoScheme,omitempty" yaml:"imageRepoScheme,omitempty"`
 	// +optional
 	FilesRepo string `json:"filesRepo,omitempty" yaml:"filesRepo,omitempty"`
 	// +optional
