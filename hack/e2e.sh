@@ -36,6 +36,7 @@ export E2eInstallClusterYamlFolder="e2e-install-cluster"
 
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
+source "${REPO_ROOT}"/hack/resouce_util.sh
 echo "TARGET_VERSION: ${TARGET_VERSION}"
 echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 
@@ -46,20 +47,13 @@ echo "repoCount: $repoCount"
 if [ "$repoCount" != "false" ]; then
     helm repo remove ${LOCAL_REPO_ALIAS}
 fi
-helm repo add ${LOCAL_REPO_ALIAS} ${HELM_REPO}
-helm repo update
+helm repo add ${LOCAL_REPO_ALIAS} ${HELM_REPO} --force-update
 helm repo list
 
-chmod +x ./hack/delete-cluster.sh
-chmod +x ./hack/local-up-kindcluster.sh
-chmod +x ./hack/run-e2e.sh
-chmod +x ./hack/run-sonobouy-e2e.sh
-chmod +x ./hack/run-os-compatibility-e2e.sh
-chmod +x ./hack/run-network-e2e.sh
-chmod +x ./hack/run-nightly-cluster-e2e.sh
-chmod +x ./hack/kubean_compatibility_e2e.sh
+chmod +x ./hack/*.sh
 DIFF_NIGHTLYE2E=`git show -- './test/*' | grep nightlye2e || true`
 DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
+export KUBECONFIG_FILE=/root/.kube/kubean-online-25490-host.config
 
 ####### e2e logic ########
 if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
