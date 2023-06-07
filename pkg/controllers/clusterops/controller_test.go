@@ -870,6 +870,7 @@ func TestGetServiceAccountName(t *testing.T) {
 }
 
 func TestReconcile(t *testing.T) {
+	os.Setenv("POD_NAMESPACE", "")
 	genController := func() *Controller {
 		return &Controller{
 			Client:                newFakeClient(),
@@ -1078,11 +1079,196 @@ func TestReconcile(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "clusterOps and cluster found with wrong-actionType",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().ServiceAccounts("kubean-system").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "vars-conf",
+					},
+					Data: map[string]string{"ok": "ok123"},
+				}, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "hosts-conf",
+					},
+					Data: map[string]string{"ok": "ok123"},
+				}, metav1.CreateOptions{})
+				cluster := &clusterv1alpha1.Cluster{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my_kubean_cluster",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{
+							Name:      "hosts-conf",
+							NameSpace: "kubean-system",
+						},
+						VarsConfRef: &apis.ConfigMapRef{
+							Name:      "vars-conf",
+							NameSpace: "kubean-system",
+						},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "my_kubean_cluster"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster:    "my_kubean_cluster",
+						Image:      "myimagename",
+						Action:     "ping.yml",
+						ActionType: "error-type",
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), cluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				opsResult := &clusteroperationv1alpha1.ClusterOperation{}
+				controller.Client.Get(context.Background(), types.NamespacedName{Name: "my_kubean_ops_cluster"}, opsResult)
+				return err != nil && opsResult.Status.Status == clusteroperationv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+		{
+			name: "clusterOps and cluster found and create job successfully",
+			args: func() bool {
+				controller := genController()
+				_, err := controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				_, err = controller.ClientSet.CoreV1().ServiceAccounts("kubean-system").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				time.Sleep(time.Second)
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "vars-conf",
+					},
+					Data: map[string]string{"ok": "ok123"},
+				}, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), &corev1.ConfigMap{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ConfigMap",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "hosts-conf",
+					},
+					Data: map[string]string{"ok": "ok123"},
+				}, metav1.CreateOptions{})
+				cluster := &clusterv1alpha1.Cluster{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my_kubean_cluster",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{
+							Name:      "hosts-conf",
+							NameSpace: "kubean-system",
+						},
+						VarsConfRef: &apis.ConfigMapRef{
+							Name:      "vars-conf",
+							NameSpace: "kubean-system",
+						},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "my_kubean_ops_cluster",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: "my_kubean_cluster"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster:    "my_kubean_cluster",
+						Image:      "myimagename",
+						Action:     "ping.yml",
+						ActionType: "playbook",
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), cluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				_, _ = controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "my_kubean_ops_cluster"}})
+				opsResult := &clusteroperationv1alpha1.ClusterOperation{}
+				controller.Client.Get(context.Background(), types.NamespacedName{Name: "my_kubean_ops_cluster"}, opsResult)
+				return err == nil && result.RequeueAfter == LoopForJobStatus
+			},
+			want: true,
+		},
 	}
 	for _, test := range tests {
-		if test.args() != test.want {
-			t.Fatal()
-		}
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
 	}
 }
 
