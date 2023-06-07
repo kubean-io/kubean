@@ -1,0 +1,38 @@
+# ############## #
+# TencentOS.repo #
+# ############## #
+
+[BaseOS]
+name=TencentOS Server $releasever - Base
+baseurl=http://mirrors.tencentyun.com/tlinux/$releasever/BaseOS/$basearch/os/
+        http://mirrors.tencent.com/tlinux/$releasever/BaseOS/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[AppStream]
+name=TencentOS Server $releasever - AppStream
+baseurl=http://mirrors.tencentyun.com/tlinux/$releasever/AppStream/$basearch/os/
+        http://mirrors.tencent.com/tlinux/$releasever/AppStream/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[TencentOS]
+name=TencentOS Server $releasever - TencentOS
+baseurl=http://mirrors.tencentyun.com/tlinux/$releasever/TencentOS/$basearch/
+        http://mirrors.tencent.com/tlinux/$releasever/TencentOS/$basearch/
+gpgcheck=0
+enabled=1
+
+[TencentOS-AppStream]
+name=TencentOS Server $releasever - TencentOS-AppStream
+baseurl=http://mirrors.tencentyun.com/tlinux/$releasever/TencentOS-AppStream/$basearch/
+        http://mirrors.tencent.com/tlinux/$releasever/TencentOS-AppStream/$basearch/
+gpgcheck=0
+enabled=1
+
+[Updates]
+name=TencentOS Server $releasever - Updates
+baseurl=http://mirrors.tencentyun.com/tlinux/$releasever/Updates/$basearch/
+        http://mirrors.tencent.com/tlinux/$releasever/Updates/$basearch/
+gpgcheck=0
+enabled=1

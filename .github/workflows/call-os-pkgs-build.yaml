@@ -21,6 +21,8 @@ jobs:
           dockerfile: build/os-packages/Dockerfile.openeuler22.03
         - name: oracle9
           dockerfile: build/os-packages/Dockerfile.oracle9
+        - name: tencent31
+          dockerfile: build/os-packages/Dockerfile.tencent31
         - name: ubuntu1804
           dockerfile: build/os-packages/Dockerfile.ubuntu1804
         - name: ubuntu2004
@@ -61,9 +63,6 @@ jobs:
         file: ${{ matrix.dockerfile }}
         platforms: linux/amd64,linux/arm64
         outputs: type=local,dest=./
-        build-args: |
-          RHEL_REG_USER=${{ secrets.RHEL_REG_USER }}
-          RHEL_REG_PASS=${{ secrets.RHEL_REG_PASS }}
 
     - name: Make OS packages into Tar files
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}

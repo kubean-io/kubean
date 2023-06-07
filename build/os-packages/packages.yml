@@ -62,3 +62,7 @@ openeuler:
 
 oracle9:
   - socat
+
+tencentos31:
+  - socat
+  - container-selinux
