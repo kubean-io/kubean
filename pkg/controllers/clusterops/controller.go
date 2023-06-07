@@ -3,7 +3,6 @@ package clusterops
 import (
 	"context"
 	"crypto/md5"
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -36,8 +35,8 @@ import (
 )
 
 const (
-	RequeueAfter     = time.Second * 5
-	LoopForJobStatus = time.Second * 3
+	RequeueAfter     = time.Second * 3
+	LoopForJobStatus = time.Second * 5
 	RetryInterval    = time.Millisecond * 300
 	RetryCount       = 5
 	ServiceAccount   = "kubean.io/kubean-operator=sa"
@@ -670,7 +669,7 @@ func (c *Controller) GetServiceAccountName(namespace, labelSelector string) (str
 		return "", err
 	}
 	if len(serviceAccounts.Items) <= 0 {
-		return "", errors.New("no valild serviceaccount")
+		return "", fmt.Errorf("%s no valild serviceaccount", namespace)
 	}
 	return serviceAccounts.Items[0].Name, nil
 }
