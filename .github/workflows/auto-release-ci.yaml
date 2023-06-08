@@ -100,25 +100,21 @@ jobs:
         run: |
           ./hack/sync_api.sh ${GITHUB_REF_NAME}
 
-  # to be deleted
-  save-release-notes-to-file:
-    needs: sync-charts-and-api
-    uses: ./.github/workflows/call-save-release-notes.yaml
-    secrets: inherit
-
   generate-release-notes:
     needs: sync-charts-and-api
     uses: ./.github/workflows/call-gen-release-notes.yaml
     secrets: inherit
 
   build-docs:
-    needs: save-release-notes-to-file
+    needs: generate-release-notes
     uses: ./.github/workflows/call-build-docs.yaml
     secrets: inherit
+    permissions:
+      contents: write
 
   get-environment:
     runs-on: ubuntu-latest
-    needs: save-release-notes-to-file
+    needs: generate-release-notes
     outputs:
       environment_runs_on: ${{ steps.get_variables.outputs.environment_runs_on }}
       enviroment_cd: ${{ steps.get_variables.outputs.enviroment_cd }}

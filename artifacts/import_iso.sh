@@ -92,6 +92,10 @@ function iso::mk_server_path() {
           echo "/oracle-iso/$version/os/$arch"
           return
         fi
+        if [[ "$os" =~ "TencentOS" ]]; then
+          echo "/tencent-iso/$version/os/$arch"
+          return
+        fi
       fi
     fi
   done

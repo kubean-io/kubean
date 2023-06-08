@@ -11,6 +11,7 @@
       - "openEuler"
       - "UnionTech"
       - "UniontechOS"
+      - "TencentOS"
 
     yum_repo_src_path: /etc/yum.repos.d
     yum_repo_bak_path: /etc/yum.repos.d.bak
