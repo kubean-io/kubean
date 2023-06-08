@@ -5,7 +5,7 @@
 1. You already have a standard Kubernetes cluster or a cluster provided by a cloud provider.
 2. The control node or cloud terminal for the cluster has the [kubect](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) tool installed.。
 3. The [kubean helm chart](helm-install-kubean.md) has been deployed on your cluster.
-4. The [kubean 项目](https://github.com/kubean-io/kubean)has been cloned to your local machine. If you haven't cloned kubean yet, you can do so by executing the following command:
+4. The [kubean project](https://github.com/kubean-io/kubean)has been cloned to your local machine. If you haven't cloned kubean yet, you can do so by executing the following command:
 
 ```bash
 $ git clone https://github.com/kubean-io/kubean.git
