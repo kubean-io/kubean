@@ -6,20 +6,12 @@ set -o pipefail
 
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
-arch="arm64"
 export registry_addr_arm64=${RUNNER_NODE_IP}:${REGISTRY_PORT_ARM64}
-os_name="kylinv10"
-iso_image_file="/root/iso-images/Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso"
-shell_path="${REPO_ROOT}/artifacts"
-### All ARCH related resource
-util::import_files_minio_by_arch ${MINIOUSER} ${MINIOPWD} "${MINIO_URL}" "${DOWNLOAD_FOLDER}" ${arch}
-util::push_registry_by_arch "${registry_addr_arm64}" "${DOWNLOAD_FOLDER}" ${arch}
-
-util::import_os_package_minio ${MINIOUSER} ${MINIOPWD} "${MINIO_URL}" "${DOWNLOAD_FOLDER}" "${os_name}"
-util::import_iso  ${MINIOUSER} ${MINIOPWD} "${MINIO_URL}" "${shell_path}" ${iso_image_file}
 util::scope_copy_test_images ${registry_addr_arm64}
 
 ############### Case Prepare
+os_name="kylinv10"
+arch="arm64"
 util::vm_name_ip_init_offline_by_os  ${os_name}
 util::init_kylin_vm_template_map
 rm -fr "${REPO_ROOT}"/test/kubean_os_compatibility_e2e/e2e-install-cluster/

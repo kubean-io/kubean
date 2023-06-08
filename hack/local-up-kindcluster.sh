@@ -66,11 +66,8 @@ while read -r img2pull && [[ -n "$img2pull" ]] ; do
 done <<< "$IMAGE_LIST"
 
 #step1. prepare for kindClusterConfig
-if [ "${OFFLINE_FLAG}" == "true" ];then
-  KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host-offline.yml
-else
-  KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host.yml
-fi
+KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host.yml
+
 echo -e "Preparing kindClusterConfig in path: ${KIND_CLUSTER_CONF_PATH}"
 docker pull "${KIND_VERSION}"
 util::create_cluster "${HOST_CLUSTER_NAME}" "${MAIN_KUBECONFIG}" "${KIND_VERSION}" ${KIND_CLUSTER_CONF_PATH}
