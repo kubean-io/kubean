@@ -4,6 +4,7 @@
   gather_facts: true
   become: true
   vars:
+    check_user_has_sudo_access_for_username: "" ## for example: "root1,root2,root3"
     check_connection: true
     fetch_os_type: true
     fetch_os_kernel_version: true
@@ -28,6 +29,30 @@
       when:
         - check_connection
 
+    - name: Perform check user has sudo access
+      shell: bash -c " groups {{ item }} | grep -E '\broot\b|\bsudo\b' "
+      register: has_sudo_access_result # array
+      ignore_errors: true
+      with_items: "{{ check_user_has_sudo_access_for_username.split(',') }}"
+      when:
+        - check_user_has_sudo_access_for_username | length > 0
+
+    - name: Process has_sudo_access_result
+      set_fact:
+        sudo_access_result_dict: "{{ dict(check_user_has_sudo_access_for_username.split(',') | list | zip( _vals )) }}"
+      vars:
+        _vals: "{{ has_sudo_access_result.results | map(attribute='rc') | list }}"
+      when:
+        - check_user_has_sudo_access_for_username | length > 0
+
+    - name: Store has_sudo_access_result result to localhost
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
+        yq -i '.{{inventory_hostname}}.sudo_access_result.{{ item.key }}="{{ item.value == 0 }}"' /tmp/kubean_data_temp_cache
+      loop: "{{ lookup( 'dict' , sudo_access_result_dict ) }}"
+      delegate_to: localhost
+      when:
+        - check_user_has_sudo_access_for_username | length > 0
 
     - name: Perform fetch_os_type
       shell: cat /etc/os-release
