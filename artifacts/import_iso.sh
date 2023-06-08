@@ -93,8 +93,10 @@ function iso::mk_server_path() {
           return
         fi
         if [[ "$os" =~ "TencentOS" ]]; then
-          echo "/tencent-iso/$version/os/$arch"
-          return
+          if [ "${version}" == "8" ] || [ "${version}" == "3" ]; then
+            echo "/tencent-iso/3/os/$arch"
+            return
+          fi
         fi
       fi
     fi
