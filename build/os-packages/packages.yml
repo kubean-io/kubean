@@ -64,5 +64,6 @@ oracle9:
   - socat
 
 tencentos31:
+  - nss
   - socat
   - container-selinux
