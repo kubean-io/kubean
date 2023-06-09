@@ -3,6 +3,7 @@ ARG OS_NAME=tencent
 FROM rockylinux:8 as os-rocky8
 ARG OS_NAME
 ARG OS_VERSION=3.1
+ARG MODULES="container-tools"
 
 WORKDIR /$OS_NAME/$OS_VERSION/os
 COPY build/os-packages/repos/tencentos.repo /tmp/
@@ -11,14 +12,17 @@ COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.tencentos31[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
-    && dnf install -y createrepo 'dnf-command(config-manager)' \
+    && dnf install -y createrepo 'dnf-command(config-manager)' 'dnf-command(modulesync)' \
     && cp /tmp/tencentos.repo /etc/yum.repos.d/tencentos.repo \
     && sed -i 's/$releasever/3.1/g' /etc/yum.repos.d/tencentos.repo \
     && dnf config-manager --set-disabled appstream baseos extras \
     && dnf clean all && dnf makecache \
     && dnf repolist \
     && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
-    && createrepo -d ${ARCH}
+    && createrepo -d ${ARCH} \
+    && echo "create a repo in ${ARCH}/modules/ with previously downloaded packages and modular metadata" \
+    && dnf module install ${MODULES} --downloadonly --destdir=${ARCH}/modules/ -y \
+    && dnf modulesync --destdir=${ARCH}/modules/
 
 FROM scratch
 ARG OS_NAME
