@@ -195,10 +195,10 @@ function iso::import_data() {
 function iso::import_main() {
   local minio_api_addr=${1:-'http://127.0.0.1:9000'}
   local iso_file_path=${2}
+  local iso_mnt_path=${3:-"/mnt/kubean-temp-iso"}
 
   local is_cp_path=false
   local target_path="${minio_api_addr}"
-  local iso_mnt_path="/mnt/kubean-temp-iso"
   local iso_parallel_lock="/var/lock/kubean-import.lock"
 
   if [[ "${target_path}" != "https://"* ]] && [[ "${target_path}" != "http://"* ]] ; then
@@ -206,11 +206,9 @@ function iso::import_main() {
     mkdir -p "${target_path}"
   fi
 
-  trap "iso::unmount_file ${iso_mnt_path}" EXIT
-
   start=$(date +%s)
 
-  if [ "${is_cp_path}" == "false" ]; then
+  if [[ "${is_cp_path}" == "false" ]]; then
     iso::check_mc_cmd
     iso::add_mc_host_conf "${minio_api_addr}" "${MINIO_USER}" "${MINIO_PASS}"
     iso::ensure_kubean_bucket
@@ -218,7 +216,7 @@ function iso::import_main() {
   iso::mount_file "${iso_file_path}" "${iso_mnt_path}"
   export -f iso::import_data iso::mk_server_path
   flock -s ${iso_parallel_lock} bash -c "iso::import_data '${iso_file_path}' '${iso_mnt_path}' '${is_cp_path}' '${target_path}'"
-  if [ "${is_cp_path}" == "false" ]; then
+  if [[ "${is_cp_path}" == "false" ]]; then
     iso::del_mc_host_conf "${iso_parallel_lock}"
   fi
 
@@ -229,5 +227,11 @@ function iso::import_main() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    iso_mnt_path="/mnt/kubean-temp-iso"
+    if [[ -n "${3}" ]]; then
+      iso_mnt_path="${3}"
+    fi
+    echo "iso_mnt_path: ${iso_mnt_path}"
+    trap 'iso::unmount_file "${iso_mnt_path}"' EXIT
     iso::import_main "$@"
 fi
