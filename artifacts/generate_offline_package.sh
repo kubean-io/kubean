@@ -21,14 +21,39 @@ function generate_offline_dir() {
   mkdir -p $OFFLINE_OSPKGS_DIR
 }
 
+function bump_pause_version() {
+  major_version=$(echo "$1" | awk -F . '{print int($1)}')
+  minor_version=$(echo "$1" | awk -F . '{print int($2)}')
+  patch_version=$(echo "$1" | awk -F . '{print int($3)}')
+
+  local bump_versions=()
+  bump_versions+=("${major_version}.$((minor_version + 1))")
+  bump_versions+=("${major_version}.$((minor_version + 1)).1")
+  bump_versions+=("${major_version}.${minor_version}.$((patch_version + 1))")
+  bump_versions+=("$((major_version + 1)).0")
+  local bump_pause_tag=""
+  for tag in "${bump_versions[@]}"; do
+    local ret=0
+    curl -sL https://registry.k8s.io/v2/pause/tags/list | jq .tags | grep -v sha256 | grep -q "\"${tag}\"" || ret=$?
+    if [[ "${ret}" == 0 ]]; then
+      bump_pause_tag=${tag}
+      break
+    fi
+  done
+  echo "${bump_pause_tag}"
+}
+
 function add_pause_image_addr() {
-  image_list=$1
-  pause_img_addr=$(cat ${image_list} |grep pause)
-  if [ ! -z "${pause_img_addr}" ]; then
-    pause_addr=$(echo ${pause_img_addr}|cut -d: -f1)
-    pause_tag=$(echo ${pause_img_addr}|cut -d: -f2)
-    new_tag=$(awk 'BEGIN{print '${pause_tag}+0.1' }')
-    echo "${pause_addr}:${new_tag}" >> ${image_list}
+  local image_list=$1
+  local pause_img_addr
+  pause_img_addr=$(< "${image_list}" grep pause)
+  if [ -n "${pause_img_addr}" ]; then
+    pause_addr=$(echo "${pause_img_addr}" | cut -d: -f1)
+    pause_tag=$(echo "${pause_img_addr}" | cut -d: -f2)
+    new_tag=$(bump_pause_version "${pause_tag}")
+    if [ -n "${new_tag}" ]; then
+      echo "${pause_addr}:${new_tag}" >> "${image_list}"
+    fi
   fi
 }
 
@@ -50,7 +75,7 @@ function generate_temp_list() {
   remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
   cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
-  # add_pause_image_addr contrib/offline/temp/images.list
+  add_pause_image_addr contrib/offline/temp/images.list
   cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
 }
 
