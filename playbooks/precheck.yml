@@ -9,6 +9,7 @@
     fetch_os_type: true
     fetch_os_kernel_version: true
     check_existing_k8s_service: true
+    check_dual_stack_network: true
 
   tasks:
     - name: Perform check_connection
@@ -97,6 +98,22 @@
       when:
         - check_existing_k8s_service
 
+    - name: Perform fetch ip info
+      shell: |
+        ip --brief  address show | grep -i up | grep '{{ access_ip }}' | sed 's/fe80\S*//g' | sed 's/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\S*//g' | head
+      register: ip_cmd_info_result # ens192       UP         fd00:10:7::103/64
+      ignore_errors: true
+      when:
+        - check_dual_stack_network
+    - name: Store dual_stack_network result
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
+        yq -i '.{{inventory_hostname}}.dual_stack_network="{{ ip_cmd_info_result.stdout | split | length > 2 }}"' /tmp/kubean_data_temp_cache
+      delegate_to: localhost
+      ignore_errors: true
+      when:
+        - check_dual_stack_network
+
     - name: Store os_kernel_version result to localhost
       shell: |
         ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
@@ -106,6 +123,13 @@
       delegate_to: localhost
       when:
         - fetch_os_kernel_version
+
+    - name: Store os family result to localhost
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
+        yq -i '.{{inventory_hostname}}.os_family="{{ ansible_os_family }}"' /tmp/kubean_data_temp_cache
+      ignore_errors: true
+      delegate_to: localhost
 
 - hosts: localhost
   gather_facts: false
