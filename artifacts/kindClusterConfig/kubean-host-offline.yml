@@ -3,7 +3,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   # one node hosting a control plane
   - role: control-plane
-    image: kindest-node:v1.25.3
+    image: kindest-node:v1.26.4
     extraPortMappings:
       - containerPort: 32000 # MinIO  NodePort in kind, expose to host 32000
         hostPort: 32000

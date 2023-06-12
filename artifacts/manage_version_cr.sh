@@ -36,7 +36,7 @@ function check_dependencies() {
 }
 
 function extract_etcd_version() {
-  kube_version=${1} ## v1.23.1
+  kube_version=${1} ## v1.26.5
   IFS='.'
   read -ra arr <<<"${kube_version}"
   major="${arr[0]}.${arr[1]}"
