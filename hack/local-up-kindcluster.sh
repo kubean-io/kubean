@@ -18,7 +18,7 @@ KUBEAN_VERSION=${1:-latest}
 KUBEAN_IMAGE_VERSION=${2:-latest}
 HELM_REPO=${3:-"https://kubean-io.github.io/kubean-helm-chart"}
 IMG_REGISTRY=${4:-"ghcr.io"}
-KIND_VERSION=${5:-"kindest/node:v1.25.3"}
+KIND_VERSION=${5:-"kindest/node:v1.26.4"}
 HOST_CLUSTER_NAME=${6:-"kubean-host"}
 
 REPO_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
