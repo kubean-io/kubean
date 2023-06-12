@@ -53,7 +53,7 @@ source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
 if [[ ${HELM_CHART_VERSION} =~ .*rc ]];then
-  echo "RC version, remain the the kube_version to 1.25.4"
+  echo "RC version, remain the the kube_version to 1.26.5"
 #else
    #sed -i '/kube_version: /d' ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml
 fi
@@ -70,7 +70,7 @@ helm repo add ${local_helm_repo_alias} ${HELM_REPO}
 helm repo update
 helm repo list
 
-KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.25.3"
+KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.4"
 ./hack/local-up-kindcluster.sh "${HELM_CHART_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
 ### Helm install Registry: AMD64 registry and ARM64 registry
 util::install_registry "${REGISTRY_PORT_AMD64}" "${KUBECONFIG_FILE}" "registry-amd64"

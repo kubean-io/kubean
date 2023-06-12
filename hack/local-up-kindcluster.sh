@@ -42,7 +42,7 @@ util::verify_go_version
 util::cmd_must_exist "helm"
 
 # install kind and kubectl
-kind_version=v0.17.0
+kind_version=v0.19.0
 util::install_kind $kind_version
 
 # get arch name and os name in bootstrap
