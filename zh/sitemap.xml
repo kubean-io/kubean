@@ -131,6 +131,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/zh/releases/v0.6.2/</loc>
+         <lastmod>2023-06-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/zh/usage/airgap/</loc>
          <lastmod>2023-06-13</lastmod>
          <changefreq>daily</changefreq>
