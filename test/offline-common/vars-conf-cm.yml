@@ -8,14 +8,14 @@ data:
     unsafe_show_logs: true
     registry_host:
     minio_address: 
-    ### 配置二进制文件服务的地址
+    ### configure the address of the binary file service
     files_repo: "{{minio_address}}/kubean"
-    ### 需要配置 yum 源文件服务地址:    
+    ### configure the yum source file service address
     yum_repo: "{{ minio_address }}"
-    ### 如果 containerd 采用非安全 HTTP 免认证方式, 则需要配置:
+    ### if containerd uses the non-secure HTTP authentication exemption mode, this parameter is required
     containerd_insecure_registries:
       "registry_host_key": "http://{{registry_host}}"
-    ### 如果 docker 采用非安全 HTTP 免认证方式, 则需要配置:
+    ### if docker uses the non-secure HTTP authentication exemption mode, this parameter is required
     docker_insecure_registries:
       - "registry_host_key"
     
