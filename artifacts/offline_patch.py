@@ -13,7 +13,7 @@ OPTION = os.getenv("OPTION", default="all")  # create_files create_images create
 
 KUBESPRAY_DIR = os.path.join(CUR_DIR, "kubespray")
 MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
-ZONE = os.getenv("ZONE", default="CN")
+ZONE = os.getenv("ZONE", default="Other")  ## Other or CN
 
 EXTRA_PAUSE_URLS = os.getenv("EXTRA_PAUSE", "").split(",")  ## registry.k8s.io/pause:3.6
 
