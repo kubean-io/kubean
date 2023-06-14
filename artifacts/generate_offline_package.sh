@@ -13,7 +13,7 @@ OFFLINE_FILES_DIR=${OFFLINE_PACKAGE_DIR}/files
 OFFLINE_IMAGES_DIR=${OFFLINE_PACKAGE_DIR}/images
 OFFLINE_OSPKGS_DIR=${OFFLINE_PACKAGE_DIR}/os-pkgs
 
-ZONE=${ZONE:-"CN"}
+ZONE=${ZONE:-"Other"} # CN or Other
 
 function generate_offline_dir() {
   mkdir -p $OFFLINE_FILES_DIR
