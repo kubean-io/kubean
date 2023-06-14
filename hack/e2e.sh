@@ -75,7 +75,7 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
 
 else
     util::clean_online_kind_cluster
-    KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.0"
+    KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.4"
     ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
     util::set_config_path
     if [ "${E2E_TYPE}" == "PR" ]; then
