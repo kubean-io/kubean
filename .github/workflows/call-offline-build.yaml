@@ -43,6 +43,7 @@ jobs:
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
         bash artifacts/manage_version_cr.sh create_localartifactset
+        cp artifacts/import_iso.sh ${KUBEAN_TAG}/
 
         echo "localartifactset cr output:"
         cat ${KUBEAN_TAG}/localartifactset.cr.yaml
@@ -103,6 +104,7 @@ jobs:
           ${{ github.ref_name }}/*/*.tar.gz
           ${{ github.ref_name }}/*/*.list
           ${{ github.ref_name }}/*.cr.yaml
+          ${{ github.ref_name }}/*.sh
 
     - name: Upload InfoManifest CR
       uses: actions/upload-artifact@v3

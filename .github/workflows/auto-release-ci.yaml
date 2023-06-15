@@ -3,8 +3,8 @@ name: Auto Release CI
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
 
 env:
   ENVIRONMENT_RUNS_ON: "ubuntu-latest"
@@ -16,17 +16,19 @@ jobs:
     outputs:
       sha: ${{ steps.get_ref.outputs.sha }}
     steps:
-      - name: Get kubespray latest commit sha
-        id: get_ref
-        run: |
-          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
-          echo sha=${COMMIT_SHA}  >> $GITHUB_OUTPUT
+    - name: Get kubespray latest commit sha
+      id: get_ref
+      run: |
+        COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
+        echo sha=${COMMIT_SHA}  >> $GITHUB_OUTPUT
 
   call-offline-build:
     uses: ./.github/workflows/call-offline-build.yaml
     needs: get-spray-ref
     with:
       SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
+    permissions:
+      contents: write
 
   call-images-build:
     uses: ./.github/workflows/call-images-build.yaml
@@ -47,58 +49,58 @@ jobs:
       contents: write
 
   sync-charts-and-api:
-    needs: [call-images-build,call-offline-build]
+    needs: [call-images-build, call-offline-build]
     runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      - name: Download InfoManifest CR
-        uses: actions/download-artifact@v3
-        with:
-          path: charts/kubean/templates/
-          name: info-manifest-cr-file
+    - name: Download InfoManifest CR
+      uses: actions/download-artifact@v3
+      with:
+        path: charts/kubean/templates/
+        name: info-manifest-cr-file
 
-      - name: update helm version and image tag
-        run: |
-          yq -i ".version=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
-          yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
-          yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
-          yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+    - name: update helm version and image tag
+      run: |
+        yq -i ".version=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+        yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+        yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+        yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
 
-      - name: helm checkout
-        run: |
-          pushd charts
-          tar zcvf kubean.tar.gz kubean
-          bash ../hack/verify_helm_standard.sh kubean.tar.gz
-          rm -rf kubean.tar.gz
-          popd
+    - name: helm checkout
+      run: |
+        pushd charts
+        tar zcvf kubean.tar.gz kubean
+        bash ../hack/verify_helm_standard.sh kubean.tar.gz
+        rm -rf kubean.tar.gz
+        popd
 
-      - name: Pushes charts to another repository
-        id: push_directory
-        uses: cpina/github-action-push-to-another-repository@v1.5.1
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
-        with:
-          source-directory: charts
-          destination-github-username: ${{ github.repository_owner }}
-          destination-repository-name: 'kubean-helm-chart'
-          user-email: kubean-robot@ykubean.io
-          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
-          target-directory: charts
-          target-branch: main
+    - name: Pushes charts to another repository
+      id: push_directory
+      uses: cpina/github-action-push-to-another-repository@v1.5.1
+      env:
+        SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+      with:
+        source-directory: charts
+        destination-github-username: ${{ github.repository_owner }}
+        destination-repository-name: 'kubean-helm-chart'
+        user-email: kubean-robot@ykubean.io
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-directory: charts
+        target-branch: main
 
-      - name: Pushes api to kubean-api repository
-        env:
-          REPO_OWNER: ${{ github.repository_owner }}
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
-        run: |
-          ./hack/sync_api.sh ${GITHUB_REF_NAME}
+    - name: Pushes api to kubean-api repository
+      env:
+        REPO_OWNER: ${{ github.repository_owner }}
+        SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+      run: |
+        ./hack/sync_api.sh ${GITHUB_REF_NAME}
 
   generate-release-notes:
     needs: sync-charts-and-api
@@ -120,11 +122,11 @@ jobs:
       enviroment_cd: ${{ steps.get_variables.outputs.enviroment_cd }}
 
     steps:
-      - name: Get environment variable
-        id: get_variables
-        run: |
-          echo environment_runs_on=${{ env.ENVIRONMENT_RUNS_ON }} >> $GITHUB_OUTPUT
-          echo enviroment_cd=${{ env.ENVIRONMENT_CD }} >> $GITHUB_OUTPUT
+    - name: Get environment variable
+      id: get_variables
+      run: |
+        echo environment_runs_on=${{ env.ENVIRONMENT_RUNS_ON }} >> $GITHUB_OUTPUT
+        echo enviroment_cd=${{ env.ENVIRONMENT_CD }} >> $GITHUB_OUTPUT
 
   call-cd:
     uses: ./.github/workflows/call-cd.yaml
