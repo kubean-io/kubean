@@ -58,6 +58,7 @@ chmod +x ./hack/run-os-compatibility-e2e.sh
 chmod +x ./hack/run-network-e2e.sh
 chmod +x ./hack/run-nightly-cluster-e2e.sh
 chmod +x ./hack/kubean_compatibility_e2e.sh
+chmod +x ./hack/kubean_resource.sh
 DIFF_NIGHTLYE2E=`git show -- './test/*' | grep nightlye2e || true`
 DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 
@@ -67,14 +68,14 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
     echo ${#k8s_list[@]}
     for k8s in "${k8s_list[@]}"; do
         echo "***************k8s version is: ${k8s} ***************"
-        util::clean_online_kind_cluster
+        kind::clean_kind_cluster ${CONTAINERS_PREFIX}
         KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:"${k8s}
         ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
         ./hack/kubean_compatibility_e2e.sh
     done
 
 else
-    util::clean_online_kind_cluster
+    kind::clean_kind_cluster ${CONTAINERS_PREFIX}
     KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.4"
     ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
     util::set_config_path
@@ -102,4 +103,4 @@ else
 
 fi
 
-util::clean_online_kind_cluster
+kind::clean_kind_cluster ${CONTAINERS_PREFIX}

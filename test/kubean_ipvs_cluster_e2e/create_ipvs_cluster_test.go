@@ -87,7 +87,14 @@ var _ = ginkgo.Describe("Create ipvs cluster", func() {
 			}, 300*time.Second, 10*time.Second).Should(gomega.BeTrue())
 
 			service1 := tools.ExposeServiceToDaemonset(serviceName, tools.DefaultNamespace, "NodePort", daemonSetName, cluster1Client)
-			time.Sleep(5 * time.Second)
+			// wait service ready
+			gomega.Eventually(func() bool {
+				serviceTmp, _ := cluster1Client.CoreV1().Services(tools.DefaultNamespace).Get(context.Background(), serviceName, metav1.GetOptions{})
+				if len(serviceTmp.Spec.Ports) > 0 {
+					return true
+				}
+				return false
+			}, 20*time.Second, 5*time.Second).Should(gomega.BeTrue())
 			nodePort0 := service1.Spec.Ports[0].NodePort
 			clusterPort := service1.Spec.Ports[0].Port
 			clusterIP0 := service1.Spec.ClusterIP

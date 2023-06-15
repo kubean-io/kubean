@@ -439,18 +439,20 @@ function util::vm_name_ip_init_online_by_os(){
   echo "vm_ip_addr2: $vm_ip_addr2"
 }
 
+
+#####################################
 ### Clean up the docker containers before test
-function util::clean_online_kind_cluster() {
-   echo "======= container prefix: ${CONTAINERS_PREFIX}"
-    kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
+function kind::clean_kind_cluster() {
+   local container_prefix=$1
+   echo "======= container prefix: ${container_prefix}"
+    kubean_containers_num=$( docker ps -a |grep ${container_prefix}||true)
     if [ "${kubean_containers_num}" ];then
-      echo "Remove exist containers name contains ${CONTAINERS_PREFIX}..."
-      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f || true
+      echo "Remove exist containers name contains kubean..."
+      docker ps -a |grep "${container_prefix}"|awk '{print $NF}'|xargs docker rm -f||true
     else
       echo "No container name contains kubean to delete."
     fi
 }
-
 ###### Clean Up #######
 function util::clean_up(){
     echo "======= cluster prefix: ${CLUSTER_PREFIX}"
