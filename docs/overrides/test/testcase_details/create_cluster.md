@@ -352,3 +352,19 @@
     11. login master node, ping pod2 and pod3; login worker, ping pod1
     12. login pod1, ping pod2 and pod3
 
+### Create 3master cluster (vip)
+    1 Prepare three virtual machines as the nodes of the created work cluster. The OS is centos7
+    2. yml files required for configuring Kubean:
+    Configure hosts-config-cm.yml file to write the information of the three nodes
+    Configure kubeanClusterOps using action: cluster.yml
+    Configure parameters in vars-conf-cm.yml that support kube-vip
+    kube_vip_arp_enabled: true
+    kube_proxy_strict_arp: false
+    kube_vip_enabled: true
+    kube_vip_controlplane_enabled: true
+    kube_vip_address: <ip address> # Select an ip address that is the same network segment as the host and cannot be pinged
+    3. Create a cluster using kubectl apply - f ***
+    4. Check that the job related pod status is "Succeeded" and check the cluster status by sonobuoy
+    5. Traverse and login to each master node to check which vip is in effect
+    6. shutdown the node where vip is located
+    7. Login with kube-vip ip address and check that vip has drifted to a node that is not powered off
