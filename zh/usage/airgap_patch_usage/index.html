@@ -510,7 +510,7 @@
   
     <li class="md-nav__item">
       <a href="../sshkey_deploy_cluster/" class="md-nav__link">
-        以SSH秘钥方式部署集群
+        以 SSH 密钥方式部署集群
       </a>
     </li>
   
@@ -1064,12 +1064,12 @@
 
 
 <h1 id="_1">增量离线包的生成和使用<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>为了满足用户对于某些软件特定版本的需要，kubean提供脚本 <code>artifacts/offline_patch.py</code> 用来根据配置文件 <code>manifest.yml</code>
+<p>为了满足用户对于某些软件特定版本的需要，Kubean 提供脚本 <code>artifacts/offline_patch.py</code> 根据配置文件 <code>manifest.yml</code>
 来生成对应版本的离线包。</p>
 <h2 id="_2">生成增量离线包<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ol>
-<li>在当前文件夹新建 <code>manifest.yml</code> 文件，内容举例如下:</li>
-</ol>
+<li>
+<p>在当前文件夹新建 <code>manifest.yml</code> 文件，内容举例如下：</p>
 <div class="highlight"><pre><span></span><code><span class="nt">image_arch</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;amd64&quot;</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;arm64&quot;</span>
@@ -1087,16 +1087,16 @@
 <span class="nt">etcd_version</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;v3.5.3&quot;</span>
 </code></pre></div>
-<ol>
+</li>
 <li>
 <p>在当前文件夹新建 <code>data</code> 文件夹</p>
 </li>
 <li>
-<p>使用镜像，等待运行退出后，<code>data</code> 文件夹中生成增量离线包</p>
-</li>
-</ol>
+<p>使用镜像，等待运行退出后，在 <code>data</code> 文件夹中生成增量离线包</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span>ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5<span class="w"> </span>
 </code></pre></div>
+</li>
+</ol>
 <h2 id="_3">使用增量离线包<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <p>增量包的目录结构如下:</p>
 <div class="highlight"><pre><span></span><code>data
@@ -1117,15 +1117,17 @@
     │       └── offline-images.tar.gz
     └── kubeanofflineversion.cr.patch.yaml
 </code></pre></div>
-<p>(1). 向 MinIO 中写入文件数据</p>
+<ol>
+<li>
+<p>向 MinIO 中写入文件数据</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/files
 
 $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
 </code></pre></div>
-<ul>
-<li><code>minio_address</code> 是 <code>minio API Server</code> 地址，端口一般为9000，比如 <code>http://1.2.3.4:9000</code>。</li>
-</ul>
-<p>(2). 向 docker registry (版本推荐使用2.6.2) 或者 harbor 写入镜像数据</p>
+<p><code>minio_address</code> 是 <code>minio API Server</code> 地址，端口一般为 9000，比如 <code>http://1.2.3.4:9000</code>。</p>
+</li>
+<li>
+<p>向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/images<span class="w"> </span>
 
 <span class="c1"># 1. 非安全免密模式</span>
@@ -1135,17 +1137,21 @@ $<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">
 $<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
 </code></pre></div>
 <ul>
-<li>当 <code>DEST_TLS_VERIFY=false</code>, 此时采用非安全 HTTP 模式上传镜像。</li>
+<li>当 <code>DEST_TLS_VERIFY=false</code>，此时采用非安全 HTTP 模式上传镜像。</li>
 <li>当镜像仓库存在用户名密码验证时，需要设置 <code>DEST_USER</code> 和 <code>DEST_PASS</code>。</li>
-<li><code>registry_address</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code>。</li>
+<li><code>registry_address</code> 是镜像仓库的地址，比如 <code>1.2.3.4:5000</code>。</li>
 </ul>
-<p>(3). 将 <code>kubeanofflineversion.cr.patch.yaml</code> 写入到 k8s 集群</p>
+</li>
+<li>
+<p>将 <code>kubeanofflineversion.cr.patch.yaml</code> 写入到 K8s 集群</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch
 $<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kubeanofflineversion.cr.patch.yaml<span class="w"> </span>
 </code></pre></div>
-<ul>
-<li>该步骤是为了将新的可离线使用的软件版本信息告知 kubean-operator。</li>
-</ul>
+<blockquote>
+<p>这一步是为了将新的可离线使用的软件版本信息告知 kubean-operator。</p>
+</blockquote>
+</li>
+</ol>
 
 
 

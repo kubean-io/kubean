@@ -572,7 +572,7 @@
       
         <li class="md-nav__item">
   <a href="#prepare-kubeans-crds" class="md-nav__link">
-    Prepare KuBean's CRDs
+    Prepare Kubean's CRDs
   </a>
   
 </li>
@@ -1089,7 +1089,7 @@
       
         <li class="md-nav__item">
   <a href="#prepare-kubeans-crds" class="md-nav__link">
-    Prepare KuBean's CRDs
+    Prepare Kubean's CRDs
   </a>
   
 </li>
@@ -1122,17 +1122,17 @@
 <h1 id="deploy-kubernetes-clusters-with-ssh">Deploy Kubernetes clusters with SSH<a class="headerlink" href="#deploy-kubernetes-clusters-with-ssh" title="Permanent link">&para;</a></h1>
 <p><strong>Contents</strong></p>
 <ul>
-<li>✓ 1. <a href="#generate-and-distribute-an-ssh-private-key">Generate and distribute an SSH private key</a></li>
-<li>✓ 2. <a href="#make-a-secret-with-private-key">Make a Secret with private key</a></li>
-<li>✓ 3. <a href="#create-a-host-configuration-file">Create a host configuration file</a></li>
-<li>✓ 4. <a href="#provision-parameters-for-cluster-deployment">Provision parameters for cluster deployment</a></li>
-<li>✓ 5. <a href="#prepare-kubeans-crds">Prepare KuBean's CRDs</a></li>
-<li>✓ 6. <a href="#deploy-a-cluster">Deploy a cluster</a></li>
+<li>✓ <a href="#generate-and-distribute-an-ssh-private-key">1. Generate and distribute an SSH private key</a></li>
+<li>✓ <a href="#make-a-secret-with-private-key">2. Make a Secret with private key</a></li>
+<li>✓ <a href="#create-a-host-configuration-file">3. Create a host configuration file</a></li>
+<li>✓ <a href="#provision-parameters-for-cluster-deployment">4. Provision parameters for cluster deployment</a></li>
+<li>✓ <a href="#prepare-kubeans-crds">5. Prepare Kubean's CRDs</a></li>
+<li>✓ <a href="#deploy-a-cluster">6. Deploy a cluster</a></li>
 </ul>
 <h2 id="generate-and-distribute-an-ssh-private-key">Generate and distribute an SSH private key<a class="headerlink" href="#generate-and-distribute-an-ssh-private-key" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Generate a pair of public-private keys with <code>ssh-keygen</code> command:</li>
-</ol>
+<li>
+<p>Generate a pair of public-private keys with <code>ssh-keygen</code> command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$HOME</span>/.ssh/id_rsa
 Generating<span class="w"> </span>public/private<span class="w"> </span>rsa<span class="w"> </span>key<span class="w"> </span>pair.
 Created<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/root/.ssh&#39;</span>.
@@ -1156,22 +1156,22 @@ The<span class="w"> </span>keys<span class="w"> </span>randomart<span class="w">
 +----<span class="o">[</span>SHA256<span class="o">]</span>-----+
 
 $<span class="w"> </span>ls<span class="w"> </span>/root/.ssh/id_rsa*<span class="w"> </span>-lh
--rw-------.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">1</span>.7K<span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa<span class="w">         </span><span class="c1"># 私钥</span>
--rw-r--r--.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w">  </span><span class="m">408</span><span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w">     </span><span class="c1"># 公钥</span>
+-rw-------.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">1</span>.7K<span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa<span class="w">         </span><span class="c1"># private key</span>
+-rw-r--r--.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w">  </span><span class="m">408</span><span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w">     </span><span class="c1"># public key</span>
 </code></pre></div>
-<ol>
-<li>Distribute the key pair to nodes of the cluster to be deployed:</li>
-</ol>
+</li>
+<li>
+<p>Distribute the key pair to nodes of the cluster to be deployed:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># for example, specify to distribute the public key to nodes `192.168.10.11` and `192.168.10.12`.</span>
 $<span class="w"> </span><span class="nb">declare</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">IPS</span><span class="o">=(</span><span class="m">192</span>.168.10.11<span class="w"> </span><span class="m">192</span>.168.10.12<span class="o">)</span>
 
 <span class="c1"># traverse node IPs to distribute the public key (/root/.ssh/id_rsa.pub) with the presumptive account/password: root/kubean</span>
-$<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;kubean&quot;</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w"> </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+$<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;kubean&quot;</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w">  </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div>
-<h2 id="make-a-secret-with-private-key">Make a Secret with private key<a class="headerlink" href="#make-a-secret-with-private-key" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Generate a Secret for the private key with the following command:</li>
+</li>
 </ol>
+<h2 id="make-a-secret-with-private-key">Make a Secret with private key<a class="headerlink" href="#make-a-secret-with-private-key" title="Permanent link">&para;</a></h2>
+<p>Generate a Secret for the private key with the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span><span class="se">\ </span><span class="w">                           </span><span class="c1"># specify namespace: kubean-system</span>
 <span class="w">    </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sample-ssh-auth<span class="w"> </span><span class="se">\ </span><span class="w">            </span><span class="c1"># specify the name of Secret: sample-ssh-auth</span>
 <span class="w">    </span>--type<span class="o">=</span><span class="s1">&#39;kubernetes.io/ssh-auth&#39;</span><span class="w"> </span><span class="se">\ </span><span class="w">                  </span><span class="c1"># specify the type of Secret: kubernetes.io/ssh-auth</span>
@@ -1229,7 +1229,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">hosts: {}</span>
 </code></pre></div>
 <blockquote>
-<p>Note: No need to include the account and password (<code>ansible_user</code> and <code>ansible_password</code>) because of logging in with the private key.</p>
+<p>Note: It is not necessary to include the account and password (<code>ansible_user</code> and <code>ansible_password</code>) when logging in with a private key.</p>
 </blockquote>
 <h2 id="provision-parameters-for-cluster-deployment">Provision parameters for cluster deployment<a class="headerlink" href="#provision-parameters-for-cluster-deployment" title="Permanent link">&para;</a></h2>
 <p>For contents of <code>VarsConfCM.yaml</code>, refer to <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>.</p>
@@ -1250,10 +1250,10 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">    </span><span class="no">ntp_enabled: true</span>
 <span class="w">    </span><span class="no">...</span>
 </code></pre></div>
-<h2 id="prepare-kubeans-crds">Prepare KuBean's CRDs<a class="headerlink" href="#prepare-kubeans-crds" title="Permanent link">&para;</a></h2>
+<h2 id="prepare-kubeans-crds">Prepare Kubean's CRDs<a class="headerlink" href="#prepare-kubeans-crds" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Example of a <code>Cluster</code> CR:</li>
-</ul>
+<li>
+<p>Example of a <code>Cluster</code> CR:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Cluster.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span>
@@ -1266,13 +1266,13 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">  </span><span class="nt">varsConfRef</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-vars-conf</span>
-<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w">                   </span><span class="c1"># key field: specifies the Secret of the ssh private key for cluster deployment</span>
+<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w"> </span><span class="c1"># key field: specifies the Secret of the ssh private key for cluster deployment</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-ssh-auth</span>
 </code></pre></div>
-<ul>
-<li>Example of a <code>ClusterOperation</code> CR:</li>
-</ul>
+</li>
+<li>
+<p>Example of a <code>ClusterOperation</code> CR:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ClusterOperation.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
@@ -1295,13 +1295,15 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
 </code></pre></div>
+</li>
+</ul>
 <h2 id="deploy-a-cluster">Deploy a cluster<a class="headerlink" href="#deploy-a-cluster" title="Permanent link">&para;</a></h2>
-<p>Suppose all our YAML manifests are stored in the <code>create_cluster</code> directory:</p>
+<p>Suppose all YAML manifests are stored in the <code>create_cluster</code> directory:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>tree<span class="w"> </span>create_cluster/
 create_cluster
-├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># 主机清单</span>
-├──<span class="w"> </span>SSHAuthSec.yml<span class="w">        </span><span class="c1"># SSH私钥</span>
-├──<span class="w"> </span>VarsConfCM.yml<span class="w">        </span><span class="c1"># 集群参数</span>
+├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># host list</span>
+├──<span class="w"> </span>SSHAuthSec.yml<span class="w">        </span><span class="c1"># SSH key</span>
+├──<span class="w"> </span>VarsConfCM.yml<span class="w">        </span><span class="c1"># cluster parameters</span>
 ├──<span class="w"> </span>Cluster.yml<span class="w">           </span><span class="c1"># Cluster CR</span>
 └──<span class="w"> </span>ClusterOperation.yml<span class="w">  </span><span class="c1"># ClusterOperation CR</span>
 </code></pre></div>

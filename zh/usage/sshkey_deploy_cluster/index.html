@@ -23,7 +23,7 @@
     
     
       
-        <title>以SSH秘钥方式部署集群 - Kubean</title>
+        <title>以 SSH 密钥方式部署集群 - Kubean</title>
       
     
     
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              以SSH秘钥方式部署集群
+              以 SSH 密钥方式部署集群
             
           </span>
         </div>
@@ -519,12 +519,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          以SSH秘钥方式部署集群
+          以 SSH 密钥方式部署集群
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        以SSH秘钥方式部署集群
+        以 SSH 密钥方式部署集群
       </a>
       
         
@@ -551,14 +551,14 @@
       
         <li class="md-nav__item">
   <a href="#ssh_1" class="md-nav__link">
-    SSH秘钥的生成与分发
+    SSH 密钥的生成与分发
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#secret" class="md-nav__link">
-    使用私钥制作Secret
+    使用私钥制作 Secret
   </a>
   
 </li>
@@ -579,7 +579,7 @@
       
         <li class="md-nav__item">
   <a href="#kubean" class="md-nav__link">
-    准备KuBean的自定义资源
+    准备 Kubean 的自定义资源
   </a>
   
 </li>
@@ -1075,14 +1075,14 @@
       
         <li class="md-nav__item">
   <a href="#ssh_1" class="md-nav__link">
-    SSH秘钥的生成与分发
+    SSH 密钥的生成与分发
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#secret" class="md-nav__link">
-    使用私钥制作Secret
+    使用私钥制作 Secret
   </a>
   
 </li>
@@ -1103,7 +1103,7 @@
       
         <li class="md-nav__item">
   <a href="#kubean" class="md-nav__link">
-    准备KuBean的自定义资源
+    准备 Kubean 的自定义资源
   </a>
   
 </li>
@@ -1133,20 +1133,20 @@
   
 
 
-<h1 id="ssh">以SSH秘钥方式部署集群<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h1>
+<h1 id="ssh">以 SSH 密钥方式部署集群<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h1>
 <h2 id="_1">内容<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ul>
-<li>✓ <a href="#SSH秘钥的生成与分发">1. SSH 秘钥的生成与分发</a></li>
+<li>✓ <a href="#SSH密钥的生成与分发">1. SSH 密钥的生成与分发</a></li>
 <li>✓ <a href="#使用私钥制作Secret">2. 使用私钥制作 Secret</a></li>
 <li>✓ <a href="#创建主机清单配置">3. 创建主机清单配置</a></li>
-<li>✓ <a href="#制备部署集群的配置参数">3. 制备部署集群的配置参数</a></li>
-<li>✓ <a href="#准备KuBean的自定义资源">4. 准备 KuBean 的自定义资源</a></li>
-<li>✓ <a href="#开始部署集群">5. 开始部署集群</a></li>
+<li>✓ <a href="#制备部署集群的配置参数">4. 制备部署集群的配置参数</a></li>
+<li>✓ <a href="#准备Kubean的自定义资源">5. 准备 Kubean 的自定义资源</a></li>
+<li>✓ <a href="#开始部署集群">6. 开始部署集群</a></li>
 </ul>
-<h2 id="ssh_1">SSH秘钥的生成与分发<a class="headerlink" href="#ssh_1" title="Permanent link">&para;</a></h2>
+<h2 id="ssh_1">SSH 密钥的生成与分发<a class="headerlink" href="#ssh_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li>通过 <code>ssh-keygen</code> 命令生成公私钥对，比如：</li>
-</ol>
+<li>
+<p>通过 <code>ssh-keygen</code> 命令生成公私钥对，比如：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$HOME</span>/.ssh/id_rsa
 Generating<span class="w"> </span>public/private<span class="w"> </span>rsa<span class="w"> </span>key<span class="w"> </span>pair.
 Created<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/root/.ssh&#39;</span>.
@@ -1173,28 +1173,26 @@ $<span class="w"> </span>ls<span class="w"> </span>/root/.ssh/id_rsa*<span class
 -rw-------.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">1</span>.7K<span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa<span class="w">         </span><span class="c1"># 私钥</span>
 -rw-r--r--.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w">  </span><span class="m">408</span><span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w">     </span><span class="c1"># 公钥</span>
 </code></pre></div>
-<ol>
-<li>分发公钥到集群的各个节点：</li>
-</ol>
+</li>
+<li>
+<p>分发公钥到集群的各个节点：</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 比如指定将公钥分发至 `192.168.10.11` `192.168.10.12` 两个节点</span>
 $<span class="w"> </span><span class="nb">declare</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">IPS</span><span class="o">=(</span><span class="m">192</span>.168.10.11<span class="w"> </span><span class="m">192</span>.168.10.12<span class="o">)</span>
 
 <span class="c1"># 遍历节点 IP 分发公钥(/root/.ssh/id_rsa.pub)，假设用户名为: root, 密码为: kubean</span>
 $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;kubean&quot;</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w"> </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div>
-<h2 id="secret">使用私钥制作Secret<a class="headerlink" href="#secret" title="Permanent link">&para;</a></h2>
-<ol>
-<li>通过 kubectl 命令可以生成私钥的 Secret:</li>
+</li>
 </ol>
+<h2 id="secret">使用私钥制作 Secret<a class="headerlink" href="#secret" title="Permanent link">&para;</a></h2>
+<p>通过 kubectl 命令生成私钥的 Secret：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span><span class="se">\ </span><span class="w">                           </span><span class="c1"># 指定命名空间 kubean-system</span>
 <span class="w">    </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sample-ssh-auth<span class="w"> </span><span class="se">\ </span><span class="w">            </span><span class="c1"># 指定 secret 名称为 sample-ssh-auth</span>
 <span class="w">    </span>--type<span class="o">=</span><span class="s1">&#39;kubernetes.io/ssh-auth&#39;</span><span class="w"> </span><span class="se">\ </span><span class="w">                  </span><span class="c1"># 指定 secret 类型为 kubernetes.io/ssh-auth</span>
 <span class="w">    </span>--from-file<span class="o">=</span>ssh-privatekey<span class="o">=</span>/root/.ssh/id_rsa<span class="w"> </span><span class="se">\ </span><span class="w">     </span><span class="c1"># 指定 ssh 私钥文件路径</span>
 <span class="w">    </span>--dry-run<span class="o">=</span>client<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>SSHAuthSec.yml<span class="w">           </span><span class="c1"># 指定 secret yaml 文件生成路径</span>
 </code></pre></div>
-<ol>
-<li>生成的 <code>SSHAuthSec.yml</code> 内容大致如下所示：</li>
-</ol>
+<p>生成的 <code>SSHAuthSec.yml</code> 内容大致如下所示：</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># SSHAuthSec.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
@@ -1207,7 +1205,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">  </span><span class="nt">ssh-privatekey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...</span>
 </code></pre></div>
 <h2 id="_2">创建主机清单配置<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>示例：主机清单 HostsConfCM.yml 内容大致如下：</p>
+<p>示例：主机清单 <code>HostsConfCM.yml</code> 内容大致如下：</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># HostsConfCM.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
@@ -1245,10 +1243,11 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">hosts: {}</span>
 </code></pre></div>
 <blockquote>
-<p>注： 由于采用私钥登录，所以主机信息中不需要填写用户名密码(即: ansible_user、ansible_password)</p>
+<p>注：由于采用私钥登录，所以主机信息中不需要填写用户名密码（即：ansible_user、ansible_password）</p>
 </blockquote>
 <h2 id="_3">制备部署集群的配置参数<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>集群配置参数 VarsConfCM.yml 的内容，可以参考: <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>。</p>
+<p>集群配置参数 <code>VarsConfCM.yml</code>的内容，可以参考
+<a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>。</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># VarsConfCM.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
@@ -1266,8 +1265,10 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">    </span><span class="no">ntp_enabled: true</span>
 <span class="w">    </span><span class="no">...</span>
 </code></pre></div>
-<h2 id="kubean">准备KuBean的自定义资源<a class="headerlink" href="#kubean" title="Permanent link">&para;</a></h2>
-<p>(1). Cluster 自定义资源内容示例</p>
+<h2 id="kubean">准备 Kubean 的自定义资源<a class="headerlink" href="#kubean" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Cluster 自定义资源内容示例</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Cluster.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span>
@@ -1280,11 +1281,13 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">  </span><span class="nt">varsConfRef</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-vars-conf</span>
-<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w">                </span><span class="c1"># 关键属性，指定集群部署期间的 ssh 私钥 secret</span>
+<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w"> </span><span class="c1"># 关键属性，指定集群部署期间的 ssh 私钥 secret</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-ssh-auth</span>
 </code></pre></div>
-<p>(2). ClusterOperation 自定义资源内容示例</p>
+</li>
+<li>
+<p>ClusterOperation 自定义资源内容示例</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ClusterOperation.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
@@ -1307,8 +1310,10 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
 </code></pre></div>
+</li>
+</ul>
 <h2 id="_4">开始部署集群<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<p>假设我们的所有 yaml 清单都存放在 create_cluster 目录：</p>
+<p>假设所有 YAML 清单都存放在 <code>create_cluster</code> 目录：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>tree<span class="w"> </span>create_cluster/
 create_cluster
 ├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># 主机清单</span>
@@ -1317,8 +1322,8 @@ create_cluster
 ├──<span class="w"> </span>Cluster.yml<span class="w">           </span><span class="c1"># Cluster CR</span>
 └──<span class="w"> </span>ClusterOperation.yml<span class="w">  </span><span class="c1"># ClusterOperation CR</span>
 </code></pre></div>
-<p>通过 kubectl apply 开始部署集群:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>create_cluster/
+<p>通过 <code>kubectl apply</code> 开始部署集群:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>create_cluster/
 </code></pre></div>
 
 
