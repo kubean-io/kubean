@@ -76,7 +76,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: kubespray base image build
-      uses: docker/build-push-action@v4.0.0
+      uses: docker/build-push-action@v4.1.1
       with:
         context: ./build/images/kubespray
         build-args: |
