@@ -15,7 +15,7 @@ spec:
       action: ping.yml
 
     - actionType: playbook
-      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
+      action: enable-repo.yml
       extraArgs: |
         -e "{repo_list: ['{offline_minio_url}/kubean/centos/\$releasever/os/\$basearch','{offline_minio_url}/kubean/centos-iso/\$releasever/os/\$basearch']}"
 
