@@ -123,10 +123,10 @@ func (c *Controller) FetchGlobalInfoManifest() (*manifestv1alpha1.Manifest, erro
 	return global, nil
 }
 
-func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.ClusterOperation, fetchJobStatus func(*clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error)) (bool, error) {
+func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.ClusterOperation, fetchJobStatus func(*clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error)) (bool, error) {
 	if clusterOps.Status.Status == clusteroperationv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
 		// need fetch jobStatus again when the last status of job is running
-		jobStatus, err := fetchJobStatus(clusterOps)
+		jobStatus, completionTime, err := fetchJobStatus(clusterOps)
 		if err != nil {
 			return false, err
 		}
@@ -137,6 +137,9 @@ func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.Clust
 		// the status  succeed or failed
 		clusterOps.Status.Status = jobStatus
 		clusterOps.Status.EndTime = &metav1.Time{Time: time.Now()}
+		if completionTime != nil {
+			clusterOps.Status.EndTime = completionTime
+		}
 		if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 			return false, err
 		}
@@ -146,29 +149,29 @@ func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.Clust
 	return false, nil
 }
 
-func (c *Controller) FetchJobStatus(clusterOps *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
+func (c *Controller) FetchJobConditionStatusAndCompletionTime(clusterOps *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
 	if clusterOps.Status.JobRef.IsEmpty() {
-		return "", fmt.Errorf("clusterOps %s no job", clusterOps.Name)
+		return "", nil, fmt.Errorf("clusterOps %s no job", clusterOps.Name)
 	}
 	targetJob, err := c.ClientSet.BatchV1().Jobs(clusterOps.Status.JobRef.NameSpace).Get(context.Background(), clusterOps.Status.JobRef.Name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		// maybe the job is removed.
 		klog.Errorf("clusterOps %s  job %s not found", clusterOps.Name, clusterOps.Status.JobRef.Name)
-		return clusteroperationv1alpha1.FailedStatus, nil
+		return clusteroperationv1alpha1.FailedStatus, nil, nil
 	}
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	// according to the job condtions, return success or failed
 	for _, contion := range targetJob.Status.Conditions {
 		if contion.Type == batchv1.JobComplete && contion.Status == corev1.ConditionTrue {
-			return clusteroperationv1alpha1.SucceededStatus, nil
+			return clusteroperationv1alpha1.SucceededStatus, targetJob.Status.CompletionTime, nil
 		} else if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
-			return clusteroperationv1alpha1.FailedStatus, nil
+			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil
 		}
 	}
 
-	return clusteroperationv1alpha1.RunningStatus, nil
+	return clusteroperationv1alpha1.RunningStatus, nil, nil
 }
 
 func (c *Controller) ListClusterOps(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
@@ -320,7 +323,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
-	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobStatus)
+	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobConditionStatusAndCompletionTime)
 	if err != nil {
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err

@@ -93,6 +93,7 @@
         ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
         yq -i '.{{inventory_hostname}}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache
         yq -i '.{{inventory_hostname}}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache
+        yq -i '.{{inventory_hostname}}.pkg_mgr="{{ ansible_pkg_mgr }}"' /tmp/kubean_data_temp_cache
       ignore_errors: true
       delegate_to: localhost
       when:

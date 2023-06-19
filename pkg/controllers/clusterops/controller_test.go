@@ -89,8 +89,8 @@ func TestUpdateStatusLoop(t *testing.T) {
 			name: "the status is Running and the result of fetchJobStatus is err",
 			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
 				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
-					return "", fmt.Errorf("one error")
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
+					return "", nil, fmt.Errorf("one error")
 				})
 				return err != nil && err.Error() == "one error" && !needRequeue
 			},
@@ -100,8 +100,8 @@ func TestUpdateStatusLoop(t *testing.T) {
 			name: "the status is Running and the result of fetchJobStatus is still Running",
 			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
 				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
-					return clusteroperationv1alpha1.RunningStatus, nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
+					return clusteroperationv1alpha1.RunningStatus, nil, nil
 				})
 				return err == nil && needRequeue
 			},
@@ -112,8 +112,8 @@ func TestUpdateStatusLoop(t *testing.T) {
 			args: func(ops *clusteroperationv1alpha1.ClusterOperation) bool {
 				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
-					return clusteroperationv1alpha1.SucceededStatus, nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
+					return clusteroperationv1alpha1.SucceededStatus, &metav1.Time{}, nil
 				})
 				resultOps := &clusteroperationv1alpha1.ClusterOperation{}
 				controller.Client.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, resultOps)
@@ -130,8 +130,8 @@ func TestUpdateStatusLoop(t *testing.T) {
 				controller.Client.Get(context.Background(), client.ObjectKey{Name: "clusteropsname"}, ops)
 				ops.Status.Status = clusteroperationv1alpha1.RunningStatus
 				ops.Status.EndTime = nil
-				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, error) {
-					return clusteroperationv1alpha1.FailedStatus, nil
+				needRequeue, err := controller.UpdateStatusLoop(ops, func(ops *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
+					return clusteroperationv1alpha1.FailedStatus, nil, nil
 				})
 				return err == nil && !needRequeue && ops.Status.EndTime != nil && ops.Status.Status == clusteroperationv1alpha1.FailedStatus
 			},
@@ -1745,7 +1745,7 @@ func Test_FetchJobStatus(t *testing.T) {
 			name: "jobRef is empty",
 			args: func() bool {
 				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
-				_, err := controller.FetchJobStatus(clusterOps)
+				_, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
 				return err != nil
 			},
 			want: true,
@@ -1755,7 +1755,7 @@ func Test_FetchJobStatus(t *testing.T) {
 			args: func() bool {
 				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job123"}
-				status, err := controller.FetchJobStatus(clusterOps)
+				status, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
 				return err == nil && status == clusteroperationv1alpha1.FailedStatus
 			},
 			want: true,
@@ -1784,7 +1784,7 @@ func Test_FetchJobStatus(t *testing.T) {
 					},
 				}
 				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
-				status, err := controller.FetchJobStatus(clusterOps)
+				status, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
 				return err == nil && status == clusteroperationv1alpha1.SucceededStatus
 			},
 			want: true,
@@ -1813,7 +1813,7 @@ func Test_FetchJobStatus(t *testing.T) {
 					},
 				}
 				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
-				status, err := controller.FetchJobStatus(clusterOps)
+				status, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
 				return err == nil && status == clusteroperationv1alpha1.FailedStatus
 			},
 			want: true,
@@ -1834,8 +1834,8 @@ func Test_FetchJobStatus(t *testing.T) {
 					},
 				}
 				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
-				status, err := controller.FetchJobStatus(clusterOps)
-				return err == nil && status == clusteroperationv1alpha1.RunningStatus
+				status, completionTime, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.RunningStatus && completionTime == nil
 			},
 			want: true,
 		},
