@@ -1,29 +1,39 @@
-# 自定义 Action
+# Custom Actions
 
-### 动机
-对于使用者来讲，Kubean 和 Kubesprary 的产物都是 OCI 镜像、 helm chart 及 K8s manifests。在已拿到这些产物的情况下要自定义一些操作，也能做到，但是会比较复杂，需要手动修改不少的配置。希望能够简化这一过程。
+## Motivation
 
-### 目标
-提供一种便捷的方式能够让使用者使用一些自定义的操作来查看、修改和控制集群节点的状态。
+For users, the products of Kubean and Kubespray are OCI images, Helm charts, and K8s manifests.
+If you want to customize some operations after obtaining these products, it is possible but can
+be complicated and requires a lot of manual configuration modifications. We hope to simplify this process.
 
-### CRD 设计
-1. 增加 ActionSource 字段以声明 Action 来源，其值目前支持：
-   - builtin（缺省值） 
+## Goal
 
-     表明使用 kubean 内建 ansible playbook 或在 manifest 内联的 shell 脚本
+Provide a convenient way for users to use customized actions to view, modify, and control the status of cluster nodes.
+
+## CRD Design
+
+1. Add the ActionSource field to declare the source of the action, whose value currently supports:
+
+   - builtin (default)
+
+        Indicates the use of Kubean's built-in Ansible playbook or shell script in the manifest.
 
    - configmap
 
-     表明需要的 ansible playbook 或 shell 脚本通过 引用 K8s configmap 来获取
+        Indicates that the required Ansible playbook or shell script is obtained by referencing a K8s ConfigMap.
 
-2. 增加 ActionSourceRef 字段以声明当 ActionSource 值为 configmap 时所引用的资源对象，且仅当 ActionSource 为 configmap 时此字段才生效，其格式为：
+2. Add the ActionSourceRef field to declare the resource object referenced
+   when ActionSource is configmap. This field only takes effect when ActionSource is configmap,
+   and its format is:
+
     ```yaml
     actionSourceRef:
       name: <configmap name>
       namespace: <namespace of configmap>
     ```
-   
-配置示例：
+
+Configuration example:
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
