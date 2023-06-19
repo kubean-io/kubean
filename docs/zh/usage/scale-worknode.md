@@ -2,23 +2,23 @@
 
 在软件开发运维的过程中，业务的发展往往需要添加集群的工作节点以满足业务增长，对于使用 kubean 部署的集群，在 kubean 中我们可以使用声明式的方式，快速扩缩容集群工作节点。
 
-在您克隆至本地的 `kubean/example/scale` 文件内，同样提供了工作节点扩缩容的样例模版：
+在您克隆至本地的 `kubean/example/scale` 文件内，同样提供了工作节点扩缩容的样例模板：
 
 <details open>
 <summary> sacle 文件内主要的配置文件及用途如下：</summary>
 
 ```yaml
     scale
-    ├── 1.addWorkNode                             # 增加工作节点模版
+    ├── 1.addWorkNode                             # 增加工作节点模板
     │   ├── ClusterOperation.yml                       # kubean 版本及任务配置
     │   └── HostsConfCM.yml                            #当前集群的节点信息配置
-    └── 2.delWorkNode                             # 删除工作节点模版
+    └── 2.delWorkNode                             # 删除工作节点模板
     │   ├── ClusterOperation.yml                       # kubean 版本及任务配置
     │   └── HostsConfCM.yml                             #当前集群的节点信息配置
 ```
 </details>
 
-观察伸缩配置模版 `scale` 文件可以发现，对集群工作节点进行扩缩容只需执行 `HostsConfCM.yml` 和 `ClusterOperation.yml` 两个配置文件，并将新增节点信息等参数改成替换成您的真实参数。
+观察伸缩配置模板 `scale` 文件可以发现，对集群工作节点进行扩缩容只需执行 `HostsConfCM.yml` 和 `ClusterOperation.yml` 两个配置文件，并将新增节点信息等参数改成替换成您的真实参数。
 
 下面以[使用 all-in-one 模式部署的单节点集群](./all-in-one-install.md)为例，来演示集群节点的扩缩容操作。
 > 注意：执行集群扩缩容前，您必须已经使用 kubean 完成了一套集群的部署。
@@ -29,13 +29,13 @@
 
 我们要在原有的 all-in-one 模式中，对名为 `mini-hosts-conf` 的 ConfigMap 进行新增节点配置，在原来 `node1` 主节点的基础上, 新增 `node2` 工作节点；
 
-具体地，我们可以进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑已准备好的节点配置 ConfigMap 模版 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
+具体地，我们可以进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑已准备好的节点配置 ConfigMap 模板 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
 
   - `<IP2>`：节点 IP。
   - `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
   - `<PASSWORD>`：登陆节点的密码。
 
-`kubean/examples/scale/1.addWorkNode/` 路径下 **`HostsConfCM.yml`** 的模版内容如下：
+`kubean/examples/scale/1.addWorkNode/` 路径下 **`HostsConfCM.yml`** 的模板内容如下：
 
 <details>
 <summary> HostsConfCM.yml 模板</summary>
@@ -176,11 +176,11 @@ data:
 
 #### 2. 通过 ClusterOperation.yml 新增扩容任务  
 
-进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/scale/1.addWorkNode/` 路径，编辑模板 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
   - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
-`kubean/examples/scale/1.addWorkNode/` 路径下 **`ClusterOperation.yml`** 的模版内容如下：
+`kubean/examples/scale/1.addWorkNode/` 路径下 **`ClusterOperation.yml`** 的模板内容如下：
 
 ```yaml
 apiVersion: kubean.io/v1alpha1
@@ -234,11 +234,11 @@ $ kubectl apply -f examples/install/scale/1.addWorkNode/
 
 #### 1. 通过 ClusterOperation.yml 新增缩容任务 
 
-进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑模板 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
   - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
-`kubean/examples/scale/2.delWorkNode/` 路径下 **`ClusterOperation.yml`** 的模版内容如下：
+`kubean/examples/scale/2.delWorkNode/` 路径下 **`ClusterOperation.yml`** 的模板内容如下：
 
 ```yaml
 apiVersion: kubean.io/v1alpha1
@@ -296,7 +296,7 @@ $ kubectl -n kubean-system get pod | grep cluster-mini-dwn-ops
 
 我们已经通过如上两步操作执行了缩容任务，待缩容任务执行完成后，`node2` 将从现有集群中永久移除，则此时我们还需要完成最后一步，将节点配置相关 Configmap 中的 node2 信息移除;
 
-进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑已准备好的节点配置模版 `HostsConfCM.yml`，删除需要移除的工作节点配置。
+进入 `kubean/examples/scale/2.delWorkNode/` 路径，编辑已准备好的节点配置模板 `HostsConfCM.yml`，删除需要移除的工作节点配置。
 
 **删除参数如下：**
 

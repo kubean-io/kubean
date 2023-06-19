@@ -1,6 +1,6 @@
 # 集群版本升级
 
-本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 `kubean/example/upgrade` 文件内，同样提供了集群版本升级的样例模版：
+本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 `kubean/example/upgrade` 文件内，同样提供了集群版本升级的样例模板：
 
 <details open>
 <summary> upgrade 文件内主要的配置文件及用途如下：</summary>
@@ -17,11 +17,11 @@
 
 #### 1. 新增升级任务
 
-进入 `kubean/examples/upgrade/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/upgrade/` 路径，编辑模板 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
   - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
-`kubean/examples/upgrade/` 路径下 **`ClusterOperation.yml`** 的模版内容如下：
+`kubean/examples/upgrade/` 路径下 **`ClusterOperation.yml`** 的模板内容如下：
 
 ```yaml
 apiVersion: kubean.io/v1alpha1
@@ -41,9 +41,9 @@ spec:
 
 #### 2. 指定集群升级版本
 
-进入 `kubean/examples/upgrade/` 路径，编辑模版 `VarsConfCM.yml`，通过配置 `kube_version` 参数，指定集群升级的版本。
+进入 `kubean/examples/upgrade/` 路径，编辑模板 `VarsConfCM.yml`，通过配置 `kube_version` 参数，指定集群升级的版本。
 
-`kubean/examples/upgrade/` 路径下 **`VarsConfCM.yml`** 的模版内容如下：
+`kubean/examples/upgrade/` 路径下 **`VarsConfCM.yml`** 的模板内容如下：
 
 ```yaml
 apiVersion: v1

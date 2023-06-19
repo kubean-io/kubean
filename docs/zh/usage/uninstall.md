@@ -1,6 +1,6 @@
 # 集群卸载
 
-本节将向您介绍如何使用 kubean 卸载集群。在您克隆至本地的 `kubean/example/uninstall` 文件内，同样提供了卸载集群的样例模版：
+本节将向您介绍如何使用 kubean 卸载集群。在您克隆至本地的 `kubean/example/uninstall` 文件内，同样提供了卸载集群的样例模板：
 
 <details open>
 <summary> uninsatall 文件内主要的配置文件及用途如下：</summary>
@@ -15,11 +15,11 @@
 > 注意：执行集群卸载前，您必须已经使用 kubean 完成了一套集群的部署。
 
 #### 1. 新增卸载任务
-进入 `kubean/examples/uninstall/` 路径，编辑模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/uninstall/` 路径，编辑模板 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
   - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
-`kubean/examples/uninstall/` 路径下 **`ClusterOperation.yml`** 的模版内容如下：
+`kubean/examples/uninstall/` 路径下 **`ClusterOperation.yml`** 的模板内容如下：
 
 ```yaml
 apiVersion: kubean.io/v1alpha1
