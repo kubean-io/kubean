@@ -14,6 +14,7 @@ fi
 sed -i "/^version/c ${CHART_VERSION}" charts/kubean/Chart.yaml
 # helm upgrade
 helm upgrade \
+    --burst-limit=250 \
     --install \
     "${RELEASE_NAME}" \
     -n "${TARGET_NS}" \
