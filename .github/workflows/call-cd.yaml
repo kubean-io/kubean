@@ -62,7 +62,7 @@ jobs:
               chmod g-r kubeconfig
 
               # cd to alpha
-              make local-chart-to-deploy $KUBEAN_IMAGE_REPO
+              make local-chart-to-deploy
               
             else
               echo 'enviroment not exist'
