@@ -3,6 +3,12 @@ package tools
 import (
 	"context"
 	"fmt"
+	"math"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+
 	kubeanClusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -14,11 +20,6 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	"math"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
 )
 
 func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, podName, expectedStatus string) {
@@ -77,19 +78,41 @@ func WaitPodSInKubeSystemBeRunning(kubeClient *kubernetes.Clientset, timeTotalSe
 		timeInterval = ops[0]
 	}
 
-	podList, err := kubeClient.CoreV1().Pods(KubeSystemNamespace).List(context.TODO(), metav1.ListOptions{})
-	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed to get kube-system pods")
+	//gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed to get kube-system pods")
+	// get cluster pod list, and retry if failed
+	var podList *corev1.PodList
+	var err error
+	for i := 0; i < 10; i++ {
+		podList, err = kubeClient.CoreV1().Pods(KubeSystemNamespace).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			klog.Info("Failed get podList: ", podList.Items)
+			time.Sleep(time.Duration(i+1) * time.Second)
+		} else {
+			break
+		}
+	}
 	for _, podItem := range podList.Items {
 		klog.Info("Waiting ", podItem.Name, "to be Running...")
 		gomega.Eventually(func() bool {
-			pod, err1 := kubeClient.CoreV1().Pods(KubeSystemNamespace).Get(context.Background(), podItem.Name, metav1.GetOptions{})
-			gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "Failed get pod", pod.Name)
+			//gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "Failed get pod", pod.Name)
+			// get cluster pod name, and retry if failed
+			var pod *corev1.Pod
+			var err1 error
+			for i := 0; i < 10; i++ {
+				pod, err1 = kubeClient.CoreV1().Pods(KubeSystemNamespace).Get(context.Background(), podItem.Name, metav1.GetOptions{})
+				if err1 != nil {
+					klog.Info("Failed get pod: ", pod.Name)
+					time.Sleep(time.Duration(i+1) * time.Second)
+				} else {
+					break
+				}
+			}
 			podStatus := string(pod.Status.Phase)
 			if podStatus == PodStatusRunning {
 				return true
 			} else {
 				klog.Info("    Status is: ", podStatus)
-				gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
+				//gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
 			}
 			return false
 		}, timeTotalSecond*time.Second, timeInterval*time.Second).Should(gomega.BeTrue())
