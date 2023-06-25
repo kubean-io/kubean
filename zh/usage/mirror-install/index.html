@@ -1171,8 +1171,8 @@
 </code></pre></div>
 <hr />
 <h2 id="_3">开始部署<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>本教程将使用您克隆至本地的 <code>kubean/example/2.mirror</code> 文件作为范例模版，进行集群加速部署演示。</p>
-<p>在加速部署模版 <code>2.mirror</code> 内已经内置了加速参数配置，您只需要将 <code>/2.mirror</code>文件路径下的 <strong><code>HostsConfCM.yml</code> </strong> 和 <strong><code>ClusterOperation.yml</code></strong> 两个配置模版文件内的主机等信息改成您的真实参数。</p>
+<p>本教程将使用您克隆至本地的 <code>kubean/example/2.mirror</code> 文件作为范例模板，进行集群加速部署演示。</p>
+<p>在加速部署模板 <code>2.mirror</code> 内已经内置了加速参数配置，您只需要将 <code>/2.mirror</code>文件路径下的 <strong><code>HostsConfCM.yml</code> </strong> 和 <strong><code>ClusterOperation.yml</code></strong> 两个配置模板文件内的主机等信息改成您的真实参数。</p>
 <details open>
 <summary> 2.mirror` 文件内主要的配置文件及用途如下：</summary>
 
@@ -1185,7 +1185,7 @@
 </details>
 
 <h4 id="1-hostsconfcmyml">1. 配置主机配置参数 HostsConfCM.yml<a class="headerlink" href="#1-hostsconfcmyml" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/install/2.mirror/</code> 路径，编辑待建集群节点配置信息模版 <code>HostsConfCM.yml</code>，将下列参数替换为您的真实参数：</p>
+<p>进入 <code>kubean/examples/install/2.mirror/</code> 路径，编辑待建集群节点配置信息模板 <code>HostsConfCM.yml</code>，将下列参数替换为您的真实参数：</p>
 <ul>
 <li><code>&lt;IP1&gt;</code>：节点 IP。</li>
 <li><code>&lt;USERNAME&gt;</code>：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。</li>
@@ -1237,11 +1237,11 @@
 </code></pre></div>
 </details>
 
-<p>执行如下命令编辑 HostsConfCM.yml 配置模版：</p>
+<p>执行如下命令编辑 HostsConfCM.yml 配置模板：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/HostsConfCM.yml
 </code></pre></div>
 <h4 id="2-kubean-clusteroperationyml">2. 配置 kubean 任务配置参数 ClusterOperation.yml<a class="headerlink" href="#2-kubean-clusteroperationyml" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/install/2.mirror/</code> 路径，编辑待建集群节点配置信息模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
+<p>进入 <code>kubean/examples/install/2.mirror/</code> 路径，编辑待建集群节点配置信息模板 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
 <ul>
 <li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
 </ul>
@@ -1271,7 +1271,7 @@
 </code></pre></div>
 </details>
 
-<p>执行如下命令编辑 ClusterOperation.yml 配置模版：</p>
+<p>执行如下命令编辑 ClusterOperation.yml 配置模板：</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/ClusterOperation.yml
 </code></pre></div>
 <h4 id="3-2mirror">3.应用 2.mirror 文件下所有的配置<a class="headerlink" href="#3-2mirror" title="Permanent link">&para;</a></h4>

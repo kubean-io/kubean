@@ -1120,7 +1120,7 @@
 
 
 <h1 id="_1">集群版本升级<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p>本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 <code>kubean/example/upgrade</code> 文件内，同样提供了集群版本升级的样例模版：</p>
+<p>本节将向您介绍如何使用 kubean 升级集群的 kubernnetes 版本。在您克隆至本地的 <code>kubean/example/upgrade</code> 文件内，同样提供了集群版本升级的样例模板：</p>
 <details open>
 <summary> upgrade 文件内主要的配置文件及用途如下：</summary>
 
@@ -1135,11 +1135,11 @@
 <p>注意：执行集群版本升级前，您必须已经使用 kubean 完成了一套集群的部署。</p>
 </blockquote>
 <h4 id="1">1. 新增升级任务<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模版 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
+<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模板 <code>ClusterOperation.yml</code>，将下列参数替换为您的真实参数：</p>
 <ul>
 <li><code>&lt;TAG&gt;</code>：kubean 镜像版本，推荐使用最新版本，<a href="https://github.com/kubean-io/kubean/tags">参阅 kubean 版本列表</a>。</li>
 </ul>
-<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模版内容如下：</p>
+<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>ClusterOperation.yml</code></strong> 的模板内容如下：</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1159,8 +1159,8 @@
 </ul>
 </blockquote>
 <h4 id="2">2. 指定集群升级版本<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
-<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模版 <code>VarsConfCM.yml</code>，通过配置 <code>kube_version</code> 参数，指定集群升级的版本。</p>
-<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>VarsConfCM.yml</code></strong> 的模版内容如下：</p>
+<p>进入 <code>kubean/examples/upgrade/</code> 路径，编辑模板 <code>VarsConfCM.yml</code>，通过配置 <code>kube_version</code> 参数，指定集群升级的版本。</p>
+<p><code>kubean/examples/upgrade/</code> 路径下 <strong><code>VarsConfCM.yml</code></strong> 的模板内容如下：</p>
 <p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 <span class="nt">metadata</span><span class="p">:</span>
