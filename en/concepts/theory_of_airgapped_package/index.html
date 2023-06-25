@@ -1123,23 +1123,25 @@
 </table>
 <h2 id="how-to-build-the-assets">How to build the assets<a class="headerlink" href="#how-to-build-the-assets" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Images &amp; binaries</li>
-</ol>
+<li>
+<p>Images &amp; binaries</p>
 <p>As stated in Kubespray <a href="https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/README.md">offline deployment guide</a>,
-   Kubespray already provides scripts to generate images and binaries list. (Thanks to great Kubespray! )</p>
+Kubespray already provides scripts to generate images and binaries list. (Thanks to great Kubespray! )</p>
 <p>With help of Kubespray <a href="https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/generate_list.sh">script to generate binaries &amp; images list</a>,
-   then we can use <a href="https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh">manage-offline-files.sh</a> to download those binaries and images.
-   At last, Kubean provides an <a href="https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml">offline-build.sh</a> to make them together.</p>
-<ol>
-<li>os-packages (deb/rpm)</li>
-</ol>
+then we can use <a href="https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh">manage-offline-files.sh</a> to download those binaries and images.
+At last, Kubean provides an <a href="https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml">offline-build.sh</a> to make them together.</p>
+</li>
+<li>
+<p>os-packages (deb/rpm)</p>
 <p>During the k8s installation, a few packages could not be installed as binaries, so we have to install them via deb/rpm.
-   The <a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/packages.yml">os packages list</a> defines what packages will be involved.</p>
+The <a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/packages.yml">os packages list</a> defines what packages will be involved.</p>
 <p>Github Action will build packages in different OS (as Qemu) via <code>dnf/apt</code> to download and archive RPM/DEB packages.</p>
-<ol>
-<li>CI process</li>
-</ol>
+</li>
+<li>
+<p>CI process</p>
 <p>The offline assets are generated/managed by <a href="https://github.com/kubean-io/kubean/tree/main/.github/workflows">Github Action scripts</a>.</p>
+</li>
+</ol>
 
 
 

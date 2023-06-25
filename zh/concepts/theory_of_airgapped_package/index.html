@@ -1123,25 +1123,27 @@
 </table>
 <h2 id="_2">如何构建离线文件<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ol>
-<li>镜像和二进制文件</li>
-</ol>
+<li>
+<p>镜像和二进制文件</p>
 <p>类似 Kubespray <a href="https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/README.md">离线部署指南</a>所述，
-   Kubespray 提供了一些脚本来生成镜像和二进制文件列表（感谢 Kubespray！）</p>
+Kubespray 提供了一些脚本来生成镜像和二进制文件列表（感谢 Kubespray！）</p>
 <p>得益于 Kubespray <a href="https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/generate_list.sh">生成二进制和镜像列表的脚本</a>，
-   我们可以使用 <a href="https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh">manage-offline-files.sh</a>
-   下载这些二进制文件和镜像。
-   随后 Kubean 提供了 <a href="https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml">offline-build.sh</a>
-   将所有这些融合于一起。</p>
-<ol>
-<li>os-packages (deb/rpm)</li>
-</ol>
+我们可以使用 <a href="https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh">manage-offline-files.sh</a>
+下载这些二进制文件和镜像。
+随后 Kubean 提供了 <a href="https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml">offline-build.sh</a>
+将所有这些融合于一起。</p>
+</li>
+<li>
+<p>os-packages (deb/rpm)</p>
 <p>在 K8s 安装期间，有些文件包不会随二进制文件一起安装，因此我们必须通过 deb/rpm 来安装这些文件包。
-   <a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/packages.yml">os packages 列表</a>定义了所涉及的文件包。</p>
+<a href="https://github.com/kubean-io/kubean/blob/main/build/os-packages/packages.yml">os packages 列表</a>定义了所涉及的文件包。</p>
 <p>Github Action 将通过 <code>dnf/apt</code> 构建不同操作系统的文件包（例如 Qemu），便于下载和归档 RPM/DEB 包。</p>
-<ol>
-<li>CI 流程</li>
-</ol>
+</li>
+<li>
+<p>CI 流程</p>
 <p>离线文件包由 <a href="https://github.com/kubean-io/kubean/tree/main/.github/workflows">Github Action 脚本</a>生成和管理。</p>
+</li>
+</ol>
 
 
 
