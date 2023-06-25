@@ -1,22 +1,23 @@
-# 集群部署
+# Cluster Installation
 
-前置条件：通过 helm 安装 [kubean charts](https://github.com/kubean-io/kubean-helm-chart).
+Preconditions: Install [kubean charts](https://github.com/kubean-io/kubean-helm-chart) via helm.
 
 ---
 
-## 单节点集群部署
+## Install in a cluster with a single node
 
-> 参考 [`minimal`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/) 样例模板
+> Refer to [`minimal`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/) sample template
 
-参照模板，我们将创建一个多合一的单节点集群：
+Referring to the template, we will create an all-in-one single-node cluster:
 
-#### 1. 更新 [`AllInOne.yml`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml) 中的占位符为真实值
+#### 1. Update placeholders in [`AllInOne.yml`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml) to real values
+
 * `<IP1>`
 * `<USERNAME>`
 * `<PASSWORD>`
 * `<TAG>`
 
-#### 2. 应用 [`AllInOne.yml`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml) 
+#### 2. Apply [`AllInOne.yml`](https://github.com/kubean-io/kubean/blob/main/examples/install/1.minimal/AllInOne.yml)
 
 ``` bash
 $ kubectl apply -f examples/install/1.minimal/
@@ -24,42 +25,41 @@ $ kubectl apply -f examples/install/1.minimal/
 
 ---
 
-## 加速器模式部署
+## Accelerator mode deployment
 
-> 参考 [`mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/) 样例模板
+> Refer to [`mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/) sample template
 
-#### 1. 更新 [`2.mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/) 目录中 yaml 清单的占位符为真实值
+#### 1. Update placeholders for yaml manifests in [`2.mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/) directory to real values
+
 * `<IP1>` / `<IP2>` ...
 * `<USERNAME>`
 * `<PASSWORD>`
 * `<TAG>`
 
-#### 2. 应用 [`2.mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/) 中的 yaml 清单
+#### 2. Apply the yaml manifest in [`2.mirror`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/)
 
 ``` bash
 $ kubectl apply -f examples/install/2.mirror/
 ```
 
-#### 3. 加速器镜像设置请见 [`VarsConfCM`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml)
+#### 3. Please refer to [`VarsConfCM`](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml) for accelerator mirror settings
 
-本例中使用到的加速器:
-* 二进制加速：[public binary files mirror](https://github.com/DaoCloud/public-binary-files-mirror)
-* 镜像加速：[public image mirror](https://github.com/DaoCloud/public-image-mirror)
-
----
-
-## 纯离线模式部署
-
-> 参考 [`airgap`](https://github.com/kubean-io/kubean/blob/main/examples/install/3.airgap/) 样例模板
-
-
-详细请浏览 [离线场景的使用](./airgap.md)
-
+Accelerators used in this example:
+* Binary acceleration: [public binary files mirror](https://github.com/DaoCloud/public-binary-files-mirror)
+* Mirror acceleration: [public image mirror](https://github.com/DaoCloud/public-image-mirror)
 
 ---
 
-## SSH秘钥模式部署
+## Offline installation
 
-详细请浏览 [使用 SSH 秘钥方式部署 K8S 集群](./sshkey_deploy_cluster.md)
+> Refer to [`airgap`](https://github.com/kubean-io/kubean/blob/main/examples/install/3.airgap/) sample template
+
+For details, please refer to [Use of Offline Scenarios](./airgap.md)
+
+---
+
+## SSH key mode installation
+
+For details, please refer to [Use SSH key to deploy K8S cluster](./sshkey_deploy_cluster.md)
 
 ---
