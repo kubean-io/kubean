@@ -1120,30 +1120,35 @@
 
 
 <h1 id="action">自定义 Action<a class="headerlink" href="#action" title="Permanent link">&para;</a></h1>
-<h3 id="_1">动机<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
-<p>对于使用者来讲，Kubean 和 Kubesprary 的产物都是 OCI 镜像、 helm chart 及 K8s manifests。在已拿到这些产物的情况下要自定义一些操作，也能做到，但是会比较复杂，需要手动修改不少的配置。希望能够简化这一过程。</p>
-<h3 id="_2">目标<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<h2 id="_1">动机<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>对于使用者来讲，Kubean 和 Kubesprary 的产物都是 OCI 镜像、Helm Chart 及 K8s manifest。
+在已拿到这些产物的情况下要自定义一些操作，也能做到，但是会比较复杂，需要手动修改不少的配置。希望能够简化这一过程。</p>
+<h2 id="_2">目标<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <p>提供一种便捷的方式能够让使用者使用一些自定义的操作来查看、修改和控制集群节点的状态。</p>
-<h3 id="crd">CRD 设计<a class="headerlink" href="#crd" title="Permanent link">&para;</a></h3>
+<h2 id="crd">CRD 设计<a class="headerlink" href="#crd" title="Permanent link">&para;</a></h2>
 <ol>
-<li>增加 ActionSource 字段以声明 Action 来源，其值目前支持：</li>
 <li>
-<p>builtin（缺省值） </p>
+<p>增加 ActionSource 字段以声明 Action 来源，其值目前支持：</p>
+<ul>
+<li>
+<p>builtin（缺省值）</p>
 <p>表明使用 kubean 内建 ansible playbook 或在 manifest 内联的 shell 脚本</p>
 </li>
 <li>
 <p>configmap</p>
 <p>表明需要的 ansible playbook 或 shell 脚本通过 引用 K8s configmap 来获取</p>
 </li>
+</ul>
+</li>
 <li>
-<p>增加 ActionSourceRef 字段以声明当 ActionSource 值为 configmap 时所引用的资源对象，且仅当 ActionSource 为 configmap 时此字段才生效，其格式为：
-    <div class="highlight"><pre><span></span><code><span class="nt">actionSourceRef</span><span class="p">:</span>
+<p>增加 ActionSourceRef 字段以声明当 ActionSource 值为 configmap 时所引用的资源对象，且仅当 ActionSource 为 configmap 时此字段才生效，其格式为：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">actionSourceRef</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;configmap name&gt;</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;namespace of configmap&gt;</span>
-</code></pre></div></p>
+</code></pre></div>
 </li>
 </ol>
-<p>配置示例：
+<p>配置示例：</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1183,7 +1188,7 @@
 <span class="w">      </span><span class="nt">actionSourceRef</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-demo-myaction</span>
 <span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-</code></pre></div></p>
+</code></pre></div>
 
 
 

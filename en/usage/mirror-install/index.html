@@ -404,8 +404,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
-    1.Configure Host Parameters in HostsConfCM.yml
+  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
+    1. Configure Host Parameters in HostsConfCM.yml
   </a>
   
 </li>
@@ -418,8 +418,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
-    3.Apply all configurations under the 2.mirror directory
+  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
+    3. Apply all configurations under the 2.mirror directory
   </a>
   
 </li>
@@ -522,7 +522,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/custom_action/" class="md-nav__link">
-        自定义 Action
+        Custom Actions
       </a>
     </li>
   
@@ -1116,8 +1116,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
-    1.Configure Host Parameters in HostsConfCM.yml
+  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
+    1. Configure Host Parameters in HostsConfCM.yml
   </a>
   
 </li>
@@ -1130,8 +1130,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
-    3.Apply all configurations under the 2.mirror directory
+  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
+    3. Apply all configurations under the 2.mirror directory
   </a>
   
 </li>
@@ -1185,7 +1185,7 @@ You only need to modify the host information and other relevant information in t
 </code></pre></div>
 </details>
 
-<h4 id="1configure-host-parameters-in-hostsconfcmyml">1.Configure Host Parameters in HostsConfCM.yml<a class="headerlink" href="#1configure-host-parameters-in-hostsconfcmyml" title="Permanent link">&para;</a></h4>
+<h4 id="1-configure-host-parameters-in-hostsconfcmyml">1. Configure Host Parameters in HostsConfCM.yml<a class="headerlink" href="#1-configure-host-parameters-in-hostsconfcmyml" title="Permanent link">&para;</a></h4>
 <p>Navigate to the <code>kubean/examples/install/2.mirror/</code> path and edit the <code>HostsConfCM.yml</code>template for the node configuration information of the cluster to be built. Replace the following parameters with your actual parameters:</p>
 <ul>
 <li><code>&lt;IP1&gt;</code>：Node IP.</li>
@@ -1275,7 +1275,7 @@ You only need to modify the host information and other relevant information in t
 <p>To edit the ClusterOperation.yml configuration template, run the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/ClusterOperation.yml
 </code></pre></div>
-<h4 id="3apply-all-configurations-under-the-2mirror-directory">3.Apply all configurations under the 2.mirror directory<a class="headerlink" href="#3apply-all-configurations-under-the-2mirror-directory" title="Permanent link">&para;</a></h4>
+<h4 id="3-apply-all-configurations-under-the-2mirror-directory">3. Apply all configurations under the <code>2.mirror</code> directory<a class="headerlink" href="#3-apply-all-configurations-under-the-2mirror-directory" title="Permanent link">&para;</a></h4>
 <p>After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/2.mirror
 </code></pre></div>
