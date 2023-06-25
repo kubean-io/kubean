@@ -36,26 +36,30 @@ function check_dependencies() {
 }
 
 function extract_etcd_version() {
-  kube_version=${1} ## v1.26.5
+  local kube_version=${1} ## v1.26.5
   IFS='.'
   read -ra arr <<<"${kube_version}"
   major="${arr[0]}.${arr[1]}"
-  version=$(yq ".etcd_supported_versions.\"${major}\"" kubespray/roles/download/defaults/main.yml)
-  echo "$version"
+  version=$(yq ".etcd_supported_versions.\"${major}\"" kubespray/roles/download/defaults/main/main.yml)
+  echo "${version}"
 }
 
 function extract_version() {
-  version_name="${1}"  ## cni_version
-  dir=${2:-"download"} ## kubespray-defaults  or download
-  version=$(yq ".${version_name}" kubespray/roles/"${dir}"/defaults/main.*ml)
-  echo "$version"
+  local version_name="${1}"  ## cni_version
+  local dir="${2}" ## kubespray-defaults  or download
+  local version
+  version=$(yq ".${version_name}" kubespray/roles/download/defaults/main/main.yml)
+  if [[ -n "${dir}" ]]; then
+    version=$(yq ".${version_name}" kubespray/roles/"${dir}"/defaults/main.*ml)
+  fi
+  echo "${version}"
 }
 
 function extract_version_range() {
-  range_path="${1}"    ## .cni_binary_checksums.amd64
-  dir=${2:-"download"} ## kubespray-defaults  or download
-  version=$(yq "${range_path} | keys" kubespray/roles/"${dir}"/defaults/main.*ml --output-format json)
-  version=$(echo $version | tr -d '\n \r') ## ["v1","v2"]
+  local range_path="${1}"    ## .cni_binary_checksums.amd64
+  local version
+  version=$(yq "${range_path} | keys" kubespray/roles/download/defaults/main/checksums.yml --output-format json)
+  version=$(echo "${version}" | tr -d '\n \r') ## ["v1","v2"]
   echo "${version}"
 }
 
