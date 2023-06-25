@@ -80,7 +80,7 @@ data:
 
 ## 创建主机清单配置
 
-示例：主机清单 `HostsConfCM.yml` 内容大致如下：
+示例：主机清单 `HostsConfCM.yml` 内容大致如下，并将下方 <USERNAME> 替换为实际的用户名：
 
 ```yaml
 # HostsConfCM.yml
@@ -97,10 +97,12 @@ data:
           ip: 192.168.10.11
           access_ip: 192.168.10.11
           ansible_host: 192.168.10.11
+          ansible_user: <USRENAME>
         worker:
           ip: 192.168.10.12
           access_ip: 192.168.10.12
           ansible_host: 192.168.10.12
+          ansible_user: <USRENAME>
       children:
         kube_control_plane:
           hosts:
@@ -120,7 +122,7 @@ data:
           hosts: {}
 ```
 
-> 注：由于采用私钥登录，所以主机信息中不需要填写用户名密码（即：ansible_user、ansible_password）
+> 注：由于采用私钥登录，所以主机信息中不需要填写密码（即：ansible_password）
 
 ## 制备部署集群的配置参数
 

@@ -2,13 +2,11 @@
 
 ``` bash
 
-# Install the mkdocs utility and related dependencies
-$ pip install mkdocs-material
-$ pip install mkdocs-glightbox
-$ pip install mkdocs-awesome-pages-plugin
-
 # Go to the kubean repository directory
 $ cd kubean/
+
+# Install the mkdocs utility and related dependencies
+$ pip3 install -r docs/requirements.txt 
 
 # Run Chinese documentation locally
 $ mkdocs serve -f docs/mkdocs.zh.yml

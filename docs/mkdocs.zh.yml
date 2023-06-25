@@ -45,9 +45,9 @@ theme:
 nav:
 - 简介: index.md
 - 快速入门:
-  - usage/helm-install-kubean.md
-  - usage/all-in-one-install.md
-  - usage/mirror-install.md
+  - usage/helm_install_kubean.md
+  - usage/all_in_one_install.md
+  - usage/mirror_install.md
 - 功能架构:
   - concepts/architecture.md
   - concepts/comparisons.md
@@ -56,7 +56,8 @@ nav:
   - concepts/theory_of_airgapped_package.md
 - 用户指南:
   - usage/sshkey_deploy_cluster.md
-  - usage/scale-worknode.md
+  - usage/install_without_root.md
+  - usage/scale_worknode.md
   - usage/upgrade.md
   - usage/uninstall.md
   - usage/airgap.md

@@ -80,7 +80,7 @@ data:
 
 ## Create a host configuration file
 
-The `HostsConfCM.yml` file looks like:
+Replace the below <USERNAME> with the actual username, the `HostsConfCM.yml` file looks like:
 
 ```yaml
 # HostsConfCM.yml
@@ -97,10 +97,12 @@ data:
           ip: 192.168.10.11
           access_ip: 192.168.10.11
           ansible_host: 192.168.10.11
+          ansible_user: <USRENAME>
         worker:
           ip: 192.168.10.12
           access_ip: 192.168.10.12
           ansible_host: 192.168.10.12
+          ansible_user: <USRENAME>
       children:
         kube_control_plane:
           hosts:
@@ -120,7 +122,7 @@ data:
           hosts: {}
 ```
 
-> Note: It is not necessary to include the account and password (`ansible_user` and `ansible_password`) when logging in with a private key.
+> Note: It is not necessary to include the password (`ansible_password`) when logging in with a private key.
 
 ## Provision parameters for cluster deployment
 
