@@ -16,7 +16,7 @@
         <link rel="prev" href="../../concepts/theory_of_airgapped_package/">
       
       
-        <link rel="next" href="../scale-worknode/">
+        <link rel="next" href="../install_without_root/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
@@ -325,7 +325,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm-install-kubean/" class="md-nav__link">
+      <a href="../helm_install_kubean/" class="md-nav__link">
         安装 kubean helm 应用
       </a>
     </li>
@@ -339,7 +339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../all-in-one-install/" class="md-nav__link">
+      <a href="../all_in_one_install/" class="md-nav__link">
         多合一模式最小化部署集群
       </a>
     </li>
@@ -353,7 +353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mirror-install/" class="md-nav__link">
+      <a href="../mirror_install/" class="md-nav__link">
         使用加速模式部署集群
       </a>
     </li>
@@ -606,7 +606,21 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale-worknode/" class="md-nav__link">
+      <a href="../install_without_root/" class="md-nav__link">
+        以非 root 用户部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale_worknode/" class="md-nav__link">
         集群工作节点扩缩容
       </a>
     </li>
@@ -1247,7 +1261,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">  </span><span class="nt">ssh-privatekey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...</span>
 </code></pre></div>
 <h2 id="_2">创建主机清单配置<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>示例：主机清单 <code>HostsConfCM.yml</code> 内容大致如下：</p>
+<p>示例：主机清单 <code>HostsConfCM.yml</code> 内容大致如下，并将下方 <USERNAME> 替换为实际的用户名：</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># HostsConfCM.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
@@ -1262,10 +1276,12 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">ip: 192.168.10.11</span>
 <span class="w">          </span><span class="no">access_ip: 192.168.10.11</span>
 <span class="w">          </span><span class="no">ansible_host: 192.168.10.11</span>
+<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
 <span class="w">        </span><span class="no">worker:</span>
 <span class="w">          </span><span class="no">ip: 192.168.10.12</span>
 <span class="w">          </span><span class="no">access_ip: 192.168.10.12</span>
 <span class="w">          </span><span class="no">ansible_host: 192.168.10.12</span>
+<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1285,7 +1301,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">hosts: {}</span>
 </code></pre></div>
 <blockquote>
-<p>注：由于采用私钥登录，所以主机信息中不需要填写用户名密码（即：ansible_user、ansible_password）</p>
+<p>注：由于采用私钥登录，所以主机信息中不需要填写密码（即：ansible_password）</p>
 </blockquote>
 <h2 id="_3">制备部署集群的配置参数<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <p>集群配置参数 <code>VarsConfCM.yml</code>的内容，可以参考
@@ -1406,13 +1422,13 @@ create_cluster
         
         
           
-          <a href="../scale-worknode/" class="md-footer__link md-footer__link--next" aria-label="下一页: 集群工作节点扩缩容" rel="next">
+          <a href="../install_without_root/" class="md-footer__link md-footer__link--next" aria-label="下一页: 以非 root 用户部署集群" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                集群工作节点扩缩容
+                以非 root 用户部署集群
               </div>
             </div>
             <div class="md-footer__button md-icon">

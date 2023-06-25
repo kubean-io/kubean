@@ -161,12 +161,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/en/usage/all-in-one-install/</loc>
+         <loc>https://kubean-io.github.io/kubean/en/usage/all_in_one_install/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/en/usage/helm-install-kubean/</loc>
+         <loc>https://kubean-io.github.io/kubean/en/usage/helm_install_kubean/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -176,12 +176,17 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/en/usage/mirror-install/</loc>
+         <loc>https://kubean-io.github.io/kubean/en/usage/install_without_root/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/en/usage/scale-worknode/</loc>
+         <loc>https://kubean-io.github.io/kubean/en/usage/mirror_install/</loc>
+         <lastmod>2023-06-25</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://kubean-io.github.io/kubean/en/usage/scale_worknode/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>

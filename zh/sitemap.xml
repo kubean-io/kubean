@@ -161,22 +161,27 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/zh/usage/all-in-one-install/</loc>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/all_in_one_install/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/zh/usage/helm-install-kubean/</loc>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/helm_install_kubean/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/zh/usage/mirror-install/</loc>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/install_without_root/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/zh/usage/scale-worknode/</loc>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/mirror_install/</loc>
+         <lastmod>2023-06-25</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/scale_worknode/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -186,7 +191,7 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://kubean-io.github.io/kubean/zh/usage/support-k8s-version/</loc>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/support_k8s_version/</loc>
          <lastmod>2023-06-25</lastmod>
          <changefreq>daily</changefreq>
     </url>

@@ -16,7 +16,7 @@
         <link rel="prev" href="../../concepts/theory_of_airgapped_package/">
       
       
-        <link rel="next" href="../scale-worknode/">
+        <link rel="next" href="../install_without_root/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
@@ -325,7 +325,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm-install-kubean/" class="md-nav__link">
+      <a href="../helm_install_kubean/" class="md-nav__link">
         Installing kubean Helm application
       </a>
     </li>
@@ -339,7 +339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../all-in-one-install/" class="md-nav__link">
+      <a href="../all_in_one_install/" class="md-nav__link">
         Minimal Deployment
       </a>
     </li>
@@ -353,7 +353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mirror-install/" class="md-nav__link">
+      <a href="../mirror_install/" class="md-nav__link">
         Deploying a Cluster using Accelerated Mode
       </a>
     </li>
@@ -599,7 +599,21 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale-worknode/" class="md-nav__link">
+      <a href="../install_without_root/" class="md-nav__link">
+        以非 root 用户部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale_worknode/" class="md-nav__link">
         Scaling Cluster Worker Nodes
       </a>
     </li>
@@ -1233,7 +1247,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">  </span><span class="nt">ssh-privatekey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...</span>
 </code></pre></div>
 <h2 id="create-a-host-configuration-file">Create a host configuration file<a class="headerlink" href="#create-a-host-configuration-file" title="Permanent link">&para;</a></h2>
-<p>The <code>HostsConfCM.yml</code> file looks like:</p>
+<p>Replace the below <USERNAME> with the actual username, the <code>HostsConfCM.yml</code> file looks like:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># HostsConfCM.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
@@ -1248,10 +1262,12 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">ip: 192.168.10.11</span>
 <span class="w">          </span><span class="no">access_ip: 192.168.10.11</span>
 <span class="w">          </span><span class="no">ansible_host: 192.168.10.11</span>
+<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
 <span class="w">        </span><span class="no">worker:</span>
 <span class="w">          </span><span class="no">ip: 192.168.10.12</span>
 <span class="w">          </span><span class="no">access_ip: 192.168.10.12</span>
 <span class="w">          </span><span class="no">ansible_host: 192.168.10.12</span>
+<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
 <span class="w">      </span><span class="no">children:</span>
 <span class="w">        </span><span class="no">kube_control_plane:</span>
 <span class="w">          </span><span class="no">hosts:</span>
@@ -1271,7 +1287,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <span class="w">          </span><span class="no">hosts: {}</span>
 </code></pre></div>
 <blockquote>
-<p>Note: It is not necessary to include the account and password (<code>ansible_user</code> and <code>ansible_password</code>) when logging in with a private key.</p>
+<p>Note: It is not necessary to include the password (<code>ansible_password</code>) when logging in with a private key.</p>
 </blockquote>
 <h2 id="provision-parameters-for-cluster-deployment">Provision parameters for cluster deployment<a class="headerlink" href="#provision-parameters-for-cluster-deployment" title="Permanent link">&para;</a></h2>
 <p>For contents of <code>VarsConfCM.yaml</code>, refer to <a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>.</p>
@@ -1391,13 +1407,13 @@ create_cluster
         
         
           
-          <a href="../scale-worknode/" class="md-footer__link md-footer__link--next" aria-label="下一页: Scaling Cluster Worker Nodes" rel="next">
+          <a href="../install_without_root/" class="md-footer__link md-footer__link--next" aria-label="下一页: 以非 root 用户部署集群" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                Scaling Cluster Worker Nodes
+                以非 root 用户部署集群
               </div>
             </div>
             <div class="md-footer__button md-icon">

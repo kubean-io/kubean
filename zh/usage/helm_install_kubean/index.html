@@ -6,24 +6,24 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)">
+        <meta name="description" content="kubean 是一款基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 的集群生命周期管理工具.">
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/usage/mirror-install/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/usage/helm_install_kubean/">
       
       
-        <link rel="prev" href="../all-in-one-install/">
+        <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../../concepts/architecture/">
+        <link rel="next" href="../all_in_one_install/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
     
     
       
-        <title>Deploying a Cluster using Accelerated Mode - Kubean</title>
+        <title>安装 kubean helm 应用 - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deploying-a-cluster-using-accelerated-mode" class="md-skip">
+        <a href="#kubean-helm" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Deploying a Cluster using Accelerated Mode
+              安装 kubean helm 应用
             
           </span>
         </div>
@@ -284,7 +284,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Introduction
+        简介
       </a>
     </li>
   
@@ -310,44 +310,16 @@
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-          Quick Start
+          快速入门
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          Quick Start
+          快速入门
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../helm-install-kubean/" class="md-nav__link">
-        Installing kubean Helm application
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../all-in-one-install/" class="md-nav__link">
-        Minimal Deployment
-      </a>
-    </li>
-  
-
-            
           
             
               
@@ -365,12 +337,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Deploying a Cluster using Accelerated Mode
+          安装 kubean helm 应用
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Deploying a Cluster using Accelerated Mode
+        安装 kubean helm 应用
       </a>
       
         
@@ -389,37 +361,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    Prerequisites
+  <a href="#_1" class="md-nav__link">
+    前置条件
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
+  <a href="#_2" class="md-nav__link">
+    开始部署
   </a>
   
-    <nav class="md-nav" aria-label="Getting Started">
+    <nav class="md-nav" aria-label="开始部署">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
-    1. Configure Host Parameters in HostsConfCM.yml
+  <a href="#1-kubean-helm" class="md-nav__link">
+    1. 添加 kubean Helm 仓库
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configure-kubean-task-parameters-in-clusteroperationyml" class="md-nav__link">
-    2. Configure kubean Task Parameters in ClusterOperation.yml
+  <a href="#2-kubean" class="md-nav__link">
+    2. 安装 kubean
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
-    3. Apply all configurations under the 2.mirror directory
+  <a href="#3-kubean-release" class="md-nav__link">
+    3. 查看已安装的 kubean release
   </a>
   
 </li>
@@ -433,6 +405,34 @@
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_in_one_install/" class="md-nav__link">
+        多合一模式最小化部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mirror_install/" class="md-nav__link">
+        使用加速模式部署集群
+      </a>
     </li>
   
 
@@ -462,14 +462,14 @@
       
       
         <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-          Functional Framework
+          功能架构
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
-          Functional Framework
+          功能架构
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -480,7 +480,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/architecture/" class="md-nav__link">
-        Kubean Infrastructure
+        Kubean 基础架构
       </a>
     </li>
   
@@ -494,7 +494,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/comparisons/" class="md-nav__link">
-        Kubean vs Kubespray
+        对比参考
       </a>
     </li>
   
@@ -508,7 +508,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/crds/" class="md-nav__link">
-        CRDs
+        CRD 概述
       </a>
     </li>
   
@@ -522,7 +522,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/custom_action/" class="md-nav__link">
-        Custom Actions
+        自定义 Action
       </a>
     </li>
   
@@ -536,7 +536,7 @@
   
     <li class="md-nav__item">
       <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
-        Theory of Air-gapped packages
+        离线安装包的原理
       </a>
     </li>
   
@@ -567,14 +567,14 @@
       
       
         <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-          User Guide
+          用户指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
-          User Guide
+          用户指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -585,7 +585,7 @@
   
     <li class="md-nav__item">
       <a href="../sshkey_deploy_cluster/" class="md-nav__link">
-        Deploy Kubernetes clusters with SSH
+        以 SSH 密钥方式部署集群
       </a>
     </li>
   
@@ -598,8 +598,22 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale-worknode/" class="md-nav__link">
-        Scaling Cluster Worker Nodes
+      <a href="../install_without_root/" class="md-nav__link">
+        以非 root 用户部署集群
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scale_worknode/" class="md-nav__link">
+        集群工作节点扩缩容
       </a>
     </li>
   
@@ -613,7 +627,7 @@
   
     <li class="md-nav__item">
       <a href="../upgrade/" class="md-nav__link">
-        Cluster Version Upgrade
+        集群版本升级
       </a>
     </li>
   
@@ -627,7 +641,7 @@
   
     <li class="md-nav__item">
       <a href="../uninstall/" class="md-nav__link">
-        Cluster Uninstallation
+        集群卸载
       </a>
     </li>
   
@@ -641,7 +655,7 @@
   
     <li class="md-nav__item">
       <a href="../airgap/" class="md-nav__link">
-        Use Kubean in offline scenes
+        离线场景的使用
       </a>
     </li>
   
@@ -655,7 +669,7 @@
   
     <li class="md-nav__item">
       <a href="../airgap_patch_usage/" class="md-nav__link">
-        Generation and use of incremental offline packages
+        增量离线包的生成和使用
       </a>
     </li>
   
@@ -686,14 +700,14 @@
       
       
         <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-          Development
+          开发指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
-          Development
+          开发指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -704,7 +718,7 @@
   
     <li class="md-nav__item">
       <a href="../../develop/roadmap/" class="md-nav__link">
-        Kubean Roadmap
+        Kubean 路线图
       </a>
     </li>
   
@@ -1101,37 +1115,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    Prerequisites
+  <a href="#_1" class="md-nav__link">
+    前置条件
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    Getting Started
+  <a href="#_2" class="md-nav__link">
+    开始部署
   </a>
   
-    <nav class="md-nav" aria-label="Getting Started">
+    <nav class="md-nav" aria-label="开始部署">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
-    1. Configure Host Parameters in HostsConfCM.yml
+  <a href="#1-kubean-helm" class="md-nav__link">
+    1. 添加 kubean Helm 仓库
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configure-kubean-task-parameters-in-clusteroperationyml" class="md-nav__link">
-    2. Configure kubean Task Parameters in ClusterOperation.yml
+  <a href="#2-kubean" class="md-nav__link">
+    2. 安装 kubean
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
-    3. Apply all configurations under the 2.mirror directory
+  <a href="#3-kubean-release" class="md-nav__link">
+    3. 查看已安装的 kubean release
   </a>
   
 </li>
@@ -1159,127 +1173,47 @@
   
 
 
-<h1 id="deploying-a-cluster-using-accelerated-mode">Deploying a Cluster using Accelerated Mode<a class="headerlink" href="#deploying-a-cluster-using-accelerated-mode" title="Permanent link">&para;</a></h1>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h1 id="kubean-helm">安装 kubean helm 应用<a class="headerlink" href="#kubean-helm" title="Permanent link">&para;</a></h1>
+<h2 id="_1">前置条件<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
-<li>You already have a standard Kubernetes cluster or a cluster provided by a cloud provider.</li>
-<li>The control node or cloud terminal for the cluster has the <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/">kubect</a> tool installed.。</li>
-<li>The <a href="../helm-install-kubean/">kubean helm chart</a> has been deployed on your cluster.</li>
-<li>The <a href="https://github.com/kubean-io/kubean">kubean project</a>has been cloned to your local machine. If you haven't cloned kubean yet, you can do so by executing the following command:</li>
+<li>您已拥有一个标准 kubernetes 集群或云厂商提供的集群。</li>
+<li>在您的集群控制节点或云终端上已完成 Helm 工具的安装。<a href="https://helm.sh/docs/intro/install/">如何安装 Helm 工具</a>。</li>
 </ol>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
-</code></pre></div>
 <hr />
-<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
-<p>This tutorial will use the <code>kubean/example/2.mirror</code> file that you cloned to your local machine as an example template for demonstrating cluster deployment using accelerated mode.</p>
-<p>The <code>2.mirror</code> accelerated deployment template already contains built-in acceleration parameter configurations. 
-You only need to modify the host information and other relevant information in the two configuration template files, <strong><code>HostsConfCM.yml</code> and <code>ClusterOperation.yml</code></strong>, located in the /2.mirror file path.</p>
-<details open>
-<summary>The main configuration files and purposes inside the `2.mirror` file are as follows:</summary>
+<h2 id="_2">开始部署<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h4 id="1-kubean-helm">1. 添加 kubean Helm 仓库<a class="headerlink" href="#1-kubean-helm" title="Permanent link">&para;</a></h4>
+<p>将 kubean Helm 仓库添加到本地 Helm 仓库，在现有集群控制节点或云终端上执行如下命令。</p>
+<p><div class="highlight"><pre><span></span><code>$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+</code></pre></div>
+完成上一步后检查 kubean 仓库是否已经正确添加至本地 Helm 仓库。</p>
+<div class="highlight"><pre><span></span><code>$ helm repo list
+# 预期输出如下：
+NAME            URL
+kubean-io       https://kubean-io.github.io/kubean-helm-chart/
+</code></pre></div>
+<h4 id="2-kubean">2. 安装 kubean<a class="headerlink" href="#2-kubean" title="Permanent link">&para;</a></h4>
+<p>检查 kubean Helm 仓库中可用的 Chart 及其版本，执行下面命令将列出 kubean Helm 仓库内所有的 Chart 列表。</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>search<span class="w"> </span>repo<span class="w"> </span>kubean
 
-<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">.2.mirror</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── Cluster.yml</span><span class="w">                        </span><span class="c1"># The main configuration files and their purposes in the `2.mirror` file are as follows:</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">        </span><span class="c1"># kubean version and task configuration</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── HostsConfCM.yml</span><span class="w">              </span><span class="c1"># Node information configuration for the cluster to be built</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── VarsConfCM.yml</span><span class="w">                </span><span class="c1"># Configuration for acceleration and other features</span>
+<span class="c1"># 预期输出如下：</span>
+NAME<span class="w">                </span>CHART<span class="w"> </span>VERSION<span class="w">   </span>APP<span class="w"> </span>VERSION<span class="w"> </span>DESCRIPTION
+kubean-io/kubean<span class="w">    </span>v0.5.2<span class="w">          </span>v0.5.2<span class="w">      </span>A<span class="w"> </span>Helm<span class="w"> </span>chart<span class="w"> </span><span class="k">for</span><span class="w"> </span>kubean
 </code></pre></div>
-</details>
+<p>完成上述步骤后，，执行如下命令安装 kubean。</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>kubean<span class="w"> </span>kubean-io/kubean<span class="w"> </span>--create-namespace<span class="w"> </span>-n<span class="w"> </span>kubean-system
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>您还可以使用 "--version" 参数来指定 kubean 的版本。</p>
+</div>
+<h4 id="3-kubean-release">3. 查看已安装的 kubean release<a class="headerlink" href="#3-kubean-release" title="Permanent link">&para;</a></h4>
+<p>至此，您已经完成了 kubean helm chart 的部署，您可以执行如下命令查看 kubean-system 命名空间下的 helm release。</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>ls<span class="w"> </span>-n<span class="w"> </span>kubean-system
 
-<h4 id="1-configure-host-parameters-in-hostsconfcmyml">1. Configure Host Parameters in HostsConfCM.yml<a class="headerlink" href="#1-configure-host-parameters-in-hostsconfcmyml" title="Permanent link">&para;</a></h4>
-<p>Navigate to the <code>kubean/examples/install/2.mirror/</code> path and edit the <code>HostsConfCM.yml</code>template for the node configuration information of the cluster to be built. Replace the following parameters with your actual parameters:</p>
-<ul>
-<li><code>&lt;IP1&gt;</code>：Node IP.</li>
-<li><code>&lt;USERNAME&gt;</code>： Username for logging in to the node. We recommend using root or a user with root privileges to log in.</li>
-<li><code>&lt;PASSWORD&gt;</code>：Password for logging in to the node.</li>
-</ul>
-<p>For example, the following is an example HostsConfCM.yml file:</p>
-<details>
-<summary> HostsConfCM.yml Example</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">online-hosts-conf</span>
-<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hosts.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">all:</span>
-<span class="w">      </span><span class="no">hosts:</span>
-<span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # The username for logging into the node</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # The password for logging into the node</span>
-<span class="w">        </span><span class="no">node2:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # The username for logging into the node2</span>
-<span class="w">          </span><span class="no">ansible_password: password02 # The password for logging into the node2</span>
-<span class="w">      </span><span class="no">children:</span>
-<span class="w">        </span><span class="no">kube_control_plane: # Configuring the control node</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">        </span><span class="no">kube_node: # Configuring the working nodes of the cluster</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">            </span><span class="no">node2:</span>
-<span class="w">        </span><span class="no">etcd: # Configuring the ETCD nodes of the cluster</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">        </span><span class="no">k8s_cluster:</span>
-<span class="w">          </span><span class="no">children:</span>
-<span class="w">            </span><span class="no">kube_control_plane:</span>
-<span class="w">            </span><span class="no">kube_node:</span>
-<span class="w">        </span><span class="no">calico_rr:</span>
-<span class="w">          </span><span class="no">hosts: {}</span>
+<span class="c1"># 预期输出如下：</span>
+NAME<span class="w">    </span>NAMESPACE<span class="w">       </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                     </span>STATUS<span class="w">      </span>CHART<span class="w">               </span>APP<span class="w"> </span>VERSION
+kubean<span class="w">  </span>kubean-system<span class="w">   </span><span class="m">1</span><span class="w">           </span><span class="m">2023</span>-05-15<span class="w"> </span><span class="m">00</span>:24:32.719770617<span class="w"> </span>-0400<span class="w"> </span>-0400<span class="w">   </span>deployed<span class="w">    </span>kubean-v0.4.9-rc1<span class="w">   </span>v0.4.9-rc1
 </code></pre></div>
-</details>
-
-<p>Execute the following command to edit the HostsConfCM.yml configuration template:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/HostsConfCM.yml
-</code></pre></div>
-<h4 id="2-configure-kubean-task-parameters-in-clusteroperationyml">2. Configure kubean Task Parameters in ClusterOperation.yml<a class="headerlink" href="#2-configure-kubean-task-parameters-in-clusteroperationyml" title="Permanent link">&para;</a></h4>
-<p>Navigate to the <code>kubean/examples/install/2.mirror/</code> path and edit the <code>ClusterOperation.yml</code> template for the configuration information of the cluster to be built. Replace the following parameters with your actual parameters:</p>
-<ul>
-<li><code>&lt;TAG&gt;</code>: kubean image version. We recommend using the latest version.<a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a></li>
-</ul>
-<p>For example, the following is an example <code>ClusterOperation.yml</code> file:</p>
-<details>
-<summary> ClusterOperation.yml Example</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-online-install-ops</span>
-<span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-online</span>
-<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2</span><span class="w"> </span><span class="c1"># kubean image version</span>
-<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
-<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
-<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubeconfig.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
-</code></pre></div>
-</details>
-
-<p>To edit the ClusterOperation.yml configuration template, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/ClusterOperation.yml
-</code></pre></div>
-<h4 id="3-apply-all-configurations-under-the-2mirror-directory">3. Apply all configurations under the <code>2.mirror</code> directory<a class="headerlink" href="#3-apply-all-configurations-under-the-2mirror-directory" title="Permanent link">&para;</a></h4>
-<p>After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/2.mirror
-</code></pre></div>
-<p>With this, you have completed the deployment of a cluster using the acceleration mode.</p>
 
 
 
@@ -1303,7 +1237,7 @@ You only need to modify the host information and other relevant information in t
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../all-in-one-install/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Minimal Deployment" rel="prev">
+          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="上一页: 简介" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1312,20 +1246,20 @@ You only need to modify the host information and other relevant information in t
                 上一页
               </span>
               <div class="md-ellipsis">
-                Minimal Deployment
+                简介
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../concepts/architecture/" class="md-footer__link md-footer__link--next" aria-label="下一页: Kubean Infrastructure" rel="next">
+          <a href="../all_in_one_install/" class="md-footer__link md-footer__link--next" aria-label="下一页: 多合一模式最小化部署集群" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                Kubean Infrastructure
+                多合一模式最小化部署集群
               </div>
             </div>
             <div class="md-footer__button md-icon">
