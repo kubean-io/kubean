@@ -21,6 +21,7 @@ rm -f ~/.ssh/known_hosts
 export ARCH=amd64
 export OS_NAME="CENTOS7"
 export OFFLINE_FLAG=false
+./hack/run-vip.sh
 ./hack/kubean_resource.sh ${TARGET_VERSION} "artifacts"
 ./hack/run-network-e2e.sh
 ./hack/run-nightly-cluster-e2e.sh
