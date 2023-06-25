@@ -15,13 +15,13 @@ $ git clone https://github.com/kubean-io/kubean.git
 
 ## 开始部署
 
-本教程将使用您克隆至本地的 `kubean/example` 文件作为范例模版，进行集群部署演示。
+本教程将使用您克隆至本地的 `kubean/example` 文件作为范例模板，进行集群部署演示。
 
-借助案例模版，仅需两步我们就能使用 kubean 完成一个单节点集群的部署。
+借助案例模板，仅需两步我们就能使用 kubean 完成一个单节点集群的部署。
 
 #### 1. 配置 AllInOne.yml 参数
 
-进入 `kubean/examples/install/1.minimal` 文件路径下，编辑单节点模式部署模版 AllInOne.yml，将下列参数替换为您的真实参数。
+进入 `kubean/examples/install/1.minimal` 文件路径下，编辑单节点模式部署模板 AllInOne.yml，将下列参数替换为您的真实参数。
 
   - `<IP1>`：节点 IP。
   - `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
@@ -113,7 +113,7 @@ postHook:
 ```
 </details>
 
-执行如下命令编辑 AllInOne.yml 配置模版：
+执行如下命令编辑 AllInOne.yml 配置模板：
 
 ```bash
 $ vi kubean/examples/install/1.minimal/AllInOne.yml

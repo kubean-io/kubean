@@ -15,9 +15,9 @@ $ git clone https://github.com/kubean-io/kubean.git
 
 ## 开始部署
 
-本教程将使用您克隆至本地的 `kubean/example/2.mirror` 文件作为范例模版，进行集群加速部署演示。
+本教程将使用您克隆至本地的 `kubean/example/2.mirror` 文件作为范例模板，进行集群加速部署演示。
 
-在加速部署模版 `2.mirror` 内已经内置了加速参数配置，您只需要将 `/2.mirror`文件路径下的 **`HostsConfCM.yml` ** 和 **`ClusterOperation.yml`** 两个配置模版文件内的主机等信息改成您的真实参数。
+在加速部署模板 `2.mirror` 内已经内置了加速参数配置，您只需要将 `/2.mirror`文件路径下的 **`HostsConfCM.yml` ** 和 **`ClusterOperation.yml`** 两个配置模板文件内的主机等信息改成您的真实参数。
 
 <details open>
 <summary> 2.mirror` 文件内主要的配置文件及用途如下：</summary>
@@ -32,7 +32,7 @@ $ git clone https://github.com/kubean-io/kubean.git
 </details>
 
 #### 1. 配置主机配置参数 HostsConfCM.yml
-进入 `kubean/examples/install/2.mirror/` 路径，编辑待建集群节点配置信息模版 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/install/2.mirror/` 路径，编辑待建集群节点配置信息模板 `HostsConfCM.yml`，将下列参数替换为您的真实参数：
 
   - `<IP1>`：节点 IP。
   - `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
@@ -85,7 +85,7 @@ data:
 ```
 </details>
 
-执行如下命令编辑 HostsConfCM.yml 配置模版：
+执行如下命令编辑 HostsConfCM.yml 配置模板：
 
 ```bash
 $ vi kubean/examples/install/2.mirror/HostsConfCM.yml
@@ -93,7 +93,7 @@ $ vi kubean/examples/install/2.mirror/HostsConfCM.yml
 
 #### 2. 配置 kubean 任务配置参数 ClusterOperation.yml
 
-进入 `kubean/examples/install/2.mirror/` 路径，编辑待建集群节点配置信息模版 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
+进入 `kubean/examples/install/2.mirror/` 路径，编辑待建集群节点配置信息模板 `ClusterOperation.yml`，将下列参数替换为您的真实参数：
 
   - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
@@ -124,7 +124,7 @@ spec:
 ```
 </details>
 
-执行如下命令编辑 ClusterOperation.yml 配置模版：
+执行如下命令编辑 ClusterOperation.yml 配置模板：
 
 ```bash
 $ vi kubean/examples/install/2.mirror/ClusterOperation.yml
