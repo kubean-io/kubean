@@ -32,13 +32,13 @@ You only need to modify the host information and other relevant information in t
 ```
 </details>
 
-#### 1.Configure Host Parameters in HostsConfCM.yml
+#### 1. Configure Host Parameters in HostsConfCM.yml
 
 Navigate to the `kubean/examples/install/2.mirror/` path and edit the `HostsConfCM.yml`template for the node configuration information of the cluster to be built. Replace the following parameters with your actual parameters:
 
-  - `<IP1>`：Node IP.
-  - `<USERNAME>`： Username for logging in to the node. We recommend using root or a user with root privileges to log in.
-  - `<PASSWORD>`：Password for logging in to the node.
+- `<IP1>`：Node IP.
+- `<USERNAME>`： Username for logging in to the node. We recommend using root or a user with root privileges to log in.
+- `<PASSWORD>`：Password for logging in to the node.
 
 For example, the following is an example HostsConfCM.yml file:
 <details>
@@ -97,7 +97,7 @@ $ vi kubean/examples/install/2.mirror/HostsConfCM.yml
 
 Navigate to the `kubean/examples/install/2.mirror/` path and edit the `ClusterOperation.yml` template for the configuration information of the cluster to be built. Replace the following parameters with your actual parameters:
 
-  - `<TAG>`: kubean image version. We recommend using the latest version.[Refer to the kubean version list](https://github.com/kubean-io/kubean/tags)
+- `<TAG>`: kubean image version. We recommend using the latest version.[Refer to the kubean version list](https://github.com/kubean-io/kubean/tags)
 
 For example, the following is an example `ClusterOperation.yml` file:
 <details>
@@ -132,7 +132,7 @@ To edit the ClusterOperation.yml configuration template, run the following comma
 $ vi kubean/examples/install/2.mirror/ClusterOperation.yml
 ```
 
-#### 3.Apply all configurations under the 2.mirror directory
+#### 3. Apply all configurations under the `2.mirror` directory
 
 After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:
 
