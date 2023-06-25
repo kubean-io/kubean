@@ -45,9 +45,9 @@ theme:
 nav:
 - Introduction: index.md
 - Quick Start:
-  - usage/helm-install-kubean.md
-  - usage/all-in-one-install.md
-  - usage/mirror-install.md
+  - usage/helm_install_kubean.md
+  - usage/all_in_one_install.md
+  - usage/mirror_install.md
 - Functional Framework:
   - concepts/architecture.md
   - concepts/comparisons.md
@@ -56,7 +56,8 @@ nav:
   - concepts/theory_of_airgapped_package.md
 - User Guide:
   - usage/sshkey_deploy_cluster.md
-  - usage/scale-worknode.md
+  - usage/install_without_root.md
+  - usage/scale_worknode.md
   - usage/upgrade.md
   - usage/uninstall.md
   - usage/airgap.md
