@@ -7,6 +7,7 @@ import (
 var Kubeconfig string
 var Vmipaddr string
 var Vmipaddr2 string
+var Vmipaddr3 string
 var ClusterOperationName string
 var IsOffline string
 var Arch string
@@ -42,7 +43,8 @@ func init() {
 	flag.StringVar(&ClusterOperationName, "clusterOperationName", "", "crd clusteroperation.kubean.io name")
 	flag.StringVar(&IsOffline, "isOffline", "", "install k8s cluster offline or online")
 	flag.StringVar(&Vmipaddr, "vmipaddr", "", "vm ip address")
-	flag.StringVar(&Vmipaddr2, "vmipaddr2", "", "vm worker ip address")
+	flag.StringVar(&Vmipaddr2, "vmipaddr2", "", "vm ip address")
+	flag.StringVar(&Vmipaddr3, "vmipaddr3", "", "vm ip address")
 	flag.StringVar(&Arch, "arch", "", "vm os arch")
 	flag.StringVar(&VmPassword, "vmPassword", "", "vm login password")
 	flag.StringVar(&OtherLabel, "otherLabel", "", "for not general label")
