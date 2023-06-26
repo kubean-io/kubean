@@ -43,5 +43,5 @@ function k8s_version_tab_render() {
   #printf -- "| %-13s| %-24s| %s|\n" '-----------' '----------------------' '------------------------------------------------------------'
   printf -- "| %-13s | %-24s| %s|\n" "$KUBEAN_VERSION" "$default_k8s_version" "$k8s_version_range"
 }
-support_file_path="./docs/zh/usage/support-k8s-version.md"
+support_file_path="./docs/zh/usage/support_k8s_version.md"
 k8s_version_tab_render >> "$support_file_path"

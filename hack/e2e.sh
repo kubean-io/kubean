@@ -60,6 +60,7 @@ chmod +x ./hack/run-nightly-cluster-e2e.sh
 chmod +x ./hack/kubean_compatibility_e2e.sh
 chmod +x ./hack/kubean_resource.sh
 chmod +x ./hack/autoversion.sh
+chmod +x ./hack/run-vip.sh
 DIFF_NIGHTLYE2E=`git show -- './test/*' | grep nightlye2e || true`
 DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 

@@ -312,6 +312,11 @@ function util::vm_name_ip_init_online_by_os(){
              vm_name1="gwt-kubean-e2e-node211"
              vm_name2="gwt-kubean-e2e-node212"
              ;;
+          "CENTOS7-3MASTER")
+             vm_ip_addr3="10.6.178.219" 
+             vm_name3="gwt-kubean-e2e-node219"
+             vipadd="10.6.178.220"
+             ;;
           "KYLINV10")
               vm_ip_addr1="10.6.178.73"
               vm_ip_addr2="10.6.178.74"
@@ -374,6 +379,11 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-node71"
               vm_name2="gwt-kubean-e2e-node72"
               ;;
+          "CENTOS7-3MASTER")
+              vm_ip_addr3="172.30.41.78" 
+              vm_name3="gwt-kubean-e2e-hk-node78"
+              vipadd="172.30.41.128"
+              ;;
           "KYLINV10")
               vm_ip_addr1="10.6.178.83"
               vm_ip_addr2="10.6.178.84"
@@ -408,6 +418,11 @@ function util::vm_name_ip_init_online_by_os(){
                   vm_name1="gwt-kubean-e2e-node201"
                   vm_name2="gwt-kubean-e2e-node202"
                   ;;
+              "CENTOS7-3MASTER")
+                  vm_ip_addr3="10.6.178.208" 
+                  vm_name3="gwt-kubean-e2e-hk-node208"
+                  vipadd="10.6.178.220"
+                  ;;    
               "KYLINV10")
                   vm_ip_addr1="10.6.178.93"
                   vm_ip_addr2="10.6.178.94"
@@ -505,8 +520,23 @@ function util::power_on_2vms(){
   sleep 20
   util::wait_ip_reachable "${vm_ip_addr1}" 60
   util::wait_ip_reachable "${vm_ip_addr2}" 60
-  ping -c 5 ${vm_ip_addr1}
-  ping -c 5 ${vm_ip_addr2}
+  ping -c 15 ${vm_ip_addr1}
+  ping -c 15 ${vm_ip_addr2}
+}
+
+function util::power_on_third_vms(){
+  local OS_NAME=$1
+  if [[ ${OFFLINE_FLAG} == "true" ]]; then
+    util::vm_name_ip_init_offline_by_os ${OS_NAME}
+  else
+    util::vm_name_ip_init_online_by_os ${OS_NAME}
+  fi 
+  echo "vm_name3: ${vm_name3}"
+  SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
+  util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name3}" 
+  sleep 20
+  util::wait_ip_reachable "${vm_ip_addr3}" 60
+  ping -c 15 ${vm_ip_addr3} 
 }
 
 function util::power_on_vm_first(){
