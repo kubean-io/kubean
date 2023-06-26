@@ -59,6 +59,7 @@ chmod +x ./hack/run-network-e2e.sh
 chmod +x ./hack/run-nightly-cluster-e2e.sh
 chmod +x ./hack/kubean_compatibility_e2e.sh
 chmod +x ./hack/kubean_resource.sh
+chmod +x ./hack/autoversion.sh
 DIFF_NIGHTLYE2E=`git show -- './test/*' | grep nightlye2e || true`
 DIFF_COMPATIBILE=`git show | grep /test/kubean_os_compatibility_e2e || true`
 
@@ -70,6 +71,7 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
         echo "***************k8s version is: ${k8s} ***************"
         kind::clean_kind_cluster ${CONTAINERS_PREFIX}
         KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:"${k8s}
+        ./hack/autoversion.sh "${IMAGE_VERSION}"
         ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
         ./hack/kubean_compatibility_e2e.sh
     done
