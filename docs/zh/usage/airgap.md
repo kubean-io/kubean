@@ -116,7 +116,7 @@ ISO 镜像源.
 ``` bash
 # 基本格式
 $ ./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
-
+# linux_distribution 的值是 centos、redhat、debian 或者 ubuntu
 # 执行脚本创建 ISO 镜像源
 $ ./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
 # 查看 ISO 镜像挂载情况
@@ -175,6 +175,10 @@ sslverify=0
 
 - 需要将 `${minio_address}` 替换为 minio API Server 地址
 
+这一步也可以通过设置 ClusterOperation 文件中 enable-repo.yml 的 extraArgs 的值来实现，
+将 extraArgs 的值添加为 `'{minio_url}/kubean/centos-iso/$releasever/os/$basearch'` 这种格式，
+参阅 [ClusterOperation 结合 playbook 创建源配置文件](#3-clusteroperation-结合-playbook-创建源配置文件)了解更多信息。
+
 ##### 导入至本地目录
 
 将 ISO 中的镜像源导入到本地目录中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到指定的本地目录中
@@ -196,7 +200,7 @@ sslverify=0
 
 ### 2. 建立 extras 软件源
 
-> 当前仅支持 Centos 发行版
+>  当前支持 Red Hat Linux 系列
 
 在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 `container-selinux`, 这些软件往往在 ISO 镜像源中并不提供. 对此 OS
 packages 离线包已对其进行了补充, 其在导入 minio 之后,
