@@ -8,6 +8,7 @@ var Kubeconfig string
 var Vmipaddr string
 var Vmipaddr2 string
 var Vmipaddr3 string
+var Vipadd string
 var ClusterOperationName string
 var IsOffline string
 var Arch string
@@ -45,6 +46,7 @@ func init() {
 	flag.StringVar(&Vmipaddr, "vmipaddr", "", "vm ip address")
 	flag.StringVar(&Vmipaddr2, "vmipaddr2", "", "vm ip address")
 	flag.StringVar(&Vmipaddr3, "vmipaddr3", "", "vm ip address")
+	flag.StringVar(&Vipadd, "vipadd", "", "vip address")
 	flag.StringVar(&Arch, "arch", "", "vm os arch")
 	flag.StringVar(&VmPassword, "vmPassword", "", "vm login password")
 	flag.StringVar(&OtherLabel, "otherLabel", "", "for not general label")

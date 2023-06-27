@@ -20,7 +20,6 @@ func GetVipNode(password string, nodes []string, vipAdd string) (string, error) 
 		newMasterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{node, "ip a"})
 		out, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
 		if strings.Contains(out.String(), vipAdd) {
-			fmt.Println("vip address", vipAdd)
 			rootNode = node
 			vipNode := strings.Replace(rootNode, "root@", "", -1)
 			klog.Info("the node where vip is located is ", vipNode)
@@ -40,6 +39,7 @@ var _ = ginkgo.Describe("Create 3master cluster", func() {
 		var masterSSH = fmt.Sprintf("root@%s", tools.Vmipaddr)
 		var master2SSH = fmt.Sprintf("root@%s", tools.Vmipaddr2)
 		var master3SSH = fmt.Sprintf("root@%s", tools.Vmipaddr3)
+		var vipaddcr = tools.Vipadd
 		localKubeConfigPath := "cluster1.config"
 		var offlineConfigs tools.OfflineConfig
 		var password = tools.VmPassword
@@ -82,10 +82,10 @@ var _ = ginkgo.Describe("Create 3master cluster", func() {
 		ginkgo.It("reboot node and check which node with vip address", func() {
 
 			// check which node has vip address before vip drifts
-			vipAdd := "10.6.178.220"
 			nodes := []string{masterSSH, master2SSH, master3SSH}
 			var rootNode string
-			rootNode, _ = GetVipNode(password, nodes, vipAdd)
+			klog.Info("vip address is ", vipaddcr)
+			rootNode, _ = GetVipNode(password, nodes, vipaddcr)
 			klog.Info("before drift ,the node where vip is located is ", rootNode)
 
 			// get nodes excluding the vip node
@@ -108,7 +108,8 @@ var _ = ginkgo.Describe("Create 3master cluster", func() {
 			time.Sleep(30 * time.Second)
 
 			// check which node has vip after the node is rebooted
-			rootNodeAfterReboot, _ := GetVipNode(password, matchedNodes, vipAdd)
+			klog.Info("vip address is ", vipaddcr)
+			rootNodeAfterReboot, _ := GetVipNode(password, matchedNodes, vipaddcr)
 			klog.Info("after drift ,the node where vip is located is ", rootNodeAfterReboot)
 		})
 	})

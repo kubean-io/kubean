@@ -59,8 +59,8 @@ sed -i '/# k8s-cluster/a\    kube_vip_controlplane_enabled: true' "${dest_config
 sed -i '/# k8s-cluster/a\    kube_vip_enabled: true' "${dest_config_path}"/vars-conf-cm.yml
 sed -i '/# k8s-cluster/a\    kube_proxy_strict_arp: false' "${dest_config_path}"/vars-conf-cm.yml
 sed -i '/# k8s-cluster/a\    kube_vip_arp_enabled: true' "${dest_config_path}"/vars-conf-cm.yml
-sed -i "s/vip_address1/10.6.178.220/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/vip_address1/${vipadd}/" "${dest_config_path}"/vars-conf-cm.yml
 
 ginkgo -v -race -timeout=3h  --fail-fast ./${go_test_path}  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" --vmipaddr3="${vm_ip_addr3}" \
-          --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
+          --vipadd="${vipadd}" --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
