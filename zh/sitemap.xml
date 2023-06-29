@@ -176,6 +176,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/zh/usage/install/</loc>
+         <lastmod>2023-06-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/zh/usage/install_without_root/</loc>
          <lastmod>2023-06-29</lastmod>
          <changefreq>daily</changefreq>
