@@ -1,0 +1,111 @@
+# arigap vms config
+Airgap:
+  debug: # debug runner
+    KYLINV10:
+      - name: gwt-kubean-offline-e2e-kylin-node3
+        ip: 10.5.127.167
+      - name: gwt-kubean-offline-e2e-kylin-node4
+        ip: 10.5.127.168
+    CENTOS7:
+      - name: gwt-kubean-offline-e2e-node3
+        ip: 10.16.10.163
+      - name: gwt-kubean-offline-e2e-node4
+        ip: 10.16.10.164
+    REDHAT8:
+      - name: gwt-kubean-offline-e2e-redhat8-node205
+        ip: 10.5.127.205
+      - name: gwt-kubean-offline-e2e-redhat8-node206
+        ip: 10.5.127.206
+    REDHAT7:
+      - name: gwt-kubean-offline-e2e-redhat7-node207
+        ip: 10.5.127.207
+      - name: gwt-kubean-offline-e2e-redhat7-node208
+        ip: 10.5.127.208
+
+  airgap_runner1: # this is for CI RUNNER
+    KYLINV10:
+      - name: gwt-kubean-offline-e2e-kylin-node1
+        ip: 10.5.127.165
+      - name: gwt-kubean-offline-e2e-kylin-node2
+        ip: 10.5.127.166
+    CENTOS7:
+      - name: gwt-kubean-offline-e2e-node1
+        ip: 10.16.10.161
+      - name: gwt-kubean-offline-e2e-node2
+        ip: 10.16.10.162
+    REDHAT8:
+      - name: gwt-kubean-offline-e2e-redhat8-node201
+        ip: 10.5.127.201
+      - name: gwt-kubean-offline-e2e-redhat8-node202
+        ip: 10.5.127.202
+    REDHAT7:
+      - name: gwt-kubean-offline-e2e-redhat7-node203
+        ip: 10.5.127.203
+      - name: gwt-kubean-offline-e2e-redhat7-node204
+        ip: 10.5.127.204
+
+### online vms config
+ONLINE:
+  debug:
+    CENTOS7:
+      - name: gwt-kubean-e2e-node71
+        ip: 172.30.41.71
+      - name: gwt-kubean-e2e-node72
+        ip: 172.30.41.72
+    REDHAT8:
+      - name: gwt-kubean-e2e-redhat8-node73
+        ip: 172.30.41.73
+      - name: gwt-kubean-e2e-redhat8-node74
+        ip: 172.30.41.74
+    REDHAT7:
+      - name: gwt-kubean-e2e-redhat7-node75
+        ip: 172.30.41.75
+      - name: gwt-kubean-e2e-redhat7-node76
+        ip: 172.30.41.76
+    CENTOS7-HK:
+      - name: gwt-kubean-e2e-hk-node77
+        ip: 172.30.41.77
+      - name: gwt-kubean-e2e-hk-node78
+        ip: 172.30.41.78
+  kubean-e2e-runner1:
+    CENTOS7:
+      - name: gwt-kubean-e2e-node211
+        ip: 10.6.178.211
+      - name: gwt-kubean-e2e-node212
+        ip: 10.6.178.212
+    REDHAT8:
+      - name: gwt-kubean-e2e-redhat8-node215
+        ip: 10.6.178.215
+      - name: gwt-kubean-e2e-redhat8-node216
+        ip: 10.6.178.216
+    REDHAT7:
+      - name: gwt-kubean-e2e-redhat8-node213
+        ip: 10.6.178.213
+      - name: gwt-kubean-e2e-redhat8-node214
+        ip: 10.6.178.214
+    CENTOS7-HK:
+      - name: gwt-kubean-e2e-hk-node217
+        ip: 10.6.178.217
+      - name: gwt-kubean-e2e-hk-node218
+        ip: 10.6.178.218
+  kubean-e2e-runner2:
+    CENTOS7:
+      - name: gwt-kubean-e2e-node201
+        ip: 10.6.178.201
+      - name: gwt-kubean-e2e-node202
+        ip: 10.6.178.202
+    REDHAT8:
+      - name: gwt-kubean-e2e-redhat8-node205
+        ip: 10.6.178.205
+      - name: gwt-kubean-e2e-redhat8-node206
+        ip: 10.6.178.206
+    REDHAT7:
+      - name: gwt-kubean-e2e-redhat7-node203
+        ip: 10.6.178.203
+      - name: gwt-kubean-e2e-redhat7-node204
+        ip: 10.6.178.204
+    CENTOS7-HK:
+      - name: gwt-kubean-e2e-hk-node207
+        ip: 10.6.178.207
+      - name: gwt-kubean-e2e-hk-node208
+        ip: 10.6.178.208

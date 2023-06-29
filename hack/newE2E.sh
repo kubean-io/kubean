@@ -2,8 +2,11 @@
 set -o nounset
 set -o pipefail
 set -e
+shopt -s nocasematch
 
 function init_vars() {
+    export CURRENT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd) # hack
+    export PERRENT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && cd .. && pwd) # kubean
     echo $GITHUB_JOB $OS_TYPE $ARCH $Network_TYPE $GAP_TYPE
 }
 
@@ -19,7 +22,15 @@ function execute_case() {
             bash hack/offline-e2e.sh $HELM_CHART_VERSION $VSPHERE_USER $VSPHERE_PASSWD $AMD_ROOT_PASSWORD $KYLIN_VM_PASSWORD $runner_name
             ;;
         "centos_cilium_airgap")
-            #todo
+            # kubean_ipvs_cluster_e2e
+            # kubean_cilium_cluster_e2e # skip this case cause' some other testcase is imbeded in this network case that cannot decouple code in test/
+            # kubean_calico_dualstack_e2e # skip this case
+            # kubean_calico_single_stack_e2e
+            test_case_string="kubean_ipvs_cluster_e2e,kubean_calico_single_stack_e2e"
+            OLD_IFS="$IFS"
+            IFS=","
+            test_case_arr=($test_case_string)
+            bash hack/network_testcase.sh ${test_case_arr[@]}
             ;;
         "redhat_calico_online")
             #todo
@@ -39,7 +50,7 @@ function execute_case() {
         "kylin_calico_airgap")
             #todo
             ;;
-        "*")
+        *)
             echo "no such $GITHUB_JOB, exit"
             ;;
         esac
