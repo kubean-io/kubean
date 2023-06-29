@@ -1483,7 +1483,7 @@ ISO 镜像源.</p>
 <p>这里可以使用脚本 <code>artifacts/gen_repo_conf.sh</code>, 执行如下命令即可挂载 ISO 镜像文件, 并创建 Repo 配置文件:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 基本格式</span>
 $<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--iso-mode<span class="w"> </span><span class="si">${</span><span class="nv">linux_distribution</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">iso_image_file</span><span class="si">}</span>
-
+<span class="c1"># linux_distribution 的值是 centos、redhat、debian 或者 ubuntu</span>
 <span class="c1"># 执行脚本创建 ISO 镜像源</span>
 $<span class="w"> </span>./gen_repo_conf.sh<span class="w"> </span>--iso-mode<span class="w"> </span>centos<span class="w"> </span>CentOS-7-x86_64-Everything-2207-02.iso
 <span class="c1"># 查看 ISO 镜像挂载情况</span>
@@ -1531,6 +1531,9 @@ sslverify=0
 <ul>
 <li>需要将 <code>${minio_address}</code> 替换为 minio API Server 地址</li>
 </ul>
+<p>这一步也可以通过设置 ClusterOperation 文件中 enable-repo.yml 的 extraArgs 的值来实现，
+将 extraArgs 的值添加为 <code>'{minio_url}/kubean/centos-iso/$releasever/os/$basearch'</code> 这种格式，
+参阅 <a href="#3-clusteroperation-结合-playbook-创建源配置文件">ClusterOperation 结合 playbook 创建源配置文件</a>了解更多信息。</p>
 <h5 id="_7">导入至本地目录<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h5>
 <p>将 ISO 中的镜像源导入到本地目录中，需要使用到脚本 <code>artifacts/import_iso.sh</code> ，执行如下面命令即可将 ISO 镜像中软件源导入到指定的本地目录中</p>
 <div class="highlight"><pre><span></span><code>./import_iso.sh<span class="w"> </span><span class="si">${</span><span class="nv">you_local_path</span><span class="si">}</span><span class="w"> </span>Centos-XXXX.ISO
@@ -1545,7 +1548,7 @@ sslverify=0
 </code></pre></div>
 <h3 id="2-extras">2. 建立 extras 软件源<a class="headerlink" href="#2-extras" title="Permanent link">&para;</a></h3>
 <blockquote>
-<p>当前仅支持 Centos 发行版</p>
+<p>当前支持 Red Hat Linux 系列</p>
 </blockquote>
 <p>在安装 K8S 集群时, 还会依赖一些 extras 软件, 比如 <code>container-selinux</code>, 这些软件往往在 ISO 镜像源中并不提供. 对此 OS
 packages 离线包已对其进行了补充, 其在导入 minio 之后,
