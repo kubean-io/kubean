@@ -31,7 +31,7 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
     && mv yq_linux_$ARCH /usr/local/bin/yq
 
 RUN pip3 cache purge \
-    && apk del --quiet gcc musl-dev python3-dev libffi-dev py3-pip git \
+    && apk del --quiet gcc musl-dev python3-dev libffi-dev git \
     && find / -type d -name '*__pycache__' -print0 | xargs -0 -r rm -rf \
     && bash -c "rm -rf /kubespray/{.git,docs}"
 
