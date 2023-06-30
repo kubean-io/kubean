@@ -218,21 +218,21 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
 		if apierrors.IsNotFound(err) {
-			return controllerruntime.Result{Requeue: false}, nil
+			return controllerruntime.Result{}, nil
 		}
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to get cluster ops", "clusterOps", req.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
 	if clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus || clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus {
 		// return early
-		return controllerruntime.Result{Requeue: false}, nil
+		return controllerruntime.Result{}, nil
 	}
 
 	cluster, err := c.GetKuBeanCluster(clusterOps)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to get kubean cluster", "cluster", cluster.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
 	if !IsValidImageName(clusterOps.Spec.Image) {
@@ -241,7 +241,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
 			klog.Error(err)
 		}
-		return controllerruntime.Result{Requeue: false}, nil
+		return controllerruntime.Result{}, nil
 	}
 
 	if err := c.CheckClusterDataRef(cluster, clusterOps); err != nil {
@@ -250,28 +250,29 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		if err := c.Client.Status().Update(ctx, clusterOps); err != nil {
 			klog.Error(err)
 		}
-		return controllerruntime.Result{Requeue: false}, nil
+		return controllerruntime.Result{}, nil
 	}
 
 	needRequeue, err := c.UpdateClusterOpsStatusDigest(clusterOps)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to get update clusterOps status digest", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	needRequeue, err = c.UpdateStatusHasModified(clusterOps)
 	if err != nil {
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to update clusterOps status", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	needRequeue, err = c.BackUpDataRef(clusterOps, cluster)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to backup data ref", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		// something(spec) updated ,so continue the next loop.
@@ -289,8 +290,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{Requeue: false}, err
 	}
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to create entrypoint shell configmap", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		// something updated.
@@ -299,8 +300,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	needBlock, err := c.CurrentJobNeedBlock(clusterOps, c.ListClusterOps)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to list clusterOps", "cluster", clusterOps.Spec.Cluster)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needBlock {
 		klog.Infof("clusterOps %s is blocked and waiting for other clusterOps completed", clusterOps.Name)
@@ -308,7 +309,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 			clusterOps.Status.Status = clusteroperationv1alpha1.BlockedStatus
 			if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 				klog.Warningf("clusterOps %s update Status to Blocked but %s", clusterOps.Name, err.Error())
-				return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+				return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 			}
 		}
 		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
@@ -316,8 +317,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	needRequeue, err = c.CreateKubeSprayJob(clusterOps)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to create kubespray job", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
@@ -325,13 +326,13 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobConditionStatusAndCompletionTime)
 	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, err
+		klog.ErrorS(err, "failed to update status loop", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
 	}
-	return controllerruntime.Result{Requeue: false}, nil
+	return controllerruntime.Result{}, nil
 }
 
 func (c *Controller) ProcessKubeanOperationImage(oldImage, globalManifestImageTag string) string {
