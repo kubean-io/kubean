@@ -210,7 +210,7 @@ func (c *Controller) IsOnlineENV() bool {
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	if req.Name == constants.InfoManifestGlobal {
-		return controllerruntime.Result{Requeue: false}, nil
+		return controllerruntime.Result{}, nil
 	}
 	klog.Infof("InfoManifest Controller receive event %s", req.Name)
 	latestInfoManifest, err := c.FetchLatestInfoManifest()

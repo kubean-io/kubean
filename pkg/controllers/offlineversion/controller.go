@@ -61,7 +61,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	offlineVersion := &localartifactsetv1alpha1.LocalArtifactSet{}
 	if err := c.Client.Get(context.Background(), req.NamespacedName, offlineVersion); err != nil {
 		if apierrors.IsNotFound(err) {
-			return controllerruntime.Result{Requeue: false}, nil
+			return controllerruntime.Result{}, nil
 		}
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
