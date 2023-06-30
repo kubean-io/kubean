@@ -20,7 +20,8 @@ WORKDIR /kubespray
 ENV LANG=C.UTF-8
 
 RUN /usr/bin/python3 -m pip install --no-cache-dir pip -U \
-    && python3 -m pip install --no-cache-dir -r requirements.txt
+    && python3 -m pip install --no-cache-dir -r requirements.txt \
+    && python3 -m pip install --no-cache-dir packaging
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
     && KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main.yaml) \
