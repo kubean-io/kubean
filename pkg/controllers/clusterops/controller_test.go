@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -32,6 +33,7 @@ import (
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	k8stesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -53,6 +55,27 @@ func newFakeClient() client.Client {
 	}
 	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&clusteroperationv1alpha1.ClusterOperation{}).WithRuntimeObjects(&clusterv1alpha1.Cluster{}).Build()
 	return client
+}
+
+func fetchTestingFake(obj interface{ RESTClient() rest.Interface }) *k8stesting.Fake {
+	// https://stackoverflow.com/questions/69740891/mocking-errors-with-client-go-fake-client
+	return reflect.Indirect(reflect.ValueOf(obj)).FieldByName("Fake").Interface().(*k8stesting.Fake)
+}
+
+func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, verb, resource string) {
+	if fakeObj := fetchTestingFake(obj); fakeObj != nil {
+		newReactionChain := make([]k8stesting.Reactor, 0)
+		fakeObj.Lock()
+		defer fakeObj.Unlock()
+		for i := range fakeObj.ReactionChain {
+			reaction := fakeObj.ReactionChain[i]
+			if simpleReaction, ok := reaction.(*k8stesting.SimpleReactor); ok && simpleReaction.Verb == verb && simpleReaction.Resource == resource {
+				continue // ignore
+			}
+			newReactionChain = append(newReactionChain, reaction)
+		}
+		fakeObj.ReactionChain = newReactionChain
+	}
 }
 
 func TestUpdateStatusLoop(t *testing.T) {
@@ -541,6 +564,20 @@ func TestController_HookCustomAction(t *testing.T) {
 			wantErr: true,
 		},
 		{
+			name: "specified configmap as actionSource with not exist actionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+
+				clusterOps.Spec.ActionSource = &configmapActionSource
+				clusterOps.Spec.ActionSourceRef = &apis.ConfigMapRef{
+					Name:      "myplaybook",
+					NameSpace: "mynamespace-not-exist",
+				}
+			},
+			wantErr: true,
+		},
+		{
 			name: "specified configmap as actionSource with actionSourceRef",
 			setAction: func() {
 				clusterOps.Spec.PreHook = nil
@@ -563,6 +600,42 @@ func TestController_HookCustomAction(t *testing.T) {
 				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &builtinActionSource, ActionType: clusteroperationv1alpha1.PlaybookActionType, Action: "ping.yml"}}
 			},
 			wantErr: false,
+		},
+		{
+			name: "wrong empty preHook ActionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &configmapActionSource, ActionSourceRef: nil}}
+			},
+			wantErr: true,
+		},
+		{
+			name: "wrong preHook with not exist ActionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PreHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &configmapActionSource, ActionSourceRef: &apis.ConfigMapRef{NameSpace: "abc", Name: "ok"}}}
+			},
+			wantErr: true,
+		},
+		{
+			name: "wrong empty postHook ActionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &configmapActionSource, ActionSourceRef: nil}}
+			},
+			wantErr: true,
+		},
+		{
+			name: "wrong postHook with not exist ActionSourceRef",
+			setAction: func() {
+				clusterOps.Spec.PreHook = nil
+				clusterOps.Spec.PostHook = nil
+				clusterOps.Spec.PostHook = []clusteroperationv1alpha1.HookAction{{ActionSource: &configmapActionSource, ActionSourceRef: &apis.ConfigMapRef{NameSpace: "abc", Name: "ok"}}}
+			},
+			wantErr: true,
 		},
 		{
 			name: "run with preHook and postHook in customer-action",
@@ -832,6 +905,18 @@ func TestGetServiceAccountName(t *testing.T) {
 		args func() bool
 		want bool
 	}{
+		{
+			name: "occurs error",
+			args: func() bool {
+				fetchTestingFake(controller.ClientSet.CoreV1()).PrependReactor("list", "serviceaccounts", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				_, err := controller.GetServiceAccountName("kubean-system", ServiceAccount)
+				removeReactorFromTestingTake(controller.ClientSet.CoreV1(), "list", "serviceaccounts")
+				return err != nil
+			},
+			want: true,
+		},
 		{
 			name: "nothing to get",
 			args: func() bool {
