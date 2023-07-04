@@ -2,34 +2,26 @@ name: Offline Build
 
 on:
   workflow_call:
-    inputs:
-      SPRAY_REF:
-        required: true
-        type: string
-
-env:
-  KUBE_VERSION: v1.26.5
 
 jobs:
   offline-build:
     runs-on: ubuntu-latest
     steps:
-    - name: Set env
-      run: echo "SPRAY_SHA_SHORT=$(echo ${{ inputs.SPRAY_REF }} | cut -c 1-7)" >> ${GITHUB_ENV}
-
-    - name: Echo env
-      run: echo ${SPRAY_SHA_SHORT}
-
     - name: Git clone kubean repo
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
+    - name: Set kubespray version env
+      run: |
+        echo "SPRAY_VERSION=$(yq ".kubespray_version" version.yml)" >> ${GITHUB_ENV}
+        echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV} 
+
     - name: Git clone kubespray repo
       uses: actions/checkout@v3
       with:
         repository: kubernetes-sigs/kubespray
-        ref: ${{ inputs.SPRAY_REF }}
+        ref: ${{ env.SPRAY_VERSION }}
         path: ./kubespray
 
     - name: Install yq tool
@@ -38,7 +30,7 @@ jobs:
     - name: Generate InfoManifest & OfflineVersion files
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
-        KUBESPRAY_TAG: ${{ env.SPRAY_SHA_SHORT }}
+        KUBESPRAY_TAG: ${{ env.SPRAY_VERSION }}
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
