@@ -1,6 +1,6 @@
 # :seedling: Kubean
 
-![Image title](/kubean/en/assets/images/kubean_logo_3.svg){ width="400"}
+![Image title](../overrides/assets/images/kubean_logo_3.svg){ width="400"}
 
 kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray).
 

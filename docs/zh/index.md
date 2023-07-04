@@ -1,6 +1,6 @@
 # :seedling: Kubean
 
-![Image title](/kubean/zh/assets/images/kubean_logo_3.svg){ width="400"}
+![Image title](../overrides/assets/images/kubean_logo_3.svg){ width="400"}
 
 Kubean 是一款基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 的集群生命周期管理工具。
 
