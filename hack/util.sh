@@ -468,6 +468,19 @@ function kind::clean_kind_cluster() {
       echo "No container name contains kubean to delete."
     fi
 }
+
+### Clean up the docker containers before test
+function util::clean_online_kind_cluster() {
+   echo "======= container prefix: ${CONTAINERS_PREFIX}"
+    kubean_containers_num=$( docker ps -a |grep ${CONTAINERS_PREFIX}||true)
+    if [ "${kubean_containers_num}" ];then
+      echo "Remove exist containers name contains ${CONTAINERS_PREFIX}..."
+      docker ps -a |grep "${CONTAINERS_PREFIX}"|awk '{print $NF}'|xargs docker rm -f || true
+    else
+      echo "No container name contains kubean to delete."
+    fi
+}
+
 ###### Clean Up #######
 function util::clean_up(){
     echo "======= cluster prefix: ${CLUSTER_PREFIX}"
@@ -517,7 +530,7 @@ function util::power_on_2vms(){
   SNAPSHOT_NAME=${POWER_ON_SNAPSHOT_NAME}
   util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
   util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
-  sleep 20
+  sleep 200
   util::wait_ip_reachable "${vm_ip_addr1}" 60
   util::wait_ip_reachable "${vm_ip_addr2}" 60
   ping -c 15 ${vm_ip_addr1}
@@ -622,3 +635,12 @@ function util::debug_runner_vm_match(){
   util::power_on_2vms ${OS_NAME}
   echo " vm test end...."
 }
+
+function util::check_yq_intalled(){
+     yq_installed=0
+     yq -V |grep 'version' && yq_installed=true || yq_installed=false
+     if [ "${yq_installed}" == "false" ]; then
+         wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 && \
+             sudo mv yq_linux_amd64 /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
+     fi
+ }
