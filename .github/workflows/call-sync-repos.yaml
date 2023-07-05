@@ -1,0 +1,58 @@
+name: Sync charts and api
+
+on:
+  workflow_call:
+
+jobs:
+  sync-repos:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Download InfoManifest CR
+      uses: actions/download-artifact@v3
+      with:
+        path: charts/kubean/templates/
+        name: info-manifest-cr-file
+
+    - name: update helm version and image tag
+      run: |
+        yq -i ".version=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+        yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
+        yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+        yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+
+    - name: helm checkout
+      run: |
+        pushd charts
+        tar zcvf kubean.tar.gz kubean
+        bash ../hack/verify_helm_standard.sh kubean.tar.gz
+        rm -rf kubean.tar.gz
+        popd
+
+    - name: Pushes charts to another repository
+      id: push_directory
+      uses: cpina/github-action-push-to-another-repository@v1.7.2
+      env:
+        SSH_DEPLOY_KEY: ${{ secrets.SYNC_CHART_PRIVATE_KEY }}
+      with:
+        source-directory: charts
+        destination-github-username: ${{ github.repository_owner }}
+        destination-repository-name: 'kubean-helm-chart'
+        user-email: kubean-robot@ykubean.io
+        commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+        target-directory: charts
+        target-branch: main
+
+    - name: Pushes api to kubean-api repository
+      env:
+        REPO_OWNER: ${{ github.repository_owner }}
+        SSH_DEPLOY_KEY: ${{ secrets.SYNC_API_PRIVATE_KEY }}
+      run: |
+        ./hack/sync_api.sh ${GITHUB_REF_NAME}

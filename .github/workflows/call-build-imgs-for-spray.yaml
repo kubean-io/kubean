@@ -1,4 +1,4 @@
-name: image build kubespray
+name: Kubespray image build
 
 on:
   workflow_call:
@@ -9,12 +9,6 @@ on:
       REPO:
         required: true
         type: string
-      BUILD_PLATFORM:
-        required: true
-        type: string
-      ONLINE_REGISTER:
-        required: true
-        type: string
   workflow_dispatch:
     inputs:
       SPRAY_REF:
@@ -23,15 +17,7 @@ on:
       REPO:
         required: true
         type: string
-        default: "kubean-io"
-      BUILD_PLATFORM:
-        required: true
-        type: string
-        default: "linux/amd64,linux/arm64"
-      ONLINE_REGISTER:
-        required: true
-        type: string
-        default: "ghcr.io"
+        default: kubean-io
 jobs:
   output-variable:
     runs-on: ubuntu-latest
@@ -45,15 +31,14 @@ jobs:
         INPUTS_SPRAY_REF=${{ inputs.SPRAY_REF }}
         SPRAY_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_REF} | awk '{ print $1}'`
         if [[ -z "${SPRAY_SHA}" ]];then
-            if (( ${#INPUTS_SPRAY_REF} != 40 ));then
-              echo "The sha length of the commit must be 40"
-              exit 1
-            fi
-            SPRAY_SHA=${INPUTS_SPRAY_REF}
+          if (( ${#INPUTS_SPRAY_REF} != 40 ));then
+            echo "The sha length of the commit must be 40"
+            exit 1
+          fi
+          SPRAY_SHA=${INPUTS_SPRAY_REF}
         fi
+        echo image_tag_short_sha=$(echo ${SPRAY_SHA} | cut -c 1-7) >> $GITHUB_OUTPUT
 
-        IMAGE_TAG_SHORT_SHA=$(echo ${SPRAY_SHA} | cut -c 1-7)
-        echo image_tag_short_sha=${IMAGE_TAG_SHORT_SHA} >> $GITHUB_OUTPUT
   build-kubespray-image:
     needs: output-variable
     runs-on: ubuntu-latest
@@ -84,9 +69,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
-        platforms: ${{ inputs.BUILD_PLATFORM }}
+        platforms: linux/amd64,linux/arm64
         tags: |
-          ${{ inputs.ONLINE_REGISTER }}/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}
-          ${{ inputs.ONLINE_REGISTER }}/${{ inputs.REPO }}/kubespray:latest
+          ghcr.io/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}
+          ghcr.io/${{ inputs.REPO }}/kubespray:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max

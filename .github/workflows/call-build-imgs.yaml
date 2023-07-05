@@ -1,0 +1,70 @@
+name: Image Build
+
+on:
+  workflow_call:
+    inputs:
+      CI_TYPE:
+        required: true
+        type: string
+
+env:
+  ONLINE_REGISTER: ghcr.io
+
+jobs:
+  output-variable:
+    runs-on: ubuntu-latest
+    outputs:
+      repo: ${{ steps.output_variables.outputs.repo }}
+      spray_version: ${{ steps.output_variables.outputs.spray_version }}
+      spray_short_sha: ${{ steps.output_variables.outputs.spray_short_sha }}
+      container_tag: ${{ steps.output_variables.outputs.container_tag }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: output environment variable
+      id: output_variables
+      run: |
+        spray_version=$(yq ".kubespray_version" version.yml)
+        echo spray_version=${spray_version} >> $GITHUB_OUTPUT
+        echo spray_short_sha=$(echo ${spray_version} | cut -c 1-7) >> $GITHUB_OUTPUT
+        ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
+        echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
+        CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+        if [[ ${{ inputs.CI_TYPE }} == "main" ]]; then
+          echo container_tag="${CONTAINER_TAG}-main" >> $GITHUB_OUTPUT
+        else
+          echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
+        fi
+
+  build-spray-imgs:
+    needs: output-variable
+    uses: ./.github/workflows/call-build-imgs-for-spray.yaml
+    secrets: inherit
+    with:
+      SPRAY_REF: ${{ needs.output-variable.outputs.spray_version }}
+      REPO: ${{ needs.output-variable.outputs.repo }}
+
+  build-kubean-imgs:
+    needs: [output-variable, build-spray-imgs]
+    uses: ./.github/workflows/call-build-imgs-for-kubean.yaml
+    secrets: inherit
+    with:
+      SPRAY_IMG_TAG: ${{ needs.output-variable.outputs.spray_short_sha }}
+      REPO: ${{ needs.output-variable.outputs.repo }}
+      BUILD_IMG_TAG: ${{ needs.output-variable.outputs.container_tag }}
+
+  security-scanning:
+    runs-on: ubuntu-latest
+    needs: [build-kubean-imgs, output-variable]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: set environment variable
+      run: |
+        export REGISTRY=${{ env.ONLINE_REGISTER }}
+        export REPO=${{ needs.output-variable.outputs.repo }}
+        export IMAGE_TAG=${{ needs.output-variable.outputs.container_tag }}
+        export SPRAY_IMAGE_TAG_SHORT_SHA=${{ needs.output-variable.outputs.spray_short_sha }}
+        make security-scanning

@@ -3,11 +3,11 @@ name: Auto Main CI
 on:
   push:
     branches:
-      - main
+    - main
 
 env:
-  ENVIRONMENT_RUNS_ON: "self-hosted"
-  ENVIRONMENT_CD: "dev"
+  ENVIRONMENT_RUNS_ON: self-hosted
+  ENVIRONMENT_CD: dev
 
 jobs:
   unit-test:
@@ -17,42 +17,29 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.20.4
+    - uses: actions/setup-go@v4
+      with:
+        go-version: 1.20.4
 
-      - name: unit test
-        run: |
-          make test > coverage.temp
-          grep total coverage.temp > covarage.txt
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov
-
-  get-spray-ref:
-    runs-on: ubuntu-latest
-    needs: unit-test
-    outputs:
-      sha: ${{ steps.get_ref.outputs.sha }}
-    steps:
-      - name: Get kubespray latest commit sha
-        id: get_ref
-        run: |
-          COMMIT_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git HEAD | awk '{ print $1}'`
-          echo sha=${COMMIT_SHA} >> $GITHUB_OUTPUT
+    - name: unit test
+      run: |
+        make test > coverage.temp
+        grep total coverage.temp > covarage.txt
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov
 
   call-images-build:
-    uses: ./.github/workflows/call-images-build.yaml
+    uses: ./.github/workflows/call-build-imgs.yaml
     secrets: inherit
-    needs: get-spray-ref
+    needs: unit-test
     with:
-      SPRAY_REF: ${{ needs.get-spray-ref.outputs.sha }}
-      CI_TYPE: "main"
-       
+      CI_TYPE: main
+
   get-environment:
     runs-on: ubuntu-latest
     needs: call-images-build
@@ -61,11 +48,11 @@ jobs:
       enviroment_cd: ${{ steps.get_variables.outputs.enviroment_cd }}
 
     steps:
-      - name: Get environment variable
-        id: get_variables
-        run: |
-          echo environment_runs_on=${{ env.ENVIRONMENT_RUNS_ON }} >> $GITHUB_OUTPUT
-          echo enviroment_cd=${{ env.ENVIRONMENT_CD }} >> $GITHUB_OUTPUT
+    - name: Get environment variable
+      id: get_variables
+      run: |
+        echo environment_runs_on=${{ env.ENVIRONMENT_RUNS_ON }} >> $GITHUB_OUTPUT
+        echo enviroment_cd=${{ env.ENVIRONMENT_CD }} >> $GITHUB_OUTPUT
 
   call-cd:
     uses: ./.github/workflows/call-cd.yaml
@@ -74,4 +61,4 @@ jobs:
     with:
       ENVIRONMENT_RUNS_ON: ${{ needs.get-environment.outputs.environment_runs_on }}
       ENRIRONMENT_CD: ${{ needs.get-environment.outputs.enviroment_cd }}
-      CI_TYPE: "main"
+      CI_TYPE: main
