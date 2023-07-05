@@ -67,9 +67,31 @@
     6. check k8s version by cmd: kubectl version  --short, the "Server Version" should be: {{X.Y+1.*}}
     7. check node version: kubectl get node -o wide, the version should be {{X.Y+1.*}}
 
-
 ### Retry 0 times when job fail
     1. prepare the config file, and set backoffLimit=0
     2. start a bound to fail jod
     3. check the job-related pod status is "Error"
     4. wait 100s, check the job-related pod total count is 1
+
+### Offline Cluster Upgrade
+1 Generate the k8s upgrade offline package
+1.1 Execute on runner machine
+1.2 Download the airgap-patch and confirm that the download was successful
+1.3 Create a manifest.yml file for the k8 version range supported by kubean version 0.6.6
+ versionRange.
+        - "v1.27.3"
+        - "v1.26.6"
+1.4 docker run manifest.yml -v airgap-patch-image, docker ps to confirm the generated pod
+1.5 Confirm the generated result file directory
+1.6 Confirm the range of k8 versions supported by airgap-patch
+2 Importing the k8s upgrade offline package
+2.1 Copy the entire directory of the above generated files to runner and to the kind cluster
+2.2 import_images.sh into registry and make sure it is imported
+2.3 import_files.sh into minio and make sure it is imported
+2.4 Generate a list of available k8 versions and make sure it is generated
+kubectl apply -f kubeanofflineversion.cr.patch.yaml
+2.3 Configure clusterOps.yml to include upgrade.yaml
+2.4 Configure the kube_version in the vars file to "v1.26.6" in the upgrade package
+2.5 kubectl apply f . /upgradeyml to upgrade the cluster
+2.6 Login to the work cluster and make sure that the k8s version is the expected Y version
+2.7 Repeat 2.4-2.6 to upgrade to v1.27.3 and make sure the k8s version is the expected Z version

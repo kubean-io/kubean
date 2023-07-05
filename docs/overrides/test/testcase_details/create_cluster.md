@@ -368,3 +368,41 @@
     5. Traverse and login to each master node to check which vip is in effect
     6. shutdown the node where vip is located
     7. Login with kube-vip ip address and check that vip has drifted to a node that is not powered off
+
+### cluster master node scale
+1 Create a working cluster of 1 master node
+2 Add in a master node
+Check that:
+    a. node is installed successfully 
+    b. k8s components are running correctly (including etcd)
+    c. Create nginx application running correctly
+3 Add another master node. i.e. 1+1+1 3master node cluster.
+Check that:
+    a. node is installed successfully 
+    b. k8s components are running correctly (including etcd)
+    c. Create nginx application running correctly 
+    d. after k8s component restart, check component can restart successfully and application pod running normally
+4 Cluster reverts to one master node
+5 Add in a master node
+Check that:
+    a. node is installed successfully
+    b. k8s components are running correctly (including etcd)
+    c. Create nginx application running correctly
+6 Similarly, add two master nodes at once. The final cluster will be 1+1+2 master nodes
+Check that:
+    a. node is installed successfully
+    b. k8s components are running correctly (including etcd)
+    c. Create nginx application running correctly
+
+### non root users create a work cluster
+1 Create user aaa for vm, set password and give non-root privileges
+2 Modify the username and password information in host-conf-cm.yml
+3 kubean creates the job cluster
+4 Expectation: not successful (Missing sudo password output in job logs)
+
+### Configure spec.activeDeadlineSeconds and verify if the job terminaled after timeout
+1 Add activeDeadlineSeconds: 30 to the kubeanClusterOps configuration file
+2 Start a job that creates a single-node job cluster
+3 Disable the worker node network at this point (such as: nmcli c down ens192)
+4 Verify that the worker node network is unreachable
+5 Check that the job is stopped (complete), and expects to change state within the timeout set by spec.activeDeadlineSeconds
