@@ -14,6 +14,12 @@ refers to the respective components of this triple as <major>.<minor>.<patch>.
 * Patch release process, that means a version which includes some bug fix , such as `v0.4.1`
 * RC release process, that means a preview version before the official release ,such as `v0.4.2-rc1`
 
+## When to raise a release
+
+- when valuable features are produced by Kubespray/Kubean
+- when valuable optimizations are introduced by Kubespray/Kubean
+- when valuable bugs are fixed by Kubespray/kubean
+
 ## How to release a new version
 
 ### Overview
@@ -25,6 +31,7 @@ A minor release requires:
 pre steps:
 
 - Check pipeline success
+- Raise PR to update the version of kubespray
 - smoke test(optional)
 
 core steps:
@@ -40,11 +47,26 @@ post steps:
 
 ### pre steps
 
+#### Check pipeline success
+
+![lock_kubespray_commit](./docs/overrides/assets/images/lock_kubespray_commit.png)
+
+Note: By default, we fix the version of Kubespray at the beginning of each calendar month
+
+Before raise a release for Kubean, we need to ensure whether update the version of Kubespray or not. It depends on whether the upstream brings up something [interesting or important](#When-to-raise-a-release), if so, we need to update it. But before that we should ensure that the new version of Kubespray is stable enough. So we need to check the latest successful [E2E test](https://github.com/kubean-io/kubean/actions/workflows/verify-kubespray.yaml)
+
+#### Raise PR to update the version of kubespray
+
+1. Get the version(commit SHA-1) of kubespray by looking up the latest successful [E2E test](https://github.com/kubean-io/kubean/actions/workflows/verify-kubespray.yaml)
+2. Update the version of kubespray in [version.yml](./version.yml)
+3. [Raise a PR](https://github.com/kubean-io/kubean/compare) and merge it
+
 ### core steps
 
 #### Push the new tag
 
 ```bash
+git pull origin main ## make local index up to date
 new_tag=v0.4.0 ## for example
 git tag $new_tag
 git push origin $new_tag 
