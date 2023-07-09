@@ -83,6 +83,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        generate_release_notes: true
+        # generate_release_notes: true
         files: |
           os-pkgs-${{ matrix.name }}-${{ github.ref_name }}.tar.gz
