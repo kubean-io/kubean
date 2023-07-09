@@ -63,7 +63,8 @@ jobs:
     - name: kubespray base image build
       uses: docker/build-push-action@v4.1.1
       with:
-        context: ./build/images/kubespray
+        context: ./
+        file: build/images/kubespray/Dockerfile
         build-args: |
           SPRAY_REF=${{ inputs.SPRAY_REF }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
