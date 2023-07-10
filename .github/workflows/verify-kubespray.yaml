@@ -1,0 +1,82 @@
+name: Verify Kubespray
+
+on:
+  workflow_dispatch: #manual run
+  schedule:
+    - cron: '0 18 * * *'
+
+jobs:
+  output-variable:
+    runs-on: ubuntu-latest
+    outputs:
+      repo: ${{ steps.output_variables.outputs.repo }}
+      spray_version: ${{ steps.output_variables.outputs.spray_version }}
+      spray_short_sha: ${{ steps.output_variables.outputs.spray_short_sha }}
+      container_tag: ${{ steps.output_variables.outputs.container_tag }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: output environment variable
+      id: output_variables
+      run: |
+        spray_version=`git ls-remote --head https://github.com/kubernetes-sigs/kubespray.git refs/heads/master | awk -F ' ' '{print $1}'` # get kubespray master head commit id sha
+        echo spray_version=${spray_version} >> $GITHUB_OUTPUT
+        echo spray_short_sha=$(echo ${spray_version} | cut -c 1-7) >> $GITHUB_OUTPUT
+        ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
+        echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
+#CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
+        CONTAINER_TAG="veriKube"
+        echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
+
+
+  build-spray-imgs: #build kubespray base image
+    needs: [output-variable]
+    uses: ./.github/workflows/call-build-imgs-for-spray.yaml
+    secrets: inherit
+    continue-on-error: true
+    with:
+      SPRAY_REF: ${{ needs.output-variable.outputs.spray_version }}
+      REPO: ${{ needs.output-variable.outputs.repo }}
+
+  build-kubean-imgs:
+    needs: [output-variable, build-spray-imgs]
+    uses: ./.github/workflows/call-build-imgs-for-kubean.yaml
+    secrets: inherit
+    continue-on-error: true
+    with:
+      SPRAY_IMG_TAG: ${{ needs.output-variable.outputs.spray_short_sha }}
+      REPO: ${{ needs.output-variable.outputs.repo }}
+      BUILD_IMG_TAG: ${{ needs.output-variable.outputs.container_tag }}
+
+  verify_kubespray_e2e_test:
+    needs: [ output-variable, build-spray-imgs,build-kubean-imgs ]
+    runs-on: [self-hosted, online]
+    timeout-minutes: 900
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.get_ref.outputs.ref }}
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.20.4
+      - name: verify_kubespray_e2e_test
+        env: 
+          CONTAINER_TAG: ${{ needs.output-variable.outputs.container_tag }}
+        run: |
+          echo ${{ runner.name }}
+          echo ${{ runner.os }}
+          echo ${{ runner.arch }}
+          echo ${{ github.workspace }}
+          bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "PR"
+
+  print_kubespray_commit_sha:
+    needs: [verify_kubespray_e2e_test]
+    runs-on: ubuntu-latest
+    steps: 
+      run: |
+        echo "📢📢📢kubespray commit ID SHA that pass kubean e2e test: " ${{ needs.output-variable.outputs.spray_version }}, ${{ needs.output-variable.outputs.spray_short_sha }}
