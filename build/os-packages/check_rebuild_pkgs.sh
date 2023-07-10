@@ -28,7 +28,7 @@ fi
 git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }
 
 # centos7 / kylinv10 / redhat7 / redhat8
-if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ]; then
+if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ] || [ "${OS_NAME}" == "oracle8" ] || [ "${OS_NAME}" == "oracle9" ] || [ "${OS_NAME}" == "tencent31" ]; then
   late_digest=$(echo "${late_packages_yml}" | yq eval ".yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then

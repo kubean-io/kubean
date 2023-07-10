@@ -63,6 +63,9 @@ openeuler:
 oracle9:
   - socat
 
+oracle8:
+  - socat
+
 tencentos31:
   - nss
   - socat
