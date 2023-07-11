@@ -2,7 +2,9 @@ package infomanifest
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -13,10 +15,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	k8stesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
+	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -42,6 +47,27 @@ func newFakeClient() client.Client {
 	}
 	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&manifestv1alpha1.Manifest{}).WithRuntimeObjects(&localartifactsetv1alpha1.LocalArtifactSet{}).Build()
 	return client
+}
+
+func fetchTestingFake(obj interface{ RESTClient() rest.Interface }) *k8stesting.Fake {
+	// https://stackoverflow.com/questions/69740891/mocking-errors-with-client-go-fake-client
+	return reflect.Indirect(reflect.ValueOf(obj)).FieldByName("Fake").Interface().(*k8stesting.Fake)
+}
+
+func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, verb, resource string) {
+	if fakeObj := fetchTestingFake(obj); fakeObj != nil {
+		newReactionChain := make([]k8stesting.Reactor, 0)
+		fakeObj.Lock()
+		defer fakeObj.Unlock()
+		for i := range fakeObj.ReactionChain {
+			reaction := fakeObj.ReactionChain[i]
+			if simpleReaction, ok := reaction.(*k8stesting.SimpleReactor); ok && simpleReaction.Verb == verb && simpleReaction.Resource == resource {
+				continue // ignore
+			}
+			newReactionChain = append(newReactionChain, reaction)
+		}
+		fakeObj.ReactionChain = newReactionChain
+	}
 }
 
 func Test_FetchLatestInfoManifest(t *testing.T) {
@@ -491,6 +517,202 @@ func Test_UpdateGlobalLocalService1(t *testing.T) {
 	}
 }
 
+func Test_UpdateGlobalLocalService2(t *testing.T) {
+	controller := &Controller{
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "online ENV",
+			args: func() bool {
+				controller.UpdateGlobalLocalService()
+				return controller.IsOnlineENV()
+			},
+			want: true,
+		},
+		{
+			name: "LocalService not found in default namespace",
+			args: func() bool {
+				os.Setenv("POD_NAMESPACE", "")
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
+					context.Background(),
+					&localartifactsetv1alpha1.LocalArtifactSet{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "localservice-1",
+						},
+						Spec: localartifactsetv1alpha1.Spec{
+							Items: []*localartifactsetv1alpha1.SoftwareInfo{
+								{
+									Name:         "etcd-1",
+									VersionRange: []string{"1.1", "1.2"},
+								},
+							},
+						},
+					},
+					metav1.CreateOptions{})
+				controller.UpdateGlobalLocalService()
+				return controller.IsOnlineENV()
+			},
+			want: false,
+		},
+		{
+			name: "fetch localService but this cm is wrong format",
+			args: func() bool {
+				os.Setenv("POD_NAMESPACE", "")
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
+					context.Background(),
+					&localartifactsetv1alpha1.LocalArtifactSet{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "localservice-1",
+						},
+						Spec: localartifactsetv1alpha1.Spec{
+							Items: []*localartifactsetv1alpha1.SoftwareInfo{
+								{
+									Name:         "etcd-1",
+									VersionRange: []string{"1.1", "1.2"},
+								},
+							},
+						},
+					},
+					metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      LocalServiceConfigMap,
+						Namespace: "default",
+					},
+					Data: map[string]string{"localService": "1==1"},
+				}, metav1.CreateOptions{})
+				controller.UpdateGlobalLocalService()
+				return controller.IsOnlineENV()
+			},
+			want: false,
+		},
+		{
+			name: "global-manifest not-found",
+			args: func() bool {
+				os.Setenv("POD_NAMESPACE", "")
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
+					context.Background(),
+					&localartifactsetv1alpha1.LocalArtifactSet{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: "localservice-1",
+						},
+						Spec: localartifactsetv1alpha1.Spec{
+							Items: []*localartifactsetv1alpha1.SoftwareInfo{
+								{
+									Name:         "etcd-1",
+									VersionRange: []string{"1.1", "1.2"},
+								},
+							},
+						},
+					},
+					metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), LocalServiceConfigMap, metav1.DeleteOptions{})
+				time.Sleep(time.Second)
+				localServiceData := `
+      imageRepo: 
+        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
+        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
+        githubImageRepo: "a"
+        dockerImageRepo: "b"
+`
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      LocalServiceConfigMap,
+						Namespace: "default",
+					},
+					Data: map[string]string{"localService": localServiceData},
+				}, metav1.CreateOptions{})
+				controller.UpdateGlobalLocalService()
+				return controller.IsOnlineENV()
+			},
+			want: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
+	controller := &Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+
+	global := &manifestv1alpha1.Manifest{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Manifest",
+			APIVersion: "kubean.io/v1alpha1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   constants.InfoManifestGlobal,
+			Labels: map[string]string{OriginLabel: "v2"},
+		},
+		Spec: manifestv1alpha1.Spec{
+			KubeanVersion: "123",
+		},
+	}
+	controller.Client.Create(context.Background(), global)
+	controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
+
+	tests := []struct {
+		name string
+		args func() string
+		want string
+	}{
+		{
+			name: "FetchGlobalInfoManifest with error",
+			args: func() string {
+				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("get", "manifests", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				controller.UpdateLocalAvailableImage()
+				removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "get", "manifests")
+
+				global, _ := controller.FetchGlobalInfoManifest()
+				return global.Status.LocalAvailable.KubesprayImage
+			},
+			want: "",
+		},
+		{
+			name: "UpdateStatus with error",
+			args: func() string {
+				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("update", "manifests/status", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error when updateStatus")
+				})
+				controller.UpdateLocalAvailableImage()
+				removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "update", "manifests/status")
+
+				global, _ := controller.FetchGlobalInfoManifest()
+				return global.Status.LocalAvailable.KubesprayImage
+			},
+			want: "",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func Test_UpdateLocalAvailableImage(t *testing.T) {
 	controller := &Controller{
 		Client:                newFakeClient(),
@@ -649,17 +871,33 @@ func addLocalArtifactSet(controller *Controller) {
 }
 
 func TestIsOnlineENV(t *testing.T) {
-	controller := &Controller{
-		Client:                    newFakeClient(),
-		ClientSet:                 clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
-		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	genController := func() *Controller {
+		return &Controller{
+			Client:                    newFakeClient(),
+			ClientSet:                 clientsetfake.NewSimpleClientset(),
+			InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+			LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+		}
 	}
+	controller := genController()
+
 	tests := []struct {
 		name string
 		args func() bool
 		want bool
 	}{
+		{
+			name: "list but error",
+			args: func() bool {
+				// use plural: localartifactsets
+				fetchTestingFake(controller.LocalArtifactSetClientSet.KubeanV1alpha1()).PrependReactor("list", "localartifactsets", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				defer removeReactorFromTestingTake(controller.LocalArtifactSetClientSet.KubeanV1alpha1(), "list", "localartifactsets")
+				return controller.IsOnlineENV()
+			},
+			want: true,
+		},
 		{
 			name: "list nothing",
 			args: func() bool {
@@ -733,6 +971,64 @@ func TestFetchLocalServiceCM(t *testing.T) {
 				controller.ClientSet.CoreV1().ConfigMaps("kubean-system").Create(context.Background(), configMap, metav1.CreateOptions{})
 				result, err := controller.FetchLocalServiceCM("kubean-system")
 				return err == nil && result != nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestReconcile(t *testing.T) {
+	controller := &Controller{
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "not for global-manifest",
+			args: func() bool {
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: constants.InfoManifestGlobal}})
+				return err == nil && result.Requeue == false
+			},
+			want: true,
+		},
+		{
+			name: "fetch infomanifest but error",
+			args: func() bool {
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
+				return err == nil && result.RequeueAfter == Loop
+			},
+			want: true,
+		},
+		{
+			name: "fetch infomanifest successfully",
+			args: func() bool {
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Manifest",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "abc-infomanifest",
+					},
+					Spec: manifestv1alpha1.Spec{},
+				}, metav1.CreateOptions{})
+				controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
+				globalManifest, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+				return err == nil && result.RequeueAfter == Loop && globalManifest != nil
 			},
 			want: true,
 		},
