@@ -1,3 +1,5 @@
+name: Upload Qiniu
+
 on: workflow_call
 
 env:

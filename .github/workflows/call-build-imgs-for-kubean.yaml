@@ -1,3 +1,5 @@
+name: Build Kubean Imgs
+
 on:
   workflow_call:
     inputs:
