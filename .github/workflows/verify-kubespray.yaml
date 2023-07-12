@@ -25,7 +25,6 @@ jobs:
         echo spray_short_sha=$(echo ${spray_version} | cut -c 1-7) >> $GITHUB_OUTPUT
         ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
         echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
-#CONTAINER_TAG=$(git describe --tags --abbrev=8 --dirty)
         CONTAINER_TAG="veriKube"
         echo container_tag=${CONTAINER_TAG} >> $GITHUB_OUTPUT
 
