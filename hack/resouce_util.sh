@@ -96,7 +96,8 @@ function resource::download_resource_files(){
     file_name=${item}-${new_tag}.tar.gz
     file_url=${BASE_URL}/${new_tag}/${file_name}
       echo "${file_url}"
-      wget -q -c -T 1m -P "${download_root_path}/${new_tag}"  ${file_url}
+      # retry more times to download files
+      curl --retry 10 --retry-max-time 60 -LO --output "${download_root_path}/${new_tag}"  ${file_url}
   done
 }
 
