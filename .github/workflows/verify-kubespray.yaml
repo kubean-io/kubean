@@ -65,6 +65,12 @@ jobs:
         env: 
           CONTAINER_TAG: ${{ needs.output-variable.outputs.container_tag }}
         run: |
+          temp_tag="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          HELM_CHART_VERSION=`echo ${temp_tag}|awk -F "-" '{print $1}'`
+          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+          fi
           echo ${{ runner.name }}
           echo ${{ runner.os }}
           echo ${{ runner.arch }}

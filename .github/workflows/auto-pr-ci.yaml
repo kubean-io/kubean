@@ -165,11 +165,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
-
       - uses: actions/setup-go@v4
         with:
           go-version: 1.20.4
-
       - name: e2e
         run: |
           CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
