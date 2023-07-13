@@ -29,6 +29,7 @@ const (
 	UpdateHostsPB = "update-hosts.yml"
 	RemovePkgsPB  = "remove-pkgs.yml"
 	PreCheckPB    = "precheck.yml"
+	RenewCertsPB  = "renew-certs.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -55,7 +56,7 @@ func NewActions() *Actions {
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
 		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
-		RemovePkgsPB, PreCheckPB,
+		RemovePkgsPB, PreCheckPB, RenewCertsPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
