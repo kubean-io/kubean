@@ -5,6 +5,12 @@ on:
   schedule:
     - cron: '0 18 * * *'
 
+env:
+  VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
+  VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
+  AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}
+  KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
+
 jobs:
   output-variable:
     runs-on: ubuntu-latest
@@ -78,7 +84,7 @@ jobs:
           bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "PR"
 
   print_kubespray_commit_sha:
-    needs: [verify_kubespray_e2e_test]
+    needs: [output-variable, verify_kubespray_e2e_test]
     runs-on: ubuntu-latest
     steps: 
       - name: print_kubespray_commit_sha
