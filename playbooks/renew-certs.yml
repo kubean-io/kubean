@@ -1,0 +1,263 @@
+---
+- name: Renew Cluster Certificates
+  hosts: k8s_cluster
+  gather_facts: true
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    valid_days: 3650
+    k8s_path: /etc/kubernetes
+    pki_path: "{{ k8s_path }}/pki"
+    k8s_backup_path: "{{ k8s_path }}-backup-{{ ansible_date_time.iso8601_basic_short }}"
+  tasks:
+    - name: Create k8s backup path
+      file:
+        path: "{{ k8s_backup_path }}"
+        state: directory
+        mode: '0755'
+
+    # use synchronize need install sshpass
+    - name: Backup current kubeconfig
+      ansible.posix.synchronize:
+        src: "{{ k8s_path }}/{{ item }}"
+        dest: "{{ k8s_backup_path }}"
+      loop:
+        - admin.conf
+        - kubelet.conf
+        - scheduler.conf
+        - controller-manager.conf
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Backup current certificates
+      ansible.posix.synchronize:
+        src: "{{ pki_path }}/"
+        dest: "{{ k8s_backup_path }}/pki/"
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Pre-check expiration date of certificate
+      command: kubeadm certs check-expiration
+      register: expiration_info
+    - debug: var=expiration_info.stdout_lines
+
+    - name: Generate k8s certificates
+      vars:
+        # https://kubernetes.io/docs/setup/best-practices/certificates/#all-certificates
+        _certs_opt_mapping:
+          - name: admin.conf
+            kind: [clientAuth]
+            target: "{{ pki_path }}/admin.conf"
+            parent_ca: ca
+          - name: controller-manager.conf
+            kind: [clientAuth]
+            target: "{{ pki_path }}/controller-manager.conf"
+            parent_ca: ca
+          - name: scheduler.conf
+            kind: [clientAuth]
+            target: "{{ pki_path }}/scheduler.conf"
+            parent_ca: ca
+          - name: apiserver
+            kind: [serverAuth]
+            target: "{{ pki_path }}/apiserver"
+            parent_ca: ca
+          - name: apiserver-kubelet-client
+            kind: [clientAuth]
+            target: "{{ pki_path }}/apiserver-kubelet-client"
+            parent_ca: ca
+          - name: front-proxy-client
+            kind: [clientAuth]
+            target: "{{ pki_path }}/front-proxy-client"
+            parent_ca: front-proxy-ca
+          - name: apiserver-etcd-client
+            kind: [clientAuth]
+            target: "{{ pki_path }}/apiserver-etcd-client"
+            parent_ca: etcd/ca
+          - name: etcd/healthcheck-client
+            kind: [clientAuth]
+            target: "{{ pki_path }}/etcd/healthcheck-client"
+            parent_ca: etcd/ca
+          - name: etcd/peer
+            kind: [serverAuth, clientAuth]
+            target: "{{ pki_path }}/etcd/peer"
+            parent_ca: etcd/ca
+          - name: etcd/server
+            kind: [serverAuth, clientAuth]
+            target: "{{ pki_path }}/etcd/server"
+            parent_ca: etcd/ca
+
+      block:
+        - name: Create certs_opt_mapping fact
+          block:
+            - name: Set default certs_opt_mapping fact value
+              set_fact:
+                certs_opt_mapping: "{{ _certs_opt_mapping }}"
+                certs_renewal_list: "{{ _certs_opt_mapping | map(attribute='name') }}"
+
+        - name: Ensure necessary directories exist
+          file:
+            path: "{{ item }}"
+            state: directory
+            owner: root
+            group: root
+            mode: u=rw
+          loop:
+            - "{{ pki_path }}/csr"
+            - "{{ pki_path }}/ext"
+            - "{{ pki_path }}/ext/etcd"
+
+        - name: Generate new CSR by kubeadm
+          command: |-
+            kubeadm certs generate-csr \
+              --cert-dir=csr \
+              --kubeconfig-dir=csr \
+              --config=/etc/kubernetes/kubeadm-config.yaml
+          args:
+            chdir: "{{ pki_path }}"
+
+        - name: Register SAN extension for all CSR files
+          shell: |-
+            openssl req -text -noout \
+              -reqopt no_subject,no_header,no_version,no_serial,no_signame,no_validity,no_issuer,no_pubkey,no_sigdump,no_aux \
+              -in csr/{{ item.name }}.csr \
+              | sed '1,3d;s/ Address//g;s/^[[:blank:]]*//;s/[[:blank:]]*$//'
+          args:
+            chdir: "{{ pki_path }}"
+          register: csr_info
+          loop: "{{ certs_opt_mapping }}"
+          loop_control:
+            label: "{{ item.name }}"
+
+        - name: Generate extension files
+          vars:
+            cert_v3_ext: |-
+              keyUsage = critical, digitalSignature, keyEncipherment
+              extendedKeyUsage = {{ item.0.kind | join(',') }}
+              {% if item.1.stdout %}
+              subjectAltName = {{ item.1.stdout }}
+              {% endif %}
+          copy:
+            content: "{{ cert_v3_ext }}"
+            dest: "{{ pki_path }}/ext/{{ item.0.name }}.ext"
+            mode: u=rw,g=r,o=
+          loop: "{{ certs_opt_mapping|zip(csr_info.results)|list }}"
+          loop_control:
+            label: "{{ item.0.name }}"
+
+        - name: Create new signed certificates
+          command: |-
+            openssl x509 -req -days {{ valid_days }} \
+              -in csr/{{ item.name }}.csr \
+              -extfile ext/{{ item.name }}.ext \
+              -CA {{ item.parent_ca }}.crt \
+              -CAkey {{ item.parent_ca }}.key \
+              -CAcreateserial \
+              -out {{ item.target }}.crt
+          args:
+            chdir: "{{ pki_path }}"
+          loop: "{{ certs_opt_mapping }}"
+          loop_control:
+            label: "{{ item.name }}"
+
+        - name: Copy keys to certificates location and ensure that permissions are strict
+          vars:
+            _conf_files: "{{ certs_opt_mapping | selectattr('name', 'search', '.conf') }}"
+          copy:
+            src: "{{ pki_path }}/csr/{{ item.name }}.key"
+            remote_src: true
+            dest: "{{ item.target }}.key"
+            owner: root
+            group: root
+            mode: u=rw
+          loop: "{{ certs_opt_mapping | difference(_conf_files) }}"
+          loop_control:
+            label: "{{ item.name }}"
+
+        - name: Update conf files with embedded certs
+          vars:
+            _kubeconf_cn_mapping:
+              admin.conf: kubernetes-admin
+              scheduler.conf: system:kube-scheduler
+              controller-manager.conf: system:kube-controller-manager
+          block:
+            - name: Slurp kubeconfig files
+              slurp:
+                src: "{{ pki_path }}/csr/{{ item }}"
+              register: kubeconfig_files_content
+              loop: "{{ _kubeconf_cn_mapping.keys() | intersect(certs_renewal_list) }}"
+
+            - name: Create kubeconfig key files
+              vars:
+                _content: "{{ config_file.content | b64decode | from_yaml }}"
+              copy:
+                content: "{{ _content.users.0.user['client-key-data'] | b64decode }}"
+                dest: "{{ pki_path }}/{{ config_file.item }}.key"
+                owner: root
+                group: root
+                mode: u=rw
+              loop: "{{ kubeconfig_files_content.results }}"
+              loop_control:
+                loop_var: config_file
+                label: "{{ config_file.item }}"
+
+            - name: Update conf files with embedded certs
+              environment:
+                KUBECONFIG: "/etc/kubernetes/{{ item.key }}"
+              command: |-
+                kubectl config set-credentials {{ item.value }} \
+                  --client-key {{ item.key }}.key \
+                  --client-certificate {{ item.key }}.crt --embed-certs
+              args:
+                chdir: "{{ pki_path }}"
+              loop: "{{ _kubeconf_cn_mapping | dict2items | selectattr('key', 'in', certs_renewal_list) }}"
+
+            - name: Updating kubeconfig in root path         
+              copy:
+                src: "{{ k8s_path }}/admin.conf"
+                remote_src: true
+                dest: /root/.kube/config
+                owner: root
+                group: root
+                mode: u=rw
+
+        - name: Remove conf certificates and temporary directories
+          file:
+            path: "{{ pki_path }}/{{ item }}"
+            state: absent
+          loop:
+            - admin.conf.crt
+            - admin.conf.key
+            - scheduler.conf.crt
+            - scheduler.conf.key
+            - controller-manager.conf.crt
+            - controller-manager.conf.key
+            - csr
+            - ext
+
+      rescue:
+        - name: Restore certificates
+          ansible.posix.synchronize:
+            src: "{{ k8s_backup_path }}/"
+            dest: "{{ pki_path | regex_replace('\\/$', '') }}"
+          delegate_to: "{{ inventory_hostname }}"
+
+        - name: Fail certificates generation
+          fail:
+            msg: Certificates generation failed, restored an initial state
+
+    - name: Restart kubelet systemd services
+      block:
+        - name: Restart services
+          systemd:
+            name: kubelet
+            state: restarted
+
+        - name: Wait until cluster is available
+          command: kubectl cluster-info
+          retries: 60
+          delay: 1
+          register: result
+          until: result is succeeded and "running" in result.stdout
+
+        - name: Run check-expiration for control-plane
+          command: kubeadm certs check-expiration
+          register: expiration_info
+        - debug: var=expiration_info.stdout_lines
