@@ -16,6 +16,11 @@
         state: directory
         mode: '0755'
 
+    - name: Install sshpass for synchronize
+      ansible.builtin.package:
+        name: sshpass
+        state: present
+
     # use synchronize need install sshpass
     - name: Backup current kubeconfig
       ansible.posix.synchronize:
