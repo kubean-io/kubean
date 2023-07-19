@@ -2402,6 +2402,96 @@ func Test_ProcessKubeanOperationImage(t *testing.T) {
 	}
 }
 
+func TestUpdateOperationOwnReferenceForCluster(t *testing.T) {
+	genController := func() *Controller {
+		return &Controller{
+			Client:                newFakeClient(),
+			ClientSet:             clientsetfake.NewSimpleClientset(),
+			KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+			KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+			InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+		}
+	}
+	tests := []struct {
+		name string
+		arg  func() bool
+		want bool
+	}{
+		{
+			name: "the names are not same",
+			arg: func() bool {
+				controller := genController()
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Spec.Cluster = "cluster-origin"
+				cluster := &clusterv1alpha1.Cluster{}
+				cluster.Name = "cluster1"
+				needRequeue, err := controller.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+				return err == nil && needRequeue == false
+			},
+			want: true,
+		},
+		{
+			name: "the ownreference has been set",
+			arg: func() bool {
+				controller := genController()
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Spec.Cluster = "cluster-origin"
+
+				cluster := &clusterv1alpha1.Cluster{}
+				cluster.Name = "cluster-origin"
+				cluster.UID = "cluster-uid-1"
+				clusterOps.OwnerReferences = append(clusterOps.OwnerReferences, metav1.OwnerReference{UID: "cluster-uid-1"})
+				needRequeue, err := controller.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+				return err == nil && needRequeue == false
+			},
+			want: true,
+		},
+		{
+			name: "the ownreference has been set",
+			arg: func() bool {
+				controller := genController()
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Spec.Cluster = "cluster-origin"
+
+				cluster := &clusterv1alpha1.Cluster{}
+				cluster.Name = "cluster-origin"
+				cluster.UID = "cluster-uid-1"
+				clusterOps.OwnerReferences = append(clusterOps.OwnerReferences, metav1.OwnerReference{UID: "cluster-uid-1"})
+				needRequeue, err := controller.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+				return err == nil && needRequeue == false
+			},
+			want: true,
+		},
+		{
+			name: "the ownreference has been not set",
+			arg: func() bool {
+				controller := genController()
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Spec.Cluster = "cluster-origin"
+				clusterOps.Name = "ops-1"
+				controller.Client.Create(context.Background(), clusterOps)
+
+				cluster := &clusterv1alpha1.Cluster{}
+				cluster.Name = "cluster-origin"
+				cluster.UID = "cluster-uid-1"
+				clusterOps.OwnerReferences = nil
+				needRequeue, err := controller.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+				clusterOpsResult := &clusteroperationv1alpha1.ClusterOperation{}
+				controller.Client.Get(context.Background(), types.NamespacedName{Name: "ops-1"}, clusterOpsResult)
+				return err == nil && needRequeue && len(clusterOpsResult.OwnerReferences) != 0 && clusterOpsResult.OwnerReferences[0].UID == cluster.UID
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.arg() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func Test_FetchGlobalManifestImageTag(t *testing.T) {
 	controller := Controller{
 		Client:                newFakeClient(),
