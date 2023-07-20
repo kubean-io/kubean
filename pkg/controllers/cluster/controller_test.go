@@ -4,13 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
 	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	"github.com/kubean-io/kubean/pkg/util"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -149,6 +152,66 @@ func TestCompareClusterConditions(t *testing.T) {
 	}
 }
 
+func TestFetchKubeanConfigProperty(t *testing.T) {
+	genController := func() *Controller {
+		return &Controller{
+			Client:              newFakeClient(),
+			ClientSet:           clientsetfake.NewSimpleClientset(),
+			KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+			KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+		}
+	}
+	tests := []struct {
+		name       string
+		controller *Controller
+		args       func(controller *Controller)
+		want       int
+	}{
+		{
+			name:       "no config and default value",
+			controller: genController(),
+			args: func(controller *Controller) {
+				// do nothing
+			},
+			want: 30,
+		},
+		{
+			name:       "the config has been set to 25",
+			controller: genController(),
+			args: func(controller *Controller) {
+				os.Setenv("POD_NAMESPACE", "")
+				configMap := &corev1.ConfigMap{}
+				configMap.Name = KubeanConfigMapName
+				configMap.Namespace = util.GetCurrentNSOrDefault()
+				configMap.Data = map[string]string{"CLUSTER_OPERATIONS_BACKEND_LIMIT": "25"}
+				controller.ClientSet.CoreV1().ConfigMaps(util.GetCurrentNSOrDefault()).Create(context.Background(), configMap, metav1.CreateOptions{})
+			},
+			want: 25,
+		},
+		{
+			name:       "the config has been set to 10000",
+			controller: genController(),
+			args: func(controller *Controller) {
+				os.Setenv("POD_NAMESPACE", "")
+				configMap := &corev1.ConfigMap{}
+				configMap.Name = KubeanConfigMapName
+				configMap.Namespace = util.GetCurrentNSOrDefault()
+				configMap.Data = map[string]string{"CLUSTER_OPERATIONS_BACKEND_LIMIT": "10000"}
+				controller.ClientSet.CoreV1().ConfigMaps(util.GetCurrentNSOrDefault()).Create(context.Background(), configMap, metav1.CreateOptions{})
+			},
+			want: 200,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.args(test.controller)
+			if test.controller.FetchKubeanConfigProperty().GetClusterOperationsBackEndLimit() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestSortClusterOperationsByCreation(t *testing.T) {
 	controller := &Controller{
 		Client:              newFakeClient(),
@@ -191,6 +254,7 @@ func TestSortClusterOperationsByCreation(t *testing.T) {
 }
 
 func Test_CleanExcessClusterOps(t *testing.T) {
+	OpsBackupNum := 5
 	controller := &Controller{
 		Client:              newFakeClient(),
 		ClientSet:           clientsetfake.NewSimpleClientset(),
@@ -218,7 +282,7 @@ func Test_CleanExcessClusterOps(t *testing.T) {
 		{
 			name: "get nothing",
 			args: func() bool {
-				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				result, _ := controller.CleanExcessClusterOps(exampleCluster, OpsBackupNum)
 				return result
 			},
 			want: false,
@@ -240,7 +304,7 @@ func Test_CleanExcessClusterOps(t *testing.T) {
 					}
 					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
 				}
-				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				result, _ := controller.CleanExcessClusterOps(exampleCluster, OpsBackupNum)
 				return result
 			},
 			want: false,
@@ -262,7 +326,7 @@ func Test_CleanExcessClusterOps(t *testing.T) {
 					}
 					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
 				}
-				result, _ := controller.CleanExcessClusterOps(exampleCluster)
+				result, _ := controller.CleanExcessClusterOps(exampleCluster, OpsBackupNum)
 				return result
 			},
 			want: true,
