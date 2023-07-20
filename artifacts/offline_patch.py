@@ -7,6 +7,9 @@ import yaml
 from datetime import datetime
 from pathlib import Path
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 CUR_DIR = os.getcwd()
 
 OPTION = os.getenv("OPTION", default="all")  # create_files create_images create_offlineversion_cr

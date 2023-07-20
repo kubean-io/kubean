@@ -1,3 +1,6 @@
+// Copyright 2023 Authors of kubean-io
+// SPDX-License-Identifier: Apache-2.0
+
 package app
 
 import (

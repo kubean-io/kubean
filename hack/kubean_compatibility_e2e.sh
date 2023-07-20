@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 ### this script is about k8s version compatibility of kubean
 set -o errexit
 set -o nounset

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 ### this script is shared by offline os compatibility and online compatibility
 ### only cover redhat8 and redhat7
 set -o errexit

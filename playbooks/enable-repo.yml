@@ -1,3 +1,6 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 ---
 - name: Enable additional package repo config in offline scenarios
   hosts: k8s_cluster

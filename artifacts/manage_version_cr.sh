@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 set -eo pipefail
 
 OPTION=${1:-'create_localartifactset'} ## create_localartifactset  create_manifest

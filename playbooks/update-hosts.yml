@@ -1,3 +1,6 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 ---
 - name: Update hosts config
   hosts: k8s_cluster
