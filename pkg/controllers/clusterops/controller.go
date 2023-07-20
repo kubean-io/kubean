@@ -252,8 +252,15 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		}
 		return controllerruntime.Result{}, nil
 	}
-
-	needRequeue, err := c.UpdateClusterOpsStatusDigest(clusterOps)
+	needRequeue, err := c.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+	if err != nil {
+		klog.ErrorS(err, "failed to update ownreference", "cluster", cluster.Name, "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	needRequeue, err = c.UpdateClusterOpsStatusDigest(clusterOps)
 	if err != nil {
 		klog.ErrorS(err, "failed to get update clusterOps status digest", "clusterOps", clusterOps.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
@@ -333,6 +340,22 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
 	}
 	return controllerruntime.Result{}, nil
+}
+
+func (c *Controller) UpdateOperationOwnReferenceForCluster(operation *clusteroperationv1alpha1.ClusterOperation, cluster *clusterv1alpha1.Cluster) (bool, error) {
+	if operation.Spec.Cluster != cluster.Name || len(cluster.UID) == 0 { // ignore and return
+		return false, nil
+	}
+	for i := range operation.OwnerReferences {
+		if operation.OwnerReferences[i].UID == cluster.UID {
+			return false, nil // has been set.
+		}
+	}
+	operation.OwnerReferences = append(operation.OwnerReferences, *metav1.NewControllerRef(cluster, clusterv1alpha1.SchemeGroupVersion.WithKind("Cluster")))
+	if err := c.Client.Update(context.Background(), operation); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (c *Controller) ProcessKubeanOperationImage(oldImage, globalManifestImageTag string) string {

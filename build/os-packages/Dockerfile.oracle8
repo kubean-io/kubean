@@ -8,7 +8,7 @@ ARG BUILD_TOOLS="yum-utils createrepo"
 WORKDIR /$OS_NAME/$OS_VERSION/os
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.oracle8[]' packages.yml > packages.list
+RUN yq eval '.common[],.oracle8[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && dnf install -y ${BUILD_TOOLS} \
