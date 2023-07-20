@@ -1,6 +1,6 @@
 ---
 - name: Renew Cluster Certificates
-  hosts: k8s_cluster
+  hosts: kube_control_plane
   gather_facts: true
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
