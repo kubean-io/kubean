@@ -6,24 +6,24 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray)">
+        <meta name="description" content="kubean 是一款基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 的集群生命周期管理工具.">
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/concepts/architecture/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/releases/v0.7.4/">
       
       
-        <link rel="prev" href="../../usage/mirror_install/">
+        <link rel="prev" href="../../develop/roadmap/">
       
       
-        <link rel="next" href="../comparisons/">
+        <link rel="next" href="../v0.7.3/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.19">
     
     
       
-        <title>Kubean Infrastructure - Kubean</title>
+        <title>V0.7.4 - Kubean</title>
       
     
     
@@ -85,11 +85,6 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
-        
-        <a href="#kubean-infrastructure" class="md-skip">
-          跳转至
-        </a>
-      
     </div>
     <div data-md-component="announce">
       
@@ -120,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kubean Infrastructure
+              V0.7.4
             
           </span>
         </div>
@@ -284,7 +279,7 @@
   
     <li class="md-nav__item">
       <a href="../.." class="md-nav__link">
-        Introduction
+        简介
       </a>
     </li>
   
@@ -308,14 +303,14 @@
       
       
         <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
-          Quick Start
+          快速入门
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          Quick Start
+          快速入门
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -326,7 +321,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/helm_install_kubean/" class="md-nav__link">
-        Installing kubean Helm application
+        安装 kubean helm 应用
       </a>
     </li>
   
@@ -340,7 +335,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/all_in_one_install/" class="md-nav__link">
-        Minimal Deployment
+        多合一模式最小化部署集群
       </a>
     </li>
   
@@ -354,7 +349,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/mirror_install/" class="md-nav__link">
-        Deploying a Cluster using Accelerated Mode
+        使用加速模式部署集群
       </a>
     </li>
   
@@ -373,28 +368,26 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
       
       
       
         <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
-          Functional Framework
+          功能架构
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_3">
           <span class="md-nav__icon md-icon"></span>
-          Functional Framework
+          功能架构
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -402,34 +395,10 @@
               
   
   
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        Kubean Infrastructure
-      </a>
-      
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
   
     <li class="md-nav__item">
-      <a href="../comparisons/" class="md-nav__link">
-        Kubean vs Kubespray
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        Kubean 基础架构
       </a>
     </li>
   
@@ -442,8 +411,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../crds/" class="md-nav__link">
-        CRDs
+      <a href="../../concepts/comparisons/" class="md-nav__link">
+        对比参考
       </a>
     </li>
   
@@ -456,8 +425,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../custom_action/" class="md-nav__link">
-        Custom Actions
+      <a href="../../concepts/crds/" class="md-nav__link">
+        CRD 概述
       </a>
     </li>
   
@@ -470,8 +439,22 @@
   
   
     <li class="md-nav__item">
-      <a href="../theory_of_airgapped_package/" class="md-nav__link">
-        Theory of Air-gapped packages
+      <a href="../../concepts/custom_action/" class="md-nav__link">
+        自定义 Action
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/theory_of_airgapped_package/" class="md-nav__link">
+        离线安装包的原理
       </a>
     </li>
   
@@ -502,14 +485,14 @@
       
       
         <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-          User Guide
+          用户指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_4">
           <span class="md-nav__icon md-icon"></span>
-          User Guide
+          用户指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -520,7 +503,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/sshkey_deploy_cluster/" class="md-nav__link">
-        Deploy Kubernetes clusters with SSH
+        以 SSH 密钥方式部署集群
       </a>
     </li>
   
@@ -548,7 +531,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/scale_worknode/" class="md-nav__link">
-        Scaling Cluster Worker Nodes
+        集群工作节点扩缩容
       </a>
     </li>
   
@@ -562,7 +545,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/upgrade/" class="md-nav__link">
-        Cluster Version Upgrade
+        集群版本升级
       </a>
     </li>
   
@@ -576,7 +559,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/uninstall/" class="md-nav__link">
-        Cluster Uninstallation
+        集群卸载
       </a>
     </li>
   
@@ -590,7 +573,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/airgap/" class="md-nav__link">
-        Use Kubean in offline scenes
+        离线场景的使用
       </a>
     </li>
   
@@ -604,7 +587,7 @@
   
     <li class="md-nav__item">
       <a href="../../usage/airgap_patch_usage/" class="md-nav__link">
-        Generation and use of incremental offline packages
+        增量离线包的生成和使用
       </a>
     </li>
   
@@ -635,14 +618,14 @@
       
       
         <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
-          Development
+          开发指南
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
         <label class="md-nav__title" for="__nav_5">
           <span class="md-nav__icon md-icon"></span>
-          Development
+          开发指南
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -653,7 +636,7 @@
   
     <li class="md-nav__item">
       <a href="../../develop/roadmap/" class="md-nav__link">
-        Kubean Roadmap
+        Kubean 路线图
       </a>
     </li>
   
@@ -672,14 +655,16 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
       
       
       
@@ -688,7 +673,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
         <label class="md-nav__title" for="__nav_6">
           <span class="md-nav__icon md-icon"></span>
           Releases
@@ -699,11 +684,19 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../releases/v0.7.4/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         V0.7.4
       </a>
+      
     </li>
   
 
@@ -715,7 +708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.3/" class="md-nav__link">
+      <a href="../v0.7.3/" class="md-nav__link">
         V0.7.3
       </a>
     </li>
@@ -729,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.2/" class="md-nav__link">
+      <a href="../v0.7.2/" class="md-nav__link">
         V0.7.2
       </a>
     </li>
@@ -743,7 +736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.1/" class="md-nav__link">
+      <a href="../v0.7.1/" class="md-nav__link">
         V0.7.1
       </a>
     </li>
@@ -757,7 +750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.0/" class="md-nav__link">
+      <a href="../v0.7.0/" class="md-nav__link">
         V0.7.0
       </a>
     </li>
@@ -771,7 +764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.6/" class="md-nav__link">
+      <a href="../v0.6.6/" class="md-nav__link">
         V0.6.6
       </a>
     </li>
@@ -785,7 +778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.5/" class="md-nav__link">
+      <a href="../v0.6.5/" class="md-nav__link">
         V0.6.5
       </a>
     </li>
@@ -799,7 +792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.4/" class="md-nav__link">
+      <a href="../v0.6.4/" class="md-nav__link">
         V0.6.4
       </a>
     </li>
@@ -813,7 +806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.3/" class="md-nav__link">
+      <a href="../v0.6.3/" class="md-nav__link">
         V0.6.3
       </a>
     </li>
@@ -827,7 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.2/" class="md-nav__link">
+      <a href="../v0.6.2/" class="md-nav__link">
         V0.6.2
       </a>
     </li>
@@ -841,7 +834,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.1/" class="md-nav__link">
+      <a href="../v0.6.1/" class="md-nav__link">
         V0.6.1
       </a>
     </li>
@@ -855,7 +848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.0/" class="md-nav__link">
+      <a href="../v0.6.0/" class="md-nav__link">
         V0.6.0
       </a>
     </li>
@@ -869,7 +862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.4/" class="md-nav__link">
+      <a href="../v0.5.4/" class="md-nav__link">
         V0.5.4
       </a>
     </li>
@@ -883,7 +876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.3/" class="md-nav__link">
+      <a href="../v0.5.3/" class="md-nav__link">
         V0.5.3
       </a>
     </li>
@@ -897,7 +890,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.2/" class="md-nav__link">
+      <a href="../v0.5.2/" class="md-nav__link">
         V0.5.2
       </a>
     </li>
@@ -911,7 +904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.1/" class="md-nav__link">
+      <a href="../v0.5.1/" class="md-nav__link">
         V0.5.1
       </a>
     </li>
@@ -925,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.0/" class="md-nav__link">
+      <a href="../v0.5.0/" class="md-nav__link">
         V0.5.0
       </a>
     </li>
@@ -939,7 +932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.10/" class="md-nav__link">
+      <a href="../v0.4.10/" class="md-nav__link">
         V0.4.10
       </a>
     </li>
@@ -953,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.9/" class="md-nav__link">
+      <a href="../v0.4.9/" class="md-nav__link">
         V0.4.9
       </a>
     </li>
@@ -967,7 +960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.8/" class="md-nav__link">
+      <a href="../v0.4.8/" class="md-nav__link">
         V0.4.8
       </a>
     </li>
@@ -981,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.7/" class="md-nav__link">
+      <a href="../v0.4.7/" class="md-nav__link">
         V0.4.7
       </a>
     </li>
@@ -995,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.6/" class="md-nav__link">
+      <a href="../v0.4.6/" class="md-nav__link">
         V0.4.6
       </a>
     </li>
@@ -1009,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.5/" class="md-nav__link">
+      <a href="../v0.4.5/" class="md-nav__link">
         V0.4.5
       </a>
     </li>
@@ -1023,7 +1016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.4/" class="md-nav__link">
+      <a href="../v0.4.4/" class="md-nav__link">
         V0.4.4
       </a>
     </li>
@@ -1037,7 +1030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.3/" class="md-nav__link">
+      <a href="../v0.4.3/" class="md-nav__link">
         V0.4.3
       </a>
     </li>
@@ -1051,7 +1044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.2/" class="md-nav__link">
+      <a href="../v0.4.2/" class="md-nav__link">
         V0.4.2
       </a>
     </li>
@@ -1065,7 +1058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.1/" class="md-nav__link">
+      <a href="../v0.4.1/" class="md-nav__link">
         V0.4.1
       </a>
     </li>
@@ -1079,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.0/" class="md-nav__link">
+      <a href="../v0.4.0/" class="md-nav__link">
         V0.4.0
       </a>
     </li>
@@ -1110,8 +1103,6 @@
   
   
   
-    
-  
   
 </nav>
                   </div>
@@ -1129,19 +1120,9 @@
   
 
 
-<h1 id="kubean-infrastructure">Kubean Infrastructure<a class="headerlink" href="#kubean-infrastructure" title="Permanent link">&para;</a></h1>
-<p>The overall architecture of Kubean is shown below：</p>
-<p><a href="/kubean/en/assets/images/kubean-architecture.png"><img alt="kubean-architecture" src="/kubean/en/assets/images/kubean-architecture.png" /></a></p>
-<p>Kubean needs to run on an existing Kubernetes cluster. It controls and manages cluster lifecycle (install, uninstall, upgrade, scale up &amp; down, etc.) by applying the standard CRDs provided by Kubean and Kubernetes built-in resources. Kubean uses Kubespray as the underlying technology. On the one hand, it simplifies the operation process of cluster deployment and lowers the threshold of use. On the other hand, many new features such as cluster operation records and offline version records have been added on the basis of Kubespray's capabilities.</p>
-<p><br/></p>
-<p><a href="/kubean/en/assets/images/kubean-components.png"><img alt="kubean-components" src="/kubean/en/assets/images/kubean-components.png" /></a></p>
-<p>Kubean runs several controllers to track changes of Kubean CRDs and communicates with the underlying cluster's API server to create Kubernetes native resources. It consists of four components：</p>
-<ol>
-<li>Cluster Controller: monitors 'Cluster Objects'. It uniquely identifies a cluster, has the access information, type information, and deployment parameter information of the cluster node, and is associated with all operations on the cluster ('ClusterOperation Objects');</li>
-<li>ClusterOperation Controller: monitors <code>ClusterOperation Objects</code>. When a <code>ClusterOperation Object</code> is created, the controller assembles a <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Job</a> to perform the operations defined in the CRD object;</li>
-<li>Manifest Controller: monitors <code>Manifest Objects</code>. It records and maintains components, packages and versions that are used by or compatible with the current version of Kubean;</li>
-<li>LocalArtifactSet Controller：monitors <code>LocalArtifactSet Objects</code>. It records information about the components and versions supported by the offline package.</li>
-</ol>
+  <h1>V0.7.4</h1>
+
+
 
 
 
@@ -1165,7 +1146,7 @@
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../../usage/mirror_install/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Deploying a Cluster using Accelerated Mode" rel="prev">
+          <a href="../../develop/roadmap/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Kubean 路线图" rel="prev">
             <div class="md-footer__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
             </div>
@@ -1174,20 +1155,20 @@
                 上一页
               </span>
               <div class="md-ellipsis">
-                Deploying a Cluster using Accelerated Mode
+                Kubean 路线图
               </div>
             </div>
           </a>
         
         
           
-          <a href="../comparisons/" class="md-footer__link md-footer__link--next" aria-label="下一页: Kubean vs Kubespray" rel="next">
+          <a href="../v0.7.3/" class="md-footer__link md-footer__link--next" aria-label="下一页: V0.7.3" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                Kubean vs Kubespray
+                V0.7.3
               </div>
             </div>
             <div class="md-footer__button md-icon">
