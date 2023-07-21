@@ -2,14 +2,17 @@ package cluster
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 	clusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	clusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
+	"github.com/kubean-io/kubean/pkg/util"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,8 +24,10 @@ import (
 )
 
 const (
-	RequeueAfter = time.Second * 5
-	OpsBackupNum = 5
+	RequeueAfter                         = time.Second * 15
+	KubeanConfigMapName                  = "kubean-config"
+	DefaultClusterOperationsBackEndLimit = 30
+	MaxClusterOperationsBackEndLimit     = 200
 )
 
 type Controller struct {
@@ -106,7 +111,7 @@ func (c *Controller) SortClusterOperationsByCreation(operations []clusteroperati
 }
 
 // CleanExcessClusterOps clean up excess ClusterOperation.
-func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster) (bool, error) {
+func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster, OpsBackupNum int) (bool, error) {
 	listOpt := metav1.ListOptions{LabelSelector: fmt.Sprintf("clusterName=%s", cluster.Name)}
 	clusterOpsList, err := c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), listOpt)
 	if err != nil {
@@ -129,6 +134,41 @@ func (c *Controller) CleanExcessClusterOps(cluster *clusterv1alpha1.Cluster) (bo
 	return true, nil
 }
 
+type ConfigProperty struct {
+	ClusterOperationsBackEndLimit string `json:"CLUSTER_OPERATIONS_BACKEND_LIMIT"`
+}
+
+func (config *ConfigProperty) GetClusterOperationsBackEndLimit() int {
+
+	value, _ := strconv.Atoi(config.ClusterOperationsBackEndLimit)
+	if value <= 0 {
+		klog.Warningf("GetClusterOperationsBackEndLimit and use default value %d", DefaultClusterOperationsBackEndLimit)
+		return DefaultClusterOperationsBackEndLimit
+	}
+	if value >= MaxClusterOperationsBackEndLimit {
+		klog.Warningf("GetClusterOperationsBackEndLimit and use max value %d", MaxClusterOperationsBackEndLimit)
+		return MaxClusterOperationsBackEndLimit
+	}
+	return value
+}
+
+func (c *Controller) FetchKubeanConfigProperty() *ConfigProperty {
+	configData, err := c.ClientSet.CoreV1().ConfigMaps(util.GetCurrentNSOrDefault()).Get(context.Background(), KubeanConfigMapName, metav1.GetOptions{})
+	if err != nil {
+		return &ConfigProperty{}
+	}
+	jsonData, err := json.Marshal(configData.Data)
+	if err != nil {
+		return &ConfigProperty{}
+	}
+	result := &ConfigProperty{}
+	err = json.Unmarshal(jsonData, result)
+	if err != nil {
+		return &ConfigProperty{}
+	}
+	return result
+}
+
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
 	cluster := &clusterv1alpha1.Cluster{}
 	if err := c.Client.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -138,8 +178,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.ErrorS(err, "failed to get cluster", "cluster", req.String())
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
-	needRequeue, err := c.CleanExcessClusterOps(cluster)
+	OpsBackupNum := c.FetchKubeanConfigProperty().GetClusterOperationsBackEndLimit()
+	needRequeue, err := c.CleanExcessClusterOps(cluster, OpsBackupNum)
 	if err != nil {
 		klog.ErrorS(err, "failed to clean excess cluster ops", "cluster", cluster.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil

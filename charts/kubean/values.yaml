@@ -7,7 +7,7 @@ kubeanOperator:
   replicaCount: 1
   nameOverride: ""
   fullnameOverride: ""
-
+  operationsBackendLimit: 5
   podAnnotations: {}
 
   podSecurityContext: {}
