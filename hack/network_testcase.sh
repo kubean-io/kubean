@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 # YQ reference： https://mikefarah.gitbook.io/yq/operators/string-operators
 
 #set -o errexit

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 IMAGE_REGISTRY=${1:-"ghcr.m.daocloud.io"}
 RELEASE_NAME=${2:-"kubean"}
 TARGET_NS=${3:-"kubean-system"}

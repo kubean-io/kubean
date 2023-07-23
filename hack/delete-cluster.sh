@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 set -o errexit
 set -o nounset
 set -o pipefail

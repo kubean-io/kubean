@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
 set -eo pipefail
 
 MINIO_API_ADDR=${1:-'http://127.0.0.1:9000'}
