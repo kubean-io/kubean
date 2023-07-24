@@ -411,6 +411,14 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 									Name:  "CLUSTER_NAME",
 									Value: clusterOps.Spec.Cluster,
 								},
+								{
+									Name:  "CLUSTER_OPERATION_NAME",
+									Value: clusterOps.Name,
+								},
+								{
+									Name:  "CLUSTER_JOB_NAME",
+									Value: jobName,
+								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{

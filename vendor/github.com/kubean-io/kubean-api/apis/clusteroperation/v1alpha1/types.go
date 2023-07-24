@@ -1,9 +1,9 @@
 package v1alpha1
 
 import (
+	"github.com/kubean-io/kubean-api/apis"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/kubean-io/kubean-api/apis"
 )
 
 // +genclient
@@ -124,6 +124,9 @@ type Status struct {
 	// HasModified indicates the spec has been modified by others after created.
 	// +optional
 	HasModified bool `json:"hasModified,omitempty"`
+	// JobHasRun indicates the job created by clusterOperation has been run. JobHasRun will be set in playbook.
+	// +optional
+	JobHasRun bool `json:"jobHasRun,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

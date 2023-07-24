@@ -242,6 +242,10 @@ spec:
                 description: HasModified indicates the spec has been modified by others
                   after created.
                 type: boolean
+              jobHasRun:
+                description: JobHasRun indicates the job created by clusterOperation
+                  has been run. JobHasRun will be set in playbook.
+                type: boolean
               jobRef:
                 properties:
                   name:

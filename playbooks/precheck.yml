@@ -2,6 +2,38 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    cluster_name: "{{ lookup('env','CLUSTER_NAME') }}"
+    cluster_operation_name: "{{ lookup('env','CLUSTER_OPERATION_NAME') }}"
+    cluster_job_name: "{{ lookup('env','CLUSTER_JOB_NAME') }}"
+    ensure_interrupted_pod_never_run: true
+  tasks:
+    - name: Fetch JobHasRun Status From Operation {{ cluster_operation_name }}
+      shell: |
+        kubectl get clusteroperations {{ cluster_operation_name }} -json '.status.jobHasRun'
+      ignore_errors: true
+      register: jobHasRunStatus
+      retries: 3
+      delay: 1
+      when:
+        - ensure_interrupted_pod_never_run
+
+    - name: Fatal When the job has been run before
+      failed_when: "true" in jobHasRunStatus.stdout
+      when:
+        - ensure_interrupted_pod_never_run
+
+    - name: Set JobHasRun true For Operation {{ cluster_operation_name }}
+      ignore_errors: true
+      retries: 3
+      delay: 1
+      shell: |
+        kubectl patch clusteroperations {{ cluster_operation_name }} -json '.status.jobHasRun=true'
+      when:
+        - ensure_interrupted_pod_never_run
+
 - name: Pre-check
   hosts: k8s_cluster
   gather_facts: true
