@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"strings"
 	"time"
@@ -37,13 +38,16 @@ import (
 )
 
 const (
-	RequeueAfter     = time.Second * 3
-	LoopForJobStatus = time.Second * 5
-	RetryInterval    = time.Millisecond * 300
-	RetryCount       = 5
-	ServiceAccount   = "kubean.io/kubean-operator=sa"
-	SprayJobPodName  = "kubean"
+	RequeueAfter              = time.Second * 3
+	LoopForJobStatus          = time.Second * 5
+	RetryInterval             = time.Millisecond * 300
+	RetryCount                = 5
+	ServiceAccount            = "kubean.io/kubean-operator=sa"
+	OperatorSessionIDLabelKey = "kubean.io/cluster-operator-session-id"
+	SprayJobPodName           = "kubean"
 )
+
+var ClusterOperationOperatorSessionID = fmt.Sprintf("%d-%d", time.Now().Unix(), rand.Int63()) // after restart , it will change. todo
 
 type Controller struct {
 	Client                client.Client
@@ -51,6 +55,10 @@ type Controller struct {
 	KubeanClusterSet      clusterClientSet.Interface
 	KubeanClusterOpsSet   clusterOperationClientSet.Interface
 	InfoManifestClientSet manifestClientSet.Interface
+}
+
+func init() {
+	rand.Seed(time.Now().Unix())
 }
 
 func (c *Controller) Start(ctx context.Context) error {
@@ -124,6 +132,41 @@ func (c *Controller) FetchGlobalInfoManifest() (*manifestv1alpha1.Manifest, erro
 	return global, nil
 }
 
+func (c *Controller) TrySuspendInterruptedJobRun(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
+	if clusterOps.Status.JobRef.IsEmpty() {
+		return false, nil
+	}
+	targetJob, err := c.ClientSet.BatchV1().Jobs(clusterOps.Status.JobRef.NameSpace).Get(context.Background(), clusterOps.Status.JobRef.Name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		return false, nil // maybe the job is removed.
+	}
+	if err != nil {
+		return false, nil // ignore
+	}
+	for _, contion := range targetJob.Status.Conditions {
+		if (contion.Type == batchv1.JobComplete || contion.Type == batchv1.JobFailed || contion.Type == batchv1.JobSuspended) && contion.Status == corev1.ConditionTrue {
+			return false, nil
+		}
+	}
+	if targetJob.Spec.Suspend != nil && *targetJob.Spec.Suspend {
+		return false, nil
+	}
+	if len(targetJob.Labels) == 0 || targetJob.Labels[OperatorSessionIDLabelKey] == "" { // 兼容老的job，忽略检查
+		return false, nil
+	}
+	if targetJob.Labels[OperatorSessionIDLabelKey] != ClusterOperationOperatorSessionID { // maybe the k8s cluster has restart or operator has restart
+		Suspend := true
+		targetJob.Spec.Suspend = &Suspend
+		_, err := c.ClientSet.BatchV1().Jobs(targetJob.Namespace).Update(context.Background(), targetJob, metav1.UpdateOptions{})
+		if err != nil {
+			return false, err
+		}
+		klog.Warningf("clusterOperation operator has suspend the job %s", targetJob.Name)
+		return true, nil
+	}
+	return false, nil
+}
+
 func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.ClusterOperation, fetchJobStatus func(*clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error)) (bool, error) {
 	if clusterOps.Status.Status == clusteroperationv1alpha1.RunningStatus || len(clusterOps.Status.Status) == 0 {
 		// need fetch jobStatus again when the last status of job is running
@@ -167,8 +210,12 @@ func (c *Controller) FetchJobConditionStatusAndCompletionTime(clusterOps *cluste
 	for _, contion := range targetJob.Status.Conditions {
 		if contion.Type == batchv1.JobComplete && contion.Status == corev1.ConditionTrue {
 			return clusteroperationv1alpha1.SucceededStatus, targetJob.Status.CompletionTime, nil
-		} else if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
+		}
+		if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
 			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil
+		}
+		if contion.Type == batchv1.JobSuspended && contion.Status == corev1.ConditionTrue {
+			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil // suspend to failed
 		}
 	}
 
@@ -331,7 +378,14 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
+	needRequeue, err = c.TrySuspendInterruptedJobRun(clusterOps)
+	if err != nil {
+		klog.ErrorS(err, "failed to TrySuspendInterruptedJobRun", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
 	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobConditionStatusAndCompletionTime)
 	if err != nil {
 		klog.ErrorS(err, "failed to update status loop", "clusterOps", clusterOps.Name)
@@ -392,6 +446,7 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
 			Name:      jobName,
+			Labels:    map[string]string{OperatorSessionIDLabelKey: ClusterOperationOperatorSessionID},
 		},
 		Spec: batchv1.JobSpec{
 			BackoffLimit: &BackoffLimit,
