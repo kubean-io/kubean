@@ -142,7 +142,6 @@ type ConfigProperty struct {
 }
 
 func (config *ConfigProperty) GetClusterOperationsBackEndLimit() int {
-
 	value, _ := strconv.Atoi(config.ClusterOperationsBackEndLimit)
 	if value <= 0 {
 		klog.Warningf("GetClusterOperationsBackEndLimit and use default value %d", DefaultClusterOperationsBackEndLimit)
