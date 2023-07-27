@@ -1,30 +1,36 @@
-# 以非 root 用户部署集群
+# Deploy the cluster as a non-root user
 
-## 内容
+## Contents
 
-- ✓ [1. sudo 权限校验](#sudo权限校验)
-- ✓ [2. 创建主机清单配置](#创建主机清单配置)
-- ✓ [3. 制备部署集群的配置参数](#制备部署集群的配置参数)
-- ✓ [4. 准备 Kubean 的自定义资源](#准备Kubean的自定义资源)
-- ✓ [5. 开始部署集群](#开始部署集群)
+- ✓ [1. sudo permission check](#sudo-permission-check)
+- ✓ [2. Create host inventory configuration](#create-host-inventory-configuration)
+- ✓ [3. Prepare the configuration parameters of the deployment cluster](#prepare-the-configuration-parameters-of-the-deployment-cluster)
+- ✓ [4. Prepare Kubean CRs](#prepare-kubean-crs)
+- ✓ [5. Start deploying the cluster](#start-deploying-the-cluster)
 
-## sudo 权限校验
+## sudo permission check
 
-  安装过程中涉及系统特权操作，故用户需要具备 sudo 权限，可进行如下检查：
+  The installation process involves system privileged operations,
+  so users need to have sudo privileges, and the following checks can be performed:
 
-  1. 使用非 root 用户登录到目标节点
+  1. Log in to target node as a non-root user
 
-  2. 检查是否存在 sudo 命令，不存在则通过系统包管理器进行安装
+  2. Check for the existence of the sudo command, and install it through
+     the system package manager if it does not exist:
 
      `which sudo`
 
-  3. 在终端执行 `echo | sudo -S -v`
+  3. Execute `echo | sudo -S -v` in the terminal
+  
+      If the result outputs `xxx is not in the sudoers file. This incident will be reported`
+      or `User xxx do not have sudo privilege` and other similar information, it means that the
+      current user does not have sudo privileges, otherwise it means that the current user has sudo privileges.
 
-      若结果输出 `xxx is not in the sudoers file.  This incident will be reported` 或 `User xxx do not have sudo privilege` 等类似信息，即说明当前用户不具备 sudo 权限，反之说明当前用户具有 sudo 权限。
-
-## 配置主机清单
+## Configure host list
    
-  示例：主机清单 `HostsConfCM.yml` 内容大致如下，将下方<USERNAME> 和 <PASSWORD> 替换为实际的用户名和密码：
+
+  Example: The content of the host list `HostsConfCM.yml` is roughly as follows, replace
+  <USERNAME> and <PASSWORD> below with the actual username and password:
 
   ```yaml
   apiVersion: v1
@@ -70,12 +76,12 @@
           calico_rr:
             hosts: {}
   ```
-  > 注：如果在 /etc/sudoers 文件内该用户配置为 NOPASSWD（即无密码提权），可将 `ansible_become_password` 所在行注释
+  > Note: If the user is configured as NOPASSWD (no password escalation) in the /etc/sudoers file, you can comment the line where `ansible_become_password` is located
 
-## 制备部署集群的配置参数
+## Prepare parameters of the deployment cluster
 
-集群配置参数 `VarsConfCM.yml `的内容，可以参考
-[demo vars conf](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml)。
+For the content of the cluster configuration parameter `VarsConfCM.yml`, please refer to
+[demo vars conf](https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml).
 
 ```yaml
 # VarsConfCM.yml
@@ -96,9 +102,9 @@ data:
     ...
 ```
 
-## 准备 Kubean 的自定义资源
+## Prepare Kubean CRs
 
-- Cluster 自定义资源内容示例
+- Example of Cluster CR
 
     ```yaml
     # Cluster.yml
@@ -113,12 +119,12 @@ data:
       varsConfRef:
         namespace: kubean-system
         name: sample-vars-conf
-      sshAuthRef: # 关键属性，指定集群部署期间的 ssh 私钥 secret
+      sshAuthRef: # Key attribute, specifying the ssh private key secret during cluster deployment
         namespace: kubean-system
         name: sample-ssh-auth
     ```
 
-- ClusterOperation 自定义资源内容示例
+- Example of ClusterOperation CR
 
     ```yaml
     # ClusterOperation.yml
@@ -144,21 +150,21 @@ data:
           action: cluster-info.yml
     ```
 
-## 开始部署集群
+## Start deploying the cluster
 
-假设所有 YAML 清单都存放在 `create_cluster` 目录：
+Assuming all YAML manifests are stored in the `create_cluster` directory:
 
 ```bash
 $ tree create_cluster/
 create_cluster
-├── HostsConfCM.yml       # 主机清单
-├── SSHAuthSec.yml        # SSH私钥
-├── VarsConfCM.yml        # 集群参数
+├── HostsConfCM.yml       # host list
+├── SSHAuthSec.yml        # SSH private key
+├── VarsConfCM.yml        # cluster parameters
 ├── Cluster.yml           # Cluster CR
 └── ClusterOperation.yml  # ClusterOperation CR
 ```
 
-通过 `kubectl apply` 开始部署集群:
+Start deploying the cluster with `kubectl apply`:
 
 ```bash
 kubectl apply -f create_cluster/
