@@ -40,7 +40,9 @@ Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构�
 
 ---
 
-<img src="https://github.com/cncf/artwork/blob/master/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:600px;" />
+<p>
+<img src="https://github.com/cncf/artwork/blob/master/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
+</p>
 
 **Kubean 是一个[云原生计算基金会 (CNCF)](https://cncf.io/) 全景图项目。**
 
@@ -55,7 +57,7 @@ Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构�
 
 #### 1. 确保有一个 Kubernetes 集群且安装了 Helm
 
-#### 2. 部署 Kubean-Operator
+#### 2. 部署 kubean-operator
 
 ``` shell
 $ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
@@ -73,15 +75,11 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 你可以使用 `examples/install/1.minimal` 文件夹中的例子，这些例子使用在线资源安装 K8s 集群。
 
 1. 修改 `examples/install/1.minimal/AllInOne.yml`，替换 `<IP1>`、`<USERNAME>`... 等字符串为真实值。
-
 2. 启动 kubeanClusterOps，这将启动 kubespray job。
-
    ```shell
    $ kubectl apply -f examples/install/1.minimal
    ```
-
 3. 检查 kubespray job 状态。
-
    ```shell
    $ kubectl get job -n kubean-system
    ```
@@ -103,17 +101,10 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 
 请浏览: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
-## 许可证
-
-版权所有 (c) 2021-2023 Kubean 开发团队
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-<http://www.apache.org/licenses/LICENSE-2.0>
-
-<p align="center">
+<div align="center">
+<p>
 <img src="https://landscape.cncf.io/images/left-logo.svg" width="300"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="350"/>
 <br/><br/>
 Kubean 位列 <a href="https://landscape.cncf.io/?selected=kubean">CNCF 云原生全景图。</a>
 </p>
+</div>
