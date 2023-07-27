@@ -40,18 +40,24 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 
 ---
 
+<p>
+<img src="https://github.com/cncf/artwork/blob/master/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
+</p>
+
+**Kubean is a [Cloud Native Computing Foundation](https://cncf.io/) Landscape project.**
+
 ## :anchor: Awesome features
 
 - **Simplicity:** Deploying of Kubean and powerful lifecycle management of kubernetes cluster implementing by declarative API.
 - **Offline Supported**: Offline packages(os-pkgs, images, binarys) are released with the release. You won't have to worry about how to gather all the resources you need.
 - **Compatibility**: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
-- **Expandability**: Allowing custom actions be added to cluster without any changes for Kubespray. 
+- **Expandability**: Allowing custom actions be added to cluster without any changes for Kubespray.
 
 ## :surfing_man: Quick Start
 
 #### 1. Ensure that a Kubernetes Cluster exists and Helm installed
 
-#### 2. Deploy Kubean-Operator
+#### 2. Deploy kubean-operator
 
 ``` shell
 $ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
@@ -60,7 +66,7 @@ $ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 
 Then check kubean-operator status by running:
 
-```shell 
+```shell
 $ kubectl get pods -n kubean-system | grep 'kubean'
 ```
 
@@ -68,21 +74,18 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 
 You can use the example in folder `examples/install/1.minimal` which uses online resources to install k8s cluster.
 
-  1. modify `examples/install/1.minimal/AllInOne.yml` by replacing `<IP1>`, `<USERNAME>`... etc. to their real values
-  2. start kubeanClusterOps which will start the kubespray job
-     ```shell
-     $ kubectl apply -f examples/install/1.minimal
-     ```
-  3. check the kubespray job status
-     ```shell
-     $ kubectl get job -n kubean-system
-     ```
+1. Modify the `examples/install/1.minimal/AllInOne.yml` file by simply replacing `<IP1>`, `<USERNAME>`,
+   and any other placeholders with their actual values.
+2. Start kubeanClusterOps which will start the kubespray job.
+   ```shell
+   $ kubectl apply -f examples/install/1.minimal
+   ```
+3. Check the kubespray job status.
+   ```shell
+   $ kubectl get job -n kubean-system
+   ```
 
 [![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
-
-## :ocean: Support Kubernetes versions
-
-Support k8s versions: [ k8s versions list ](./docs/zh/usage/support-k8s-version.md)
 
 ## :ocean: Kubernetes compatibility
 
@@ -93,6 +96,16 @@ Support k8s versions: [ k8s versions list ](./docs/zh/usage/support-k8s-version.
 | Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 | Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
+To check the list of Kubernetes versions supported by Kubean, please refer to the [Kubernetes versions list](./docs/zh/usage/support_k8s_version.md).
+
 ## :book: Documents
 
 Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
+
+<div align="center">
+<p>
+<img src="https://landscape.cncf.io/images/left-logo.svg" width="300"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="350"/>
+<br/><br/>
+Kubean enriches the <a href="https://landscape.cncf.io/?selected=kubean">CNCF CLOUD NATIVE Landscape.</a>
+</p>
+</div>
