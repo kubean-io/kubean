@@ -55,6 +55,12 @@ Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构�
 
 ## :surfing_man: 快速入门
 
+### Killercoda
+
+我们在 [killercoda](https://killercoda.com)（一个在线交互式技术学习平台）上创建了一个[项目](https://killercoda.com/kubean)，可以在上面进行试玩。
+
+### 本地安装
+
 #### 1. 确保有一个 Kubernetes 集群且安装了 Helm
 
 #### 2. 部署 kubean-operator

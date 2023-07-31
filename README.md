@@ -55,6 +55,12 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 
 ## :surfing_man: Quick Start
 
+### Killercoda
+
+We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://killercoda.com), which is a online platform for interactive technique learning. You can try it in there.
+
+### Local install
+
 #### 1. Ensure that a Kubernetes Cluster exists and Helm installed
 
 #### 2. Deploy kubean-operator
