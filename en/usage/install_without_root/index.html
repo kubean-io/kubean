@@ -19,11 +19,11 @@
         <link rel="next" href="../scale_worknode/">
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
-      <meta name="generator" content="mkdocs-1.5.0, mkdocs-material-9.1.20">
+      <meta name="generator" content="mkdocs-1.5.1, mkdocs-material-9.1.21">
     
     
       
-        <title>以非 root 用户部署集群 - Kubean</title>
+        <title>Deploy the cluster as a non-root user - Kubean</title>
       
     
     
@@ -86,7 +86,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#root" class="md-skip">
+        <a href="#deploy-the-cluster-as-a-non-root-user" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              以非 root 用户部署集群
+              Deploy the cluster as a non-root user
             
           </span>
         </div>
@@ -533,12 +533,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          以非 root 用户部署集群
+          Deploy the cluster as a non-root user
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        以非 root 用户部署集群
+        Deploy the cluster as a non-root user
       </a>
       
         
@@ -557,43 +557,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    内容
+  <a href="#contents" class="md-nav__link">
+    Contents
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#sudo" class="md-nav__link">
-    sudo 权限校验
+  <a href="#sudo-permission-check" class="md-nav__link">
+    sudo permission check
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    配置主机清单
+  <a href="#configure-host-list" class="md-nav__link">
+    Configure host list
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    制备部署集群的配置参数
+  <a href="#prepare-parameters-of-the-deployment-cluster" class="md-nav__link">
+    Prepare parameters of the deployment cluster
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#kubean" class="md-nav__link">
-    准备 Kubean 的自定义资源
+  <a href="#prepare-kubean-crs" class="md-nav__link">
+    Prepare Kubean CRs
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    开始部署集群
+  <a href="#start-deploying-the-cluster" class="md-nav__link">
+    Start deploying the cluster
   </a>
   
 </li>
@@ -1186,43 +1186,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    内容
+  <a href="#contents" class="md-nav__link">
+    Contents
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#sudo" class="md-nav__link">
-    sudo 权限校验
+  <a href="#sudo-permission-check" class="md-nav__link">
+    sudo permission check
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    配置主机清单
+  <a href="#configure-host-list" class="md-nav__link">
+    Configure host list
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    制备部署集群的配置参数
+  <a href="#prepare-parameters-of-the-deployment-cluster" class="md-nav__link">
+    Prepare parameters of the deployment cluster
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#kubean" class="md-nav__link">
-    准备 Kubean 的自定义资源
+  <a href="#prepare-kubean-crs" class="md-nav__link">
+    Prepare Kubean CRs
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    开始部署集群
+  <a href="#start-deploying-the-cluster" class="md-nav__link">
+    Start deploying the cluster
   </a>
   
 </li>
@@ -1245,32 +1245,37 @@
   
 
 
-<h1 id="root">以非 root 用户部署集群<a class="headerlink" href="#root" title="Permanent link">&para;</a></h1>
-<h2 id="_1">内容<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h1 id="deploy-the-cluster-as-a-non-root-user">Deploy the cluster as a non-root user<a class="headerlink" href="#deploy-the-cluster-as-a-non-root-user" title="Permanent link">&para;</a></h1>
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
 <ul>
-<li>✓ <a href="#sudo权限校验">1. sudo 权限校验</a></li>
-<li>✓ <a href="#创建主机清单配置">2. 创建主机清单配置</a></li>
-<li>✓ <a href="#制备部署集群的配置参数">3. 制备部署集群的配置参数</a></li>
-<li>✓ <a href="#准备Kubean的自定义资源">4. 准备 Kubean 的自定义资源</a></li>
-<li>✓ <a href="#开始部署集群">5. 开始部署集群</a></li>
+<li>✓ <a href="#sudo-permission-check">1. sudo permission check</a></li>
+<li>✓ <a href="#create-host-inventory-configuration">2. Create host inventory configuration</a></li>
+<li>✓ <a href="#prepare-the-configuration-parameters-of-the-deployment-cluster">3. Prepare the configuration parameters of the deployment cluster</a></li>
+<li>✓ <a href="#prepare-kubean-crs">4. Prepare Kubean CRs</a></li>
+<li>✓ <a href="#start-deploying-the-cluster">5. Start deploying the cluster</a></li>
 </ul>
-<h2 id="sudo">sudo 权限校验<a class="headerlink" href="#sudo" title="Permanent link">&para;</a></h2>
-<p>安装过程中涉及系统特权操作，故用户需要具备 sudo 权限，可进行如下检查：</p>
+<h2 id="sudo-permission-check">sudo permission check<a class="headerlink" href="#sudo-permission-check" title="Permanent link">&para;</a></h2>
+<p>The installation process involves system privileged operations,
+  so users need to have sudo privileges, and the following checks can be performed:</p>
 <ol>
 <li>
-<p>使用非 root 用户登录到目标节点</p>
+<p>Log in to target node as a non-root user</p>
 </li>
 <li>
-<p>检查是否存在 sudo 命令，不存在则通过系统包管理器进行安装</p>
+<p>Check for the existence of the sudo command, and install it through
+     the system package manager if it does not exist:</p>
 <p><code>which sudo</code></p>
 </li>
 <li>
-<p>在终端执行 <code>echo | sudo -S -v</code></p>
-<p>若结果输出 <code>xxx is not in the sudoers file.  This incident will be reported</code> 或 <code>User xxx do not have sudo privilege</code> 等类似信息，即说明当前用户不具备 sudo 权限，反之说明当前用户具有 sudo 权限。</p>
+<p>Execute <code>echo | sudo -S -v</code> in the terminal</p>
+<p>If the result outputs <code>xxx is not in the sudoers file. This incident will be reported</code>
+  or <code>User xxx do not have sudo privilege</code> and other similar information, it means that the
+  current user does not have sudo privileges, otherwise it means that the current user has sudo privileges.</p>
 </li>
 </ol>
-<h2 id="_2">配置主机清单<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>示例：主机清单 <code>HostsConfCM.yml</code> 内容大致如下，将下方<USERNAME> 和 <PASSWORD> 替换为实际的用户名和密码：</p>
+<h2 id="configure-host-list">Configure host list<a class="headerlink" href="#configure-host-list" title="Permanent link">&para;</a></h2>
+<p>Example: The content of the host list <code>HostsConfCM.yml</code> is roughly as follows, replace
+  <USERNAME> and <PASSWORD> below with the actual username and password:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -1315,11 +1320,11 @@
 <span class="w">          </span><span class="no">hosts: {}</span>
 </code></pre></div>
 <blockquote>
-<p>注：如果在 /etc/sudoers 文件内该用户配置为 NOPASSWD（即无密码提权），可将 <code>ansible_become_password</code> 所在行注释</p>
+<p>Note: If the user is configured as NOPASSWD (no password escalation) in the /etc/sudoers file, you can comment the line where <code>ansible_become_password</code> is located</p>
 </blockquote>
-<h2 id="_3">制备部署集群的配置参数<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>集群配置参数 <code>VarsConfCM.yml</code>的内容，可以参考
-<a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>。</p>
+<h2 id="prepare-parameters-of-the-deployment-cluster">Prepare parameters of the deployment cluster<a class="headerlink" href="#prepare-parameters-of-the-deployment-cluster" title="Permanent link">&para;</a></h2>
+<p>For the content of the cluster configuration parameter <code>VarsConfCM.yml</code>, please refer to
+<a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># VarsConfCM.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
@@ -1337,10 +1342,10 @@
 <span class="w">    </span><span class="no">ntp_enabled: true</span>
 <span class="w">    </span><span class="no">...</span>
 </code></pre></div>
-<h2 id="kubean">准备 Kubean 的自定义资源<a class="headerlink" href="#kubean" title="Permanent link">&para;</a></h2>
+<h2 id="prepare-kubean-crs">Prepare Kubean CRs<a class="headerlink" href="#prepare-kubean-crs" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
-<p>Cluster 自定义资源内容示例</p>
+<p>Example of Cluster CR</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Cluster.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span>
@@ -1353,13 +1358,13 @@
 <span class="w">  </span><span class="nt">varsConfRef</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-vars-conf</span>
-<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w"> </span><span class="c1"># 关键属性，指定集群部署期间的 ssh 私钥 secret</span>
+<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w"> </span><span class="c1"># Key attribute, specifying the ssh private key secret during cluster deployment</span>
 <span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-ssh-auth</span>
 </code></pre></div>
 </li>
 <li>
-<p>ClusterOperation 自定义资源内容示例</p>
+<p>Example of ClusterOperation CR</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ClusterOperation.yml</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
@@ -1384,17 +1389,17 @@
 </code></pre></div>
 </li>
 </ul>
-<h2 id="_4">开始部署集群<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<p>假设所有 YAML 清单都存放在 <code>create_cluster</code> 目录：</p>
+<h2 id="start-deploying-the-cluster">Start deploying the cluster<a class="headerlink" href="#start-deploying-the-cluster" title="Permanent link">&para;</a></h2>
+<p>Assuming all YAML manifests are stored in the <code>create_cluster</code> directory:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>tree<span class="w"> </span>create_cluster/
 create_cluster
-├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># 主机清单</span>
-├──<span class="w"> </span>SSHAuthSec.yml<span class="w">        </span><span class="c1"># SSH私钥</span>
-├──<span class="w"> </span>VarsConfCM.yml<span class="w">        </span><span class="c1"># 集群参数</span>
+├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># host list</span>
+├──<span class="w"> </span>SSHAuthSec.yml<span class="w">        </span><span class="c1"># SSH private key</span>
+├──<span class="w"> </span>VarsConfCM.yml<span class="w">        </span><span class="c1"># cluster parameters</span>
 ├──<span class="w"> </span>Cluster.yml<span class="w">           </span><span class="c1"># Cluster CR</span>
 └──<span class="w"> </span>ClusterOperation.yml<span class="w">  </span><span class="c1"># ClusterOperation CR</span>
 </code></pre></div>
-<p>通过 <code>kubectl apply</code> 开始部署集群:</p>
+<p>Start deploying the cluster with <code>kubectl apply</code>:</p>
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>create_cluster/
 </code></pre></div>
 
