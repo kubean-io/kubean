@@ -51,7 +51,7 @@ post steps:
 
 ![lock_kubespray_commit](./docs/overrides/assets/images/lock_kubespray_commit.png)
 
-Note: By default, we fix the version of Kubespray at the beginning of each calendar month
+> Note: By default, each time kubeam releases a new version, we update the kubespray version(commit) in [version.yml](./version.yml).
 
 Before raise a release for Kubean, we need to ensure whether update the version of Kubespray or not. It depends on whether the upstream brings up something [interesting or important](#When-to-raise-a-release), if so, we need to update it. But before that we should ensure that the new version of Kubespray is stable enough. So we need to check the latest successful [E2E test](https://github.com/kubean-io/kubean/actions/workflows/verify-kubespray.yaml)
 
