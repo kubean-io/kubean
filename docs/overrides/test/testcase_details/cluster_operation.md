@@ -66,10 +66,3 @@
     5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
     6. check k8s version by cmd: kubectl version  --short, the "Server Version" should be: {{X.Y+1.*}}
     7. check node version: kubectl get node -o wide, the version should be {{X.Y+1.*}}
-
-
-### Retry 0 times when job fail
-    1. prepare the config file, and set backoffLimit=0
-    2. start a bound to fail jod
-    3. check the job-related pod status is "Error"
-    4. wait 100s, check the job-related pod total count is 1

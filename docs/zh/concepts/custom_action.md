@@ -57,7 +57,6 @@ metadata:
 spec:
   cluster: cluster1-demo
   image: ghcr.io/kubean-io/spray-job:latest
-  backoffLimit: 0
   actionType: playbook
   action: myplaybook.yml
   actionSource: configmap

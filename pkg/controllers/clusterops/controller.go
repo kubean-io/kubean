@@ -8,7 +8,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -68,7 +67,6 @@ func (c *Controller) CalSalt(clusterOps *clusteroperationv1alpha1.ClusterOperati
 	summaryStr += clusterOps.Spec.Cluster
 	summaryStr += string(clusterOps.Spec.ActionType)
 	summaryStr += strings.TrimSpace(clusterOps.Spec.Action)
-	summaryStr += strconv.Itoa(clusterOps.Spec.BackoffLimit)
 	summaryStr += clusterOps.Spec.Image
 	for _, action := range clusterOps.Spec.PreHook {
 		summaryStr += string(action.ActionType)
@@ -381,7 +379,7 @@ func (c *Controller) FetchGlobalManifestImageTag() string {
 }
 
 func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.ClusterOperation, serviceAccountName string) *batchv1.Job {
-	BackoffLimit := int32(clusterOps.Spec.BackoffLimit)
+	BackoffLimit := int32(0)
 	DefaultMode := int32(0o700)
 	PrivatekeyMode := int32(0o400)
 	jobName := c.GenerateJobName(clusterOps)

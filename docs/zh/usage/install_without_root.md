@@ -129,7 +129,6 @@ data:
     spec:
       cluster: sample
       image: ghcr.m.daocloud.io/kubean-io/spray-job:latest
-      backoffLimit: 0
       actionType: playbook
       action: cluster.yml
       preHook:

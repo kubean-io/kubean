@@ -7,6 +7,5 @@ metadata:
 spec:
   cluster: cluster1
   image: 
-  backoffLimit: 0
   actionType: playbook
   action: reset.yml
