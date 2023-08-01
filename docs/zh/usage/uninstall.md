@@ -29,7 +29,6 @@ metadata:
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
-  backoffLimit: 0
   actionType: playbook
   action: reset.yml
 ```

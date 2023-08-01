@@ -54,7 +54,6 @@ metadata:
 spec:
   cluster: cluster1-demo
   image: ghcr.m.daocloud.io/kubean-io/spray-job:latest
-  backoffLimit: 0
   actionType: playbook
   action: cluster.yml
   preHook:
@@ -87,7 +86,6 @@ spec:
 - `postHook`：后置执行操作，可以指定多个，例如可以获取集群状态等
   - `actionType`：同上
   - `action`：同上
-- `backoffLimit`：操作执行失败后重试次数
 
 ## Manifest
 

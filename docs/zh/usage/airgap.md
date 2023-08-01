@@ -240,7 +240,6 @@ metadata:
 spec:
   cluster: sample
   image: ghcr.io/kubean-io/spray-job:latest
-  backoffLimit: 0
   actionType: playbook
   action: cluster.yml
   preHook:
@@ -270,7 +269,6 @@ metadata:
 spec:
   cluster: sample
   image: ghcr.io/kubean-io/spray-job:latest
-  backoffLimit: 0
   actionType: playbook
   action: cluster.yml
   preHook:
