@@ -1357,7 +1357,6 @@
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-demo</span>
 <span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:latest</span>
-<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 <span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
 <span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
@@ -1388,7 +1387,6 @@
 <li><code>postHook</code>: what to do after executing the <code>action</code>. Allow multiple values, such as get the cluster status.</li>
 <li><code>actionType</code>: refer to the above <code>actionType</code>.</li>
 <li><code>action</code>: refer to the above <code>action</code>.</li>
-<li><code>backoffLimit</code>: times of retry if the <code>action</code> fails.</li>
 </ul>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">&para;</a></h2>
 <!--Kubean 允许通过 custom resource definitions (CRDs) 来记录和维护当前版本的 Kubean 使用和兼容的组件、包及版本；使用者不用手动编写此资源，由 Kubean 自行维护。-->

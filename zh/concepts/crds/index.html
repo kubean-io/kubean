@@ -1452,7 +1452,6 @@
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-demo</span>
 <span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:latest</span>
-<span class="w">  </span><span class="nt">backoffLimit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 <span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
 <span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
@@ -1483,7 +1482,6 @@
 <li><code>postHook</code>：后置执行操作，可以指定多个，例如可以获取集群状态等</li>
 <li><code>actionType</code>：同上</li>
 <li><code>action</code>：同上</li>
-<li><code>backoffLimit</code>：操作执行失败后重试次数</li>
 </ul>
 <h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">&para;</a></h2>
 <p>Kubean 允许通过 custom resource definitions (CRDs) 来记录和维护当前版本的 Kubean 使用和兼容的组件、包及版本；使用者不用手动编写此资源，由 Kubean 自行维护。</p>
