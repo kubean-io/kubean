@@ -59,7 +59,6 @@ metadata:
 spec:
   cluster: cluster1-demo
   image: ghcr.m.daocloud.io/kubean-io/spray-job:latest
-  backoffLimit: 0
   actionType: playbook
   action: cluster.yml
   preHook:
@@ -92,7 +91,6 @@ Each field in this CRD is explained as follows:
 - `postHook`: what to do after executing the `action`. Allow multiple values, such as get the cluster status.
   - `actionType`: refer to the above `actionType`.
   - `action`: refer to the above `action`.
-- `backoffLimit`: times of retry if the `action` fails.
 
 ## Manifest
 

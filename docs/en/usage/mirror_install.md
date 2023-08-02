@@ -110,7 +110,6 @@ metadata:
 spec:
   cluster: cluster1-online
   image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2 # kubean image version
-  backoffLimit: 0
   actionType: playbook
   action: cluster.yml
   preHook:

@@ -190,7 +190,6 @@ metadata:
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
-  backoffLimit: 0
   actionType: playbook
   action: scale.yml
   extraArgs: --limit=node2
@@ -213,7 +212,6 @@ metadata:
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2
-  backoffLimit: 0
   actionType: playbook
   action: scale.yml
   extraArgs: --limit=node2
@@ -248,7 +246,6 @@ metadata:
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
-  backoffLimit: 0
   actionType: playbook
   action: remove-node.yml
   extraArgs: -e node=node2
@@ -269,7 +266,6 @@ metadata:
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2
-  backoffLimit: 0
   actionType: playbook
   action: remove-node.yml
   extraArgs: -e node=node2

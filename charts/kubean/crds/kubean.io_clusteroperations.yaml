@@ -60,8 +60,6 @@ spec:
               activeDeadlineSeconds:
                 format: int64
                 type: integer
-              backoffLimit:
-                type: integer
               cluster:
                 description: Cluster the name of Cluster.kubean.io.
                 type: string
@@ -221,7 +219,6 @@ spec:
             required:
             - action
             - actionType
-            - backoffLimit
             - cluster
             - image
             type: object

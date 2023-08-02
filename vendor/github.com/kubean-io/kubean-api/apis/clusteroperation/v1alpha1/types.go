@@ -1,9 +1,9 @@
 package v1alpha1
 
 import (
+	"github.com/kubean-io/kubean-api/apis"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/kubean-io/kubean-api/apis"
 )
 
 // +genclient
@@ -68,8 +68,6 @@ type Spec struct {
 	ActionSourceRef *apis.ConfigMapRef `json:"actionSourceRef,omitempty"`
 	// +optional
 	ExtraArgs string `json:"extraArgs"`
-	// +required
-	BackoffLimit int `json:"backoffLimit"`
 	// +required
 	Image string `json:"image"`
 	// +optional

@@ -87,7 +87,6 @@ func TestUpdateStatusLoop(t *testing.T) {
 	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
-	ops.Spec.BackoffLimit = 12
 	tests := []struct {
 		name string
 		args func(ops *clusteroperationv1alpha1.ClusterOperation) bool
@@ -180,7 +179,6 @@ func TestCompareSalt(t *testing.T) {
 	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
-	ops.Spec.BackoffLimit = 12
 	tests := []struct {
 		name string
 		args func() bool
@@ -195,19 +193,6 @@ func TestCompareSalt(t *testing.T) {
 					return false
 				}
 				return controller.compareDigest(&ops)
-			},
-			want: true,
-		},
-		{
-			name: "not same salt with different spec value",
-			args: func() bool {
-				ops.Status.Digest = ""
-				controller.UpdateClusterOpsStatusDigest(&ops)
-				if len(ops.Status.Digest) == 0 {
-					return false
-				}
-				ops.Spec.BackoffLimit = 12345
-				return !controller.compareDigest(&ops)
 			},
 			want: true,
 		},
@@ -227,7 +212,6 @@ func TestUpdateClusterOpsStatusSalt(t *testing.T) {
 	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
-	ops.Spec.BackoffLimit = 12
 	tests := []struct {
 		name string
 		args func() bool
@@ -275,7 +259,6 @@ func TestUpdateStatusHasModified(t *testing.T) {
 	ops := clusteroperationv1alpha1.ClusterOperation{}
 	ops.ObjectMeta.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
-	ops.Spec.BackoffLimit = 12
 	tests := []struct {
 		name string
 		args func() bool
@@ -323,7 +306,7 @@ func TestUpdateStatusHasModified(t *testing.T) {
 				if len(ops.Status.Digest) == 0 {
 					return false
 				}
-				ops.Spec.BackoffLimit = 111
+				ops.Spec.Image = "abc"
 				needRequeue, err := controller.UpdateStatusHasModified(&ops)
 				return len(ops.Status.Digest) != 0 && err == nil && needRequeue && ops.Status.HasModified
 			},
@@ -345,7 +328,6 @@ func TestCalSalt(t *testing.T) {
 	ops.Spec.Cluster = "123456789"
 	ops.Spec.ActionType = "1"
 	ops.Spec.Action = "2"
-	ops.Spec.BackoffLimit = 3
 	ops.Spec.Image = "4"
 	ops.Spec.PreHook = []clusteroperationv1alpha1.HookAction{
 		{
@@ -389,14 +371,6 @@ func TestCalSalt(t *testing.T) {
 			name: "change action",
 			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
 				ops.Spec.Action = "ok123"
-				return controller.CalSalt(&ops)
-			},
-			want: false,
-		},
-		{
-			name: "change backoff",
-			args: func(ops clusteroperationv1alpha1.ClusterOperation) string {
-				ops.Spec.BackoffLimit = 100
 				return controller.CalSalt(&ops)
 			},
 			want: false,
@@ -457,7 +431,6 @@ func TestNewKubesprayJob(t *testing.T) {
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
-	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
 	clusterOps.Spec.Image = "myimage"
 	clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
@@ -536,7 +509,6 @@ func TestController_HookCustomAction(t *testing.T) {
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
-	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
 	clusterOps.Spec.Image = "myimage"
 	clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
@@ -1369,7 +1341,6 @@ func TestCreateKubeSprayJob(t *testing.T) {
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
-	clusterOps.Spec.BackoffLimit = 10
 	clusterOps.Name = "myops"
 	clusterOps.Spec.Image = "myimage"
 	clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{
