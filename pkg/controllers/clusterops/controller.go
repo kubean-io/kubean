@@ -37,12 +37,13 @@ import (
 )
 
 const (
-	RequeueAfter     = time.Second * 3
-	LoopForJobStatus = time.Second * 5
-	RetryInterval    = time.Millisecond * 300
-	RetryCount       = 5
-	ServiceAccount   = "kubean.io/kubean-operator=sa"
-	SprayJobPodName  = "kubean"
+	RequeueAfter       = time.Second * 3
+	LoopForJobStatus   = time.Second * 5
+	RetryInterval      = time.Millisecond * 300
+	RetryCount         = 5
+	ServiceAccount     = "kubean.io/kubean-operator=sa"
+	SprayJobPodName    = "kubean"
+	JobActorPodAnnoKey = "kubean.io/actor"
 )
 
 type Controller struct {
@@ -167,7 +168,14 @@ func (c *Controller) FetchJobConditionStatusAndCompletionTime(clusterOps *cluste
 	for _, contion := range targetJob.Status.Conditions {
 		if contion.Type == batchv1.JobComplete && contion.Status == corev1.ConditionTrue {
 			return clusteroperationv1alpha1.SucceededStatus, targetJob.Status.CompletionTime, nil
-		} else if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
+		}
+		if contion.Type == batchv1.JobFailed && contion.Status == corev1.ConditionTrue {
+			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil
+		}
+		if contion.Type == batchv1.JobFailureTarget && contion.Status == corev1.ConditionTrue {
+			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil
+		}
+		if contion.Type == batchv1.JobSuspended && contion.Status == corev1.ConditionTrue {
 			return clusteroperationv1alpha1.FailedStatus, targetJob.Status.CompletionTime, nil
 		}
 	}
@@ -184,6 +192,9 @@ func (c *Controller) ListClusterOps(clusterName string) ([]clusteroperationv1alp
 }
 
 func (c *Controller) CurrentJobNeedBlock(clusterOps *clusteroperationv1alpha1.ClusterOperation, listClusterOps func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error)) (bool, error) {
+	if clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus || clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus {
+		return false, nil
+	}
 	clusterOpsList, err := listClusterOps(clusterOps.Spec.Cluster)
 	if err != nil {
 		return false, err
@@ -201,7 +212,11 @@ func (c *Controller) CurrentJobNeedBlock(clusterOps *clusteroperationv1alpha1.Cl
 			runningClusterOpsList = append(runningClusterOpsList, clusterOpsList[i])
 		}
 	}
-	return len(runningClusterOpsList) != 0, nil
+	if len(runningClusterOpsList) != 0 {
+		klog.Warningf("clusterOps %s blocked by %s", clusterOps.Name, runningClusterOpsList[0].Name)
+		return true, nil
+	}
+	return false, nil
 }
 
 func IsValidImageName(image string) bool {
@@ -224,12 +239,17 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.ErrorS(err, "failed to get cluster ops", "clusterOps", req.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
-	if clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus || clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus {
-		// return early
-		return controllerruntime.Result{}, nil
+	needRequeue, err := c.TrySuspendPod(clusterOps)
+	if err != nil {
+		klog.ErrorS(err, "failed to TrySuspendPod", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
+	if needRequeue {
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
+	if clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus || clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus {
+		return controllerruntime.Result{RequeueAfter: time.Second * 30}, nil
+	}
 	cluster, err := c.GetKuBeanCluster(clusterOps)
 	if err != nil {
 		klog.ErrorS(err, "failed to get kubean cluster", "cluster", cluster.Name)
@@ -253,7 +273,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		}
 		return controllerruntime.Result{}, nil
 	}
-	needRequeue, err := c.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
+	needRequeue, err = c.UpdateOperationOwnReferenceForCluster(clusterOps, cluster)
 	if err != nil {
 		klog.ErrorS(err, "failed to update ownreference", "cluster", cluster.Name, "clusterOps", clusterOps.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
@@ -331,7 +351,6 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
 	needRequeue, err = c.UpdateStatusLoop(clusterOps, c.FetchJobConditionStatusAndCompletionTime)
 	if err != nil {
 		klog.ErrorS(err, "failed to update status loop", "clusterOps", clusterOps.Name)
@@ -554,6 +573,71 @@ func (c *Controller) CreateKubeSprayJob(clusterOps *clusteroperationv1alpha1.Clu
 func (c *Controller) GetKuBeanCluster(clusterOps *clusteroperationv1alpha1.ClusterOperation) (*clusterv1alpha1.Cluster, error) {
 	// cluster has many clusterOps.
 	return c.KubeanClusterSet.KubeanV1alpha1().Clusters().Get(context.Background(), clusterOps.Spec.Cluster, metav1.GetOptions{})
+}
+
+func (c *Controller) TrySuspendPod(clusterOps *clusteroperationv1alpha1.ClusterOperation) (bool, error) {
+	if clusterOps.Status.JobRef.IsEmpty() {
+		return false, nil
+	}
+	targetJob, err := c.ClientSet.BatchV1().Jobs(clusterOps.Status.JobRef.NameSpace).Get(context.Background(), clusterOps.Status.JobRef.Name, metav1.GetOptions{})
+	if err != nil {
+		klog.Warningf("job %s not found , ignore %s", clusterOps.Status.JobRef.Name, err.Error())
+		return false, nil
+	}
+	if targetJob.Spec.Suspend != nil && *targetJob.Spec.Suspend {
+		return false, nil
+	}
+	for _, contion := range targetJob.Status.Conditions {
+		if (contion.Type == batchv1.JobComplete || contion.Type == batchv1.JobFailed || contion.Type == batchv1.JobSuspended || contion.Type == batchv1.JobFailureTarget) &&
+			contion.Status == corev1.ConditionTrue {
+			return false, nil
+		}
+	}
+	runningPod, err := c.GetRunningPodFromJob(targetJob)
+	if err != nil {
+		klog.Warningf("GetRunningPodFromJob jobName %s and ignore %s", targetJob.Name, err.Error())
+		return false, nil
+	}
+	if len(clusterOps.Annotations) == 0 || clusterOps.Annotations[JobActorPodAnnoKey] == "" {
+		if clusterOps.Annotations == nil {
+			clusterOps.Annotations = map[string]string{}
+		}
+		klog.Warningf("add annotations %s=%s to clusterOps %s", JobActorPodAnnoKey, runningPod.Name, clusterOps.Name)
+		clusterOps.Annotations[JobActorPodAnnoKey] = runningPod.Name
+		if err := c.Client.Update(context.Background(), clusterOps); err != nil {
+			return false, err
+		}
+		return true, nil // requeue
+	}
+	if clusterOps.Annotations[JobActorPodAnnoKey] != "" && clusterOps.Annotations[JobActorPodAnnoKey] != runningPod.Name {
+		// another pod ,try to Suspend job
+		klog.Warningf("TrySuspendPod jobName %s podName %s", targetJob.Name, runningPod.Name)
+		suspend := true
+		targetJob.Spec.Suspend = &suspend
+		if _, err := c.ClientSet.BatchV1().Jobs(targetJob.Namespace).Update(context.Background(), targetJob, metav1.UpdateOptions{}); err != nil {
+			return false, err
+		}
+		return true, nil // requeue
+	}
+	return false, nil
+}
+
+func (c *Controller) GetRunningPodFromJob(job *batchv1.Job) (*corev1.Pod, error) {
+	if job.Spec.Selector == nil || len(job.Spec.Selector.MatchLabels) == 0 {
+		return nil, fmt.Errorf("job %s has no Selector", job.Name)
+	}
+	selector := labels.SelectorFromSet(job.Spec.Selector.MatchLabels)
+	pods, err := c.ClientSet.CoreV1().Pods(job.Namespace).List(context.Background(), metav1.ListOptions{LabelSelector: selector.String()})
+	if err != nil {
+		return nil, err
+	}
+	for i := range pods.Items {
+		targetPod := pods.Items[i]
+		if targetPod.Status.Phase == corev1.PodRunning {
+			return &targetPod, nil
+		}
+	}
+	return nil, fmt.Errorf("no running pod from job %s", job.Name)
 }
 
 // CreateEntryPointShellConfigMap create configMap to store entrypoint.sh.
