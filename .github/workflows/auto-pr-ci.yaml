@@ -37,6 +37,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/labeler@v4
