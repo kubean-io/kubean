@@ -107,6 +107,11 @@ class PkgMgrFactCollector(BaseFactCollector):
                         pkg_mgr_name = 'dnf'
             except ValueError:
                 pkg_mgr_name = 'dnf'
+        elif collected_facts['ansible_distribution'] == 'TencentOS':
+            try:
+                pkg_mgr_name = 'dnf' if int(collected_facts['ansible_distribution_major_version']) >= 3 else 'yum'
+            except ValueError:
+                pkg_mgr_name = 'dnf'
         else:
             # If it's not one of the above and it's Red Hat family of distros, assume
             # RHEL or a clone. For versions of RHEL < 8 that Ansible supports, the
