@@ -1,0 +1,31 @@
+
+'docs':
+- docs/**/*
+- examples/**/*
+- README_zh.md
+- README.md
+
+'gitHub actions':
+- .github/**/*
+
+'linters':
+- .ansible-lint
+- .golangci.yml
+
+'testing':
+- test/**/*
+
+'playbooks':
+- playbooks/*
+
+'CI':
+- hack/*
+- config/*
+- build/**/*
+- artifacts/**/*
+
+'api':
+- api/**/*
+
+'charts':
+- charts/**/*
