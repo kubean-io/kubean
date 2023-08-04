@@ -4,15 +4,20 @@
 package util
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
-	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
-	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 
+	"github.com/kubean-io/kubean-api/apis"
+	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -63,4 +68,47 @@ func GetCurrentNSOrDefault() string {
 		return "default"
 	}
 	return ns
+}
+
+func UpdateOwnReference(client kubernetes.Interface, configMapList []*apis.ConfigMapRef, secretList []*apis.SecretRef, belongToReference metav1.OwnerReference) error {
+	for _, ref := range configMapList {
+		if ref.IsEmpty() {
+			continue
+		}
+		cm, err := client.CoreV1().ConfigMaps(ref.NameSpace).Get(context.Background(), ref.Name, metav1.GetOptions{})
+		if err != nil {
+			if apierrors.IsNotFound(err) { // ignore
+				continue
+			}
+			return err // not ignore
+		}
+		if len(cm.OwnerReferences) != 0 {
+			continue // do nothing
+		}
+		// cm belongs to `Cluster`
+		cm.OwnerReferences = append(cm.OwnerReferences, belongToReference)
+		if _, err := client.CoreV1().ConfigMaps(ref.NameSpace).Update(context.Background(), cm, metav1.UpdateOptions{}); err != nil {
+			return err
+		}
+	}
+	for _, ref := range secretList {
+		if ref.IsEmpty() {
+			continue
+		}
+		secret, err := client.CoreV1().Secrets(ref.NameSpace).Get(context.Background(), ref.Name, metav1.GetOptions{})
+		if err != nil {
+			if apierrors.IsNotFound(err) { // ignore
+				continue
+			}
+			return err // not ignore
+		}
+		if len(secret.OwnerReferences) != 0 {
+			continue // do nothing
+		}
+		secret.OwnerReferences = append(secret.OwnerReferences, belongToReference)
+		if _, err := client.CoreV1().Secrets(ref.NameSpace).Update(context.Background(), secret, metav1.UpdateOptions{}); err != nil {
+			return err
+		}
+	}
+	return nil
 }

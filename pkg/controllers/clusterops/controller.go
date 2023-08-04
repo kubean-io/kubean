@@ -325,7 +325,10 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		// something updated.
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
+	if err := c.UpdateOwnReferenceToClusterOps(clusterOps); err != nil {
+		klog.ErrorS(err, "failed to update the ownReference configData or secretData", "clusterOps", clusterOps.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
 	needBlock, err := c.CurrentJobNeedBlock(clusterOps, c.ListClusterOps)
 	if err != nil {
 		klog.ErrorS(err, "failed to list clusterOps", "cluster", clusterOps.Spec.Cluster)
@@ -844,6 +847,15 @@ func (c *Controller) CopySecret(clusterOps *clusteroperationv1alpha1.ClusterOper
 		return nil, err
 	}
 	return newSecret, nil
+}
+
+func (c *Controller) UpdateOwnReferenceToClusterOps(clusterOps *clusteroperationv1alpha1.ClusterOperation) error {
+	return util.UpdateOwnReference(
+		c.ClientSet,
+		clusterOps.Spec.ConfigDataList(),
+		clusterOps.Spec.SecretDataList(),
+		*metav1.NewControllerRef(clusterOps, clusteroperationv1alpha1.SchemeGroupVersion.WithKind("ClusterOperation")),
+	)
 }
 
 // BackUpDataRef perform the backup of configRef and secretRef and return (needRequeue,error).
