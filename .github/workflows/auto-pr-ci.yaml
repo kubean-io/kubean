@@ -37,24 +37,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-      pull-requests: write
-
-    steps:
-      - uses: actions/labeler@v4
-      - uses: wzshiming/gh-ci-bot@v1
-        env:
-          LOGIN: ${{ github.event.pull_request.user.login }}
-          MESSAGE: ${{ github.event.pull_request.body }}
-          ISSUE_NUMBER: ${{ github.event.pull_request.number }}
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
-          ISSUE_KIND: pr
-          TYPE: created
-          GREETING: |-
-            Hi @${{ github.event.pull_request.user.login }},
-            Thanks for your pull request!
-            If the PR is ready, use the `/auto-cc` command to assign Reviewer to Review.
-            We will review it shortly.
-  
+    steps:  
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
