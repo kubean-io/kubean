@@ -42,6 +42,14 @@ type Spec struct {
 	PreCheckRef *apis.ConfigMapRef `json:"preCheckRef"`
 }
 
+func (spec *Spec) ConfigDataList() []*apis.ConfigMapRef {
+	return []*apis.ConfigMapRef{spec.HostsConfRef, spec.VarsConfRef, spec.KubeConfRef, spec.PreCheckRef}
+}
+
+func (spec *Spec) SecretDataList() []*apis.SecretRef {
+	return []*apis.SecretRef{spec.SSHAuthRef}
+}
+
 type ClusterConditionType string
 
 const (

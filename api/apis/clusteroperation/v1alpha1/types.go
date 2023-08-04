@@ -80,6 +80,21 @@ type Spec struct {
 	ActiveDeadlineSeconds *int64 `json:"activeDeadlineSeconds,omitempty"`
 }
 
+func (spec *Spec) ConfigDataList() []*apis.ConfigMapRef {
+	result := []*apis.ConfigMapRef{spec.HostsConfRef, spec.VarsConfRef, spec.EntrypointSHRef, spec.ActionSourceRef}
+	for i := range spec.PreHook {
+		result = append(result, spec.PreHook[i].ActionSourceRef)
+	}
+	for i := range spec.PostHook {
+		result = append(result, spec.PostHook[i].ActionSourceRef)
+	}
+	return result
+}
+
+func (spec *Spec) SecretDataList() []*apis.SecretRef {
+	return []*apis.SecretRef{spec.SSHAuthRef}
+}
+
 type HookAction struct {
 	// +required
 	ActionType ActionType `json:"actionType"`

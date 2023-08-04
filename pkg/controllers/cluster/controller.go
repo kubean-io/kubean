@@ -194,8 +194,19 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.ErrorS(err, "failed to update cluster status", "cluster", cluster.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-
+	if err := c.UpdateOwnReferenceToCluster(cluster); err != nil {
+		klog.ErrorS(err, "failed to update the ownReference configData or secretData", "cluster", cluster.Name)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
+	}
 	return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil // loop
+}
+
+func (c *Controller) UpdateOwnReferenceToCluster(cluster *clusterv1alpha1.Cluster) error {
+	return util.UpdateOwnReference(c.ClientSet,
+		cluster.Spec.ConfigDataList(),
+		cluster.Spec.SecretDataList(),
+		*metav1.NewControllerRef(cluster, clusterv1alpha1.SchemeGroupVersion.WithKind("Cluster")),
+	)
 }
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
