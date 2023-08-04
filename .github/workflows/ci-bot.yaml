@@ -9,9 +9,11 @@ on:
   issues:
     types:
     - opened
-  pull_request:
+  pull_request_target:
     types:
-    - opened
+      - opened
+      - synchronize
+      - reopened
 
 env:
   # This plugins is for anyone who can use it
@@ -99,7 +101,7 @@ jobs:
 
   pr_opened:
     name: PR Opened
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request_target' }}
     continue-on-error: true
     runs-on: ubuntu-latest
     permissions:
