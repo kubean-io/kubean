@@ -6,23 +6,28 @@ Thanks for sending a pull request!  Here are some tips for you:
 
 -->
 
-**What type of PR is this?**
-<!-- 
-Uncomment only one ` /kind <>` line, hit enter to put that in a new line, and remove leading whitespaces from that line:
+#### What type of PR is this?
 
-/kind api-change
+<!--
+Add one of the following kinds:
 /kind bug
 /kind cleanup
-/kind design
 /kind documentation
-/kind failing-test
+/kind enhancement
 /kind feature
+
+Optionally add one or more of the following kinds if applicable:
+/kind api-change
+/kind deprecation
+/kind failing-test
 /kind flake
+/kind design
+/kind regression
 -->
 
-**What this PR does / why we need it**:
+#### What this PR does / why we need it:
 
-**Which issue(s) this PR fixes**:
+#### Which issue(s) this PR fixes:
 <!--
 *Automatically closes linked issue when PR is merged.
 Usage: `Fixes #<issue number>`, or `Fixes (paste link of issue)`.
@@ -30,5 +35,4 @@ _If PR is about `failing-tests or flakes`, please post the related issues/tests 
 -->
 Fixes #
 
-**Special notes for your reviewer**:
-
+#### Special notes for your reviewer:
