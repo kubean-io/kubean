@@ -39,7 +39,7 @@ The Core Technical Committee consists of Reviewers & Approvers, see **[OWNERS](h
 
 ### Communication
 1. We recommend using [Github Issues](https://github.com/kubean-io/kubean/issues "Github Issues") for tracking bugs and managing requirements;
-2. We recommend using [Github Milestone](https://github.com/kubean-io/kubean/issues "GitHub Milestone") for managing project progress and planning.
+2. We recommend using [Github Milestone](https://github.com/kubean-io/kubean/milestones "GitHub Milestone") for managing project progress and planning.
 
 ### Documentation
 1. We recommend using [Github Pages](https://kubean-io.github.io/kubean "Github Pages") to deposit the documentation;
