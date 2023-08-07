@@ -109,6 +109,14 @@ To check the list of Kubernetes versions supported by Kubean, please refer to th
 
 Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
+## :thumbsup: Contributors
+
+<a href="https://github.com/kubean-io/kubean/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=kubean-io/kubean" />
+</a>
+
+---
+
 <div align="center">
 <p>
 <img src="https://landscape.cncf.io/images/left-logo.svg" width="300"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="350"/>
