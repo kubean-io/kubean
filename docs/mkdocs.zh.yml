@@ -67,6 +67,8 @@ nav:
 - ... | releases/v*.md
 
 markdown_extensions:
+- pymdownx.tasklist:
+    clickable_checkbox: true
 - toc:
     permalink: true
 - markdown.extensions.codehilite:
