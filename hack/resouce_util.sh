@@ -100,7 +100,7 @@ function resource::download_resource_files(){
     file_url=${BASE_URL}/${new_tag}/${file_name}
       echo "${file_url}"
       # retry more times to download files
-      curl --retry 10 --retry-max-time 60 -LO --output "${download_root_path}/${new_tag}"  ${file_url}
+      curl --retry 10 --retry-max-time 60 -Lo "${download_root_path}/${new_tag}/${file_name}"  ${file_url}
   done
 }
 
