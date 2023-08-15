@@ -109,6 +109,13 @@
       ignore_errors: true
       delegate_to: localhost
 
+    - name: Store instruction set architecture result to localhost
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
+        yq -i '.{{inventory_hostname}}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache
+      ignore_errors: true
+      delegate_to: localhost
+
 - hosts: localhost
   gather_facts: false
   vars:
