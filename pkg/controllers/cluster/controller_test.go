@@ -21,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
+	k8stesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -43,6 +44,27 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
+
+func fetchTestingFake(obj interface{ RESTClient() rest.Interface }) *k8stesting.Fake {
+	// https://stackoverflow.com/questions/69740891/mocking-errors-with-client-go-fake-client
+	return reflect.Indirect(reflect.ValueOf(obj)).FieldByName("Fake").Interface().(*k8stesting.Fake)
+}
+
+func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, verb, resource string) {
+	if fakeObj := fetchTestingFake(obj); fakeObj != nil {
+		newReactionChain := make([]k8stesting.Reactor, 0)
+		fakeObj.Lock()
+		defer fakeObj.Unlock()
+		for i := range fakeObj.ReactionChain {
+			reaction := fakeObj.ReactionChain[i]
+			if simpleReaction, ok := reaction.(*k8stesting.SimpleReactor); ok && simpleReaction.Verb == verb && simpleReaction.Resource == resource {
+				continue // ignore
+			}
+			newReactionChain = append(newReactionChain, reaction)
+		}
+		fakeObj.ReactionChain = newReactionChain
+	}
+}
 
 func TestCompareClusterCondition(t *testing.T) {
 	tests := []struct {
@@ -329,8 +351,36 @@ func Test_CleanExcessClusterOps(t *testing.T) {
 					}
 					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
 				}
+				clusterOperationRunning := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:              "my_kubean_ops_cluster_2_" + "running",
+						Labels:            map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+						CreationTimestamp: metav1.Unix(int64(10), 0),
+					},
+				}
+				clusterOperationRunning, _ = controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperationRunning, metav1.CreateOptions{})
+				clusterOperationRunning.Status = clusteroperationv1alpha1.Status{
+					Status: clusteroperationv1alpha1.RunningStatus,
+				}
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().UpdateStatus(context.Background(), clusterOperationRunning, metav1.UpdateOptions{})
 				result, _ := controller.CleanExcessClusterOps(exampleCluster, OpsBackupNum)
 				return result
+			},
+			want: true,
+		},
+		{
+			name: "get error",
+			args: func() bool {
+				fetchTestingFake(controller.KubeanClusterOpsSet.KubeanV1alpha1()).PrependReactor("list", "clusteroperations", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				_, err := controller.CleanExcessClusterOps(exampleCluster, 5)
+				removeReactorFromTestingTake(controller.KubeanClusterOpsSet.KubeanV1alpha1(), "list", "clusteroperations")
+				return err != nil && err.Error() == "this is error"
 			},
 			want: true,
 		},
@@ -410,6 +460,31 @@ func Test_UpdateStatus(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "get one error",
+			args: func() bool {
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				fetchTestingFake(controller.KubeanClusterOpsSet.KubeanV1alpha1()).PrependReactor("list", "clusteroperations", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				err := controller.UpdateStatus(exampleCluster)
+				removeReactorFromTestingTake(controller.KubeanClusterOpsSet.KubeanV1alpha1(), "list", "clusteroperations")
+				return err != nil && err.Error() == "this is error"
+			},
+			want: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -486,6 +561,96 @@ func TestReconcile(t *testing.T) {
 				controller.Client.Create(context.Background(), exampleCluster)
 				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
 				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
+				return result.RequeueAfter > 0
+			},
+			needRequeue: true,
+		},
+		{
+			name: "CleanExcessClusterOps with error",
+			args: func() bool {
+				controller := genController()
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.Client.Create(context.Background(), exampleCluster)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				fetchTestingFake(controller.KubeanClusterOpsSet.KubeanV1alpha1()).PrependReactor("list", "clusteroperations", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
+				removeReactorFromTestingTake(controller.KubeanClusterOpsSet.KubeanV1alpha1(), "list", "clusteroperations")
+				return result.RequeueAfter > 0
+			},
+			needRequeue: true,
+		},
+		{
+			name: "CleanExcessClusterOps with true",
+			args: func() bool {
+				controller := genController()
+				exampleCluster := &clusterv1alpha1.Cluster{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Cluster",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "cluster1",
+					},
+					Spec: clusterv1alpha1.Spec{
+						HostsConfRef: &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "hosts-a"},
+						VarsConfRef:  &apis.ConfigMapRef{NameSpace: "kubean-system", Name: "vars-a"},
+					},
+				}
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterOperation",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "cluster1-ops",
+						Labels: map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				controller.Client.Create(context.Background(), exampleCluster)
+				controller.KubeanClusterSet.KubeanV1alpha1().Clusters().Create(context.Background(), exampleCluster, metav1.CreateOptions{})
+				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
+				for i := 0; i < 100; i++ {
+					clusterOperation := &clusteroperationv1alpha1.ClusterOperation{
+						TypeMeta: metav1.TypeMeta{
+							Kind:       "ClusterOperation",
+							APIVersion: "kubean.io/v1alpha1",
+						},
+						ObjectMeta: metav1.ObjectMeta{
+							Name:              "my_kubean_ops_cluster_2_" + fmt.Sprint(i),
+							Labels:            map[string]string{constants.KubeanClusterLabelKey: "cluster1"},
+							CreationTimestamp: metav1.Unix(int64(i), 0),
+						},
+					}
+					controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{})
+				}
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}})
 				return result.RequeueAfter > 0
 			},

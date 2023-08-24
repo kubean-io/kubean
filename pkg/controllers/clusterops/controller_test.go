@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-logr/logr"
+
 	"github.com/kubean-io/kubean-api/apis"
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
@@ -25,11 +27,11 @@ import (
 	manifestv1alpha1fake "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned/fake"
 	"github.com/kubean-io/kubean/pkg/util"
 
-	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -489,6 +491,15 @@ func TestNewKubesprayJob(t *testing.T) {
 			},
 			want: true,
 		},
+		{
+			name: "not empty Resources",
+			args: func() bool {
+				clusterOps.Spec.Resources = corev1.ResourceRequirements{Limits: map[corev1.ResourceName]resource.Quantity{corev1.ResourceCPU: resource.MustParse("1m")}}
+				job := controller.NewKubesprayJob(clusterOps, "kubean")
+				return len(job.Spec.Template.Spec.Containers[0].Resources.Limits) != 0
+			},
+			want: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -794,6 +805,18 @@ func TestCurrentJobNeedBlock(t *testing.T) {
 					ops2.Name = "ops2"
 					ops2.CreationTimestamp = metav1.Time{Time: time.UnixMilli(1000 + 10000)}
 					return []clusteroperationv1alpha1.ClusterOperation{ops1, ops2}, nil
+				})
+				return err == nil && !needBlock
+			},
+			want: true,
+		},
+		{
+			name: "ops succeeded",
+			args: func() bool {
+				clusterOps1 := *clusterOps
+				clusterOps1.Status.Status = clusteroperationv1alpha1.SucceededStatus
+				needBlock, err := controller.CurrentJobNeedBlock(&clusterOps1, func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
+					return nil, nil
 				})
 				return err == nil && !needBlock
 			},
@@ -1365,6 +1388,79 @@ func TestCreateKubeSprayJob(t *testing.T) {
 		want bool
 	}{
 		{
+			name: "get sa but error",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				clusterOps1 := *clusterOps
+				fetchTestingFake(controller.ClientSet.CoreV1()).PrependReactor("list", "serviceaccounts", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				needRequeue, err := controller.CreateKubeSprayJob(&clusterOps1)
+				removeReactorFromTestingTake(controller.ClientSet.CoreV1(), "list", "serviceaccounts")
+				return !needRequeue && err != nil && err.Error() == "this is error"
+			},
+			want: true,
+		},
+		{
+			name: "create job but error",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				clusterOps1 := *clusterOps
+				fetchTestingFake(controller.ClientSet.CoreV1()).PrependReactor("create", "jobs", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error when create job")
+				})
+				needRequeue, err := controller.CreateKubeSprayJob(&clusterOps1)
+				removeReactorFromTestingTake(controller.ClientSet.CoreV1(), "create", "jobs")
+				return !needRequeue && err != nil && err.Error() == "this is error when create job"
+			},
+			want: true,
+		},
+		{
+			name: "try to get job but other error",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+
+				fetchTestingFake(controller.ClientSet.CoreV1()).PrependReactor("get", "jobs", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				clusterOps1 := *clusterOps
+				needRequeue, err := controller.CreateKubeSprayJob(&clusterOps1)
+				removeReactorFromTestingTake(controller.ClientSet.CoreV1(), "get", "jobs")
+				return !needRequeue && err != nil && err.Error() == "this is error"
+			},
+			want: true,
+		},
+		{
 			name: "create job successfully",
 			args: func() bool {
 				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
@@ -1382,6 +1478,27 @@ func TestCreateKubeSprayJob(t *testing.T) {
 				needRequeue, err := controller.CreateKubeSprayJob(clusterOps)
 				return needRequeue && err == nil
 			},
+		},
+		{
+			name: "JobRef not empty",
+			args: func() bool {
+				controller.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &corev1.ServiceAccount{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ServiceAccount",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "sa1",
+						Labels:    map[string]string{"kubean.io/kubean-operator": "sa"},
+					},
+				}, metav1.CreateOptions{})
+				clusterOps1 := *clusterOps
+				clusterOps1.Status.JobRef = &apis.JobRef{NameSpace: "abc", Name: "abc"}
+				needRequeue, err := controller.CreateKubeSprayJob(&clusterOps1)
+				return !needRequeue && err == nil
+			},
+			want: true,
 		},
 	}
 	for _, test := range tests {
@@ -1679,6 +1796,45 @@ func Test_GetKuBeanCluster(t *testing.T) {
 	}
 }
 
+func Test_GetRunningPodFromJob(t *testing.T) {
+	genController := func() Controller {
+		return Controller{
+			Client:              newFakeClient(),
+			ClientSet:           clientsetfake.NewSimpleClientset(),
+			KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+			KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+		}
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "job1-namespace", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}, Spec: batchv1.JobSpec{Selector: &metav1.LabelSelector{MatchLabels: map[string]string{"a": "b"}}}})
+				return targetPod.Name == "pod1" && err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func Test_CreateEntryPointShellConfigMap(t *testing.T) {
 	genController := func() Controller {
 		return Controller{
@@ -1878,6 +2034,64 @@ func Test_FetchJobStatus(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "job JobFailureTarget",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-fail-target"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-fail-target",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobFailureTarget,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				status, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+		{
+			name: "job JobSuspended",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-suspend"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-suspend",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobSuspended,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				status, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
+				return err == nil && status == clusteroperationv1alpha1.FailedStatus
+			},
+			want: true,
+		},
+		{
 			name: "job running",
 			args: func() bool {
 				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
@@ -1895,6 +2109,31 @@ func Test_FetchJobStatus(t *testing.T) {
 				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
 				status, completionTime, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
 				return err == nil && status == clusteroperationv1alpha1.RunningStatus && completionTime == nil
+			},
+			want: true,
+		},
+		{
+			name: "get job but error",
+			args: func() bool {
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+				clusterOps.Status.JobRef = &apis.JobRef{NameSpace: "kubean-system", Name: "job-running"}
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-running",
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				fetchTestingFake(controller.ClientSet.CoreV1()).PrependReactor("get", "jobs", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				_, _, err := controller.FetchJobConditionStatusAndCompletionTime(clusterOps)
+				removeReactorFromTestingTake(controller.ClientSet.CoreV1(), "get", "jobs")
+				return err != nil && err.Error() == "this is error"
 			},
 			want: true,
 		},
@@ -1944,6 +2183,18 @@ func Test_ListClusterOps(t *testing.T) {
 				controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOps, metav1.CreateOptions{})
 				result, err := controller.ListClusterOps("kubeanCluster-123")
 				return len(result) > 0 && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "get error",
+			args: func() bool {
+				fetchTestingFake(controller.KubeanClusterOpsSet.KubeanV1alpha1()).PrependReactor("list", "clusteroperations", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error")
+				})
+				_, err := controller.ListClusterOps("kubeanCluster-123")
+				removeReactorFromTestingTake(controller.KubeanClusterOpsSet.KubeanV1alpha1(), "list", "clusteroperations")
+				return err != nil && err.Error() == "this is error"
 			},
 			want: true,
 		},

@@ -699,7 +699,6 @@ func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
 				})
 				controller.UpdateLocalAvailableImage()
 				removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "update", "manifests/status")
-
 				global, _ := controller.FetchGlobalInfoManifest()
 				return global.Status.LocalAvailable.KubesprayImage
 			},
