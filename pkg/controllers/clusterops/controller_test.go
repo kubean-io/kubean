@@ -1796,6 +1796,210 @@ func Test_GetKuBeanCluster(t *testing.T) {
 	}
 }
 
+func Test_TrySuspendPod(t *testing.T) {
+	controller := Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "job finished",
+			args: func() bool {
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-finished",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobComplete,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				result, err := controller.TrySuspendPod(&clusteroperationv1alpha1.ClusterOperation{
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster: "cluster",
+					},
+					Status: clusteroperationv1alpha1.Status{
+						JobRef: &apis.JobRef{
+							NameSpace: "kubean-system",
+							Name:      "job-finished",
+						},
+					},
+				})
+				return result == false && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "job not found",
+			args: func() bool {
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-finished",
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobComplete,
+								Status: corev1.ConditionTrue,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				result, err := controller.TrySuspendPod(&clusteroperationv1alpha1.ClusterOperation{
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster: "cluster",
+					},
+					Status: clusteroperationv1alpha1.Status{
+						JobRef: &apis.JobRef{
+							NameSpace: "kubean-system",
+							Name:      "job-not-found",
+						},
+					},
+				})
+				return result == false && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "cluster ops no annotations",
+			args: func() bool {
+				controller.ClientSet.CoreV1().Pods("kubean-system").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "kubean-system", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-running",
+					},
+					Spec: batchv1.JobSpec{
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{"a": "b"},
+						},
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobComplete,
+								Status: corev1.ConditionFalse,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my_kubean_ops_cluster",
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster: "cluster",
+					},
+					Status: clusteroperationv1alpha1.Status{
+						JobRef: &apis.JobRef{
+							NameSpace: "kubean-system",
+							Name:      "job-running",
+						},
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				result, err := controller.TrySuspendPod(clusterOps)
+				return result == true && err == nil && clusterOps.Annotations[JobActorPodAnnoKey] == "pod1"
+			},
+			want: true,
+		},
+		{
+			name: "suspend job success",
+			args: func() bool {
+				controller.ClientSet.CoreV1().Pods("kubean-system").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "kubean-system", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetJob := &batchv1.Job{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "batch/v1",
+						Kind:       "Job",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "kubean-system",
+						Name:      "job-running",
+					},
+					Spec: batchv1.JobSpec{
+						Selector: &metav1.LabelSelector{
+							MatchLabels: map[string]string{"a": "b"},
+						},
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{
+							{
+								Type:   batchv1.JobComplete,
+								Status: corev1.ConditionFalse,
+							},
+						},
+					},
+				}
+				controller.ClientSet.BatchV1().Jobs("kubean-system").Create(context.Background(), targetJob, metav1.CreateOptions{})
+
+				clusterOps := &clusteroperationv1alpha1.ClusterOperation{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:        "my_kubean_ops_cluster",
+						Annotations: map[string]string{JobActorPodAnnoKey: "key"},
+					},
+					Spec: clusteroperationv1alpha1.Spec{
+						Cluster: "cluster",
+					},
+					Status: clusteroperationv1alpha1.Status{
+						JobRef: &apis.JobRef{
+							NameSpace: "kubean-system",
+							Name:      "job-running",
+						},
+					},
+				}
+				controller.Client.Create(context.Background(), clusterOps)
+				result, err := controller.TrySuspendPod(clusterOps)
+				return result == true && err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func Test_GetRunningPodFromJob(t *testing.T) {
 	genController := func() Controller {
 		return Controller{
