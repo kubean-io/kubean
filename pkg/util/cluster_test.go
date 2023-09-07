@@ -115,3 +115,15 @@ func TestGetCurrentNS(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCurrentRunningPodName(t *testing.T) {
+	os.Setenv("HOSTNAME", "")
+	if GetCurrentRunningPodName() != "default" {
+		t.Fatal()
+	}
+	os.Setenv("HOSTNAME", "abc")
+	if GetCurrentRunningPodName() != "abc" {
+		t.Fatal()
+	}
+	os.Setenv("HOSTNAME", "")
+}

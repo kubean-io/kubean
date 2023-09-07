@@ -22,3 +22,6 @@ rules:
   - apiGroups: ['authorization.k8s.io']
     resources: ['*']
     verbs: ['*']
+  - apiGroups: ['admissionregistration.k8s.io']
+    resources: ['*']
+    verbs: ['*']

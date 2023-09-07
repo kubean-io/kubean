@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	RequeueAfter       = time.Second * 3
+	RequeueAfter       = time.Second * 2
 	LoopForJobStatus   = time.Second * 5
 	RetryInterval      = time.Millisecond * 300
 	RetryCount         = 5
@@ -142,6 +142,9 @@ func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.Clust
 		if completionTime != nil {
 			clusterOps.Status.EndTime = completionTime
 		}
+		if clusterOps.Labels == nil {
+			clusterOps.Labels = make(map[string]string)
+		}
 		if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
 			return false, err
 		}
@@ -149,6 +152,22 @@ func (c *Controller) UpdateStatusLoop(clusterOps *clusteroperationv1alpha1.Clust
 	}
 	// already finished(succeed or failed)
 	return false, nil
+}
+
+func (c *Controller) UpdateStatusForLabel(ops *clusteroperationv1alpha1.ClusterOperation) error {
+	if ops.Labels == nil {
+		ops.Labels = make(map[string]string)
+	}
+	if ops.Labels[constants.KubeanClusterHasCompleted] == "done" {
+		return nil
+	}
+	if ops.Status.Status == clusteroperationv1alpha1.SucceededStatus || ops.Status.Status == clusteroperationv1alpha1.FailedStatus {
+		ops.Labels[constants.KubeanClusterHasCompleted] = "done"
+		if err := c.Client.Update(context.Background(), ops); err != nil {
+			return err
+		} // update label for ListOperation
+	}
+	return nil
 }
 
 func (c *Controller) FetchJobConditionStatusAndCompletionTime(clusterOps *clusteroperationv1alpha1.ClusterOperation) (clusteroperationv1alpha1.OpsStatus, *metav1.Time, error) {
@@ -181,42 +200,6 @@ func (c *Controller) FetchJobConditionStatusAndCompletionTime(clusterOps *cluste
 	}
 
 	return clusteroperationv1alpha1.RunningStatus, nil, nil
-}
-
-func (c *Controller) ListClusterOps(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error) {
-	list, err := c.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), metav1.ListOptions{LabelSelector: labels.SelectorFromSet(map[string]string{constants.KubeanClusterLabelKey: clusterName}).String()})
-	if err != nil {
-		return nil, err
-	}
-	return list.Items, nil
-}
-
-func (c *Controller) CurrentJobNeedBlock(clusterOps *clusteroperationv1alpha1.ClusterOperation, listClusterOps func(clusterName string) ([]clusteroperationv1alpha1.ClusterOperation, error)) (bool, error) {
-	if clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus || clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus {
-		return false, nil
-	}
-	clusterOpsList, err := listClusterOps(clusterOps.Spec.Cluster)
-	if err != nil {
-		return false, err
-	}
-	filter := func(ops clusteroperationv1alpha1.ClusterOperation) bool {
-		// todo: clusterOps has the group label and number label, first find the early group and then find the before number in the same group if possible
-		// try to find the early running clusterOps job in the same cluster
-		return ops.Name != clusterOps.Name &&
-			ops.CreationTimestamp.UnixMilli() < clusterOps.CreationTimestamp.UnixMilli() && // <= or < ? , use "<" to avoid two jobs with the same createTime waiting for each others(blocked by each others) ,createTimes is base on second not mills.
-			(ops.Status.Status == clusteroperationv1alpha1.RunningStatus || ops.Status.JobRef.IsEmpty()) // Empty jobRef means the job is blocked or ready to run.
-	}
-	runningClusterOpsList := make([]clusteroperationv1alpha1.ClusterOperation, 0)
-	for i := range clusterOpsList {
-		if filter(clusterOpsList[i]) {
-			runningClusterOpsList = append(runningClusterOpsList, clusterOpsList[i])
-		}
-	}
-	if len(runningClusterOpsList) != 0 {
-		klog.Warningf("clusterOps %s blocked by %s", clusterOps.Name, runningClusterOpsList[0].Name)
-		return true, nil
-	}
-	return false, nil
 }
 
 func IsValidImageName(image string) bool {
@@ -329,22 +312,6 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.ErrorS(err, "failed to update the ownReference configData or secretData", "clusterOps", clusterOps.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
-	needBlock, err := c.CurrentJobNeedBlock(clusterOps, c.ListClusterOps)
-	if err != nil {
-		klog.ErrorS(err, "failed to list clusterOps", "cluster", clusterOps.Spec.Cluster)
-		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
-	}
-	if needBlock {
-		klog.Infof("clusterOps %s is blocked and waiting for other clusterOps completed", clusterOps.Name)
-		if clusterOps.Status.Status != clusteroperationv1alpha1.BlockedStatus {
-			clusterOps.Status.Status = clusteroperationv1alpha1.BlockedStatus
-			if err := c.Client.Status().Update(context.Background(), clusterOps); err != nil {
-				klog.Warningf("clusterOps %s update Status to Blocked but %s", clusterOps.Name, err.Error())
-				return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
-			}
-		}
-		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
-	}
 
 	needRequeue, err = c.CreateKubeSprayJob(clusterOps)
 	if err != nil {
@@ -361,6 +328,10 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	if needRequeue {
 		return controllerruntime.Result{RequeueAfter: LoopForJobStatus}, nil
+	}
+	if err := c.UpdateStatusForLabel(clusterOps); err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 	return controllerruntime.Result{}, nil
 }

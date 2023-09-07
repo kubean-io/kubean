@@ -62,6 +62,13 @@ func GetCurrentNS() (string, error) {
 	return "", fmt.Errorf("can not get namespace where pods running in")
 }
 
+func GetCurrentRunningPodName() string {
+	if name := os.Getenv("HOSTNAME"); name != "" {
+		return name
+	}
+	return "default"
+}
+
 func GetCurrentNSOrDefault() string {
 	ns, err := GetCurrentNS()
 	if err != nil {

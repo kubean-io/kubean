@@ -9,11 +9,13 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 
 	kubeanClusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	kubeanClusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
 	kubeanLocalArtifactSetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
 	kubeaninfomanifestClientSet "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
+
 	"github.com/kubean-io/kubean/pkg/controllers/cluster"
 	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
 	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
@@ -87,10 +89,23 @@ func StartManager(ctx context.Context, opt *Options) error {
 		klog.Errorf("Failed to add health check endpoint: %s", err)
 		return err
 	}
-	if err := setupManager(controllerManager, opt, ctx.Done()); err != nil {
+	ClientSet, clusterClientSet, clusterClientOperationSet, infomanifestClientSet, localArtifactSetClientSet, err := prepareClient()
+	if err != nil {
+		klog.ErrorS(err, "create clientSet")
+		return err
+	}
+	if err := setupManager(controllerManager, ClientSet, clusterClientSet, clusterClientOperationSet, infomanifestClientSet, localArtifactSetClientSet, opt, ctx.Done()); err != nil {
 		klog.Errorf("setupManager %s", err)
 		return err
 	}
+	go func() {
+		for {
+			if err := clusterops.RunWithLeaseLock(ctx, ClientSet, clusterClientOperationSet); err != nil {
+				klog.ErrorS(err, "run webhook with LeaseLock")
+			}
+			time.Sleep(time.Second * 5)
+		}
+	}()
 	if err := controllerManager.Start(ctx); err != nil {
 		klog.Errorf("KubeanOperator ControllerManager exit ,%s", err)
 		return err
@@ -98,34 +113,46 @@ func StartManager(ctx context.Context, opt *Options) error {
 	return nil
 }
 
-func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan struct{}) error {
+func prepareClient() (kubernetes.Interface, kubeanClusterClientSet.Interface, kubeanClusterOperationClientSet.Interface, kubeaninfomanifestClientSet.Interface, kubeanLocalArtifactSetClientSet.Interface, error) {
 	resetConfig, err := rest.InClusterConfig()
 	if err != nil {
 		resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 		if err != nil {
-			return err
+			return nil, nil, nil, nil, nil, err
 		}
 	}
 	ClientSet, err := kubernetes.NewForConfig(resetConfig)
 	if err != nil {
-		return err
+		return nil, nil, nil, nil, nil, err
 	}
 	clusterClientSet, err := kubeanClusterClientSet.NewForConfig(resetConfig)
 	if err != nil {
-		return err
+		return nil, nil, nil, nil, nil, err
 	}
 	clusterClientOperationSet, err := kubeanClusterOperationClientSet.NewForConfig(resetConfig)
 	if err != nil {
-		return err
+		return nil, nil, nil, nil, nil, err
 	}
 	infomanifestClientSet, err := kubeaninfomanifestClientSet.NewForConfig(resetConfig)
 	if err != nil {
-		return err
+		return nil, nil, nil, nil, nil, err
 	}
 	localArtifactSetClientSet, err := kubeanLocalArtifactSetClientSet.NewForConfig(resetConfig)
 	if err != nil {
-		return err
+		return nil, nil, nil, nil, nil, err
 	}
+	return ClientSet, clusterClientSet, clusterClientOperationSet, infomanifestClientSet, localArtifactSetClientSet, nil
+}
+
+func setupManager(
+	mgr controllerruntime.Manager,
+	ClientSet kubernetes.Interface,
+	clusterClientSet kubeanClusterClientSet.Interface,
+	clusterClientOperationSet kubeanClusterOperationClientSet.Interface,
+	infomanifestClientSet kubeaninfomanifestClientSet.Interface,
+	localArtifactSetClientSet kubeanLocalArtifactSetClientSet.Interface,
+	opt *Options, stopChan <-chan struct{},
+) error {
 	clusterController := &cluster.Controller{
 		Client:              mgr.GetClient(),
 		ClientSet:           ClientSet,

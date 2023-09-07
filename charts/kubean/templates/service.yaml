@@ -12,5 +12,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: 443
+      targetPort: webhook-port
+      protocol: TCP
+      name: webhook-port
   selector:
     {{- include "kubean.selectorLabels" . | nindent 4 }}

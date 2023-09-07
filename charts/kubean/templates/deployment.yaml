@@ -32,9 +32,21 @@ spec:
             {{- toYaml .Values.kubeanOperator.securityContext | nindent 12 }}
           image: "{{ .Values.kubeanOperator.image.registry }}/{{ .Values.kubeanOperator.image.repository }}:{{ .Values.kubeanOperator.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.kubeanOperator.image.pullPolicy }}
+          env:
+            - name: MUTATE_WEBHOOK_CONFIG
+              value: kubean-admission-mutate
+            - name: WEBHOOK_SERVICE_NAME
+              value: {{ include "kubean.fullname" . }}
+            - name: WEBHOOK_SERVICE_NAMESPACE
+              value: {{ include "kubean.namespace" . }}
+            - name: WEBHOOK_FAILURE_POLICY
+              value: Ignore
           ports:
             - name: http
               containerPort: 80
+              protocol: TCP
+            - name: webhook-port
+              containerPort: 10443
               protocol: TCP
           resources:
             {{- toYaml .Values.kubeanOperator.resources | nindent 12 }}
