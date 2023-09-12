@@ -162,8 +162,14 @@ func RemoteSSHCmdArrayByPasswd(password string, subCmd []string) []string {
 var groupVarsYaml = `
 	kube_version: %s
 	container_manager: containerd
-	containerd_insecure_registries:
+	containerd_insecure_registries: ## kubespray will not support containerd_insecure_registries but containerd_registries_mirrors after v2.23.0 
 		"10.6.170.10:5000": "http://10.6.170.10:5000"
+    containerd_registries_mirrors:
+      - prefix: "10.6.170.10:5000"
+        mirrors:
+          - host: "http://10.6.170.10:5000"
+            capabilities: ["pull", "resolve"]
+            skip_verify: true
 	k8s_image_pull_policy: IfNotPresent
 	kube_network_plugin: %s
 	kube_network_plugin_multus: false

@@ -13,8 +13,14 @@ data:
     ### configure the yum source file service address
     yum_repo: "{{ minio_address }}"
     ### if containerd uses the non-secure HTTP authentication exemption mode, this parameter is required
-    containerd_insecure_registries:
+    containerd_insecure_registries: ## kubespray will not support containerd_insecure_registries but containerd_registries_mirrors after v2.23.0
       "registry_host_key": "http://{{registry_host}}"
+    containerd_registries_mirrors:
+      - prefix: "registry_host_key"
+        mirrors:
+          - host: "http://{{registry_host}}"
+            capabilities: ["pull", "resolve"]
+            skip_verify: true
     ### if docker uses the non-secure HTTP authentication exemption mode, this parameter is required
     docker_insecure_registries:
       - "registry_host_key"
