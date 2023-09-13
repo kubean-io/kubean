@@ -13,4 +13,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "kubean.selectorLabels" . | nindent 4 }}
+    {{- include "kubeanOperator.selectorLabels" . | nindent 4 }}

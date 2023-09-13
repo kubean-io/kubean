@@ -70,11 +70,22 @@ kubeanOperator:
         podAffinityTerm:
           labelSelector:
             matchExpressions:
-            - key: app.kubernetes.io/instance
+            - key: app.kubernetes.io/name
               operator: In
               values:
               - kubean
           topologyKey: kubernetes.io/hostname
+
+kubeanAdmission:
+  replicaCount: 1
+  ## define admission image
+  image:
+    # -- spray-job image registry
+    registry: ghcr.io
+    # -- spray-job image registry
+    repository: kubean-io/kubean-admission
+    # -- the image tag whose default is the chart appVersion
+    tag: ""
 
 ## define spray-job configuration
 sprayJob:

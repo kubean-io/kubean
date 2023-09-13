@@ -27,6 +27,7 @@ jobs:
         yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
         yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
         yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+        yq -i ".kubeanAdmission.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
 
     - name: helm checkout
       run: |

@@ -57,6 +57,21 @@ kubean-operator: $(SOURCES)
 			--load \
 			.
 
+.PHONY: kubean-admission
+kubean-admission: $(SOURCES)
+	echo "Building kubean-admission for arch = $(BUILD_ARCH)"
+	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
+	! ( docker buildx ls | grep kubean-admission-multi-platform-builder ) && docker buildx create --use --platform=$(BUILD_ARCH) --name kubean-admission-multi-platform-builder ;\
+	docker buildx build \
+			--build-arg kubean_version=$(KUBEAN_VERSION) \
+			--builder kubean-admission-multi-platform-builder \
+			--platform $(BUILD_ARCH) \
+			--tag $(REGISTRY_REPO)/kubean-admission:$(KUBEAN_IMAGE_VERSION)  \
+			--tag $(REGISTRY_REPO)/kubean-admission:latest  \
+			-f ./build/images/kubean-admission/Dockerfile \
+			--load \
+			.
+
 .PHONY: spray-job
 spray-job: $(SOURCES)
 	echo "Building spray-job for arch = $(BUILD_ARCH)"

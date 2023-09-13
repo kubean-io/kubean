@@ -42,6 +42,12 @@ jobs:
             ghcr.io/${{ inputs.REPO }}/kubean-operator:${{ inputs.BUILD_IMG_TAG }}
             ghcr.io/${{ inputs.REPO }}/kubean-operator:latest
           build-args: ""
+        - name: kubean-admission
+          dockerfile: build/images/kubean-admission/Dockerfile
+          tags: |
+            ghcr.io/${{ inputs.REPO }}/kubean-admission:${{ inputs.BUILD_IMG_TAG }}
+            ghcr.io/${{ inputs.REPO }}/kubean-admission:latest
+          build-args: ""
 
     steps:
     - uses: actions/checkout@v3

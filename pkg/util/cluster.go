@@ -112,3 +112,10 @@ func UpdateOwnReference(client kubernetes.Interface, configMapList []*apis.Confi
 	}
 	return nil
 }
+
+func GetCurrentRunningPodName() string {
+	if name := os.Getenv("HOSTNAME"); name != "" {
+		return name
+	}
+	return "default"
+}
