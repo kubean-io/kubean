@@ -313,8 +313,12 @@ debian_repo: "{{ minio_address }}"
 ubuntu_repo: "{{ minio_address }}"
 
 ### 如果 containerd 采用非安全 HTTP 免认证方式, 则需要配置:
-containerd_insecure_registries:
-  "{{ registry_address }}": "http://{{ registry_address }}"
+containerd_registries_mirrors:
+  - prefix: "{{ registry_address }}"
+    mirrors:
+      - host: "http://{{ registry_address }}"
+        capabilities: ["pull", "resolve"]
+        skip_verify: true
 
 ### 如果 docker 采用非安全 HTTP 免认证方式, 则需要配置:
 docker_insecure_registries:
