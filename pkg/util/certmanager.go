@@ -41,7 +41,7 @@ func (m *certManager) GenerateSelfSignedCerts() (*bytes.Buffer, *bytes.Buffer, e
 	var serverCertPEM *bytes.Buffer
 	var serverPrivateKeyPEM *bytes.Buffer
 	var err error
-	// CA config
+	// CA config 1
 	ca := &x509.Certificate{
 		SerialNumber: big.NewInt(2021),
 		Subject: pkix.Name{
