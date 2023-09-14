@@ -15,6 +15,12 @@ data:
     ### if containerd uses the non-secure HTTP authentication exemption mode, this parameter is required
     containerd_insecure_registries:
       "registry_host_key": "http://{{registry_host}}"
+    containerd_registries_mirrors:
+      - prefix: "registry_host_key"
+        mirrors:
+          - host: "http://{{registry_host}}"
+            capabilities: ["pull", "resolve"]
+            skip_verify: true
     ### if docker uses the non-secure HTTP authentication exemption mode, this parameter is required
     docker_insecure_registries:
       - "registry_host_key"
