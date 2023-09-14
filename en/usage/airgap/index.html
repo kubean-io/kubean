@@ -2020,8 +2020,12 @@ Located in <code>kubespray/inventory/sample/group_vars/all/offline.yml</code> co
 <span class="nt">ubuntu_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
 
 <span class="c1">### If containerd uses a non-secure HTTP authentication-free method, it needs to be configured:</span>
-<span class="nt">containerd_insecure_registries</span><span class="p">:</span>
-<span class="w">  </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;http://{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">containerd_registries_mirrors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">mirrors</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;pull&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;resolve&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">skip_verify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="c1">### Required if docker uses non-secure HTTP authentication-free methods:</span>
 <span class="nt">docker_insecure_registries</span><span class="p">:</span>
