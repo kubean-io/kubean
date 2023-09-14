@@ -115,7 +115,6 @@ const (
 	RunningStatus   OpsStatus = "Running"
 	SucceededStatus OpsStatus = "Succeeded"
 	FailedStatus    OpsStatus = "Failed"
-	BlockedStatus   OpsStatus = "Blocked"
 )
 
 // Status contains information about the current status of a

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kubeanAdmission.svcName" . }}
+  namespace: {{ include "kubean.namespace" . }}
+  labels:
+    {{- include "kubean.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 443
+      targetPort: webhook-port
+      protocol: TCP
+      name: webhook-port
+  selector:
+    {{- include "kubeanAdmission.selectorLabels" . | nindent 4 }}

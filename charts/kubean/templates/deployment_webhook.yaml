@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "kubean.fullname" . }}
+  name: {{ include "kubean.admissionName" . }}
   namespace: {{ include "kubean.namespace" . }}
   labels:
     {{- include "kubean.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.kubeanOperator.replicaCount }}
+  replicas: {{ .Values.kubeanAdmission.replicaCount }}
   selector:
     matchLabels:
-      {{- include "kubeanOperator.selectorLabels" . | nindent 6 }}
+      {{- include "kubeanAdmission.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.kubeanOperator.podAnnotations }}
@@ -17,7 +17,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "kubeanOperator.selectorLabels" . | nindent 8 }}
+        {{- include "kubeanAdmission.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.kubeanOperator.image.pullSecrets }}
       imagePullSecrets:
@@ -30,11 +30,18 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.kubeanOperator.securityContext | nindent 12 }}
-          image: "{{ .Values.kubeanOperator.image.registry }}/{{ .Values.kubeanOperator.image.repository }}:{{ .Values.kubeanOperator.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.kubeanAdmission.image.registry }}/{{ .Values.kubeanAdmission.image.repository }}:{{ .Values.kubeanAdmission.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.kubeanOperator.image.pullPolicy }}
+          env:
+            - name: WEBHOOK_SERVICE_NAME
+              value: {{ include "kubeanAdmission.svcName" . }}
+            - name: WEBHOOK_SERVICE_NAMESPACE
+              value: {{ include "kubean.namespace" . }}
+            - name: WEBHOOK_FAILURE_POLICY
+              value: Ignore
           ports:
-            - name: http
-              containerPort: 80
+            - name: webhook-port
+              containerPort: 10443
               protocol: TCP
           resources:
             {{- toYaml .Values.kubeanOperator.resources | nindent 12 }}

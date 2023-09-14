@@ -25,8 +25,10 @@ helm upgrade \
     --create-namespace \
     --cleanup-on-fail \
     --set kubeanOperator.image.registry="${IMAGE_REGISTRY}" \
+    --set kubeanAdmission.image.registry="${IMAGE_REGISTRY}" \
     --set sprayJob.image.registry="${IMAGE_REGISTRY}" \
     --set kubeanOperator.image.tag="${IMAGE_TAG}" \
+    --set kubeanAdmission.image.tag="${IMAGE_TAG}" \
     --set sprayJob.image.tag="${IMAGE_TAG}" \
     --kubeconfig "${KUBECONFIG_PATH}" \
     --timeout 1200s \
