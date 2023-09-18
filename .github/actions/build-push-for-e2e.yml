@@ -1,0 +1,91 @@
+name: Build and Push e2e images
+
+on:
+  workflow_call:
+
+jobs:
+  build-push-for-e2e:
+    needs: [ unit-test,get_ref ]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Set env
+        run: |
+          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+
+      - name: Echo env
+        run: |
+          echo "REPO: ${{ env.REPO }}"
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.get_ref.outputs.ref }}
+
+      - name: Log in to registry
+        # This is where you will update the PAT to GITHUB_TOKEN
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+      - name: kubean-operator Build image
+        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+
+      - name: kubean-operator Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: kubean-admission Build image
+        run: docker build . --file ./build/images/$KUBEAN_ADMISSION_IMAGE_NAME/Dockerfile --tag $KUBEAN_ADMISSION_IMAGE_NAME
+
+      - name: kubean-admission Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_ADMISSION_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $KUBEAN_ADMISSION_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: spray-job Build image
+        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
+
+      - name: spray-job Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: airgap-patch Build image
+        run: docker build . --file ./build/images/$AIRGAP_PATCH_IMAGE_NAME/Dockerfile --tag $AIRGAP_PATCH_IMAGE_NAME  --build-arg SPRAY_TAG=$KUBESPRAY_TAG
+
+      - name: airgap-patch Push image
+        run: |
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$AIRGAP_PATCH_IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $AIRGAP_PATCH_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
