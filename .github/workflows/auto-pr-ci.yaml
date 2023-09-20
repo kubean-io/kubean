@@ -83,7 +83,7 @@ jobs:
 
   build-push-for-e2e:
     needs: [ unit-test,get_ref ]
-    uses: kubean-io/kubean/.github/actions/build-push-for-e2e.yml@main
+    uses: ./.github/workflows/build-push-for-e2e.yml
 
   e2e:
     needs: [ build-push-for-e2e,get_ref ]
