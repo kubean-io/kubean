@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 env:
   KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
   KUBESPRAY_TAG: latest
@@ -21,7 +22,7 @@ env:
   
 jobs:
   build-push-for-e2e:
-    uses: kubean-io/kubean/.github/actions/build-push-for-e2e.yml@main
+    uses: ./.github/workflows/build-push-for-e2e.yml
 
   schedule_sonobouy_e2e:
     needs: build-push-for-e2e

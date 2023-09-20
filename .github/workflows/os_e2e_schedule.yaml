@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-push-for-e2e:
-    uses: kubean-io/kubean/.github/actions/build-push-for-e2e.yml@main
+    uses: ./.github/workflows/build-push-for-e2e.yml
 
   schedule_os_e2e:
     needs: build-push-for-e2e
