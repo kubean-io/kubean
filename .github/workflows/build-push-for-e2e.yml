@@ -8,6 +8,7 @@ env:
   KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
+  AIRGAP_PATCH_IMAGE_NAME: airgap-patch
   KUBESPRAY_TAG: latest
 
 jobs:
