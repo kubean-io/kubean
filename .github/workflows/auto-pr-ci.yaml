@@ -11,11 +11,6 @@ on:
       - examples/**
 
 env:
-  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
-  KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
-  SPRAY_JOB_IMAGE_NAME: spray-job
-  AIRGAP_PATCH_IMAGE_NAME: airgap-patch
-  KUBESPRAY_TAG: latest
   VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
   VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
   AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}

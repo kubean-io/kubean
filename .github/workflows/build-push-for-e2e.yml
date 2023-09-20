@@ -3,6 +3,13 @@ name: Build and Push e2e images
 on:
   workflow_call:
 
+env:
+  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
+  KUBESPRAY_IMAGE_NAME: kubespray
+  SPRAY_JOB_IMAGE_NAME: spray-job
+  KUBESPRAY_TAG: latest
+
 jobs:
   build-push-for-e2e:
     runs-on: ubuntu-latest

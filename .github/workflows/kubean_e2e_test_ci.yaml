@@ -9,11 +9,6 @@ on:
     - cron: '0 0 1 1 *' # next at 2024-01-01 00:00:00
 
 env:
-  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
-  KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
-  KUBESPRAY_IMAGE_NAME: kubespray
-  SPRAY_JOB_IMAGE_NAME: spray-job
-  KUBESPRAY_TAG: latest
   VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
   VSPHERE_PASSWD: ${{ secrets.VSPHERE_PASSWD }}
   AMD_ROOT_PASSWORD: ${{ secrets.AMD_ROOT_PASSWORD }}
