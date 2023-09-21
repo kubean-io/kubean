@@ -2,9 +2,6 @@ name: Update Kubean Support Matrix
 on:
   workflow_call:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   createPullRequest:
