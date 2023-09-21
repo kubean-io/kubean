@@ -76,7 +76,6 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
         echo "***************k8s version is: ${k8s} ***************"
         kind::clean_kind_cluster ${CONTAINERS_PREFIX}
         KIND_VERSION="release-ci.daocloud.io/kpanda/kindest-node:"${k8s}
-        ./hack/autoversion.sh "${IMAGE_VERSION}"
         ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
         ./hack/kubean_compatibility_e2e.sh
     done
