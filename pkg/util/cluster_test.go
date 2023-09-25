@@ -4,13 +4,18 @@
 package util
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
 
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	clientsetfake "k8s.io/client-go/kubernetes/fake"
 
+	"github.com/kubean-io/kubean-api/apis"
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
@@ -105,6 +110,57 @@ func TestGetCurrentNS(t *testing.T) {
 				return ns
 			},
 			want: "abc-namespace-123",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestGetCurrentRunningPodName(t *testing.T) {
+	os.Setenv("HOSTNAME", "abc")
+	if GetCurrentRunningPodName() != "abc" {
+		t.Fatal()
+	}
+}
+
+func TestUpdateOwnReference(t *testing.T) {
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "not found",
+			args: func() bool {
+				fakeClient := clientsetfake.NewSimpleClientset()
+				configMapList := []*apis.ConfigMapRef{{Name: "cm1", NameSpace: "abc"}}
+				secretList := []*apis.SecretRef{{Name: "secret1", NameSpace: "abc"}}
+				return UpdateOwnReference(fakeClient, configMapList, secretList, metav1.OwnerReference{}) == nil
+			},
+			want: true,
+		},
+		{
+			name: "record exists",
+			args: func() bool {
+				fakeClient := clientsetfake.NewSimpleClientset()
+				fakeClient.CoreV1().ConfigMaps("abc").Create(context.Background(), &corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{
+					Name:      "cm1",
+					Namespace: "abc",
+				}}, metav1.CreateOptions{})
+				fakeClient.CoreV1().Secrets("abc").Create(context.Background(), &corev1.Secret{ObjectMeta: metav1.ObjectMeta{
+					Name:      "secret1",
+					Namespace: "abc",
+				}}, metav1.CreateOptions{})
+				configMapList := []*apis.ConfigMapRef{{Name: "cm1", NameSpace: "abc"}}
+				secretList := []*apis.SecretRef{{Name: "secret1", NameSpace: "abc"}}
+				return UpdateOwnReference(fakeClient, configMapList, secretList, metav1.OwnerReference{}) == nil
+			},
+			want: true,
 		},
 	}
 	for _, test := range tests {
