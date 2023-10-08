@@ -4,6 +4,7 @@
 ---
 - name: Pre-check
   hosts: k8s_cluster
+  serial: 1
   gather_facts: true
   become: true
   vars:
