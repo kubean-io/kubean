@@ -27,7 +27,7 @@
       when:
         - check_connection
     - name: Store check_connection result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.ping_connection=\"{{ check_connection_result }}\"' /tmp/kubean_data_temp_cache "
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.ping_connection=\"{{ check_connection_result }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
       delegate_to: localhost
       when:
         - check_connection
@@ -50,7 +50,7 @@
       when:
         - fetch_os_type
     - name: Store fetch_os_type result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.os_type.{{ item.key }}=\"{{ item.value }}\"' /tmp/kubean_data_temp_cache "
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.os_type.{{ item.key }}=\"{{ item.value }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
       loop: "{{ lookup( 'dict' , fetch_os_type_result ) }}"
       delegate_to: localhost
       when:
@@ -70,7 +70,7 @@
       when:
         - check_existing_k8s_service
     - name: Store check_existing_k8s_service result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )  ; yq -i '.{{inventory_hostname}}.existing_k8s_service=\"{{ check_existing_k8s_service_result }}\"' /tmp/kubean_data_temp_cache "
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.existing_k8s_service=\"{{ check_existing_k8s_service_result }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
       delegate_to: localhost
       when:
         - check_existing_k8s_service
@@ -84,8 +84,8 @@
         - check_dual_stack_network
     - name: Store dual_stack_network result
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
-        yq -i '.{{inventory_hostname}}.dual_stack_network="{{ ip_cmd_info_result.stdout | split | length > 2 }}"' /tmp/kubean_data_temp_cache
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
+        yq -i '.{{inventory_hostname}}.dual_stack_network="{{ ip_cmd_info_result.stdout | split | length > 2 }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
       delegate_to: localhost
       ignore_errors: true
       when:
@@ -93,10 +93,10 @@
 
     - name: Store os_kernel_version result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
-        yq -i '.{{inventory_hostname}}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache
-        yq -i '.{{inventory_hostname}}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache
-        yq -i '.{{inventory_hostname}}.pkg_mgr="{{ ansible_pkg_mgr }}"' /tmp/kubean_data_temp_cache
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
+        yq -i '.{{inventory_hostname}}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        yq -i '.{{inventory_hostname}}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        yq -i '.{{inventory_hostname}}.pkg_mgr="{{ ansible_pkg_mgr }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
       ignore_errors: true
       delegate_to: localhost
       when:
@@ -104,15 +104,15 @@
 
     - name: Store os family result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
-        yq -i '.{{inventory_hostname}}.os_family="{{ ansible_os_family }}"' /tmp/kubean_data_temp_cache
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
+        yq -i '.{{inventory_hostname}}.os_family="{{ ansible_os_family }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
       ignore_errors: true
       delegate_to: localhost
 
     - name: Store instruction set architecture result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache ]; then touch /tmp/kubean_data_temp_cache ; fi )
-        yq -i '.{{inventory_hostname}}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
+        yq -i '.{{inventory_hostname}}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
       ignore_errors: true
       delegate_to: localhost
 
@@ -134,7 +134,9 @@
       when: namespace_content.rc == 0
 
     - name: Get precheck result
-      shell: 'yq -o=json /tmp/kubean_data_temp_cache || echo {} '
+      shell: |
+        cat /tmp/kubean_data_temp_cache_* > /tmp/kubean_data_temp_cache
+        yq -o=json /tmp/kubean_data_temp_cache || echo {}
       register: yq_cmd
       ignore_errors: true
 
