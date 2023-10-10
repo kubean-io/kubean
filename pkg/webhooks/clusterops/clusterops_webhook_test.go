@@ -20,6 +20,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/responsewriter"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
@@ -65,6 +66,24 @@ func TestCreateHTTPSCAFiles(t *testing.T) {
 	}
 	if !util.IsExist(filepath.Join(certsDir, certKey)) {
 		t.Fatal()
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/ping", PingHandler{})
+	server := &http.Server{
+		Addr:    ":10443",
+		Handler: mux,
+	}
+	go func() {
+		time.Sleep(time.Second * 2)
+		server.Close()
+	}()
+	err := errors.AggregateGoroutines(func() error {
+		return StartWebHookHTTPSServer(server)
+	})
+	if err != nil && !strings.Contains(err.Error(), "tls: failed to find any PEM data") {
+		// other err
+		t.Fatal(err)
 	}
 }
 

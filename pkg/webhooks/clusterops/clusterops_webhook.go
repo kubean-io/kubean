@@ -279,13 +279,15 @@ func PrepareWebHookHTTPSServer(KubeanClusterOpsSet clusterOperationClientSet.Int
 	return server
 }
 
-func StartWebHookHTTPSServer(server *http.Server) {
+func StartWebHookHTTPSServer(server *http.Server) error {
 	certPath := filepath.Join(certsDir, certFile)
 	keyPath := filepath.Join(certsDir, certKey)
 	klog.Warning("start https server for webhook")
 	if err := server.ListenAndServeTLS(certPath, keyPath); err != nil {
 		klog.ErrorS(err, "start https server for webhook but failed")
+		return err
 	}
+	return nil
 }
 
 func UpdateClusterOperationWebhook(clientSet kubernetes.Interface) error {
