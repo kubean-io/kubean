@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 env:
-  KUKEAN_OPERATOR_IMAGE_NAME: kubean-operator
+  KUBEAN_OPERATOR_IMAGE_NAME: kubean-operator
   KUBEAN_ADMISSION_IMAGE_NAME: kubean-admission
   KUBESPRAY_IMAGE_NAME: kubespray
   SPRAY_JOB_IMAGE_NAME: spray-job
@@ -38,18 +38,18 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
       - name: kubean-operator Build image
-        run: docker build . --file ./build/images/$KUKEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUKEAN_OPERATOR_IMAGE_NAME
+        run: docker build . --file ./build/images/$KUBEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUBEAN_OPERATOR_IMAGE_NAME
 
       - name: kubean-operator Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUKEAN_OPERATOR_IMAGE_NAME
+          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_OPERATOR_IMAGE_NAME
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
           VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag $KUKEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+          docker tag $KUBEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
       - name: kubean-admission Build image
