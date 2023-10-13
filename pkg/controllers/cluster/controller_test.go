@@ -267,6 +267,31 @@ func TestSortClusterOperationsByCreation(t *testing.T) {
 				{ObjectMeta: metav1.ObjectMeta{CreationTimestamp: metav1.Unix(1, 0)}},
 			},
 		},
+		{
+			name: "eliminate-score",
+			args: []clusteroperationv1alpha1.ClusterOperation{
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(2, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(1, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(3, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(300, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(100, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(200, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(12, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(11, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(13, 0)}},
+			},
+			want: []clusteroperationv1alpha1.ClusterOperation{
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(300, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(200, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "2"}, CreationTimestamp: metav1.Unix(100, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(3, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(2, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "100"}, CreationTimestamp: metav1.Unix(1, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(13, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(12, 0)}},
+				{ObjectMeta: metav1.ObjectMeta{Annotations: map[string]string{EliminateScoreAnno: "101"}, CreationTimestamp: metav1.Unix(11, 0)}},
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
