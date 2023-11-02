@@ -9,7 +9,7 @@ spec:
   replicas: {{ .Values.kubeanOperator.replicaCount }}
   selector:
     matchLabels:
-      {{- include "kubean.selectorLabels" . | nindent 6 }}
+      {{- include "kubeanOperator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.kubeanOperator.podAnnotations }}
@@ -17,7 +17,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "kubean.selectorLabels" . | nindent 8 }}
+        {{- include "kubeanOperator.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.kubeanOperator.image.pullSecrets }}
       imagePullSecrets:

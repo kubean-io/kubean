@@ -234,8 +234,12 @@ debian_repo: "{{ minio_address }}"
 ubuntu_repo: "{{ minio_address }}"
 
 ### If containerd uses a non-secure HTTP authentication-free method, it needs to be configured:
-containerd_insecure_registries:
-  "{{ registry_address }}": "http://{{ registry_address }}"
+containerd_registries_mirrors:
+  - prefix: "{{ registry_address }}"
+    mirrors:
+      - host: "http://{{ registry_address }}"
+        capabilities: ["pull", "resolve"]
+        skip_verify: true
 
 ### Required if docker uses non-secure HTTP authentication-free methods:
 docker_insecure_registries:

@@ -32,10 +32,10 @@ LOCAL_RELEASE_NAME=kubean
 # replace the default values.yaml, the image repo or image revision
 value_override=""
 if [ "${IMG_REGISTRY}" != "" ]; then
-    value_override=" $value_override --set kubeanOperator.image.registry=${IMG_REGISTRY} --set sprayJob.image.registry=${IMG_REGISTRY}"
+    value_override=" $value_override --set kubeanOperator.image.registry=${IMG_REGISTRY} --set kubeanAdmission.image.registry=${IMG_REGISTRY} --set sprayJob.image.registry=${IMG_REGISTRY}"
 fi
 if [ "${IMG_VER}" != "" ]; then
-    value_override=" $value_override --set kubeanOperator.image.tag=${IMG_VER} --set sprayJob.image.tag=${IMG_VER}"
+    value_override=" $value_override --set kubeanOperator.image.tag=${IMG_VER} --set kubeanAdmission.image.tag=${IMG_VER} --set sprayJob.image.tag=${IMG_VER}"
 fi
 
 echo "value_override: ${value_override}  ##########"

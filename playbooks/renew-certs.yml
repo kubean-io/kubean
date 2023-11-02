@@ -30,6 +30,38 @@
     pki_path: "{{ k8s_path }}/pki"
     k8s_backup_path: "{{ k8s_path }}-backup-{{ ansible_date_time.iso8601_basic_short }}"
   tasks:
+    - name: Get Kubeadm Path
+      shell: |-
+        if command -v kubeadm; then
+          :
+        elif [ -x '/usr/local/bin/kubeadm' ]; then
+          echo "/usr/local/bin/kubeadm"
+        else
+          echo "not found or no execute permission" && exit 1
+        fi
+      register: kubeadm_path_raw
+      failed_when: kubeadm_path_raw.rc != 0
+
+    - name: Get Kubectl Path
+      shell: |-
+        if command -v kubectl; then
+          :
+        elif [ -x '/usr/local/bin/kubectl' ]; then
+          echo "/usr/local/bin/kubectl"
+        else
+          echo "not found or no execute permission" && exit 1
+        fi
+      register: kubectl_path_raw
+      failed_when: kubectl_path_raw.rc != 0
+
+    - name: Set Kubeadm Path
+      set_fact:
+        kubeadm_path: "{{ kubeadm_path_raw.stdout }}"
+
+    - name: Set Kubectl Path
+      set_fact:
+        kubectl_path: "{{ kubectl_path_raw.stdout }}"
+
     - name: Create k8s backup path
       file:
         path: "{{ k8s_backup_path }}"
@@ -60,7 +92,7 @@
       delegate_to: "{{ inventory_hostname }}"
 
     - name: Pre-check expiration date of certificate
-      command: kubeadm certs check-expiration
+      command: "{{ kubeadm_path }} certs check-expiration"
       register: expiration_info
     - debug: var=expiration_info.stdout_lines
 
@@ -131,7 +163,7 @@
 
         - name: Generate new CSR by kubeadm
           command: |-
-            kubeadm certs generate-csr \
+            {{ kubeadm_path }} certs generate-csr \
               --cert-dir=csr \
               --kubeconfig-dir=csr \
               --config=/etc/kubernetes/kubeadm-config.yaml
@@ -227,7 +259,7 @@
               environment:
                 KUBECONFIG: "/etc/kubernetes/{{ item.key }}"
               command: |-
-                kubectl config set-credentials {{ item.value }} \
+                {{ kubectl_path }} config set-credentials {{ item.value }} \
                   --client-key {{ item.key }}.key \
                   --client-certificate {{ item.key }}.crt --embed-certs
               args:
@@ -276,13 +308,13 @@
             state: restarted
 
         - name: Wait until cluster is available
-          command: kubectl cluster-info
+          command: "{{ kubectl_path }} cluster-info"
           retries: 60
           delay: 1
           register: result
           until: result is succeeded and "running" in result.stdout
 
         - name: Run check-expiration for control-plane
-          command: kubeadm certs check-expiration
+          command: "{{ kubeadm_path }} certs check-expiration"
           register: expiration_info
         - debug: var=expiration_info.stdout_lines

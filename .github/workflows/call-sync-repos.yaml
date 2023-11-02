@@ -27,12 +27,23 @@ jobs:
         yq -i ".appVersion=\"${GITHUB_REF_NAME}\"" charts/kubean/Chart.yaml
         yq -i ".kubeanOperator.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
         yq -i ".sprayJob.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
+        yq -i ".kubeanAdmission.image.tag=\"${GITHUB_REF_NAME}\"" charts/kubean/values.yaml
 
     - name: helm checkout
       run: |
         pushd charts
         tar zcvf kubean.tar.gz kubean
         bash ../hack/verify_helm_standard.sh kubean.tar.gz
+        rm -rf kubean.tar.gz
+        popd
+
+    - name: Sync chart to release.daocloud.io
+      run: |
+        pushd charts
+        tar zcvf kubean.tar.gz kubean
+        helm plugin install https://github.com/chartmuseum/helm-push
+        helm repo add addon https://release.daocloud.io/chartrepo/addon
+        helm cm-push kubean.tar.gz addon -a ${GITHUB_REF_NAME} -v ${GITHUB_REF_NAME} -u ${{ secrets.RELEASE_DAOCLOUD_USER }}  -p ${{ secrets.RELEASE_DAOCLOUD_PASSWORD }}
         rm -rf kubean.tar.gz
         popd
 

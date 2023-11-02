@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kubean.admissionName" . }}
+  namespace: {{ include "kubean.namespace" . }}
+  labels:
+    {{- include "kubean.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.kubeanAdmission.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kubeanAdmission.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.kubeanOperator.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "kubeanAdmission.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.kubeanOperator.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kubean.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.kubeanOperator.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.kubeanOperator.securityContext | nindent 12 }}
+          image: "{{ .Values.kubeanAdmission.image.registry }}/{{ .Values.kubeanAdmission.image.repository }}:{{ .Values.kubeanAdmission.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.kubeanOperator.image.pullPolicy }}
+          env:
+            - name: WEBHOOK_SERVICE_NAME
+              value: {{ include "kubeanAdmission.svcName" . }}
+            - name: WEBHOOK_SERVICE_NAMESPACE
+              value: {{ include "kubean.namespace" . }}
+            - name: WEBHOOK_FAILURE_POLICY
+              value: Ignore
+          ports:
+            - name: webhook-port
+              containerPort: 10443
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.kubeanOperator.resources | nindent 12 }}
+      {{- with .Values.kubeanOperator.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubeanOperator.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubeanOperator.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

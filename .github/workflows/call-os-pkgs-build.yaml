@@ -72,6 +72,8 @@ jobs:
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
       shell: bash
       run: |
+        sudo apt-get update
+        sudo apt-get install pigz
         mkdir -p os-pkgs/
         mv linux_amd64/resources resources
         tar -I pigz -cf os-pkgs/os-pkgs-amd64.tar.gz resources --remove-files

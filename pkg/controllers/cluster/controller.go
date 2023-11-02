@@ -31,6 +31,7 @@ const (
 	KubeanConfigMapName                  = "kubean-config"
 	DefaultClusterOperationsBackEndLimit = 30
 	MaxClusterOperationsBackEndLimit     = 200
+	EliminateScoreAnno                   = "kubean.io/eliminate-score"
 )
 
 type Controller struct {
@@ -106,10 +107,21 @@ func (c *Controller) UpdateStatus(cluster *clusterv1alpha1.Cluster) error {
 	return nil
 }
 
-// SortClusterOperationsByCreation operations from large to small by creation timestamp.
+func (c *Controller) GetEliminateScoreValue(operation clusteroperationv1alpha1.ClusterOperation) int {
+	value, err := strconv.Atoi(operation.Annotations[EliminateScoreAnno])
+	if err != nil {
+		return 0
+	}
+	return value
+}
+
+// SortClusterOperationsByCreation sort operations order by EliminateScore ascend , createTime desc.
 func (c *Controller) SortClusterOperationsByCreation(operations []clusteroperationv1alpha1.ClusterOperation) {
 	sort.Slice(operations, func(i, j int) bool {
 		return operations[i].CreationTimestamp.After(operations[j].CreationTimestamp.Time)
+	})
+	sort.Slice(operations, func(i, j int) bool {
+		return c.GetEliminateScoreValue(operations[i]) < c.GetEliminateScoreValue(operations[j])
 	})
 }
 

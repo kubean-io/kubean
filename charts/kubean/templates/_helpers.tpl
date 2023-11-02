@@ -27,6 +27,10 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
+{{- define "kubean.admissionName" -}}
+{{- printf "%s-admission" .Release.Name }}
+{{- end }}
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -38,16 +42,25 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "kubean.labels" -}}
-{{ include "kubean.selectorLabels" . }}
+{{ include "kubeanOperator.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "kubean.selectorLabels" -}}
+{{- define "kubeanOperator.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "kubean.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "kubeanAdmission.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kubean.name" . }}
+app.kubernetes.io/instance: {{ printf "%s-admission-controller" .Release.Name }}
+{{- end }}
+
+{{- define "kubeanAdmission.svcName" -}}
+{{- printf "%s-admission" .Chart.Name }}
 {{- end }}
 
 {{/*
