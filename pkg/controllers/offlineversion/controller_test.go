@@ -5,7 +5,9 @@ package offlineversion
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"reflect"
 	"testing"
 	"time"
 
@@ -17,6 +19,7 @@ import (
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	k8stesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/record"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -45,6 +48,27 @@ func newFakeClient() client.Client {
 
 	client := fake.NewClientBuilder().WithScheme(sch).WithRuntimeObjects(&manifestv1alpha1.Manifest{}).WithRuntimeObjects(&localartifactsetv1alpha1.LocalArtifactSet{}).Build()
 	return client
+}
+
+func fetchTestingFake(obj interface{ RESTClient() rest.Interface }) *k8stesting.Fake {
+	// https://stackoverflow.com/questions/69740891/mocking-errors-with-client-go-fake-client
+	return reflect.Indirect(reflect.ValueOf(obj)).FieldByName("Fake").Interface().(*k8stesting.Fake)
+}
+
+func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, verb, resource string) {
+	if fakeObj := fetchTestingFake(obj); fakeObj != nil {
+		newReactionChain := make([]k8stesting.Reactor, 0)
+		fakeObj.Lock()
+		defer fakeObj.Unlock()
+		for i := range fakeObj.ReactionChain {
+			reaction := fakeObj.ReactionChain[i]
+			if simpleReaction, ok := reaction.(*k8stesting.SimpleReactor); ok && simpleReaction.Verb == verb && simpleReaction.Resource == resource {
+				continue // ignore
+			}
+			newReactionChain = append(newReactionChain, reaction)
+		}
+		fakeObj.ReactionChain = newReactionChain
+	}
 }
 
 func TestMergeOfflineVersion(t *testing.T) {
@@ -316,6 +340,55 @@ func TestReconcile(t *testing.T) {
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
 				newGlobalComponentsVersion, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
 				return err == nil && result.RequeueAfter == Loop && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker) == 1 && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker[0].VersionRange) == 2
+			},
+			want: true,
+		},
+		{
+			name: "update global-manifest unsuccessfully",
+			args: func() bool {
+				controller := &Controller{
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+				}
+				offlineVersionData := localartifactsetv1alpha1.LocalArtifactSet{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "LocalArtifactSet",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "offlineversion-1",
+					},
+					Spec: localartifactsetv1alpha1.Spec{
+						Docker: []*localartifactsetv1alpha1.DockerInfo{
+							{
+								OS:           "redhat-7",
+								VersionRange: []string{"20.1", "20.2"},
+							},
+						},
+					},
+				}
+
+				globalComponentsVersion := manifestv1alpha1.Manifest{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "kubeanclusterconfig",
+						APIVersion: "kubean.io/v1alpha1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name: constants.InfoManifestGlobal,
+					},
+				}
+
+				controller.Client.Create(context.Background(), &offlineVersionData)
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
+				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("update", "manifests/status", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error when updateStatus")
+				})
+				defer removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "update", "manifests/status")
+				_, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
+				return err == nil
 			},
 			want: true,
 		},

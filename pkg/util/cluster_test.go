@@ -135,6 +135,38 @@ func TestUpdateOwnReference(t *testing.T) {
 		want bool
 	}{
 		{
+			name: "already ownerReferences exist",
+			args: func() bool {
+				fakeClient := clientsetfake.NewSimpleClientset()
+				configMapList := []*apis.ConfigMapRef{{Name: "abc", NameSpace: "abc"}}
+				fakeClient.CoreV1().ConfigMaps(configMapList[0].NameSpace).Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:            configMapList[0].Name,
+						OwnerReferences: []metav1.OwnerReference{{}},
+					},
+				}, metav1.CreateOptions{})
+				secretList := []*apis.SecretRef{{Name: "cba", NameSpace: "cba"}}
+				fakeClient.CoreV1().Secrets(secretList[0].NameSpace).Create(context.Background(), &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:            secretList[0].Name,
+						OwnerReferences: []metav1.OwnerReference{{}},
+					},
+				}, metav1.CreateOptions{})
+				return UpdateOwnReference(fakeClient, configMapList, secretList, metav1.OwnerReference{}) == nil
+			},
+			want: true,
+		},
+		{
+			name: "empty RefData",
+			args: func() bool {
+				fakeClient := clientsetfake.NewSimpleClientset()
+				configMapList := []*apis.ConfigMapRef{{Name: "", NameSpace: ""}}
+				secretList := []*apis.SecretRef{{Name: "", NameSpace: ""}}
+				return UpdateOwnReference(fakeClient, configMapList, secretList, metav1.OwnerReference{}) == nil
+			},
+			want: true,
+		},
+		{
 			name: "not found",
 			args: func() bool {
 				fakeClient := clientsetfake.NewSimpleClientset()
