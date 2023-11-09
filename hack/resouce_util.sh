@@ -300,11 +300,7 @@ function resource::import_files_minio_by_arch(){
   rm -fr ${download_root_path_tag}/${decompress_folder} && mkdir -p ${download_root_path_tag}/${decompress_folder}
   tar -zxvf "${download_root_path_tag}/files-${arch}-${new_tag}.tar.gz" -C ${download_root_path_tag}/${decompress_folder}
 
-  # when offline-test use the import script in the tgz file
-  # when artifact-test cp the import script from artifact path
   if [[ ${test_type} =~ "artifact"  ]];then
-    rm -f "${download_root_path_tag}/${decompress_folder}"/files/import_files.sh
-    cp -f ${REPO_ROOT}/artifacts/import_files.sh ${download_root_path_tag}/${decompress_folder}/files
     chmod +x "${download_root_path_tag}/${decompress_folder}"/files/import_files.sh
   fi
 
