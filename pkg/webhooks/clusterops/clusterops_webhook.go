@@ -81,7 +81,7 @@ func CreateHTTPSCASecretWithLock(ctx context.Context, client kubernetes.Interfac
 		Callbacks: leaderelection.LeaderCallbacks{
 			OnStartedLeading: func(ctx context.Context) {
 				klog.Warningf("webhook create CA OnStartedLeading on %s", util.GetCurrentRunningPodName())
-				if err := EnsureCASecretExist(client); err == nil {
+				if err := EnsureCASecretExist(client, createHTTPSCAInSecret); err == nil {
 					UpdateClusterOperationWebhook(client)
 				}
 				<-ctx.Done()
@@ -107,7 +107,7 @@ func WaitForCASecretExist(client kubernetes.Interface) *corev1.Secret {
 	}
 }
 
-func EnsureCASecretExist(client kubernetes.Interface) error {
+func EnsureCASecretExist(client kubernetes.Interface, createHTTPSCAInSecret func() (*corev1.Secret, error)) error {
 	_, err := client.CoreV1().Secrets(util.GetCurrentNSOrDefault()).Get(context.Background(), CAStoreSecret, metav1.GetOptions{})
 	if err != nil && apierrors.IsNotFound(err) {
 		newSecret, err := createHTTPSCAInSecret()

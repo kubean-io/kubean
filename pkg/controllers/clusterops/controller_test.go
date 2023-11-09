@@ -717,6 +717,60 @@ func TestIsValidImageName(t *testing.T) {
 	}
 }
 
+func TestUpdateStatusForLabel(t *testing.T) {
+	controller := Controller{
+		Client:                newFakeClient(),
+		ClientSet:             clientsetfake.NewSimpleClientset(),
+		KubeanClusterSet:      clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet:   clusteroperationv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
+	}
+	tests := []struct {
+		name string
+		args func() bool
+		want bool
+	}{
+		{
+			name: "nil labels",
+			args: func() bool {
+				ops := &clusteroperationv1alpha1.ClusterOperation{}
+				err := controller.UpdateStatusForLabel(ops)
+				return err == nil && ops.Labels != nil
+			},
+			want: true,
+		},
+		{
+			name: "already done",
+			args: func() bool {
+				ops := &clusteroperationv1alpha1.ClusterOperation{}
+				ops.Labels = map[string]string{constants.KubeanClusterHasCompleted: "done"}
+				err := controller.UpdateStatusForLabel(ops)
+				return err == nil
+			},
+			want: true,
+		},
+		{
+			name: "SucceededStatus",
+			args: func() bool {
+				ops := &clusteroperationv1alpha1.ClusterOperation{}
+				ops.Name = "test1"
+				controller.Client.Create(context.Background(), ops)
+				ops.Status.Status = clusteroperationv1alpha1.SucceededStatus
+				err := controller.UpdateStatusForLabel(ops)
+				return err == nil
+			},
+			want: true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if test.args() != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestGetServiceAccountName(t *testing.T) {
 	controller := Controller{
 		Client:                newFakeClient(),
