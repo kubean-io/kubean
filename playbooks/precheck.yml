@@ -3,7 +3,7 @@
 
 ---
 - name: Pre-check
-  hosts: k8s_cluster
+  hosts: k8s_cluster,etcd
   gather_facts: true
   become: true
   vars:
