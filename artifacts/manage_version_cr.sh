@@ -7,8 +7,10 @@ set -eo pipefail
 
 OPTION=${1:-'create_localartifactset'} ## create_localartifactset  create_manifest
 
+MANIFEST_CR_NAME_POSTFIX=${MANIFEST_CR_NAME_POSTFIX:-""}
+
 KUBESPRAY_TAG=${KUBESPRAY_TAG:-"v2.19.0"} ## env from github action
-KUBEAN_TAG=${KUBEAN_TAG:-"v0.1.0"}        ## env from github action
+KUBEAN_TAG=${KUBEAN_TAG:-""}        ## env from github action
 KUBE_VERSION=${KUBE_VERSION:-""}
 
 CURRENT_DIR=$(cd $(dirname $0); pwd) ## artifacts dir
@@ -152,8 +154,12 @@ function update_docker_component_version() {
 }
 
 function update_info_manifest_cr_name() {
-  kubean_version=${KUBEAN_TAG//./-}
-  yq -i ".metadata.name=\"kubeaninfomanifest-${kubean_version}\"" $KUBEAN_INFO_MANIFEST_CR
+  if [ -n "${MANIFEST_CR_NAME_POSTFIX}" ]; then
+    yq -i ".metadata.name=\"kubeaninfomanifest-${MANIFEST_CR_NAME_POSTFIX}\"" $KUBEAN_INFO_MANIFEST_CR
+  else
+    kubean_version=${KUBEAN_TAG//./-}
+    yq -i ".metadata.name=\"kubeaninfomanifest-${kubean_version}\"" $KUBEAN_INFO_MANIFEST_CR
+  fi
 }
 
 function create_info_manifest_cr() {
