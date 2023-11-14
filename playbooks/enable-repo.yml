@@ -3,7 +3,7 @@
 
 ---
 - name: Enable additional package repo config in offline scenarios
-  hosts: k8s_cluster
+  hosts: k8s_cluster,etcd
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   vars:

@@ -3,7 +3,7 @@
 
 ---
 - name: Update hosts config
-  hosts: k8s_cluster
+  hosts: k8s_cluster,etcd
   vars:
     ip: ''
     host: ''

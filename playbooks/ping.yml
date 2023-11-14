@@ -3,7 +3,7 @@
 
 ---
 - name: Network reachability check
-  hosts: k8s_cluster
+  hosts: k8s_cluster,etcd
   gather_facts: false
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"

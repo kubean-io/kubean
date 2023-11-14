@@ -4,7 +4,7 @@
 ---
 ## Only for RHEL 8 on offline environment currently
 - name: Remove packages
-  hosts: k8s_cluster
+  hosts: k8s_cluster,etcd
   become: true
   vars:
     rhel_enable_repos: true

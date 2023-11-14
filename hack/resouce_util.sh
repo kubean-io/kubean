@@ -249,13 +249,8 @@ function resource::push_registry_by_arch(){
   echo "Push Registry：${arch}... "
   rm -fr  "${download_root_path_tag}/img-${arch}" && mkdir -p "${download_root_path_tag}/img-${arch}"
   tar -zxvf "${download_root_path_tag}/images-${arch}-${new_tag}.tar.gz" -C "${download_root_path_tag}/img-${arch}"
-  ## when offline-test use the import script in the tgz file
-  ## when artifact-test cp the import script from artifact path
-  if [[ ${test_type} != "offline-test"  ]];then
-      rm -f ${download_root_path_tag}/${download_root_path_tag}/img-${arch}/images/import_images.sh
-      cp -f ${REPO_ROOT}/artifacts/import_images.sh ${download_root_path_tag}/img-${arch}/images
-      chmod +x ${download_root_path_tag}/img-${arch}/images/import_images.sh
-  fi
+  chmod +x ${download_root_path_tag}/img-${arch}/images/import_images.sh
+
   pushd ${download_root_path_tag}/img-${arch}/images
   DEST_TLS_VERIFY=false ./import_images.sh ${registry_addr} > /dev/null
   popd
@@ -299,14 +294,7 @@ function resource::import_files_minio_by_arch(){
   # shellcheck disable=SC2115
   rm -fr ${download_root_path_tag}/${decompress_folder} && mkdir -p ${download_root_path_tag}/${decompress_folder}
   tar -zxvf "${download_root_path_tag}/files-${arch}-${new_tag}.tar.gz" -C ${download_root_path_tag}/${decompress_folder}
-
-  # when offline-test use the import script in the tgz file
-  # when artifact-test cp the import script from artifact path
-  if [[ ${test_type} =~ "artifact"  ]];then
-    rm -f "${download_root_path_tag}/${decompress_folder}"/files/import_files.sh
-    cp -f ${REPO_ROOT}/artifacts/import_files.sh ${download_root_path_tag}/${decompress_folder}/files
-    chmod +x "${download_root_path_tag}/${decompress_folder}"/files/import_files.sh
-  fi
+  chmod +x "${download_root_path_tag}/${decompress_folder}"/files/import_files.sh
 
   pushd "${download_root_path_tag}/${decompress_folder}/files"
   MINIO_USER=${MINIO_USER} MINIO_PASS=${MINIO_PASS}  ./import_files.sh ${MINIO_URL} > /dev/null
