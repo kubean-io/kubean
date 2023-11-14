@@ -14,7 +14,7 @@ CUR_DIR = os.getcwd()
 
 OPTION = os.getenv("OPTION", default="all")  # create_files create_images create_offlineversion_cr
 
-KUBESPRAY_DIR = os.path.join(CUR_DIR, "kubespray")
+SPRAY_REPO_PATH = os.path.join(CUR_DIR, "kubespray")
 MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
 ZONE = os.getenv("ZONE", default="Other")  ## Other or CN
 
@@ -23,9 +23,11 @@ EXTRA_PAUSE_URLS = os.getenv("EXTRA_PAUSE", "").split(",")  ## registry.k8s.io/p
 OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
                                                      "artifacts/template/localartifactset.template.yml"))
+SPRAY_RELEASE = os.getenv("SPRAY_RELEASE")
+CR_NAME_POSTFIX = os.getenv("CR_NAME_POSTFIX")
 
-FILE_LIST_TEMP_PATH = os.path.join(KUBESPRAY_DIR, "contrib/offline/temp/files.list")
-IMAGE_LIST_TEMP_PATH = os.path.join(KUBESPRAY_DIR, "contrib/offline/temp/images.list")
+FILE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/files.list")
+IMAGE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/images.list")
 KUBEAN_TAG = "v_offline_patch"
 print(f"CUR_DIR:{CUR_DIR}")
 
@@ -42,7 +44,7 @@ def extra_line_str_with_pattern(filepath, *patterns):
 
 def fetch_info_list(env_dict, *patterns):
     print(f"generating info list for {env_dict}")
-    os.chdir(KUBESPRAY_DIR)
+    os.chdir(SPRAY_REPO_PATH)
     if os.path.exists("contrib/offline/temp"):
         shutil.rmtree("contrib/offline/temp")
     cmd = ["bash", "contrib/offline/generate_list.sh"]
@@ -67,11 +69,11 @@ def fetch_info_list(env_dict, *patterns):
 
 
 def check_dependencies():
-    if not os.path.exists(KUBESPRAY_DIR):
-        print(f"not found kubespray git repo")
+    if not os.path.exists(SPRAY_REPO_PATH):
+        print("kubespray repo path not found")
         sys.exit(1)
     if subprocess.run(["which", "skopeo"]).returncode != 0:
-        print("need skopeo")
+        print("skopeo command not found")
         sys.exit(1)
 
 
@@ -98,7 +100,6 @@ def get_manifest_version(key, manifest_dict):
 
 
 def execute_generate_offline_package(arg_option, arch):
-    script_name = "generate_offline_package.sh"
     if not os.path.exists("artifacts/generate_offline_package.sh"):
         print("generate_offline_package.sh not found in artifacts")
         sys.exit(1)
@@ -113,12 +114,9 @@ def execute_generate_offline_package(arg_option, arch):
 
 
 def create_files(file_urls, arch):
-    file_content = "\n".join(file_urls)
-    if ZONE == "CN":
-        file_content = file_content.replace("https://github.com", "https://files.m.daocloud.io/github.com")
     os.chdir(CUR_DIR)
     with open(FILE_LIST_TEMP_PATH, "w") as f:
-        f.write(file_content)
+        f.write("\n".join(file_urls))
         f.flush()
     execute_generate_offline_package("files", arch)
 
@@ -140,7 +138,13 @@ def create_offlineversion_cr():
     offlineversion_cr_dict = yaml.load(template_file, Loader=yaml.loader.FullLoader)  # dict
     template_file.close()
     offlineversion_cr_dict["spec"]["docker"] = []
-    offlineversion_cr_dict["metadata"]["name"] = f"offlineversion-patch-{int(datetime.now().timestamp())}"
+    offlineversion_cr_dict["metadata"]["labels"] = {}
+    if CR_NAME_POSTFIX != "":
+        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{CR_NAME_POSTFIX}"
+        offlineversion_cr_dict["metadata"]["labels"]["sprayRelease"] = SPRAY_RELEASE
+    else:
+        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-patch-{int(datetime.now().timestamp())}"
+        offlineversion_cr_dict["metadata"]["labels"]["sprayRelease"] = "master"
     items_array = offlineversion_cr_dict["spec"]["items"]
 
     for index in range(len(items_array)):
@@ -161,7 +165,7 @@ def create_offlineversion_cr():
 
     offlineversion_cr_dict["spec"]["items"] = items_array
     kubeanofflineversion_file = open(
-        os.path.join(KUBEAN_TAG, "kubeanofflineversion.cr.patch.yaml"),
+        os.path.join(KUBEAN_TAG, "localartifactset.cr.yaml"),
         "w",
         encoding="utf-8")
     yaml.dump(offlineversion_cr_dict, kubeanofflineversion_file)

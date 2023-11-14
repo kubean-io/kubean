@@ -95,6 +95,7 @@ jobs:
         build-args: |
           SPRAY_TAG=${{ needs.check-inputs.outputs.kubespray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
+          CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
@@ -126,7 +127,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: sprayjob image build
+    - name: airgap-patch image build
       uses: docker/build-push-action@v4.1.1
       with:
         context: ./
@@ -134,6 +135,7 @@ jobs:
         build-args: |
           SPRAY_TAG=${{ needs.check-inputs.outputs.kubespray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
+          CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false

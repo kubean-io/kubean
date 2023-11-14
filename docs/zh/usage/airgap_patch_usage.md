@@ -1,6 +1,6 @@
 # 增量离线包的生成和使用
 
-为了满足用户对于某些软件特定版本的需要，Kubean 提供脚本 `artifacts/offline_patch.py` 根据配置文件 `manifest.yml`
+为了满足用户对于某些软件特定版本的需要，Kubean 提供脚本 `artifacts/airgap_patch.py` 根据配置文件 `manifest.yml`
 来生成对应版本的离线包。
 
 ## 生成增量离线包
