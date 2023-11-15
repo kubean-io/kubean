@@ -79,37 +79,73 @@ function generate_temp_list() {
   mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
   cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
   add_pause_image_addr contrib/offline/temp/images.list
-  cp contrib/offline/temp/*.list $OFFLINE_PACKAGE_DIR
+  cp contrib/offline/temp/*.list ${OFFLINE_PACKAGE_DIR}
+}
+
+function update_binaris_cn_mirror() {
+  local file_list="${CURRENT_DIR}/kubespray/contrib/offline/temp/files.list"
+  # 1. backup files list
+  mv "${file_list}" "${file_list}.bak"
+  # 2. update cn mirror
+  local binary_mirror_addr="files.m.daocloud.io"
+  while read -r binary_addr; do
+    echo "${binary_addr}" | sed "s/https:\/\//&${binary_mirror_addr}\//" >> "${file_list}"
+  done <<< "$(cat "${file_list}.bak" || true)"
+  # 3. clear files list backup file
+  rm -rf "${file_list}.bak"
+}
+
+function update_images_cn_mirror() {
+  local image_list="${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list"
+  # 1. backup images list
+  mv "${image_list}" "${image_list}.bak"
+  # 2. update cn mirror
+  while read -r image_addr; do
+    image_addr=${image_addr/docker.io/docker.m.daocloud.io}
+    image_addr=${image_addr/gcr.io/gcr.m.daocloud.io}
+    image_addr=${image_addr/ghcr.io/ghcr.m.daocloud.io}
+    image_addr=${image_addr/k8s.gcr.io/k8s-gcr.m.daocloud.io}
+    image_addr=${image_addr/registry.k8s.io/k8s.m.daocloud.io}
+    image_addr=${image_addr/quay.io/quay.m.daocloud.io}
+    echo "${image_addr}" >> "${image_list}"
+  done <<< "$(cat "${image_list}.bak" || true)"
+  # 3. clear images list backup file
+  rm -rf "${image_list}.bak"
 }
 
 function create_files() {
   cd $CURRENT_DIR/kubespray/contrib/offline/
+  if [[ "${ZONE}" == "CN" ]]; then
+    update_binaris_cn_mirror
+  fi
+
   NO_HTTP_SERVER=true bash manage-offline-files.sh
   cp offline-files.tar.gz $OFFLINE_FILES_DIR
 }
 
 function create_images() {
   cd $CURRENT_DIR/artifacts
+  if [[ "${ZONE}" == "CN" ]]; then
+    update_images_cn_mirror
+  fi
 
   if which skopeo; then
-    echo "skopeo check successfully"
+    echo "skopeo check successfully."
   else
     echo "please install skopeo first"
     exit 1
   fi
 
-  IMG_LIST=$CURRENT_DIR/kubespray/contrib/offline/temp/images.list
-
-  echo "begin to download images"
-  images_list_content=$(cat "$IMG_LIST")
+  echo "begin to download images."
+  local images_list_content
+  images_list_content=$(cat "${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list")
 
   if [ ! -d "offline-images" ]; then
-    echo "create dir offline-images"
+    echo "create offline-images directory."
     mkdir offline-images
   fi
 
   while read -r image_name; do
-    image_name=$(replace_image_name "$image_name")
     echo "download image $image_name to local"
     ret=0
     skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} "docker://$image_name" "oci:offline-images:$image_name" || ret=$?
@@ -118,28 +154,11 @@ function create_images() {
       exit 1
     fi
     echo "$image_name" >> offline-images/images.list
-  done <<< "$images_list_content"
+  done <<< "${images_list_content}"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
 
   echo "zipping images completed!"
-}
-
-function replace_image_name() {
-  local origin_address=$1
-
-  if [ "$ZONE" != "CN" ]; then
-    echo "$origin_address" 
-    return
-  fi
-
-  origin_address=${origin_address/docker.io/docker.m.daocloud.io}
-  origin_address=${origin_address/gcr.io/gcr.m.daocloud.io} 
-  origin_address=${origin_address/ghcr.io/ghcr.m.daocloud.io}
-  origin_address=${origin_address/k8s.gcr.io/k8s-gcr.m.daocloud.io}
-  origin_address=${origin_address/registry.k8s.io/k8s.m.daocloud.io}
-  origin_address=${origin_address/quay.io/quay.m.daocloud.io}
-  echo "$origin_address"
 }
 
 function copy_import_sh() {

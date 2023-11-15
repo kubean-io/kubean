@@ -1,6 +1,6 @@
 # Generation and use of incremental offline packages
 
-To meet users' needs for components of certain versions, Kubean provides the script `artifacts/offline_patch.py` to generate a corresponding version of offline packages based on the configuration file `manifest.yml`.
+To meet users' needs for components of certain versions, Kubean provides the script `artifacts/airgap_patch.py` to generate a corresponding version of offline packages based on the configuration file `manifest.yml`.
 
 ## Generate an incremental offline package
 
