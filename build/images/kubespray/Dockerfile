@@ -42,6 +42,8 @@ ENV ANSIBLE_CONFIG=/kubespray/ansible.cfg
 WORKDIR /kubespray
 
 COPY build/images/patch_files/pkg_mgr.py /tmp/
-RUN SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
+RUN [[ $(echo -e "$(pip show -V ansible-core | grep Version: | awk '{print $2}')\n2.14.0" | sort -rV | head -1) == 2.14.0 ]] \
+    && : \
+    || ( SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
     && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
-    && cp /tmp/pkg_mgr.py ${PKG_MGR_PATH}
+    && cp /tmp/pkg_mgr.py ${PKG_MGR_PATH})
