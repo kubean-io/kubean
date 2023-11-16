@@ -45,7 +45,7 @@ function extract_etcd_version() {
   IFS='.'
   read -ra arr <<<"${kube_version}"
   major="${arr[0]}.${arr[1]}"
-  version=$(yq ".etcd_supported_versions.\"${major}\"" kubespray/roles/download/defaults/main/main.yml)
+  version=$(yq ".etcd_supported_versions.\"${major}\"" kubespray/roles/download/defaults/main.yml)
   echo "${version}"
 }
 
@@ -53,7 +53,7 @@ function extract_version() {
   local version_name="${1}"  ## cni_version
   local dir="${2}" ## kubespray-defaults  or download
   local version
-  version=$(yq ".${version_name}" kubespray/roles/download/defaults/main/main.yml)
+  version=$(yq ".${version_name}" kubespray/roles/download/defaults/main.yml)
   if [[ -n "${dir}" ]]; then
     version=$(yq ".${version_name}" kubespray/roles/"${dir}"/defaults/main.*ml)
   fi
@@ -63,7 +63,7 @@ function extract_version() {
 function extract_version_range() {
   local range_path="${1}"    ## .cni_binary_checksums.amd64
   local version
-  version=$(yq "${range_path} | keys" kubespray/roles/download/defaults/main/checksums.yml --output-format json)
+  version=$(yq "${range_path} | keys" kubespray/roles/download/defaults/main.yml --output-format json)
   version=$(echo "${version}" | tr -d '\n \r') ## ["v1","v2"]
   echo "${version}"
 }
@@ -215,14 +215,22 @@ function create_info_manifest_cr() {
   update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"
 }
 
+function merge_kubespray_offline_download_files() {
+  if [ -d 'kubespray/roles/download/defaults/main' ]; then
+    cat kubespray/roles/download/defaults/main/* | sed '/^---$/d' > kubespray/roles/download/defaults/main.yml
+  fi
+}
+
 case $OPTION in
 create_localartifactset)
   check_dependencies
+  merge_kubespray_offline_download_files
   create_offline_version_cr
   ;;
 
 create_manifest)
   check_dependencies
+  merge_kubespray_offline_download_files
   create_info_manifest_cr
   ;;
 
