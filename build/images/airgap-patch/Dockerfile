@@ -1,7 +1,16 @@
 ARG SPRAY_TAG=master
 ARG REPO=kubean-io
-ARG CR_NAME_POSTFIX
 FROM ghcr.io/${REPO}/kubespray:${SPRAY_TAG}
+
+ARG SPRAY_RELEASE
+ARG SPRAY_COMMIT
+ARG SPRAY_COMMIT_TIMESTAMP
+
+LABEL spray_release_num=${SPRAY_RELEASE}
+LABEL spray_commit_date=${SPRAY_COMMIT_TIMESTAMP}
+
+ENV SPRAY_COMMIT=${SPRAY_COMMIT}
+ENV SPRAY_RELEASE=${SPRAY_RELEASE}
 
 WORKDIR /kubean
 
@@ -19,9 +28,6 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
     && wget -O /usr/bin/yq https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${ARCH} \
     && chmod +x /usr/bin/yq \
     && ln -s /kubespray /kubean/kubespray
-
-ENV CR_NAME_POSTFIX=$CR_NAME_POSTFIX
-ENV SPRAY_RELEASE=${CR_NAME_POSTFIX%-*}
 
 CMD echo "show supporting versions" \
     && bash artifacts/manage_version_cr.sh create_manifest \
