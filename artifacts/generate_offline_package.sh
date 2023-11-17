@@ -140,10 +140,7 @@ function create_images() {
   local images_list_content
   images_list_content=$(cat "${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list")
 
-  if [ ! -d "offline-images" ]; then
-    echo "create offline-images directory."
-    mkdir offline-images
-  fi
+  rm -rf offline-images && mkdir offline-images
 
   while read -r image_name; do
     echo "download image $image_name to local"
