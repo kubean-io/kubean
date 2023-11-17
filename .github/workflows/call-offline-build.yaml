@@ -15,7 +15,7 @@ jobs:
     - name: Set kubespray version env
       run: |
         echo "SPRAY_VERSION=$(yq ".kubespray_version" version.yml)" >> ${GITHUB_ENV}
-        echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV} 
+        echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV}
 
     - name: Git clone kubespray repo
       uses: actions/checkout@v3
@@ -84,6 +84,9 @@ jobs:
         mv images.list images-${ARCH}.list
         cd ../../
         tree ${KUBEAN_TAG}/
+        echo -e "\noutput files size:\n"
+        ls -lh ${KUBEAN_TAG}/amd64/
+        ls -lh ${KUBEAN_TAG}/arm64/
 
     - name: Release and upload packages
       if: startsWith(github.ref, 'refs/tags/')
