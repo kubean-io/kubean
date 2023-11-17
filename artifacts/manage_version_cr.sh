@@ -7,35 +7,37 @@ set -eo pipefail
 
 OPTION=${1:-'create_localartifactset'} ## create_localartifactset  create_manifest
 
-MANIFEST_CR_NAME_POSTFIX=${MANIFEST_CR_NAME_POSTFIX:-""}
+SPRAY_COMMIT=${SPRAY_COMMIT:-""}
+SPRAY_RELEASE=${SPRAY_RELEASE:-"master"}
+SPRAY_COMMIT_TIMESTAMP=${SPRAY_COMMIT_TIMESTAMP:-""}
 
-KUBESPRAY_TAG=${KUBESPRAY_TAG:-"v2.19.0"} ## env from github action
+SPRAY_TAG=${SPRAY_TAG:-"v2.19.0"} ## env from github action
 KUBEAN_TAG=${KUBEAN_TAG:-""}        ## env from github action
 KUBE_VERSION=${KUBE_VERSION:-""}
 
 CURRENT_DIR=$(cd $(dirname $0); pwd) ## artifacts dir
-CURRENT_DATE=$(date +%Y%m%d)
+CURRENT_TIME=$(date +%s)
 
 ARTIFACTS_TEMPLATE_DIR=artifacts/template
-KUBEAN_OFFLINE_VERSION_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/localartifactset.template.yml
-KUBEAN_INFO_MANIFEST_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/manifest.template.yml
+KUBEAN_LOCALARTIFACTSET_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/localartifactset.template.yml
+KUBEAN_MANIFEST_TEMPLATE=${ARTIFACTS_TEMPLATE_DIR}/manifest.template.yml
 
 CHARTS_TEMPLATE_DIR=charts/kubean/templates
 OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}
-KUBEAN_OFFLINE_VERSION_CR=${OFFLINE_PACKAGE_DIR}/localartifactset.cr.yaml
-KUBEAN_INFO_MANIFEST_CR=${CHARTS_TEMPLATE_DIR}/manifest.cr.yaml
+KUBEAN_LOCALARTIFACTSET_CR=${OFFLINE_PACKAGE_DIR}/localartifactset.cr.yaml
+KUBEAN_MANIFEST_CR=${CHARTS_TEMPLATE_DIR}/manifest.cr.yaml
 
-KUBESPRAY_DIR=kubespray
-KUBESPRAY_OFFLINE_DIR=${KUBESPRAY_DIR}/contrib/offline
-VERSION_VARS_YML=${KUBESPRAY_OFFLINE_DIR}/version.yml
+SPRAY_DIR=kubespray
+SPRAY_OFFLINE_DIR=${SPRAY_DIR}/contrib/offline
+VERSION_VARS_YML=${SPRAY_OFFLINE_DIR}/version.yml
 
 function check_dependencies() {
   if ! which yq; then
     echo "need yq (https://github.com/mikefarah/yq)."
     exit 1
   fi
-  if [ ! -d ${KUBESPRAY_DIR} ]; then
-    echo "${KUBESPRAY_DIR} git repo should exist."
+  if [ ! -d ${SPRAY_DIR} ]; then
+    echo "${SPRAY_DIR} git repo should exist."
     exit 1
   fi
 }
@@ -75,25 +77,46 @@ function extract_docker_version_range() {
   echo "${version}"
 }
 
-function update_offline_version_cr() {
+function update_custom_resource_metadata() {
+  local cr_name=${1}
+  local cr_yaml_path=${2}
+
+  local old_cr_postfix=${KUBEAN_TAG//./-}
+  if [[ ${cr_name} == 'localartifactset' ]]; then
+    old_cr_postfix=${CURRENT_TIME}
+  fi
+
+  if [[ "${SPRAY_RELEASE}" != 'master' ]]; then
+    yq -i ".metadata.name=\"${cr_name}-${SPRAY_RELEASE}-${SPRAY_COMMIT}\"" "${cr_yaml_path}"
+    yq -i ".metadata.labels.\"kubean.io/sprayRelease\"=\"${SPRAY_RELEASE}\"" "${cr_yaml_path}"
+    yq -i ".metadata.annotations.\"kubean.io/sprayTimestamp\"=\"${SPRAY_COMMIT_TIMESTAMP}\"" "${cr_yaml_path}"
+    yq -i ".metadata.annotations.\"kubean.io/sprayRelease\"=\"${SPRAY_RELEASE}\"" "${cr_yaml_path}"
+    yq -i ".metadata.annotations.\"kubean.io/sprayCommit\"=\"${SPRAY_COMMIT}\"" "${cr_yaml_path}"
+  else
+    yq -i ".metadata.name=\"${cr_name}-${old_cr_postfix}\"" "${cr_yaml_path}"
+    yq -i ".metadata.labels.\"kubean.io/sprayRelease\"=\"master\"" "${cr_yaml_path}"
+  fi
+}
+
+function update_localartifactset_cr() {
   index=$1 ## start with zero
   name=$2  ## cni containerd ...
   version_val=$3
-  if [ $(yq ".spec.items[$index].name" $KUBEAN_OFFLINE_VERSION_CR) != "${name}" ]; then
+  if [ $(yq ".spec.items[$index].name" ${KUBEAN_LOCALARTIFACTSET_CR}) != "${name}" ]; then
     echo "error param $index $name"
     exit 1
   fi
-  version_val=${version_val} yq -i ".spec.items[$index].versionRange[0]=strenv(version_val)" $KUBEAN_OFFLINE_VERSION_CR
+  version_val=${version_val} yq -i ".spec.items[$index].versionRange[0]=strenv(version_val)" ${KUBEAN_LOCALARTIFACTSET_CR}
 }
 
 function update_docker_offline_version() {
   os=$1
   version_range=$2
   OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range} | ..style=\"double\" )" \
-    $KUBEAN_OFFLINE_VERSION_CR
+    ${KUBEAN_LOCALARTIFACTSET_CR}
 }
 
-function create_offline_version_cr() {
+function create_localartifactset_cr() {
   cni_version=$(extract_version "cni_version")
   containerd_version=$(extract_version "containerd_version")
 
@@ -112,33 +135,33 @@ function create_offline_version_cr() {
   docker_version_range_redhat7=["18.09","19.03","20.10"]
 
   mkdir -p $OFFLINE_PACKAGE_DIR
-  cp $KUBEAN_OFFLINE_VERSION_TEMPLATE $KUBEAN_OFFLINE_VERSION_CR
-  CR_NAME=offlineversion-${CURRENT_DATE} yq -i '.metadata.name=strenv(CR_NAME)' $KUBEAN_OFFLINE_VERSION_CR
-  KUBESPRAY_TAG=${KUBESPRAY_TAG} yq -i '.spec.kubespray=strenv(KUBESPRAY_TAG)' $KUBEAN_OFFLINE_VERSION_CR
+  cp ${KUBEAN_LOCALARTIFACTSET_TEMPLATE} ${KUBEAN_LOCALARTIFACTSET_CR}
+  update_custom_resource_metadata "localartifactset" "${KUBEAN_LOCALARTIFACTSET_CR}"
+  SPRAY_TAG=${SPRAY_TAG} yq -i '.spec.kubespray=strenv(SPRAY_TAG)' ${KUBEAN_LOCALARTIFACTSET_CR}
 
-  update_offline_version_cr "0" "cni" "$cni_version"
-  update_offline_version_cr "1" "containerd" "$containerd_version"
-  update_offline_version_cr "2" "kube" "$kube_version"
-  update_offline_version_cr "3" "calico" "$calico_version"
-  update_offline_version_cr "4" "cilium" "$cilium_version"
-  update_offline_version_cr "5" "flannel" "$flannel_version"
-  update_offline_version_cr "6" "kube-ovn" "$kube_ovn_version"
-  update_offline_version_cr "7" "etcd" "$etcd_version"
+  update_localartifactset_cr "0" "cni" "$cni_version"
+  update_localartifactset_cr "1" "containerd" "$containerd_version"
+  update_localartifactset_cr "2" "kube" "$kube_version"
+  update_localartifactset_cr "3" "calico" "$calico_version"
+  update_localartifactset_cr "4" "cilium" "$cilium_version"
+  update_localartifactset_cr "5" "flannel" "$flannel_version"
+  update_localartifactset_cr "6" "kube-ovn" "$kube_ovn_version"
+  update_localartifactset_cr "7" "etcd" "$etcd_version"
   update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
 }
 
-function update_info_manifest_cr() {
+function update_manifest_cr() {
   index=$1 ## start with zero
   name=$2  ## cni containerd ...
   default_version_val=$3
   version_range=$4
-  if [ $(yq ".spec.components[$index].name" $KUBEAN_INFO_MANIFEST_CR) != "${name}" ]; then
+  if [ $(yq ".spec.components[$index].name" ${KUBEAN_MANIFEST_CR}) != "${name}" ]; then
     echo "error param $index $name"
     exit 1
   fi
 
-  yq -i ".spec.components[$index].defaultVersion=\"${default_version_val}\"" $KUBEAN_INFO_MANIFEST_CR
-  yq -i ".spec.components[$index].versionRange |=  ${version_range} | ..style=\"double\" " $KUBEAN_INFO_MANIFEST_CR ## update string array
+  yq -i ".spec.components[$index].defaultVersion=\"${default_version_val}\"" ${KUBEAN_MANIFEST_CR}
+  yq -i ".spec.components[$index].versionRange |=  ${version_range} | ..style=\"double\" " ${KUBEAN_MANIFEST_CR} ## update string array
 }
 
 function update_docker_component_version() {
@@ -147,22 +170,13 @@ function update_docker_component_version() {
   version_range=$3
 
   OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).defaultVersion=\"${default_version}\")" \
-    $KUBEAN_INFO_MANIFEST_CR
+    ${KUBEAN_MANIFEST_CR}
 
   OS=$os yq -i ".spec.docker |= map(select(.os == strenv(OS)).versionRange |= ${version_range})" \
-    $KUBEAN_INFO_MANIFEST_CR
+    ${KUBEAN_MANIFEST_CR}
 }
 
-function update_info_manifest_cr_name() {
-  if [ -n "${MANIFEST_CR_NAME_POSTFIX}" ]; then
-    yq -i ".metadata.name=\"kubeaninfomanifest-${MANIFEST_CR_NAME_POSTFIX}\"" $KUBEAN_INFO_MANIFEST_CR
-  else
-    kubean_version=${KUBEAN_TAG//./-}
-    yq -i ".metadata.name=\"kubeaninfomanifest-${kubean_version}\"" $KUBEAN_INFO_MANIFEST_CR
-  fi
-}
-
-function create_info_manifest_cr() {
+function create_manifest_cr() {
   cni_version_default=$(extract_version "cni_version")
   cni_version_range=$(extract_version_range ".cni_binary_checksums.amd64")
 
@@ -197,19 +211,19 @@ function create_info_manifest_cr() {
   docker_version_range_debian=$(extract_docker_version_range "debian")
   docker_version_range_ubuntu=$(extract_docker_version_range "ubuntu")
 
-  cp $KUBEAN_INFO_MANIFEST_TEMPLATE $KUBEAN_INFO_MANIFEST_CR
-  KUBESPRAY_TAG=${KUBESPRAY_TAG} yq -i '.spec.kubesprayVersion=strenv(KUBESPRAY_TAG)' $KUBEAN_INFO_MANIFEST_CR
-  KUBEAN_TAG=${KUBEAN_TAG} yq -i '.spec.kubeanVersion=strenv(KUBEAN_TAG)' $KUBEAN_INFO_MANIFEST_CR
+  cp ${KUBEAN_MANIFEST_TEMPLATE} ${KUBEAN_MANIFEST_CR}
+  SPRAY_TAG=${SPRAY_TAG} yq -i '.spec.kubesprayVersion=strenv(SPRAY_TAG)' ${KUBEAN_MANIFEST_CR}
+  KUBEAN_TAG=${KUBEAN_TAG} yq -i '.spec.kubeanVersion=strenv(KUBEAN_TAG)' ${KUBEAN_MANIFEST_CR}
 
-  update_info_manifest_cr_name
-  update_info_manifest_cr 0 cni "${cni_version_default}" "${cni_version_range}"
-  update_info_manifest_cr 1 containerd "${containerd_version_default}" "${containerd_version_range}"
-  update_info_manifest_cr 2 kube "${kube_version_default}" "${kube_version_range}"
-  update_info_manifest_cr 3 calico "${calico_version_default}" "${calico_version_range}"
-  update_info_manifest_cr 4 cilium "${cilium_version_default}" "${cilium_version_range}"
-  update_info_manifest_cr 5 flannel "${flannel_version_default}" "${flannel_version_range}"
-  update_info_manifest_cr 6 kube-ovn "${kube_ovn_version_default}" "${kube_ovn_version_range}"
-  update_info_manifest_cr 7 etcd "${etcd_version_default}" "${etcd_version_range}"
+  update_custom_resource_metadata "manifest" "${KUBEAN_MANIFEST_CR}"
+  update_manifest_cr 0 cni "${cni_version_default}" "${cni_version_range}"
+  update_manifest_cr 1 containerd "${containerd_version_default}" "${containerd_version_range}"
+  update_manifest_cr 2 kube "${kube_version_default}" "${kube_version_range}"
+  update_manifest_cr 3 calico "${calico_version_default}" "${calico_version_range}"
+  update_manifest_cr 4 cilium "${cilium_version_default}" "${cilium_version_range}"
+  update_manifest_cr 5 flannel "${flannel_version_default}" "${flannel_version_range}"
+  update_manifest_cr 6 kube-ovn "${kube_ovn_version_default}" "${kube_ovn_version_range}"
+  update_manifest_cr 7 etcd "${etcd_version_default}" "${etcd_version_range}"
   update_docker_component_version "redhat-7" "${docker_version_default}" "${docker_version_range_redhat7}"
   update_docker_component_version "debian" "${docker_version_default}" "${docker_version_range_debian}"
   update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"
@@ -225,13 +239,13 @@ case $OPTION in
 create_localartifactset)
   check_dependencies
   merge_kubespray_offline_download_files
-  create_offline_version_cr
+  create_localartifactset_cr
   ;;
 
 create_manifest)
   check_dependencies
   merge_kubespray_offline_download_files
-  create_info_manifest_cr
+  create_manifest_cr
   ;;
 
 *)

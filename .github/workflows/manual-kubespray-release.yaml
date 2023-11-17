@@ -10,6 +10,9 @@ on:
       commit_SHA1:
         type: string
         description: 'full commit SHA1 in which the branch located'
+  push:
+    tags:
+    - v0.0.11
 
 jobs:
   check-inputs:
@@ -20,6 +23,7 @@ jobs:
       spray_sha1: ${{ steps.check_inputs.outputs.spray_sha1 }}
       spray_sha1_short: ${{ steps.check_inputs.outputs.spray_sha1_short }}
       spray_release_num: ${{ steps.check_inputs.outputs.spray_release_num }}
+      spray_commit_timestamp: ${{ steps.check_inputs.outputs.spray_commit_timestamp }}
     steps:
     - name: ensure valid branch and commit
       id: check_inputs
@@ -28,16 +32,18 @@ jobs:
         INPUTS_SPRAY_BRANCH=${{ inputs.branch }}
         INPUTS_COMMIT_SHA1=${{ inputs.commit_SHA1 }}
 
+        INPUTS_SPRAY_BRANCH=release-2.21
+
         SPRAY_BRANCH_SHA1=`git ls-remote -h https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_BRANCH} | awk '{print $1}'`
         if [[ -z "${SPRAY_BRANCH_SHA1}" ]]; then
           echo "The specified branch '${INPUTS_SPRAY_BRANCH}' is nonexistent!" && exit 1
         fi
         SPRAY_SHA1=${SPRAY_BRANCH_SHA1}
+        git clone -b ${INPUTS_SPRAY_BRANCH} https://github.com/kubernetes-sigs/kubespray.git && cd kubespray
         if [[ -n "${INPUTS_COMMIT_SHA1}" ]]; then
           if [[ ${#INPUTS_COMMIT_SHA1} != 40 ]]; then
             echo "Please specify the full commit SHA1!" && exit 1
           fi
-          git clone -b ${INPUTS_SPRAY_BRANCH} https://github.com/kubernetes-sigs/kubespray.git && cd kubespray
           if ! git log --pretty="%H" | grep -q ${INPUTS_COMMIT_SHA1}; then
             echo "The specifired commit SHA1 '${INPUTS_COMMIT_SHA1}' is not found in branch '${INPUTS_SPRAY_BRANCH}'"
           fi
@@ -55,6 +61,7 @@ jobs:
         echo spray_sha1=${SPRAY_SHA1} >> $GITHUB_OUTPUT
         echo spray_sha1_short=${SPRAY_SHA1:0:7} >> $GITHUB_OUTPUT
         echo spray_release_num=${INPUTS_SPRAY_BRANCH#release-} >> $GITHUB_OUTPUT
+        echo spray_commit_timestamp=$(git show -s --format=%ct ${SPRAY_SHA1}) >> $GITHUB_OUTPUT
 
   build-kubespray-image:
     needs: check-inputs
@@ -102,7 +109,7 @@ jobs:
           REPO=${{ needs.check-inputs.outputs.image_repo }}
           SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
-          SPRAY_COMMIT_TIMESTAMP=""
+          SPRAY_COMMIT_TIMESTAMP=${{ needs.check-inputs.outputs.spray_commit_timestamp }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
@@ -147,7 +154,7 @@ jobs:
           REPO=${{ needs.check-inputs.outputs.image_repo }}
           SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
-          SPRAY_COMMIT_TIMESTAMP=""
+          SPRAY_COMMIT_TIMESTAMP=${{ needs.check-inputs.outputs.spray_commit_timestamp }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
@@ -178,8 +185,10 @@ jobs:
 
     - name: Generate Kubean manifest file
       env:
-        KUBESPRAY_TAG: ${{ needs.check-inputs.outputs.spray_sha1 }}
-        MANIFEST_CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
+        SPRAY_TAG: ${{ needs.check-inputs.outputs.spray_sha1 }}
+        SPRAY_COMMIT: ${{ needs.check-inputs.outputs.spray_sha1_short }}
+        SPRAY_RELEASE: ${{ needs.check-inputs.outputs.spray_release_num }}
+        SPRAY_COMMIT_TIMESTAMP: ${{ needs.check-inputs.outputs.spray_commit_timestamp }}
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
         mkdir manifest && cp charts/kubean/templates/manifest.cr.yaml manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
