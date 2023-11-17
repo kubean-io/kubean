@@ -24,7 +24,7 @@ OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
                                                      "artifacts/template/localartifactset.template.yml"))
 SPRAY_RELEASE = os.getenv("SPRAY_RELEASE")
-CR_NAME_POSTFIX = os.getenv("CR_NAME_POSTFIX")
+SPRAY_COMMIT = os.getenv("SPRAY_COMMIT")
 
 FILE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/files.list")
 IMAGE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/images.list")
@@ -139,8 +139,8 @@ def create_offlineversion_cr():
     template_file.close()
     offlineversion_cr_dict["spec"]["docker"] = []
     offlineversion_cr_dict["metadata"]["labels"] = {}
-    if CR_NAME_POSTFIX != "":
-        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{CR_NAME_POSTFIX}"
+    if SPRAY_RELEASE != "master":
+        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}"
         offlineversion_cr_dict["metadata"]["labels"]["sprayRelease"] = SPRAY_RELEASE
     else:
         offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-patch-{int(datetime.now().timestamp())}"

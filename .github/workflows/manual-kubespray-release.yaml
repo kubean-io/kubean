@@ -17,8 +17,9 @@ jobs:
     outputs:
       tag: ${{ steps.check_inputs.outputs.tag }}
       image_repo: ${{ steps.check_inputs.outputs.image_repo }}
-      kubespray_sha1: ${{ steps.check_inputs.outputs.kubespray_sha1 }}
-      kubespray_sha1_short: ${{ steps.check_inputs.outputs.kubespray_sha1_short }}
+      spray_sha1: ${{ steps.check_inputs.outputs.spray_sha1 }}
+      spray_sha1_short: ${{ steps.check_inputs.outputs.spray_sha1_short }}
+      spray_release_num: ${{ steps.check_inputs.outputs.spray_release_num }}
     steps:
     - name: ensure valid branch and commit
       id: check_inputs
@@ -51,8 +52,9 @@ jobs:
 
         echo image_repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
         echo tag=${TAG} >> $GITHUB_OUTPUT
-        echo kubespray_sha1=${SPRAY_SHA1} >> $GITHUB_OUTPUT
-        echo kubespray_sha1_short=${SPRAY_SHA1:0:7} >> $GITHUB_OUTPUT
+        echo spray_sha1=${SPRAY_SHA1} >> $GITHUB_OUTPUT
+        echo spray_sha1_short=${SPRAY_SHA1:0:7} >> $GITHUB_OUTPUT
+        echo spray_release_num=${INPUTS_SPRAY_BRANCH#release-} >> $GITHUB_OUTPUT
 
   build-kubespray-image:
     needs: check-inputs
@@ -62,13 +64,16 @@ jobs:
       packages: write
       contents: read
     with:
-      SPRAY_REF: ${{ needs.check-inputs.outputs.kubespray_sha1 }}
+      SPRAY_REF: ${{ needs.check-inputs.outputs.spray_sha1 }}
       REPO: ${{ needs.check-inputs.outputs.image_repo }}
-  
+
 
   build-sprayjob-image:
     needs: [check-inputs, build-kubespray-image]
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
       with:
@@ -93,9 +98,11 @@ jobs:
         context: ./
         file: build/images/spray-job/Dockerfile
         build-args: |
-          SPRAY_TAG=${{ needs.check-inputs.outputs.kubespray_sha1_short }}
+          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
-          CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
+          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
+          SPRAY_COMMIT_TIMESTAMP=""
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
@@ -109,6 +116,9 @@ jobs:
   build-airgap-patch-image:
     needs: [check-inputs, build-kubespray-image]
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
     - uses: actions/checkout@v3
       with:
@@ -133,9 +143,11 @@ jobs:
         context: ./
         file: build/images/airgap-patch/Dockerfile
         build-args: |
-          SPRAY_TAG=${{ needs.check-inputs.outputs.kubespray_sha1_short }}
+          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
-          CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
+          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
+          SPRAY_COMMIT_TIMESTAMP=""
         github-token: ${{ secrets.GITHUB_TOKEN }}
         push: true
         provenance: false
@@ -157,7 +169,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: kubernetes-sigs/kubespray
-        ref: ${{ needs.check-inputs.outputs.kubespray_sha1 }}
+        ref: ${{ needs.check-inputs.outputs.spray_sha1 }}
         path: ./kubespray
         fetch-depth: 0
 
@@ -166,7 +178,7 @@ jobs:
 
     - name: Generate Kubean manifest file
       env:
-        KUBESPRAY_TAG: ${{ needs.check-inputs.outputs.kubespray_sha1 }}
+        KUBESPRAY_TAG: ${{ needs.check-inputs.outputs.spray_sha1 }}
         MANIFEST_CR_NAME_POSTFIX: ${{ needs.check-inputs.outputs.tag }}
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
