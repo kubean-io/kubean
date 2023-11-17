@@ -30,7 +30,7 @@ jobs:
     - name: Generate InfoManifest & OfflineVersion files
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
-        KUBESPRAY_TAG: ${{ env.SPRAY_VERSION }}
+        SPRAY_TAG: ${{ env.SPRAY_VERSION }}
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         bash artifacts/manage_version_cr.sh create_manifest
