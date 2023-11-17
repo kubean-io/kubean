@@ -7,9 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"reflect"
-	"strings"
 	"testing"
 	"time"
 
@@ -70,119 +68,6 @@ func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, 
 			newReactionChain = append(newReactionChain, reaction)
 		}
 		fakeObj.ReactionChain = newReactionChain
-	}
-}
-
-func Test_FetchLatestInfoManifest(t *testing.T) {
-	tests := []struct {
-		name string
-		args func() bool
-		want bool
-	}{
-		{
-			name: "return empty",
-			args: func() bool {
-				controller := &Controller{
-					Client:                newFakeClient(),
-					ClientSet:             clientsetfake.NewSimpleClientset(),
-					InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
-				}
-				_, err := controller.FetchLatestInfoManifest()
-				return err != nil && strings.Contains(err.Error(), "not found")
-			},
-			want: true,
-		},
-		{
-			name: "return empty exclude the global-infomanifest",
-			args: func() bool {
-				controller := &Controller{
-					Client:                newFakeClient(),
-					ClientSet:             clientsetfake.NewSimpleClientset(),
-					InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
-				}
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:              constants.InfoManifestGlobal,
-						Labels:            map[string]string{OriginLabel: ""},
-						CreationTimestamp: metav1.NewTime(time.Now()),
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				_, err := controller.FetchLatestInfoManifest()
-				return err != nil && strings.Contains(err.Error(), "not found")
-			},
-			want: true,
-		},
-		{
-			name: "return the latest infomanifest",
-			args: func() bool {
-				controller := &Controller{
-					Client:                newFakeClient(),
-					ClientSet:             clientsetfake.NewSimpleClientset(),
-					InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
-				}
-				now := time.Now()
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:              "v1",
-						CreationTimestamp: metav1.NewTime(now.Add(time.Second * 100)),
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:              "v2",
-						CreationTimestamp: metav1.NewTime(now.Add(time.Second * 10000)),
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:              constants.InfoManifestGlobal,
-						CreationTimestamp: metav1.NewTime(now.Add(time.Second * 10000000)),
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:              "v3",
-						CreationTimestamp: metav1.NewTime(now.Add(time.Second * 1000)),
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				result, err := controller.FetchLatestInfoManifest()
-				return err == nil && result.Name == "v2"
-			},
-			want: true,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			if test.args() != test.want {
-				t.Fatal()
-			}
-		})
 	}
 }
 
@@ -270,385 +155,6 @@ func Test_ParseConfigMapToLocalService(t *testing.T) {
 	}
 }
 
-func Test_EnsureGlobalInfoManifestBeingLatest(t *testing.T) {
-	controller := &Controller{
-		Client:                newFakeClient(),
-		ClientSet:             clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
-	}
-	tests := []struct {
-		name               string
-		latestInfoManifest func() *manifestv1alpha1.Manifest
-		want               *manifestv1alpha1.Manifest
-	}{
-		{
-			name: "not existing global InfoManifest",
-			latestInfoManifest: func() *manifestv1alpha1.Manifest {
-				return &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "v1",
-					},
-					Spec: manifestv1alpha1.Spec{
-						Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd1", VersionRange: []string{"1"}}},
-					},
-				}
-			},
-			want: &manifestv1alpha1.Manifest{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Manifest",
-					APIVersion: "kubean.io/v1alpha1",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:   constants.InfoManifestGlobal,
-					Labels: map[string]string{OriginLabel: "v1"},
-				},
-				Spec: manifestv1alpha1.Spec{
-					Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd1", VersionRange: []string{"1"}}},
-				},
-			},
-		},
-		{
-			name: "already existing global InfoManifest",
-			latestInfoManifest: func() *manifestv1alpha1.Manifest {
-				return &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "v2",
-					},
-					Spec: manifestv1alpha1.Spec{
-						Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd2", VersionRange: []string{"2"}}},
-					},
-				}
-			},
-			want: &manifestv1alpha1.Manifest{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Manifest",
-					APIVersion: "kubean.io/v1alpha1",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:   constants.InfoManifestGlobal,
-					Labels: map[string]string{OriginLabel: "v2"},
-				},
-				Spec: manifestv1alpha1.Spec{
-					Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd2", VersionRange: []string{"2"}}},
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			global, err := controller.EnsureGlobalInfoManifestBeingLatest(test.latestInfoManifest())
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(global, test.want) {
-				t.Fatal()
-			}
-		})
-	}
-}
-
-func Test_UpdateGlobalLocalService1(t *testing.T) {
-	controller := &Controller{
-		Client:                    newFakeClient(),
-		ClientSet:                 clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
-		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-	}
-	tests := []struct {
-		name string
-		arg  func()
-		want manifestv1alpha1.LocalService
-	}{
-		{
-			name: "global not have localService before",
-			arg: func() {
-				global := &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:   constants.InfoManifestGlobal,
-						Labels: map[string]string{OriginLabel: "v2"},
-					},
-					Spec: manifestv1alpha1.Spec{
-						Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd2", VersionRange: []string{"2"}}},
-					},
-				}
-				configMap := &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      LocalServiceConfigMap,
-						Namespace: "default",
-					},
-					Data: map[string]string{"localService": `
-      imageRepo: 
-        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
-        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
-        githubImageRepo: "a"
-        dockerImageRepo: "b"
-        quayImageRepo: "c"
-      filesRepo: 'http://temp-registry.daocloud.io:9000'
-      yumRepos:
-        aRepo: 
-          - 'aaa1'
-          - 'aaa2'
-        bRepo: 
-          - 'bbb1'
-          - 'bbb2'
-      hostsMap: 
-        - domain: temp-registry.daocloud.io
-          address: 'a.b.c.d'
-`},
-				}
-				addLocalArtifactSet(controller)
-				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), configMap, metav1.CreateOptions{})
-				controller.Client.Create(context.Background(), global)
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
-				controller.UpdateGlobalLocalService()
-			},
-			want: manifestv1alpha1.LocalService{
-				ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-					"kubeImageRepo":   "temp-registry.daocloud.io:5000/registry.k8s.io",
-					"gcrImageRepo":    "temp-registry.daocloud.io:5000/gcr.io",
-					"githubImageRepo": "a",
-					"dockerImageRepo": "b",
-					"quayImageRepo":   "c",
-				},
-				FilesRepo: "http://temp-registry.daocloud.io:9000",
-				YumRepos: map[string][]string{
-					"aRepo": {"aaa1", "aaa2"},
-					"bRepo": {"bbb1", "bbb2"},
-				},
-				HostsMap: []*manifestv1alpha1.HostsMap{
-					{
-						Domain:  "temp-registry.daocloud.io",
-						Address: "a.b.c.d",
-					},
-				},
-			},
-		},
-		{
-			name: "global already have localService and update it",
-			arg: func() {
-				global := &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:   constants.InfoManifestGlobal,
-						Labels: map[string]string{OriginLabel: "v2"},
-					},
-					Spec: manifestv1alpha1.Spec{
-						Components: []*manifestv1alpha1.SoftwareInfo{{Name: "etcd2", VersionRange: []string{"2"}}},
-					},
-				}
-				configMap := &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      LocalServiceConfigMap,
-						Namespace: "default",
-					},
-					Data: map[string]string{"localService": `
-      imageRepo: 
-        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
-        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
-        githubImageRepo: "a"
-        dockerImageRepo: "b"
-        quayImageRepo: "c"
-      filesRepo: 'http://temp-registry.daocloud.io:9000'
-      yumRepos:
-        aRepo: 
-          - 'aaa1'
-          - 'aaa2'
-        bRepo: 
-          - 'bbb1'
-          - 'bbb2'
-      hostsMap: 
-        - domain: temp-registry.daocloud.io
-          address: 'a.b.c.d1'
-`},
-				}
-				addLocalArtifactSet(controller)
-				controller.ClientSet.CoreV1().ConfigMaps("default").Update(context.Background(), configMap, metav1.UpdateOptions{})
-				controller.Client.Create(context.Background(), global)
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
-				controller.UpdateGlobalLocalService()
-			},
-			want: manifestv1alpha1.LocalService{
-				ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-					"kubeImageRepo":   "temp-registry.daocloud.io:5000/registry.k8s.io",
-					"gcrImageRepo":    "temp-registry.daocloud.io:5000/gcr.io",
-					"githubImageRepo": "a",
-					"dockerImageRepo": "b",
-					"quayImageRepo":   "c",
-				},
-				FilesRepo: "http://temp-registry.daocloud.io:9000",
-				YumRepos: map[string][]string{
-					"aRepo": {"aaa1", "aaa2"},
-					"bRepo": {"bbb1", "bbb2"},
-				},
-				HostsMap: []*manifestv1alpha1.HostsMap{
-					{
-						Domain:  "temp-registry.daocloud.io",
-						Address: "a.b.c.d1",
-					},
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			test.arg()
-			global, err := controller.FetchGlobalInfoManifest()
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(&global.Spec.LocalService, &test.want) {
-				t.Fatal()
-			}
-		})
-	}
-}
-
-func Test_UpdateGlobalLocalService2(t *testing.T) {
-	controller := &Controller{
-		Client:                    newFakeClient(),
-		ClientSet:                 clientsetfake.NewSimpleClientset(),
-		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
-		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-	}
-	tests := []struct {
-		name string
-		args func() bool
-		want bool
-	}{
-		{
-			name: "online ENV",
-			args: func() bool {
-				controller.UpdateGlobalLocalService()
-				return controller.IsOnlineENV()
-			},
-			want: true,
-		},
-		{
-			name: "LocalService not found in default namespace",
-			args: func() bool {
-				os.Setenv("POD_NAMESPACE", "")
-				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
-					context.Background(),
-					&localartifactsetv1alpha1.LocalArtifactSet{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "localservice-1",
-						},
-						Spec: localartifactsetv1alpha1.Spec{
-							Items: []*localartifactsetv1alpha1.SoftwareInfo{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.1", "1.2"},
-								},
-							},
-						},
-					},
-					metav1.CreateOptions{})
-				controller.UpdateGlobalLocalService()
-				return controller.IsOnlineENV()
-			},
-			want: false,
-		},
-		{
-			name: "fetch localService but this cm is wrong format",
-			args: func() bool {
-				os.Setenv("POD_NAMESPACE", "")
-				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
-					context.Background(),
-					&localartifactsetv1alpha1.LocalArtifactSet{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "localservice-1",
-						},
-						Spec: localartifactsetv1alpha1.Spec{
-							Items: []*localartifactsetv1alpha1.SoftwareInfo{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.1", "1.2"},
-								},
-							},
-						},
-					},
-					metav1.CreateOptions{})
-				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      LocalServiceConfigMap,
-						Namespace: "default",
-					},
-					Data: map[string]string{"localService": "1==1"},
-				}, metav1.CreateOptions{})
-				controller.UpdateGlobalLocalService()
-				return controller.IsOnlineENV()
-			},
-			want: false,
-		},
-		{
-			name: "global-manifest not-found",
-			args: func() bool {
-				os.Setenv("POD_NAMESPACE", "")
-				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(
-					context.Background(),
-					&localartifactsetv1alpha1.LocalArtifactSet{
-						ObjectMeta: metav1.ObjectMeta{
-							Name: "localservice-1",
-						},
-						Spec: localartifactsetv1alpha1.Spec{
-							Items: []*localartifactsetv1alpha1.SoftwareInfo{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.1", "1.2"},
-								},
-							},
-						},
-					},
-					metav1.CreateOptions{})
-				controller.ClientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), LocalServiceConfigMap, metav1.DeleteOptions{})
-				time.Sleep(time.Second)
-				localServiceData := `
-      imageRepo: 
-        kubeImageRepo: "temp-registry.daocloud.io:5000/registry.k8s.io"
-        gcrImageRepo: "temp-registry.daocloud.io:5000/gcr.io"
-        githubImageRepo: "a"
-        dockerImageRepo: "b"
-`
-				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      LocalServiceConfigMap,
-						Namespace: "default",
-					},
-					Data: map[string]string{"localService": localServiceData},
-				}, metav1.CreateOptions{})
-				controller.UpdateGlobalLocalService()
-				return controller.IsOnlineENV()
-			},
-			want: false,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			if test.args() != test.want {
-				t.Fatal()
-			}
-		})
-	}
-}
-
 func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
 	controller := &Controller{
 		Client:                newFakeClient(),
@@ -656,21 +162,22 @@ func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
 
-	global := &manifestv1alpha1.Manifest{
+	manifestName := "manifest"
+
+	manifest := &manifestv1alpha1.Manifest{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Manifest",
 			APIVersion: "kubean.io/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   constants.InfoManifestGlobal,
-			Labels: map[string]string{OriginLabel: "v2"},
+			Name: manifestName,
 		},
 		Spec: manifestv1alpha1.Spec{
 			KubeanVersion: "123",
 		},
 	}
-	controller.Client.Create(context.Background(), global)
-	controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
+	controller.Client.Create(context.Background(), manifest)
+	controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
 
 	tests := []struct {
 		name string
@@ -683,11 +190,15 @@ func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
 				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("get", "manifests", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 					return true, nil, fmt.Errorf("this is error")
 				})
-				controller.UpdateLocalAvailableImage()
+				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
 				removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "get", "manifests")
 
-				global, _ := controller.FetchGlobalInfoManifest()
-				return global.Status.LocalAvailable.KubesprayImage
+				manifest := &manifestv1alpha1.Manifest{}
+				err := controller.Client.Get(context.Background(), types.NamespacedName{Name: manifestName}, manifest)
+				if err != nil {
+					t.Error(err)
+				}
+				return manifest.Status.LocalAvailable.KubesprayImage
 			},
 			want: "",
 		},
@@ -697,10 +208,14 @@ func Test_Test_UpdateLocalAvailableImage2(t *testing.T) {
 				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("update", "manifests/status", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 					return true, nil, fmt.Errorf("this is error when updateStatus")
 				})
-				controller.UpdateLocalAvailableImage()
+				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
 				removeReactorFromTestingTake(controller.InfoManifestClientSet.KubeanV1alpha1(), "update", "manifests/status")
-				global, _ := controller.FetchGlobalInfoManifest()
-				return global.Status.LocalAvailable.KubesprayImage
+				manifest := &manifestv1alpha1.Manifest{}
+				err := controller.Client.Get(context.Background(), types.NamespacedName{Name: manifestName}, manifest)
+				if err != nil {
+					t.Error(err)
+				}
+				return manifest.Status.LocalAvailable.KubesprayImage
 			},
 			want: "",
 		},
@@ -721,6 +236,15 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 		ClientSet:             clientsetfake.NewSimpleClientset(),
 		InfoManifestClientSet: manifestv1alpha1fake.NewSimpleClientset(),
 	}
+	manifestName := "manifest1"
+	manifest, err := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: manifestName,
+		},
+	}, metav1.CreateOptions{})
+	if err != nil {
+		t.Error(err)
+	}
 	tests := []struct {
 		name string
 		arg  func()
@@ -729,48 +253,29 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 		{
 			name: "update local kubespray image with ghcr.io",
 			arg: func() {
-				global := &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:   constants.InfoManifestGlobal,
-						Labels: map[string]string{OriginLabel: "v2"},
-					},
-					Spec: manifestv1alpha1.Spec{
-						KubeanVersion: "123",
-					},
+				manifest.Spec = manifestv1alpha1.Spec{
+					KubeanVersion: "123",
 				}
-				controller.Client.Create(context.Background(), global)
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), global, metav1.CreateOptions{})
-				controller.UpdateLocalAvailableImage()
+				manifest, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
+				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
 			},
 			want: "ghcr.m.daocloud.io/kubean-io/spray-job:123",
 		},
 		{
 			name: "update local kubespray image with local registry",
 			arg: func() {
-				global := &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name:   constants.InfoManifestGlobal,
-						Labels: map[string]string{OriginLabel: "v2"},
-					},
-					Spec: manifestv1alpha1.Spec{
-						LocalService: manifestv1alpha1.LocalService{ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-							"dockerImageRepo": "abc.io",
-							"githubImageRepo": "ghcr.io",
-						}},
-						KubeanVersion: "123456",
-					},
+				manifest.Spec = manifestv1alpha1.Spec{
+					LocalService: manifestv1alpha1.LocalService{ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
+						"dockerImageRepo": "abc.io",
+						"githubImageRepo": "ghcr.io",
+					}},
+					KubeanVersion: "123456",
 				}
-				controller.Client.Update(context.Background(), global)
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), global, metav1.UpdateOptions{})
-				controller.UpdateLocalAvailableImage()
+				manifest, err := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
+				if err != nil {
+					t.Error(err)
+				}
+				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
 			},
 			want: "ghcr.io/kubean-io/spray-job:123456",
 		},
@@ -779,77 +284,12 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			test.arg()
-			global, err := controller.FetchGlobalInfoManifest()
+			manifest, err := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), manifestName, metav1.GetOptions{})
 			if err != nil {
 				t.Fatal(err)
 			}
-			if global.Status.LocalAvailable.KubesprayImage != test.want {
-				t.Fatal()
-			}
-		})
-	}
-}
-
-func TestNewGlobalInfoManifest(t *testing.T) {
-	type args struct {
-		latestInfoManifest *manifestv1alpha1.Manifest
-	}
-	tests := []struct {
-		name string
-		args args
-		want *manifestv1alpha1.Manifest
-	}{
-		{
-			name: "test new global info manifest normal",
-			args: args{
-				latestInfoManifest: &manifestv1alpha1.Manifest{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "test",
-					},
-					Spec: manifestv1alpha1.Spec{
-						LocalService: manifestv1alpha1.LocalService{
-							ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-								"dockerImageRepo": "abc.io",
-							},
-							FilesRepo: "abc.io",
-							YumRepos: map[string][]string{
-								"a": {"aa"},
-							},
-						},
-						KubesprayVersion: "v2.0.0",
-						KubeanVersion:    "v1.0.0",
-					},
-				},
-			},
-			want: &manifestv1alpha1.Manifest{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Manifest",
-					APIVersion: "kubean.io/v1alpha1",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:   constants.InfoManifestGlobal,
-					Labels: map[string]string{OriginLabel: "test"},
-				},
-				Spec: manifestv1alpha1.Spec{
-					LocalService: manifestv1alpha1.LocalService{
-						ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-							"dockerImageRepo": "abc.io",
-						},
-						FilesRepo: "abc.io",
-						YumRepos: map[string][]string{
-							"a": {"aa"},
-						},
-					},
-					KubesprayVersion: "v2.0.0",
-					KubeanVersion:    "v1.0.0",
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewGlobalInfoManifest(tt.args.latestInfoManifest); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewGlobalInfoManifest() = %v, want %v", got, tt.want)
+			if manifest.Status.LocalAvailable.KubesprayImage != test.want {
+				t.Fatalf("got %s, want %s", manifest.Status.LocalAvailable.KubesprayImage, test.want)
 			}
 		})
 	}
@@ -1011,26 +451,6 @@ func TestReconcile(t *testing.T) {
 			args: func() bool {
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
 				return err == nil && result.RequeueAfter == Loop
-			},
-			want: true,
-		},
-		{
-			name: "fetch infomanifest successfully",
-			args: func() bool {
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "Manifest",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "abc-infomanifest",
-					},
-					Spec: manifestv1alpha1.Spec{},
-				}, metav1.CreateOptions{})
-				controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
-				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
-				globalManifest, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
-				return err == nil && result.RequeueAfter == Loop && globalManifest != nil
 			},
 			want: true,
 		},
