@@ -10,9 +10,6 @@ on:
       commit_SHA1:
         type: string
         description: 'full commit SHA1 in which the branch located'
-  push:
-    tags:
-    - v0.0.11
 
 jobs:
   check-inputs:
@@ -31,8 +28,6 @@ jobs:
         set -x
         INPUTS_SPRAY_BRANCH=${{ inputs.branch }}
         INPUTS_COMMIT_SHA1=${{ inputs.commit_SHA1 }}
-
-        INPUTS_SPRAY_BRANCH=release-2.21
 
         SPRAY_BRANCH_SHA1=`git ls-remote -h https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_BRANCH} | awk '{print $1}'`
         if [[ -z "${SPRAY_BRANCH_SHA1}" ]]; then
