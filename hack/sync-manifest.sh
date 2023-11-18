@@ -45,7 +45,7 @@ chmod 600 "$DEPLOY_KEY_FILE"
 SSH_KNOWN_HOSTS_FILE="$HOME/.ssh/known_hosts"
 ssh-keyscan -H "${GITHUB_SERVER}" > "$SSH_KNOWN_HOSTS_FILE"
 
-export GIT_SSH_COMMAND="ssh -i "$DEPLOY_KEY_FILE" -o UserKnownHostsFile=$SSH_KNOWN_HOSTS_FILE"
+export GIT_SSH_COMMAND="ssh -i ${DEPLOY_KEY_FILE} -o UserKnownHostsFile=$SSH_KNOWN_HOSTS_FILE"
 
 GIT_CMD_REPOSITORY="git@${GITHUB_SERVER}:${REPO_OWNER}/${DST_REPO}.git"
 git clone --single-branch --depth 1 --branch "$DST_BRANCH" "$GIT_CMD_REPOSITORY" "$TMP_DIR"

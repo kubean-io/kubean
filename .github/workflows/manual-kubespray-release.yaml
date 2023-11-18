@@ -194,7 +194,8 @@ jobs:
         mkdir manifest && cp charts/kubean/templates/manifest.cr.yaml manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
         echo "manifest cr output:"
         cat manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
-
+        rm -rf kubespray/
+    
     - name: Push Kubean manifest to another repository
       env:
         REPO_OWNER: ${{ github.repository_owner }}
@@ -202,6 +203,26 @@ jobs:
         TAG: ${{ needs.check-inputs.outputs.tag }}
       run: |
         ./hack/sync-manifest.sh
+
+    - name: Generate artifacts patch markdown doc
+      env:
+        IMAGE_REPO: ${{ needs.check-inputs.outputs.image_repo }}
+      run: |
+        python artifacts/gen_artifact_patch_md.py
+        mv artifacts.md docs/overrides/artifacts.md
+
+    - name: Push artifact patch md
+      id: push_directory
+      uses: cpina/github-action-push-to-another-repository@v1.7.2
+      env:
+        SSH_DEPLOY_KEY: ${{ secrets.SYNC_RLS_PRIVATE_KEY }}
+      with:
+        source-directory: .
+        destination-github-username: ${{ github.repository_owner }}
+        destination-repository-name: kubean
+        user-email: kubean-robot@kubean-io
+        commit-message: Update artifacts.md, See ORIGIN_COMMIT from $GITHUB_REF
+        target-branch: main
 
   show-artifacts:
     needs: [check-inputs, build-kubespray-image, build-sprayjob-image, build-airgap-patch-image, gen-manifest]
