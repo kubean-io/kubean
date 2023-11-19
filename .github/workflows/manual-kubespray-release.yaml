@@ -212,7 +212,7 @@ jobs:
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SYNC_RLS_PRIVATE_KEY }}
       with:
-        source-directory: .
+        source-directory: ./docs/overrides/
         destination-github-username: ${{ github.repository_owner }}
         destination-repository-name: kubean
         user-email: kubean-robot@kubean-io
