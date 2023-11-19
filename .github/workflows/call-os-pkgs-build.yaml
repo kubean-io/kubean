@@ -53,7 +53,7 @@ jobs:
 
     - name: Set up QEMU
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
