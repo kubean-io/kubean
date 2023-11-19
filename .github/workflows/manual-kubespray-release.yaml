@@ -198,13 +198,14 @@ jobs:
         TAG: ${{ needs.check-inputs.outputs.tag }}
       run: |
         ./hack/sync-manifest.sh
+        rm -rf manifest/
 
     - name: Generate artifacts patch markdown doc
       env:
         IMAGE_REPO: ${{ needs.check-inputs.outputs.image_repo }}
       run: |
         python artifacts/gen_artifact_patch_md.py
-        mv artifacts.md docs/overrides/artifacts.md
+        mv artifacts.md docs/overrides/releases/artifacts.md
 
     - name: Push artifact patch md
       id: push_directory
@@ -212,7 +213,7 @@ jobs:
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SYNC_RLS_PRIVATE_KEY }}
       with:
-        source-directory: ./docs/overrides/
+        source-directory: .
         destination-github-username: ${{ github.repository_owner }}
         destination-repository-name: kubean
         user-email: kubean-robot@kubean-io

@@ -25,14 +25,14 @@ KUBEAN_PATCH_TEMPLATE = '''
       <tr>
         <td rowspan=3> 📅 {{ info.commit_date }} </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/{{ repo_name }}/kubean-manifest/main/manifests/manifest-{{ release }}-{{ info.commit_short_sha }}.yml">manifest-{{ release }}-{{ info.commit_short_sha }}.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/{{ repo_name }}/kubean-manifest/main/manifests/manifest-{{ release }}-{{ info.commit_short_sha }}.yml">manifest-{{ release }}-{{ info.commit_short_sha }}.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 {{ image_registry }}/{{ repo_name }}/spray-job:{{ release }}-{{ info.commit_short_sha }} </td>
+        <td rowspan=1> 📦 <code>{{ image_registry }}/{{ repo_name }}/spray-job:{{ release }}-{{ info.commit_short_sha }}</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 {{ image_registry }}/{{ repo_name }}/airgap-patch:{{ release }}-{{ info.commit_short_sha }} </td>
+        <td rowspan=1> 📦 <code>{{ image_registry }}/{{ repo_name }}/airgap-patch:{{ release }}-{{ info.commit_short_sha }}</code> </td>
       </tr>
   </tbody>
   {% endfor %}
