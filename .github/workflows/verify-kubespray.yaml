@@ -20,7 +20,7 @@ jobs:
       spray_short_sha: ${{ steps.output_variables.outputs.spray_short_sha }}
       container_tag: ${{ steps.output_variables.outputs.container_tag }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: output environment variable
@@ -60,7 +60,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}

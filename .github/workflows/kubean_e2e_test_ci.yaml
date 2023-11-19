@@ -25,7 +25,7 @@ jobs:
       HELM_CHART_VERSION: ${{ steps.get_variables.outputs.HELM_CHART_VERSION }}
       TAG_SECOND_PART: ${{ steps.get_variables.outputs.TAG_SECOND_PART }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Get HELM_CHART_VERSION
@@ -60,7 +60,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -92,7 +92,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -129,7 +129,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       # - uses: actions/setup-go@v4
@@ -162,7 +162,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -196,7 +196,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -227,7 +227,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -258,7 +258,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -290,7 +290,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -322,7 +322,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
@@ -354,7 +354,7 @@ jobs:
           echo "ARCH=${ARCH,,}" >> ${GITHUB_ENV}
           echo "Network_TYPE=${Network_TYPE,,}" >> ${GITHUB_ENV}
           echo "GAP_TYPE=${GAP_TYPE,,}" >> ${GITHUB_ENV}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-go@v4
