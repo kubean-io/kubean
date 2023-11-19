@@ -64,7 +64,7 @@ nav:
   - usage/airgap_patch_usage.md
 - 开发指南:
   - develop/roadmap.md
-- ... | releases/v*.md
+- ... | releases/*.md
 
 markdown_extensions:
 - pymdownx.tasklist:
