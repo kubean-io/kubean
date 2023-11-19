@@ -36,6 +36,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/en/releases/artifacts/</loc>
+         <lastmod>2023-11-19</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/en/releases/v0.10.0/</loc>
          <lastmod>2023-11-19</lastmod>
          <changefreq>daily</changefreq>
