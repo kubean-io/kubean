@@ -15,14 +15,14 @@
       <tr>
         <td rowspan=3> 📅 2023-06-19 09:50:37 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.21-d498df2.yml">manifest-2.21-d498df2.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.21-d498df2.yml">manifest-2.21-d498df2.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.21-d498df2 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.21-d498df2</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.21-d498df2 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.21-d498df2</code> </td>
       </tr>
   </tbody>
   
@@ -30,14 +30,14 @@
       <tr>
         <td rowspan=3> 📅 2023-03-23 02:48:22 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.21-08467ad.yml">manifest-2.21-08467ad.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.21-08467ad.yml">manifest-2.21-08467ad.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.21-08467ad </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.21-08467ad</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.21-08467ad </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.21-08467ad</code> </td>
       </tr>
   </tbody>
   
@@ -58,14 +58,14 @@
       <tr>
         <td rowspan=3> 📅 2023-09-19 09:45:53 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-d65e4e6.yml">manifest-2.22-d65e4e6.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-d65e4e6.yml">manifest-2.22-d65e4e6.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.22-d65e4e6 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.22-d65e4e6</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.22-d65e4e6 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.22-d65e4e6</code> </td>
       </tr>
   </tbody>
   
@@ -73,14 +73,14 @@
       <tr>
         <td rowspan=3> 📅 2023-09-19 09:45:53 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-f2a364e.yml">manifest-2.22-f2a364e.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-f2a364e.yml">manifest-2.22-f2a364e.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.22-f2a364e </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.22-f2a364e</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.22-f2a364e </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.22-f2a364e</code> </td>
       </tr>
   </tbody>
   
@@ -101,14 +101,14 @@
       <tr>
         <td rowspan=3> 📅 2023-10-30 16:28:43 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.23-10679eb.yml">manifest-2.23-10679eb.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.23-10679eb.yml">manifest-2.23-10679eb.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.23-10679eb </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.23-10679eb</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.23-10679eb </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.23-10679eb</code> </td>
       </tr>
   </tbody>
   
@@ -116,14 +116,14 @@
       <tr>
         <td rowspan=3> 📅 2023-10-30 03:20:44 </td>
         <td rowspan=1>
-           📝 <a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.23-ffacfe3.yml">manifest-2.23-ffacfe3.yml</a>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.23-ffacfe3.yml">manifest-2.23-ffacfe3.yml</a></code>
         </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/spray-job:2.23-ffacfe3 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.23-ffacfe3</code> </td>
       </tr>
       <tr>
-        <td rowspan=1> 📦 ghcr.io/kubean-io/airgap-patch:2.23-ffacfe3 </td>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.23-ffacfe3</code> </td>
       </tr>
   </tbody>
   
