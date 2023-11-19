@@ -61,7 +61,7 @@ jobs:
 
     - name: Build OS packages to local
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-      uses: docker/build-push-action@v4.1.1
+      uses: docker/build-push-action@v5.1.0
       with:
         context: .
         file: ${{ matrix.dockerfile }}

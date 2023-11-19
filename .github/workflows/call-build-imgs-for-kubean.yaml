@@ -68,7 +68,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: ${{ matrix.name }} image build
-      uses: docker/build-push-action@v4.1.1
+      uses: docker/build-push-action@v5.1.0
       with:
         context: ./
         file: ${{ matrix.dockerfile }}
