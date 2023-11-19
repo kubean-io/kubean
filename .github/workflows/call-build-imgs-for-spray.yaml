@@ -49,7 +49,7 @@ jobs:
         echo "need_rebuild=true" >>$GITHUB_OUTPUT
         commit_short_sha=${{ needs.output-variable.outputs.image_tag_short_sha }}
         ghcr_token=$(curl https://ghcr.io/token\?scope\="repository:${{ inputs.REPO }}/kubespray:pull" | jq '.token' | tr -d '"')
-        curl -H "Authorization: Bearer ${ghcr_token}" https://ghcr.io/v2/${{ inputs.REPO }}/kubespray/tags/list | jq '.tags' | tr -d '[",]' > tags
+        skopeo list-tags --registry-token ${ghcr_token} docker://ghcr.io/${{ inputs.REPO }}/kubespray | jq '.Tags' | tr -d '[",]' > tags
         if grep -q ${commit_short_sha} tags; then
           echo "need_rebuild=false" >>$GITHUB_OUTPUT
         fi
