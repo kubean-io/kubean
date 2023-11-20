@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Git clone kubean repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -18,7 +18,7 @@ jobs:
         echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV}
 
     - name: Git clone kubespray repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
       with:
         repository: kubernetes-sigs/kubespray
         ref: ${{ env.SPRAY_VERSION }}
