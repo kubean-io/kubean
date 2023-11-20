@@ -5,6 +5,7 @@ package offlineversion
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
@@ -37,49 +38,78 @@ func (c *Controller) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *Controller) FetchGlobalKubeanClusterConfig() (*manifestv1alpha1.Manifest, error) {
-	infoManifest, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
+// SelectManifestsBySprayRelease select manifests by using the label sprayRelease.
+func (c *Controller) SelectManifestsBySprayRelease(sprayRelease string) ([]*manifestv1alpha1.Manifest, error) {
+	selectedManifests, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().List(context.Background(), metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", constants.KeySprayRelease, sprayRelease)})
 	if err != nil {
 		return nil, err
 	}
-	return infoManifest, nil
+	if len(selectedManifests.Items) == 0 {
+		return nil, nil
+	}
+	manifests := make([]*manifestv1alpha1.Manifest, 0, len(selectedManifests.Items))
+	for _, manifest := range selectedManifests.Items {
+		manifestsTmp := manifest
+		manifests = append(manifests, &manifestsTmp)
+	}
+	return manifests, nil
 }
 
-func (c *Controller) MergeOfflineVersionStatus(offlineVersion *localartifactsetv1alpha1.LocalArtifactSet, clusterConfig *manifestv1alpha1.Manifest) (bool, *manifestv1alpha1.Manifest) {
-	updated := false
-	for _, dockerInfo := range offlineVersion.Spec.Docker {
-		if clusterConfig.Status.LocalAvailable.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
-			updated = true
+// MergeManifestsStatus merge the status of manifests which has same sprayRelease label of the localartifactset.
+func (c *Controller) MergeManifestsStatus(localartifactset *localartifactsetv1alpha1.LocalArtifactSet, manifests []*manifestv1alpha1.Manifest) ([]*manifestv1alpha1.Manifest, error) {
+	for _, manifest := range manifests {
+		updated := false
+		for _, dockerInfo := range localartifactset.Spec.Docker {
+			if manifest.Status.LocalAvailable.MergeDockerInfo(dockerInfo.OS, dockerInfo.VersionRange) {
+				updated = true
+			}
+		}
+		for _, softItem := range localartifactset.Spec.Items {
+			if manifest.Status.LocalAvailable.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
+				updated = true
+			}
+		}
+		if !updated {
+			continue
+		}
+		klog.Infof("Update manifest status for %s since %s", manifest.Name, localartifactset.Name)
+		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), manifest, metav1.UpdateOptions{}); err != nil {
+			klog.Error(err)
+			return nil, err
 		}
 	}
-	for _, softItem := range offlineVersion.Spec.Items {
-		if clusterConfig.Status.LocalAvailable.MergeSoftwareInfo(softItem.Name, softItem.VersionRange) {
-			updated = true
-		}
-	}
-	return updated, clusterConfig
+	return manifests, nil
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
-	offlineVersion := &localartifactsetv1alpha1.LocalArtifactSet{}
-	if err := c.Client.Get(context.Background(), req.NamespacedName, offlineVersion); err != nil {
+	localartifactset := &localartifactsetv1alpha1.LocalArtifactSet{}
+	if err := c.Client.Get(context.Background(), req.NamespacedName, localartifactset); err != nil {
 		if apierrors.IsNotFound(err) {
 			return controllerruntime.Result{}, nil
 		}
 		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	globalInfoManifest, err := c.FetchGlobalKubeanClusterConfig()
+
+	sprayRelease, ok := localartifactset.ObjectMeta.Labels[constants.KeySprayRelease]
+	if !ok {
+		klog.Infof("No label %s found in %s", constants.KeySprayRelease, localartifactset.Name)
+		return controllerruntime.Result{}, nil
+	}
+
+	manifests, err := c.SelectManifestsBySprayRelease(sprayRelease)
 	if err != nil {
-		klog.Errorf("Fetch %s , ignoring %s", constants.InfoManifestGlobal, err)
+		klog.Error(err)
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
-	if needUpdate, newGlobalInfoManifest := c.MergeOfflineVersionStatus(offlineVersion, globalInfoManifest); needUpdate {
-		klog.Info("Update componentsVersion")
-		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), newGlobalInfoManifest, metav1.UpdateOptions{}); err != nil {
-			klog.Error(err)
-		}
+	if manifests == nil {
+		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
+	if _, err := c.MergeManifestsStatus(localartifactset, manifests); err != nil {
+		klog.Error(err)
+		return controllerruntime.Result{RequeueAfter: Loop}, nil
+	}
+
 	return controllerruntime.Result{RequeueAfter: Loop}, nil // endless loop
 }
 

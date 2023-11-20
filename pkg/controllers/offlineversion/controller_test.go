@@ -71,45 +71,66 @@ func removeReactorFromTestingTake(obj interface{ RESTClient() rest.Interface }, 
 	}
 }
 
-func TestMergeOfflineVersion(t *testing.T) {
+func TestMergeManifestsStatus(t *testing.T) {
 	controller := &Controller{
 		Client:                    newFakeClient(),
 		ClientSet:                 clientsetfake.NewSimpleClientset(),
 		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 	}
+
+	name := "manifest1"
+	controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: name,
+		},
+	}, metav1.CreateOptions{})
+
+	type args struct {
+		localartifactset *localartifactsetv1alpha1.LocalArtifactSet
+		manifests        []*manifestv1alpha1.Manifest
+	}
+	type wants struct {
+		manifests []*manifestv1alpha1.Manifest
+		err       bool
+	}
 	tests := []struct {
-		name string
-		args struct {
-			OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-			ComponentsVersion manifestv1alpha1.Manifest
-		}
-		updated bool
+		name   string
+		args   args
+		result wants
 	}{
 		{
 			name: "nothing update",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
 					Spec: localartifactsetv1alpha1.Spec{},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{},
+						},
 					},
 				},
 			},
-			updated: false,
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{},
+						},
+					},
+				},
+			},
 		},
 		{
 			name: "update software info",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
 					Spec: localartifactsetv1alpha1.Spec{
 						Items: []*localartifactsetv1alpha1.SoftwareInfo{
 							{
@@ -119,52 +140,88 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{},
-					},
-				},
-			},
-			updated: true,
-		},
-		{
-			name: "update software info",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
-					Spec: localartifactsetv1alpha1.Spec{
-						Items: []*localartifactsetv1alpha1.SoftwareInfo{
-							{
-								Name:         "etcd-1",
-								VersionRange: []string{"1.1", "1.2"},
-							},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{},
 						},
 					},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{
-							Components: []*manifestv1alpha1.SoftwareInfoStatus{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.2", "1.3"},
+			},
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.1", "1.2"},
+									},
 								},
 							},
 						},
 					},
 				},
 			},
-			updated: true,
+		},
+		{
+			name: "update software info",
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
+					Spec: localartifactsetv1alpha1.Spec{
+						Items: []*localartifactsetv1alpha1.SoftwareInfo{
+							{
+								Name:         "etcd-1",
+								VersionRange: []string{"1.1", "1.2"},
+							},
+						},
+					},
+				},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.2", "1.3"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.2", "1.3", "1.1"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			name: "add software info but nothing updated",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
 					Spec: localartifactsetv1alpha1.Spec{
 						Items: []*localartifactsetv1alpha1.SoftwareInfo{
 							{
@@ -174,28 +231,46 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{
-							Components: []*manifestv1alpha1.SoftwareInfoStatus{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.1", "1.2", "1.3"},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.1", "1.2", "1.3"},
+									},
 								},
 							},
 						},
 					},
 				},
 			},
-			updated: false,
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.1", "1.2", "1.3"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			name: "update docker-ce info",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
 					Spec: localartifactsetv1alpha1.Spec{
 						Docker: []*localartifactsetv1alpha1.DockerInfo{
 							{
@@ -211,34 +286,62 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{
-							Docker: []*manifestv1alpha1.DockerInfoStatus{
-								{
-									OS:           "redhat-8",
-									VersionRange: []string{},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Docker: []*manifestv1alpha1.DockerInfoStatus{
+									{
+										OS:           "redhat-8",
+										VersionRange: []string{},
+									},
 								},
-							},
-							Components: []*manifestv1alpha1.SoftwareInfoStatus{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.1", "1.2"},
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.1", "1.2"},
+									},
 								},
 							},
 						},
 					},
 				},
 			},
-			updated: true,
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Docker: []*manifestv1alpha1.DockerInfoStatus{
+									{
+										OS:           "redhat-7",
+										VersionRange: []string{"20.01", "20.02"},
+									},
+									{
+										OS:           "redhat-8",
+										VersionRange: []string{},
+									},
+								},
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.1", "1.2"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			name: "nothing updated",
-			args: struct {
-				OfflineVersion    localartifactsetv1alpha1.LocalArtifactSet
-				ComponentsVersion manifestv1alpha1.Manifest
-			}{
-				OfflineVersion: localartifactsetv1alpha1.LocalArtifactSet{
+			args: args{
+				localartifactset: &localartifactsetv1alpha1.LocalArtifactSet{
 					Spec: localartifactsetv1alpha1.Spec{
 						Docker: []*localartifactsetv1alpha1.DockerInfo{
 							{
@@ -254,36 +357,158 @@ func TestMergeOfflineVersion(t *testing.T) {
 						},
 					},
 				},
-				ComponentsVersion: manifestv1alpha1.Manifest{
-					Status: manifestv1alpha1.Status{
-						LocalAvailable: manifestv1alpha1.LocalAvailable{
-							Docker: []*manifestv1alpha1.DockerInfoStatus{
-								{
-									OS:           "redhat-7",
-									VersionRange: []string{"20.02", "20.01"},
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name: name,
+						},
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Docker: []*manifestv1alpha1.DockerInfoStatus{
+									{
+										OS:           "redhat-7",
+										VersionRange: []string{"20.02", "20.01"},
+									},
+									{
+										OS:           "redhat-8",
+										VersionRange: []string{"21.02", "21.01"},
+									},
 								},
-								{
-									OS:           "redhat-8",
-									VersionRange: []string{"21.02", "21.01"},
-								},
-							},
-							Components: []*manifestv1alpha1.SoftwareInfoStatus{
-								{
-									Name:         "etcd-1",
-									VersionRange: []string{"1.2", "1.1"},
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.2", "1.1"},
+									},
 								},
 							},
 						},
 					},
 				},
 			},
-			updated: false,
+			result: wants{
+				err: false,
+				manifests: []*manifestv1alpha1.Manifest{
+					{
+						Status: manifestv1alpha1.Status{
+							LocalAvailable: manifestv1alpha1.LocalAvailable{
+								Docker: []*manifestv1alpha1.DockerInfoStatus{
+									{
+										OS:           "redhat-7",
+										VersionRange: []string{"20.02", "20.01"},
+									},
+									{
+										OS:           "redhat-8",
+										VersionRange: []string{"21.02", "21.01"},
+									},
+								},
+								Components: []*manifestv1alpha1.SoftwareInfoStatus{
+									{
+										Name:         "etcd-1",
+										VersionRange: []string{"1.2", "1.1"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	statusEqual := func(m1, m2 []*manifestv1alpha1.Manifest) bool {
+		for i, m := range m1 {
+			if !reflect.DeepEqual(m.Status.LocalAvailable, m2[i].Status.LocalAvailable) {
+				return false
+			}
+		}
+		return true
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if manifests, err := controller.MergeManifestsStatus(test.args.localartifactset, test.args.manifests); (test.result.err != (err != nil)) && statusEqual(manifests, test.result.manifests) {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestSelectManifestsBySprayRelease(t *testing.T) {
+	controller := &Controller{
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+	}
+
+	type wants struct {
+		err           bool
+		manifestCount int
+	}
+	tests := []struct {
+		name         string
+		arg          string
+		prerequisite func()
+		result       wants
+	}{
+		{
+			name:         "no manifest exist",
+			arg:          "1.1",
+			prerequisite: func() {},
+			result: wants{
+				err:           false,
+				manifestCount: 0,
+			},
+		},
+		{
+			name:         "manifest exist but no label",
+			arg:          "1.1",
+			prerequisite: func() {},
+			result: wants{
+				err:           false,
+				manifestCount: 0,
+			},
+		},
+		{
+			name: "manifest exist but has different label",
+			arg:  "1.1",
+			prerequisite: func() {
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "manifest1",
+						Labels: map[string]string{constants.KeySprayRelease: "1.2"},
+					},
+				}, metav1.CreateOptions{})
+			},
+			result: wants{
+				err:           false,
+				manifestCount: 0,
+			},
+		},
+		{
+			name: "manifest exist and has identical label",
+			arg:  "1.1",
+			prerequisite: func() {
+				_, err := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   "manifest2",
+						Labels: map[string]string{constants.KeySprayRelease: "1.1"},
+					},
+				}, metav1.CreateOptions{})
+				if err != nil {
+					panic(err)
+				}
+			},
+			result: wants{
+				err:           false,
+				manifestCount: 1,
+			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			if updated, _ := controller.MergeOfflineVersionStatus(&test.args.OfflineVersion, &test.args.ComponentsVersion); updated != test.updated {
+			test.prerequisite()
+			if manifests, err := controller.SelectManifestsBySprayRelease(test.arg); (test.result.err != (err != nil)) || !(len(manifests) == test.result.manifestCount) {
 				t.Fatal()
 			}
 		})
@@ -297,54 +522,7 @@ func TestReconcile(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "merge successfully",
-			args: func() bool {
-				controller := &Controller{
-					Client:                    newFakeClient(),
-					ClientSet:                 clientsetfake.NewSimpleClientset(),
-					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
-					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
-				}
-				offlineVersionData := localartifactsetv1alpha1.LocalArtifactSet{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "LocalArtifactSet",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "offlineversion-1",
-					},
-					Spec: localartifactsetv1alpha1.Spec{
-						Docker: []*localartifactsetv1alpha1.DockerInfo{
-							{
-								OS:           "redhat-7",
-								VersionRange: []string{"20.1", "20.2"},
-							},
-						},
-					},
-				}
-
-				globalComponentsVersion := manifestv1alpha1.Manifest{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "kubeanclusterconfig",
-						APIVersion: "kubean.io/v1alpha1",
-					},
-					ObjectMeta: metav1.ObjectMeta{
-						Name: constants.InfoManifestGlobal,
-					},
-				}
-
-				controller.Client.Create(context.Background(), &offlineVersionData)
-				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
-				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), &globalComponentsVersion, metav1.CreateOptions{})
-
-				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
-				newGlobalComponentsVersion, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Get(context.Background(), constants.InfoManifestGlobal, metav1.GetOptions{})
-				return err == nil && result.RequeueAfter == Loop && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker) == 1 && len(newGlobalComponentsVersion.Status.LocalAvailable.Docker[0].VersionRange) == 2
-			},
-			want: true,
-		},
-		{
-			name: "update global-manifest unsuccessfully",
+			name: "update manifest unsuccessfully",
 			args: func() bool {
 				controller := &Controller{
 					Client:                    newFakeClient(),
@@ -402,10 +580,6 @@ func TestReconcile(t *testing.T) {
 					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 				}
 				offlineVersionData := localartifactsetv1alpha1.LocalArtifactSet{
-					TypeMeta: metav1.TypeMeta{
-						Kind:       "LocalArtifactSet",
-						APIVersion: "kubean.io/v1alpha1",
-					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "offlineversion-1",
 					},
@@ -423,12 +597,12 @@ func TestReconcile(t *testing.T) {
 				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
-				return result.RequeueAfter == Loop
+				return result.RequeueAfter == 0 && result.Requeue == false
 			},
 			want: true,
 		},
 		{
-			name: "offlineVersion not found",
+			name: "localartifact not found",
 			args: func() bool {
 				controller := &Controller{
 					Client:                    newFakeClient(),
@@ -436,7 +610,7 @@ func TestReconcile(t *testing.T) {
 					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 				}
-				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "offlineversion-1"}})
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "localartifact-1"}})
 				return result.Requeue == false && result.RequeueAfter == 0
 			},
 			want: true,
