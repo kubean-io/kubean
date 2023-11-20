@@ -65,7 +65,7 @@ jobs:
 
     - name: Set up Docker Buildx
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-      uses: docker/setup-buildx-action@v2.7.0
+      uses: docker/setup-buildx-action@v3.0.0
 
     - name: Login to GitHub Container Registry
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
