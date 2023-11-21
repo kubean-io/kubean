@@ -1837,7 +1837,7 @@
 <h2 id="use-the-incremental-offline-package">Use the incremental offline package<a class="headerlink" href="#use-the-incremental-offline-package" title="Permanent link">&para;</a></h2>
 <p>The directory structure of the incremental package is as follows:</p>
 <div class="highlight"><pre><span></span><code>data
-└── v_offline_patch
+└── airgap_patch
     ├── amd64
     │   ├── files
     │   │   ├── import_files.sh
@@ -1857,7 +1857,7 @@
 <ol>
 <li>
 <p>Write file data into MinIO</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/files
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/files
 
 $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
 </code></pre></div>
@@ -1865,7 +1865,7 @@ $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</sp
 </li>
 <li>
 <p>Write image data to the docker registry (recommended version 2.6.2) or harbor</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/images<span class="w"> </span>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images<span class="w"> </span>
 
 <span class="c1"># 1. Non-secure password-free mode</span>
 $<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
@@ -1881,7 +1881,7 @@ $<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</spa
 </li>
 <li>
 <p>Write <code>kubeanofflineversion.cr.patch.yaml</code> to the k8s cluster</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
 $<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kubeanofflineversion.cr.patch.yaml<span class="w"> </span>
 </code></pre></div>
 <blockquote>

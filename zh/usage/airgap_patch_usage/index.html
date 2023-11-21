@@ -1838,7 +1838,7 @@
 <h2 id="_3">使用增量离线包<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <p>增量包的目录结构如下:</p>
 <div class="highlight"><pre><span></span><code>data
-└── v_offline_patch
+└── airgap_patch
     ├── amd64
     │   ├── files
     │   │   ├── import_files.sh
@@ -1858,7 +1858,7 @@
 <ol>
 <li>
 <p>向 MinIO 中写入文件数据</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/files
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/files
 
 $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
 </code></pre></div>
@@ -1866,7 +1866,7 @@ $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</sp
 </li>
 <li>
 <p>向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch/amd64/images<span class="w"> </span>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images
 
 <span class="c1"># 1. 非安全免密模式</span>
 $<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
@@ -1882,7 +1882,7 @@ $<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</spa
 </li>
 <li>
 <p>将 <code>kubeanofflineversion.cr.patch.yaml</code> 写入到 K8s 集群</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/v_offline_patch
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
 $<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kubeanofflineversion.cr.patch.yaml<span class="w"> </span>
 </code></pre></div>
 <blockquote>
