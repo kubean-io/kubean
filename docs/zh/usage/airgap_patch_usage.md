@@ -40,7 +40,7 @@
 
 ```
 data
-└── v_offline_patch
+└── airgap_patch
     ├── amd64
     │   ├── files
     │   │   ├── import_files.sh
@@ -61,7 +61,7 @@ data
 1. 向 MinIO 中写入文件数据
 
     ```bash
-    $ cd data/v_offline_patch/amd64/files
+    $ cd data/airgap_patch/amd64/files
    
     $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
     ```
@@ -71,7 +71,7 @@ data
 2. 向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据
 
     ```bash
-    $ cd data/v_offline_patch/amd64/images 
+    $ cd data/airgap_patch/amd64/images
 
     # 1. 非安全免密模式
     $ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
@@ -87,7 +87,7 @@ data
 3. 将 `kubeanofflineversion.cr.patch.yaml` 写入到 K8s 集群
 
     ```bash
-    $ cd data/v_offline_patch
+    $ cd data/airgap_patch
     $ kubectl apply -f kubeanofflineversion.cr.patch.yaml 
     ```
 
