@@ -28,7 +28,7 @@ SPRAY_COMMIT = os.getenv("SPRAY_COMMIT")
 
 FILE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/files.list")
 IMAGE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/images.list")
-KUBEAN_TAG = "v_offline_patch"
+KUBEAN_TAG = "airgap_patch"
 print(f"CUR_DIR:{CUR_DIR}")
 
 

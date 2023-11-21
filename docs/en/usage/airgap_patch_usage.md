@@ -39,7 +39,7 @@ The directory structure of the incremental package is as follows:
 
 ```
 data
-└── v_offline_patch
+└── airgap_patch
     ├── amd64
     │   ├── files
     │   │   ├── import_files.sh
@@ -60,7 +60,7 @@ data
 1. Write file data into MinIO
 
     ```bash
-    $ cd data/v_offline_patch/amd64/files
+    $ cd data/airgap_patch/amd64/files
 
     $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
     ```
@@ -70,7 +70,7 @@ data
 2. Write image data to the docker registry (recommended version 2.6.2) or harbor
 
     ```bash
-    $ cd data/v_offline_patch/amd64/images 
+    $ cd data/airgap_patch/amd64/images 
 
     # 1. Non-secure password-free mode
     $ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
@@ -86,7 +86,7 @@ data
 3. Write `kubeanofflineversion.cr.patch.yaml` to the k8s cluster
 
     ```bash
-    $ cd data/v_offline_patch
+    $ cd data/airgap_patch
     $ kubectl apply -f kubeanofflineversion.cr.patch.yaml 
     ```
 
