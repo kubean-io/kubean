@@ -34,6 +34,14 @@
     docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5 
     ```
 
+    可用的环境变量:
+    1. ZONE:
+    * `DEFAULT`: 采用默认原始地址下载离线资源
+    * `CN`: 采用国内 DaoCloud 加速器地址下载离线资源
+    2. MODE:
+    * `INCR`: 仅构建 manifest 配置中指定的组件离线资源（即：增量包）
+    * `FULL`: 将构建 manifest 配置中指定的组件以及集群部署必须的其他组件的离线资源（即：全量包）
+
 ## 使用增量离线包
 
 增量包的目录结构如下:
@@ -55,7 +63,7 @@ data
     │   └── images
     │       ├── import_images.sh
     │       └── offline-images.tar.gz
-    └── kubeanofflineversion.cr.patch.yaml
+    └── localartifactset.cr.yaml
 ```
 
 1. 向 MinIO 中写入文件数据
@@ -84,11 +92,11 @@ data
     * 当镜像仓库存在用户名密码验证时，需要设置 `DEST_USER` 和 `DEST_PASS`。
     * `registry_address` 是镜像仓库的地址，比如 `1.2.3.4:5000`。
 
-3. 将 `kubeanofflineversion.cr.patch.yaml` 写入到 K8s 集群
+3. 将 `localartifactset.cr.yaml` 写入到 K8s 集群
 
     ```bash
     $ cd data/airgap_patch
-    $ kubectl apply -f kubeanofflineversion.cr.patch.yaml 
+    $ kubectl apply -f localartifactset.cr.yaml
     ```
 
     > 这一步是为了将新的可离线使用的软件版本信息告知 kubean-operator。
