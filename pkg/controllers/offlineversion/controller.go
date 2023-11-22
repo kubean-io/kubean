@@ -74,8 +74,7 @@ func (c *Controller) MergeManifestsStatus(localartifactset *localartifactsetv1al
 		}
 		klog.Infof("Update manifest status for %s since %s", manifest.Name, localartifactset.Name)
 		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), manifest, metav1.UpdateOptions{}); err != nil {
-			klog.Error(err)
-			return nil, err
+			return nil, fmt.Errorf("failed to merge status for manifest %s, %v", manifest.Name, err)
 		}
 	}
 	return manifests, nil
@@ -93,7 +92,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 
 	sprayRelease, ok := localartifactset.ObjectMeta.Labels[constants.KeySprayRelease]
 	if !ok {
-		klog.Infof("No label %s found in %s", constants.KeySprayRelease, localartifactset.Name)
+		klog.Warningf("No label %s found in %s", constants.KeySprayRelease, localartifactset.Name)
 		return controllerruntime.Result{}, nil
 	}
 

@@ -426,6 +426,127 @@ func TestFetchLocalServiceCM(t *testing.T) {
 	}
 }
 
+func TestUpdateLocalService(t *testing.T) {
+	controller := &Controller{
+		Client:                    newFakeClient(),
+		ClientSet:                 clientsetfake.NewSimpleClientset(),
+		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+	}
+
+	tests := []struct {
+		name        string
+		prequisites func() error
+		cleaner     func()
+		args        []manifestv1alpha1.Manifest
+		want        bool
+	}{
+		{
+			name: "air-gap, but no localservice configmap",
+			prequisites: func() error {
+				_, err := controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-1",
+					},
+				}, metav1.CreateOptions{})
+				if err != nil {
+					return err
+				}
+				return nil
+			},
+			cleaner: func() {
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Delete(context.Background(), "localartifactset-1", metav1.DeleteOptions{})
+			},
+			args: []manifestv1alpha1.Manifest{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "air-gap, localservice configmap exists and correct data structure",
+			prequisites: func() error {
+				if _, err := controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-2",
+					},
+				}, metav1.CreateOptions{}); err != nil {
+					return err
+				}
+				if _, err := controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: LocalServiceConfigMap,
+					},
+					Data: map[string]string{"localService": "imageRepoScheme: 'https'"},
+				}, metav1.CreateOptions{}); err != nil {
+					return err
+				}
+				return nil
+			},
+			cleaner: func() {
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Delete(context.Background(), "localartifactset-2", metav1.DeleteOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), LocalServiceConfigMap, metav1.DeleteOptions{})
+			},
+			args: []manifestv1alpha1.Manifest{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-2",
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "air-gap, localservice configmap exists and but incorrect data structure",
+			prequisites: func() error {
+				if _, err := controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-3",
+					},
+				}, metav1.CreateOptions{}); err != nil {
+					return err
+				}
+				if _, err := controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: LocalServiceConfigMap,
+					},
+					Data: map[string]string{"localService": "test"},
+				}, metav1.CreateOptions{}); err != nil {
+					return err
+				}
+				return nil
+			},
+			cleaner: func() {
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Delete(context.Background(), "localartifactset-3", metav1.DeleteOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("default").Delete(context.Background(), LocalServiceConfigMap, metav1.DeleteOptions{})
+			},
+			args: []manifestv1alpha1.Manifest{
+				{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-3",
+					},
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if err := test.prequisites(); err != nil {
+				t.Fatal(err)
+			}
+			defer test.cleaner()
+			if controller.UpdateLocalService(test.args) != test.want {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestReconcile(t *testing.T) {
 	controller := &Controller{
 		Client:                    newFakeClient(),

@@ -45,16 +45,14 @@ func (c *Controller) Start(ctx context.Context) error {
 }
 
 func (c *Controller) FetchLocalServiceCM(namespace string) (*corev1.ConfigMap, error) {
-	if localServiceCM, _ := c.ClientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), LocalServiceConfigMap, metav1.GetOptions{}); localServiceCM != nil {
-		return localServiceCM, nil
+	localServiceCM, err := c.ClientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), LocalServiceConfigMap, metav1.GetOptions{})
+	if err != nil && apierrors.IsNotFound(err) && namespace != "default" {
+		localServiceCM, err = c.ClientSet.CoreV1().ConfigMaps("default").Get(context.Background(), LocalServiceConfigMap, metav1.GetOptions{})
 	}
-	if namespace != "default" {
-		namespace = "default"
-		if localServiceCM, _ := c.ClientSet.CoreV1().ConfigMaps(namespace).Get(context.Background(), LocalServiceConfigMap, metav1.GetOptions{}); localServiceCM != nil {
-			return localServiceCM, nil
-		}
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("not found kubean localService ConfigMap")
+	return localServiceCM, nil
 }
 
 func (c *Controller) ParseConfigMapToLocalService(localServiceConfigMap *corev1.ConfigMap) (*manifestv1alpha1.LocalService, error) {
@@ -75,19 +73,17 @@ func (c *Controller) ParseConfigMapToLocalService(localServiceConfigMap *corev1.
 // UpdateLocalService sync the content of local-service configmap into spec.
 func (c *Controller) UpdateLocalService(manifests []manifestv1alpha1.Manifest) bool {
 	if c.IsOnlineENV() {
-		// if not airgap env , then do nothing and return
+		// if not airgap environment, do nothing and return
 		return false
 	}
 	localServiceConfigMap, err := c.FetchLocalServiceCM(util.GetCurrentNSOrDefault())
 	if err != nil {
-		klog.Warningf("ignoring error: %s", err.Error())
+		if !apierrors.IsNotFound(err) {
+			klog.Warningf("ignoring error: %s", err.Error())
+		}
 		return false
 	}
 	localService, err := c.ParseConfigMapToLocalService(localServiceConfigMap)
-	if err != nil {
-		klog.Warningf("ignoring error: %s", err.Error())
-		return false
-	}
 	if err != nil {
 		klog.Warningf("ignoring error: %s", err.Error())
 		return false
