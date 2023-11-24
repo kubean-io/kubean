@@ -20,6 +20,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
+          base: main
           commit-message: Update Kubean Support Matrix
           delete-branch: true
           title: 'Update Kubean Support Matrix'
