@@ -13,6 +13,7 @@ import (
 	"github.com/kubean-io/kubean-api/constants"
 	localartifactsetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
 	manifestClientSet "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
+	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,23 +37,6 @@ func (c *Controller) Start(ctx context.Context) error {
 	klog.Warningf("KubeanOfflineVersion Controller Start")
 	<-ctx.Done()
 	return nil
-}
-
-// SelectManifestsBySprayRelease select manifests by using the label sprayRelease.
-func (c *Controller) SelectManifestsBySprayRelease(sprayRelease string) ([]*manifestv1alpha1.Manifest, error) {
-	selectedManifests, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().List(context.Background(), metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", constants.KeySprayRelease, sprayRelease)})
-	if err != nil {
-		return nil, err
-	}
-	if len(selectedManifests.Items) == 0 {
-		return nil, nil
-	}
-	manifests := make([]*manifestv1alpha1.Manifest, 0, len(selectedManifests.Items))
-	for _, manifest := range selectedManifests.Items {
-		manifestsTmp := manifest
-		manifests = append(manifests, &manifestsTmp)
-	}
-	return manifests, nil
 }
 
 // MergeManifestsStatus merge the status of manifests which has same sprayRelease label of the localartifactset.
@@ -96,12 +80,8 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		return controllerruntime.Result{}, nil
 	}
 
-	manifests, err := c.SelectManifestsBySprayRelease(sprayRelease)
-	if err != nil {
-		klog.Error(err)
-		return controllerruntime.Result{RequeueAfter: Loop}, nil
-	}
-	if manifests == nil {
+	manifests, ok := infomanifest.GetVersionedManifest().Manifests[sprayRelease]
+	if !ok {
 		return controllerruntime.Result{RequeueAfter: Loop}, nil
 	}
 	if _, err := c.MergeManifestsStatus(localartifactset, manifests); err != nil {

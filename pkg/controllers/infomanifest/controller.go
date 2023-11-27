@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/kubean-io/kubean/pkg/util"
@@ -31,6 +32,8 @@ const Loop = time.Second * 30
 
 const LocalServiceConfigMap = "kubean-localservice"
 
+var versionedManifest *VersionedManifest
+
 type Controller struct {
 	Client                    client.Client
 	InfoManifestClientSet     manifestClientSet.Interface
@@ -38,10 +41,96 @@ type Controller struct {
 	LocalArtifactSetClientSet localartifactsetClientSet.Interface
 }
 
+type VersionedManifest struct {
+	mutex     sync.Mutex
+	Manifests map[string][]*manifestv1alpha1.Manifest
+}
+
 func (c *Controller) Start(ctx context.Context) error {
 	klog.Warningf("InfoManifest Controller Start")
 	<-ctx.Done()
 	return nil
+}
+
+func GetVersionedManifest() *VersionedManifest {
+	if versionedManifest == nil {
+		versionedManifest = &VersionedManifest{
+			Manifests: make(map[string][]*manifestv1alpha1.Manifest, 0),
+		}
+	}
+	return versionedManifest
+}
+
+func (m *VersionedManifest) Op(op string, m1, m2 *manifestv1alpha1.Manifest) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	if op == "add" {
+		m.add(m1)
+	}
+	if op == "update" {
+		m.update(m1, m2)
+	}
+	if op == "delete" {
+		m.delete(m1)
+	}
+}
+
+func (m *VersionedManifest) add(manifest *manifestv1alpha1.Manifest) {
+	sprayRelease, ok := manifest.ObjectMeta.Labels[constants.KeySprayRelease]
+	if !ok {
+		return
+	}
+
+	manifests, ok := m.Manifests[sprayRelease]
+	if !ok {
+		manifests = make([]*manifestv1alpha1.Manifest, 0)
+	}
+	m.Manifests[sprayRelease] = append(manifests, manifest)
+}
+
+func (m *VersionedManifest) update(manifest1, manifest2 *manifestv1alpha1.Manifest) {
+	oldSprayRelease, ok1 := manifest1.ObjectMeta.Labels[constants.KeySprayRelease]
+	newSprayRelease, ok2 := manifest2.ObjectMeta.Labels[constants.KeySprayRelease]
+	if !ok1 && !ok2 {
+		return
+	}
+	if ok1 && !ok2 {
+		m.delete(manifest1)
+	}
+	if !ok1 && ok2 {
+		m.add(manifest2)
+	}
+	if oldSprayRelease != newSprayRelease || !reflect.DeepEqual(manifest1, manifest2) {
+		m.delete(manifest1)
+		m.add(manifest2)
+	}
+}
+
+func (m *VersionedManifest) delete(manifest *manifestv1alpha1.Manifest) {
+	sprayRelease, ok := manifest.ObjectMeta.Labels[constants.KeySprayRelease]
+	if !ok {
+		return
+	}
+	manifests, ok := m.Manifests[sprayRelease]
+	if !ok {
+		return
+	}
+
+	removeManifest := func(manifests []*manifestv1alpha1.Manifest, manifest *manifestv1alpha1.Manifest) []*manifestv1alpha1.Manifest {
+		for i, m := range manifests {
+			if m.Name == manifest.Name {
+				manifests = append(manifests[:i], manifests[i+1:]...)
+				break
+			}
+		}
+		return manifests
+	}
+
+	m.Manifests[sprayRelease] = removeManifest(manifests, manifest)
+	if len(m.Manifests[sprayRelease]) == 0 {
+		delete(m.Manifests, sprayRelease)
+	}
 }
 
 func (c *Controller) FetchLocalServiceCM(namespace string) (*corev1.ConfigMap, error) {
