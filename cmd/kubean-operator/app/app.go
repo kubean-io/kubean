@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 
+	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
 	kubeanClusterClientSet "github.com/kubean-io/kubean-api/generated/cluster/clientset/versioned"
 	kubeanClusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
 	kubeanLocalArtifactSetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
@@ -24,6 +25,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
@@ -166,6 +168,25 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		ClientSet:                 ClientSet,
 		LocalArtifactSetClientSet: localArtifactSetClientSet,
 	}
+	manifestInfomer, err := mgr.GetCache().GetInformer(context.Background(), &manifestv1alpha1.Manifest{})
+	if err != nil {
+		return err
+	}
+	manifestInfomer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			manifest, _ := obj.(*manifestv1alpha1.Manifest)
+			infomanifest.GetVersionedManifest().Op("add", manifest, nil)
+		},
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			manifest1, _ := oldObj.(*manifestv1alpha1.Manifest)
+			manifest2, _ := newObj.(*manifestv1alpha1.Manifest)
+			infomanifest.GetVersionedManifest().Op("update", manifest1, manifest2)
+		},
+		DeleteFunc: func(obj interface{}) {
+			manifest, _ := obj.(*manifestv1alpha1.Manifest)
+			infomanifest.GetVersionedManifest().Op("delete", manifest, nil)
+		},
+	})
 	if err := infomanifestController.SetupWithManager(mgr); err != nil {
 		klog.Errorf("ControllerManager Infomanifest but %s", err)
 		return err
