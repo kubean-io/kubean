@@ -547,6 +547,160 @@ func TestUpdateLocalService(t *testing.T) {
 	}
 }
 
+func TestOp(t *testing.T) {
+	var versionedManifest VersionedManifest
+	type args struct {
+		op string
+		m1 *manifestv1alpha1.Manifest
+		m2 *manifestv1alpha1.Manifest
+	}
+	tests := []struct {
+		name          string
+		args          args
+		prerequisites func(versionedManifest *VersionedManifest)
+		want          func() map[string][]*manifestv1alpha1.Manifest
+	}{
+		{
+			name: "add",
+			args: args{
+				op: "add",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+		},
+		{
+			name: "add with no release label",
+			args: args{
+				op: "add",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{}
+			},
+		},
+		{
+			name: "update",
+			args: args{
+				op: "update",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+				m2: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.22",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {
+				versionedManifest.Manifests = map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{
+					"2.22": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.22",
+								},
+							},
+						},
+					},
+				}
+			},
+		},
+		{
+			name: "delete",
+			args: args{
+				op: "delete",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {
+				versionedManifest.Manifests = map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{}
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			versionedManifest = VersionedManifest{
+				Manifests: make(map[string][]*manifestv1alpha1.Manifest, 0),
+			}
+			test.prerequisites(&versionedManifest)
+			versionedManifest.Op(test.args.op, test.args.m1, test.args.m2)
+			if !reflect.DeepEqual(test.want(), versionedManifest.Manifests) {
+				t.Fatal()
+			}
+		})
+	}
+}
+
 func TestReconcile(t *testing.T) {
 	controller := &Controller{
 		Client:                    newFakeClient(),
