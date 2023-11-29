@@ -547,6 +547,14 @@ func TestUpdateLocalService(t *testing.T) {
 	}
 }
 
+func TestGetVersionedManifest(t *testing.T) {
+	t.Run("get versioned manifest", func(t *testing.T) {
+		if !reflect.DeepEqual(GetVersionedManifest(), versionedManifest) {
+			t.Fatal()
+		}
+	})
+}
+
 func TestOp(t *testing.T) {
 	var versionedManifest VersionedManifest
 	type args struct {
@@ -655,6 +663,99 @@ func TestOp(t *testing.T) {
 			},
 		},
 		{
+			name: "update with no release label",
+			args: args{
+				op: "update",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+					},
+				},
+				m2: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							"label": "value",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{}
+			},
+		},
+		{
+			name: "update with label removing",
+			args: args{
+				op: "update",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+				m2: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {
+				versionedManifest.Manifests = map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{}
+			},
+		},
+		{
+			name: "update with label adding",
+			args: args{
+				op: "update",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+					},
+				},
+				m2: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+		},
+		{
 			name: "delete",
 			args: args{
 				op: "delete",
@@ -681,6 +782,63 @@ func TestOp(t *testing.T) {
 					},
 				}
 			},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{}
+			},
+		},
+		{
+			name: "delete with no release label",
+			args: args{
+				op: "delete",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-2",
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {
+				versionedManifest.Manifests = map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+			want: func() map[string][]*manifestv1alpha1.Manifest {
+				return map[string][]*manifestv1alpha1.Manifest{
+					"2.23": {
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name: "manifest-1",
+								Labels: map[string]string{
+									constants.KeySprayRelease: "2.23",
+								},
+							},
+						},
+					},
+				}
+			},
+		},
+		{
+			name: "delete but no manifest cached",
+			args: args{
+				op: "delete",
+				m1: &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23",
+						},
+					},
+				},
+			},
+			prerequisites: func(versionedManifest *VersionedManifest) {},
 			want: func() map[string][]*manifestv1alpha1.Manifest {
 				return map[string][]*manifestv1alpha1.Manifest{}
 			},

@@ -94,14 +94,11 @@ func (m *VersionedManifest) update(manifest1, manifest2 *manifestv1alpha1.Manife
 	newSprayRelease, ok2 := manifest2.ObjectMeta.Labels[constants.KeySprayRelease]
 	if !ok1 && !ok2 {
 		return
-	}
-	if ok1 && !ok2 {
+	} else if ok1 && !ok2 {
 		m.delete(manifest1)
-	}
-	if !ok1 && ok2 {
+	} else if !ok1 && ok2 {
 		m.add(manifest2)
-	}
-	if oldSprayRelease != newSprayRelease || !reflect.DeepEqual(manifest1, manifest2) {
+	} else if oldSprayRelease != newSprayRelease || !reflect.DeepEqual(manifest1, manifest2) {
 		m.delete(manifest1)
 		m.add(manifest2)
 	}
