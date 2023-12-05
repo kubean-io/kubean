@@ -1931,16 +1931,15 @@ $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</sp
 <p>Write image data to the docker registry (recommended version 2.6.2) or harbor</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images<span class="w"> </span>
 
-<span class="c1"># 1. Non-secure password-free mode</span>
-$<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+<span class="c1"># 1. password-free mode</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. Username password mode</span>
-$<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
-<li>When <code>DEST_TLS_VERIFY=false</code>, the image is uploaded in non-secure HTTP mode.</li>
-<li><code>DEST_USER</code> and <code>DEST_PASS</code> need to be set when username and password authentication exists for the image registry.</li>
-<li><code>registry_address</code> is the address of the image registry, e.g. <code>1.2.3.4:5000</code>.</li>
+<li><code>REGISTRY_ADDR</code> is the address of the mirror repository, e.g. <code>1.2.3.4:5000</code></li>
+<li><code>REGISTRY_USER</code> and <code>REGISTRY_PASS</code> need to be set when username and password authentication exists for the mirror repository</li>
 </ul>
 </li>
 <li>

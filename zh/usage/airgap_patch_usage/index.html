@@ -1932,16 +1932,15 @@ $<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</sp
 <p>向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images
 
-<span class="c1"># 1. 非安全免密模式</span>
-$<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+<span class="c1"># 1. 免密模式</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. 用户名口令模式</span>
-$<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
-<li>当 <code>DEST_TLS_VERIFY=false</code>，此时采用非安全 HTTP 模式上传镜像。</li>
-<li>当镜像仓库存在用户名密码验证时，需要设置 <code>DEST_USER</code> 和 <code>DEST_PASS</code>。</li>
-<li><code>registry_address</code> 是镜像仓库的地址，比如 <code>1.2.3.4:5000</code>。</li>
+<li><code>REGISTRY_ADDR</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code></li>
+<li>当镜像仓库存在用户名密码验证时，需要设置 <code>REGISTRY_USER</code> 和 <code>REGISTRY_PASS</code></li>
 </ul>
 </li>
 <li>

@@ -2130,7 +2130,7 @@
 <p>Necessary tools to be installed:</p>
 </li>
 <li>
-<p>A tool for importing image files: <a href="https://github.com/containers/skopeo/blob/main/install.md"><code>skopeo</code></a>, Required &gt;=1.9.2</p>
+<p>A tool for importing image files: <a href="https://github.com/containers/skopeo/blob/main/install.md"><code>skopeo</code></a>, Required &gt;=1.9.2; <a href="https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host"><code>podman</code></a>, Required &gt;= 4.4.4</p>
 </li>
 <li>
 <p>A tool for importing binary files: <a href="https://docs.min.io/docs/minio-client-quickstart-guide.html"><code>minio client</code></a></p>
@@ -2164,20 +2164,19 @@
 <h3 id="2-images-import-of-resources">2. Images  import of resources<a class="headerlink" href="#2-images-import-of-resources" title="Permanent link">&para;</a></h3>
 <p>You need to unzip the <code>images-${tag}.tar.gz</code> file, which contains:</p>
 <div class="highlight"><pre><span></span><code>images/
-├──<span class="w"> </span>import_images.sh<span class="w">       </span><span class="c1"># This script is used to import binary files into the minio file service</span>
+├──<span class="w"> </span>import_images.sh<span class="w">       </span><span class="c1"># This script is used to import binary files into the minio file service, and can merge multi-platform images</span>
 └──<span class="w"> </span>offline-images.tar.gz<span class="w">  </span><span class="c1"># Compressed package of image file</span>
 </code></pre></div>
 <p>Execute the following command to import the image file into the Docker Registry or the Harbor image repository service:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. Non-secure password-free mode</span>
-$<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. password-free mode</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. Username password mode</span>
-$<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
-<li>When <code>DEST_TLS_VERIFY=false</code>, the image is uploaded in non-secure HTTP mode</li>
-<li><code>DEST_USER</code> and <code>DEST_PASS</code> need to be set when username and password authentication exists for the mirror repository</li>
-<li><code>registry_address</code> is the address of the mirror repository, e.g. <code>1.2.3.4:5000</code></li>
+<li><code>REGISTRY_ADDR</code> is the address of the mirror repository, e.g. <code>1.2.3.4:5000</code></li>
+<li><code>REGISTRY_USER</code> and <code>REGISTRY_PASS</code> need to be set when username and password authentication exists for the mirror repository</li>
 </ul>
 <h3 id="3-os-packages-import-of-resources">3. OS packages import of resources<a class="headerlink" href="#3-os-packages-import-of-resources" title="Permanent link">&para;</a></h3>
 <p>Note: 

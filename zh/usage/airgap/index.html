@@ -2200,7 +2200,7 @@
 <li>
 <p>需要安装的必要工具:</p>
 <ul>
-<li>用于导入镜像文件的工具: <a href="https://github.com/containers/skopeo/blob/main/install.md"><code>skopeo</code></a>，需要 &gt;=1.9.2</li>
+<li>用于导入镜像文件的工具: <a href="https://github.com/containers/skopeo/blob/main/install.md"><code>skopeo</code></a>，需要 &gt;=1.9.2; <a href="https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host"><code>podman</code></a>, Required &gt;= 4.4.4</li>
 <li>用于导入二进制文件的工具: <a href="https://docs.min.io/docs/minio-client-quickstart-guide.html"><code>minio client</code></a></li>
 </ul>
 </li>
@@ -2233,20 +2233,19 @@
 <h3 id="2-images">2. Images 资源的导入<a class="headerlink" href="#2-images" title="Permanent link">&para;</a></h3>
 <p>需要解压 <code>images-${tag}.tar.gz</code> 文件, 其内部包含:</p>
 <div class="highlight"><pre><span></span><code>images/
-├──<span class="w"> </span>import_images.sh<span class="w">       </span><span class="c1"># 该脚本用于导入镜像文件到 docker registry 或 harbor 镜像仓库服务</span>
+├──<span class="w"> </span>import_images.sh<span class="w">       </span><span class="c1"># 该脚本用于导入镜像文件到 docker registry 或 harbor 镜像仓库服务, 可用于合并不同平台镜像</span>
 └──<span class="w"> </span>offline-images.tar.gz<span class="w">  </span><span class="c1"># 镜像文件的压缩包</span>
 </code></pre></div>
 <p>执行如下命令, 将镜像文件导入到 docker registry 或 harbor 镜像仓库服务中:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 1. 非安全免密模式</span>
-$<span class="w"> </span><span class="nv">DEST_TLS_VERIFY</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. 免密模式</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. 用户名口令模式</span>
-$<span class="w"> </span><span class="nv">DEST_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">DEST_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh<span class="w"> </span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span>
+$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
-<li>当 <code>DEST_TLS_VERIFY=false</code>, 此时采用非安全 HTTP 模式上传镜像</li>
-<li>当镜像仓库存在用户名密码验证时，需要设置 <code>DEST_USER</code> 和 <code>DEST_PASS</code></li>
-<li><code>registry_address</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code></li>
+<li><code>REGISTRY_ADDR</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code></li>
+<li>当镜像仓库存在用户名密码验证时，需要设置 <code>REGISTRY_USER</code> 和 <code>REGISTRY_PASS</code></li>
 </ul>
 <h3 id="3-os-packages">3. OS packages 资源的导入<a class="headerlink" href="#3-os-packages" title="Permanent link">&para;</a></h3>
 <p>注意: 
