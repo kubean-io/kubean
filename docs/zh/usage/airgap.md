@@ -13,7 +13,7 @@
 
 2. 需要安装的必要工具:
 
-    - 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)，需要 >=1.9.2
+    - 用于导入镜像文件的工具: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md)，需要 >=1.9.2; [`podman`](https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host), Required >= 4.4.4
     - 用于导入二进制文件的工具: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 3. 通过Helm部署[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
@@ -58,23 +58,22 @@ $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_addres
 
 ``` bash
 images/
-├── import_images.sh       # 该脚本用于导入镜像文件到 docker registry 或 harbor 镜像仓库服务
+├── import_images.sh       # 该脚本用于导入镜像文件到 docker registry 或 harbor 镜像仓库服务, 可用于合并不同平台镜像
 └── offline-images.tar.gz  # 镜像文件的压缩包
 ```
 
 执行如下命令, 将镜像文件导入到 docker registry 或 harbor 镜像仓库服务中:
 
 ``` bash
-# 1. 非安全免密模式
-$ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
+# 1. 免密模式
+$ REGISTRY_ADDR=${address} ./import_images.sh
 
 # 2. 用户名口令模式
-$ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
+$ REGISTRY_ADDR=${address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
 ```
 
-* 当 `DEST_TLS_VERIFY=false`, 此时采用非安全 HTTP 模式上传镜像
-* 当镜像仓库存在用户名密码验证时，需要设置 `DEST_USER` 和 `DEST_PASS`
-* `registry_address` 是镜像仓库的地址，比如`1.2.3.4:5000`
+* `REGISTRY_ADDR` 是镜像仓库的地址，比如`1.2.3.4:5000`
+* 当镜像仓库存在用户名密码验证时，需要设置 `REGISTRY_USER` 和 `REGISTRY_PASS`
 
 ### 3. OS packages 资源的导入
 

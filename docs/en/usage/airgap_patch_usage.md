@@ -72,16 +72,15 @@ data
     ```bash
     $ cd data/airgap_patch/amd64/images 
 
-    # 1. Non-secure password-free mode
-    $ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
+    # 1. password-free mode
+    $ REGISTRY_ADDR=${registry_address} ./import_images.sh
 
     # 2. Username password mode
-    $ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
+    $ REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
     ```
 
-    * When `DEST_TLS_VERIFY=false`, the image is uploaded in non-secure HTTP mode.
-    * `DEST_USER` and `DEST_PASS` need to be set when username and password authentication exists for the image registry.
-    * `registry_address` is the address of the image registry, e.g. `1.2.3.4:5000`.
+    * `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`
+    * `REGISTRY_USER` and `REGISTRY_PASS` need to be set when username and password authentication exists for the mirror repository
 
 3. Write `kubeanofflineversion.cr.patch.yaml` to the k8s cluster
 

@@ -9,7 +9,7 @@
 
 2. Necessary tools to be installed:
 
-* A tool for importing image files: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md), Required >=1.9.2
+* A tool for importing image files: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md), Required >=1.9.2; [`podman`](https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host), Required >= 4.4.4
 * A tool for importing binary files: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 3. Deploy Kubean by Helm[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
@@ -55,23 +55,22 @@ You need to unzip the `images-${tag}.tar.gz` file, which contains:
 
 ``` bash
 images/
-├── import_images.sh       # This script is used to import binary files into the minio file service
+├── import_images.sh       # This script is used to import binary files into the minio file service, and can merge multi-platform images
 └── offline-images.tar.gz  # Compressed package of image file
 ```
 
 Execute the following command to import the image file into the Docker Registry or the Harbor image repository service:
 
 ``` bash
-# 1. Non-secure password-free mode
-$ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
+# 1. password-free mode
+$ REGISTRY_ADDR=${address} ./import_images.sh
 
 # 2. Username password mode
-$ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
+$ REGISTRY_ADDR=${address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
 ```
 
-* When `DEST_TLS_VERIFY=false`, the image is uploaded in non-secure HTTP mode
-* `DEST_USER` and `DEST_PASS` need to be set when username and password authentication exists for the mirror repository
-* `registry_address` is the address of the mirror repository, e.g. `1.2.3.4:5000`
+* `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`
+* `REGISTRY_USER` and `REGISTRY_PASS` need to be set when username and password authentication exists for the mirror repository
 
 ### 3. OS packages import of resources
 

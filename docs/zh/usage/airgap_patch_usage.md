@@ -73,16 +73,15 @@ data
     ```bash
     $ cd data/airgap_patch/amd64/images
 
-    # 1. 非安全免密模式
-    $ DEST_TLS_VERIFY=false ./import_images.sh ${registry_address}
+    # 1. 免密模式
+    $ REGISTRY_ADDR=${address} ./import_images.sh
 
     # 2. 用户名口令模式
-    $ DEST_USER=${username} DEST_PASS=${password} ./import_images.sh ${registry_address}
+    $ REGISTRY_ADDR=${address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
     ```
 
-    * 当 `DEST_TLS_VERIFY=false`，此时采用非安全 HTTP 模式上传镜像。
-    * 当镜像仓库存在用户名密码验证时，需要设置 `DEST_USER` 和 `DEST_PASS`。
-    * `registry_address` 是镜像仓库的地址，比如 `1.2.3.4:5000`。
+    * `REGISTRY_ADDR` 是镜像仓库的地址，比如`1.2.3.4:5000`
+    * 当镜像仓库存在用户名密码验证时，需要设置 `REGISTRY_USER` 和 `REGISTRY_PASS`
 
 3. 将 `kubeanofflineversion.cr.patch.yaml` 写入到 K8s 集群
 
