@@ -1896,6 +1896,13 @@
 <p>Run the following command to generate an incremental offline package in the <code>data</code> folder</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span>ghcr.io/hangscer8/airgap-patch:v0.2.0
 </code></pre></div>
+<p>Available environment variables include:
+1. ZONE:
+* <code>DEFAULT</code>: Download offline resources using the default original address
+* <code>CN</code>: Download offline resources by using DaoCloud mirror address in China.
+2. MODE:
+* <code>INCR</code>: Build only the component offline resources specified in the manifest configuration (i.e.: incremental packages)
+* <code>FULL</code>: Offline resources that will build the components specified in the manifest configuration, as well as other components necessary for cluster deployment (i.e.: full packages)</p>
 </li>
 </ol>
 <h2 id="use-the-incremental-offline-package">Use the incremental offline package<a class="headerlink" href="#use-the-incremental-offline-package" title="Permanent link">&para;</a></h2>
@@ -1916,7 +1923,7 @@
     │   └── images
     │       ├── import_images.sh
     │       └── offline-images.tar.gz
-    └── kubeanofflineversion.cr.patch.yaml
+    └── localartifactset.cr.yaml
 </code></pre></div>
 <ol>
 <li>
@@ -1943,9 +1950,9 @@ $<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=<
 </ul>
 </li>
 <li>
-<p>Write <code>kubeanofflineversion.cr.patch.yaml</code> to the k8s cluster</p>
+<p>Write <code>localartifactset.cr.yaml</code> to the k8s cluster</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
-$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kubeanofflineversion.cr.patch.yaml<span class="w"> </span>
+$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>localartifactset.cr.yaml
 </code></pre></div>
 <blockquote>
 <p>This step is to inform the kubean-operator of the new software version available for offline use.</p>

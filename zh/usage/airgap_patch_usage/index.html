@@ -1897,6 +1897,13 @@
 <p>使用镜像，等待运行退出后，在 <code>data</code> 文件夹中生成增量离线包</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span>ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5<span class="w"> </span>
 </code></pre></div>
+<p>可用的环境变量:
+1. ZONE:
+* <code>DEFAULT</code>: 采用默认原始地址下载离线资源
+* <code>CN</code>: 采用国内 DaoCloud 加速器地址下载离线资源
+2. MODE:
+* <code>INCR</code>: 仅构建 manifest 配置中指定的组件离线资源（即：增量包）
+* <code>FULL</code>: 将构建 manifest 配置中指定的组件以及集群部署必须的其他组件的离线资源（即：全量包）</p>
 </li>
 </ol>
 <h2 id="_3">使用增量离线包<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
@@ -1917,7 +1924,7 @@
     │   └── images
     │       ├── import_images.sh
     │       └── offline-images.tar.gz
-    └── kubeanofflineversion.cr.patch.yaml
+    └── localartifactset.cr.yaml
 </code></pre></div>
 <ol>
 <li>
@@ -1944,9 +1951,9 @@ $<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=<
 </ul>
 </li>
 <li>
-<p>将 <code>kubeanofflineversion.cr.patch.yaml</code> 写入到 K8s 集群</p>
+<p>将 <code>localartifactset.cr.yaml</code> 写入到 K8s 集群</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
-$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>kubeanofflineversion.cr.patch.yaml<span class="w"> </span>
+$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>localartifactset.cr.yaml
 </code></pre></div>
 <blockquote>
 <p>这一步是为了将新的可离线使用的软件版本信息告知 kubean-operator。</p>
