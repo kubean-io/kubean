@@ -104,7 +104,7 @@ def create_localartifactset_cr(manifest_data):
     offlineversion_cr_dict["spec"]["docker"] = []
     offlineversion_cr_dict["metadata"]["labels"] = {}
     if SPRAY_RELEASE != "master":
-        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}"
+        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}-{int(datetime.now().timestamp())}"
         offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = SPRAY_RELEASE
     else:
         offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-patch-{int(datetime.now().timestamp())}"

@@ -1,11 +1,29 @@
 #!/bin/bash
 
+# need helm skopeo podman mc
+# https://helm.sh/docs/intro/install/
+# github.com/lework/skopeo-binary/releases
+# https://min.io/docs/minio/linux/reference/minio-mc.html
+
+
 CURRENT_PATH=$(pwd) || true
-MINIO_USER="user123"
-MINIO_PASS="pass123"
+ARCH=amd64
+DISTRO=centos7
 KUBEAN_VERSION="v0.10.0"
-REGISTRY_ADDR="172.30.41.166:30080"
-MINIO_ADDR="http://172.30.41.166:32000"
+
+NETWORK_INTERFACE=ens192
+LOCALHOST_ADDR=$(ip addr show "${NETWORK_INTERFACE}" | grep -Po 'inet \K[\d.]+' || true)
+
+MINIO_USER="kubeanuser"
+MINIO_PASS="kubeanpass123"
+MINIO_ADDR="http://${LOCALHOST_ADDR}:32000"
+
+REGISTRY_ADDR="${LOCALHOST_ADDR}:30080"
+
+TEST_NODE_ADDR="172.30.41.162"
+TEST_NODE_USER="root"
+TEST_NODE_PASS="dangerous"
+
 
 function create_pvc() {
   local name=$1
@@ -113,11 +131,11 @@ install_kubean_chart "${KUBEAN_VERSION}"
 
 # https://kubean-io.github.io/kubean/en/releases/artifacts/
 DEFAULT_SPRAY_JOB_IMG='ghcr.m.daocloud.io/kubean-io/spray-job:v0.10.0'
-RLS_2_21_SPRAY_JOB_IMG='ghcr.io/kubean-io/spray-job:2.21-d498df2'
+RLS_2_21_SPRAY_JOB_IMG='ghcr.io/kubean-io/spray-job:2.21-d6f688f'
 RLS_2_22_SPRAY_JOB_IMG='ghcr.io/kubean-io/spray-job:2.22-d65e4e6'
 RLS_2_23_SPRAY_JOB_IMG='ghcr.io/kubean-io/spray-job:2.23-72da838'
 
-RLS_2_21_AIRGAP_PATCH_IMG='ghcr.io/kubean-io/airgap-patch:2.21-d498df2'
+RLS_2_21_AIRGAP_PATCH_IMG='ghcr.io/kubean-io/airgap-patch:2.21-d6f688f'
 RLS_2_22_AIRGAP_PATCH_IMG='ghcr.io/kubean-io/airgap-patch:2.22-d65e4e6'
 RLS_2_23_AIRGAP_PATCH_IMG='ghcr.io/kubean-io/airgap-patch:2.23-72da838'
 
@@ -135,13 +153,12 @@ PREPARE_IMGS+=("${RLS_2_23_AIRGAP_PATCH_IMG}")
 function batch_sync_images() {
   local registry=$1
   local images=$2
-  for image_item in "${images[@]}"; do
+  for image_item in ${images}; do
     skopeo copy --insecure-policy -a --dest-tls-verify=false --retry-times=3 "docker://${image_item}" "docker://${registry}/${image_item}"
   done
-
 }
 
-batch_sync_images "${REGISTRY_ADDR}" "${PREPARE_IMGS[@]}"
+batch_sync_images "${REGISTRY_ADDR}" "${PREPARE_IMGS[*]}"
 
 
 
@@ -153,24 +170,24 @@ function import_default_airgap_pkg() {
   local minio_user=$4
   local minio_pass=$5
 
-  wget "https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download/${kubean_version}/files-amd64-${kubean_version}.tar.gz"
-  wget "https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download/${kubean_version}/images-amd64-${kubean_version}.tar.gz"
-  wget "https://github.com/kubean-io/kubean/releases/download/${kubean_version}/os-pkgs-centos7-${kubean_version}.tar.gz"
+  wget "https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download/${kubean_version}/files-${ARCH}-${kubean_version}.tar.gz"
+  wget "https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download/${kubean_version}/images-${ARCH}-${kubean_version}.tar.gz"
+  wget "https://github.com/kubean-io/kubean/releases/download/${kubean_version}/os-pkgs-${DISTRO}-${kubean_version}.tar.gz"
 
-  tar -zxvf "files-amd64-${kubean_version}.tar.gz"
-  pushd files || exit
+  tar -zxvf "files-${ARCH}-${kubean_version}.tar.gz"
+  pushd files || return
   MINIO_USER="${minio_user}" MINIO_PASS="${minio_pass}" ./import_files.sh "${minio_addr}"
-  popd || exit
+  popd || return
   
-  tar -zxvf "images-amd64-${kubean_version}.tar.gz"
-  pushd images || exit
+  tar -zxvf "images-${ARCH}-${kubean_version}.tar.gz"
+  pushd images || return
   DEST_TLS_VERIFY=false ./import_images.sh "${registry_addr}"
-  popd || exit
+  popd || return
 
-  tar -zxvf "os-pkgs-tencent31-${kubean_version}.tar.gz"
-  pushd os-pkgs || exit
-  MINIO_USER=${minio_user} MINIO_PASS=${minio_pass} ./import_ospkgs.sh "${minio_addr}" os-pkgs-amd64.tar.gz
-  popd || exit
+  tar -zxvf "os-pkgs-${DISTRO}-${kubean_version}.tar.gz"
+  pushd os-pkgs || return
+  MINIO_USER=${minio_user} MINIO_PASS=${minio_pass} ./import_ospkgs.sh "${minio_addr}" os-pkgs-${ARCH}.tar.gz
+  popd || return
 }
 
 
@@ -185,7 +202,7 @@ function export_airgap_patch_pkg() {
   mkdir -p "${CURRENT_PATH}/data"
   cat > "${CURRENT_PATH}/manifest.yml" <<EOF
 image_arch:
-  - "amd64"
+  - "${ARCH}"
 kube_version:
   - "${kube_version}"
 EOF
@@ -199,13 +216,13 @@ function import_airgap_patch_pkg() {
   local minio_addr=$3
   local minio_user=$4
   local minio_pass=$5
-  pushd "${data_path}/amd64/files" || exit
+  pushd "${data_path}/${ARCH}/files" || return
   MINIO_USER="${minio_user}" MINIO_PASS="${minio_pass}" ./import_files.sh "${minio_addr}"
-  popd || exit
+  popd || return
 
-  pushd "${data_path}/amd64/images" || exit
-  DEST_TLS_VERIFY=false ./import_images.sh "${registry_addr}"
-  popd || exit
+  pushd "${data_path}/${ARCH}/images" || return
+  REGISTRY_ADDR="${registry_addr}" ./import_images.sh
+  popd || return
 }
 
 mkdir -p /etc/containers/registries.conf.d
@@ -220,6 +237,10 @@ import_airgap_patch_pkg "${CURRENT_PATH}/data" "${REGISTRY_ADDR}" "${MINIO_ADDR}
 rm -rf "${CURRENT_PATH}/data" "${CURRENT_PATH}/manifest.yml"
 
 export_airgap_patch_pkg "v1.24.0" "${REGISTRY_ADDR}/${RLS_2_21_AIRGAP_PATCH_IMG}"
+import_airgap_patch_pkg "${CURRENT_PATH}/data" "${REGISTRY_ADDR}" "${MINIO_ADDR}" "${MINIO_USER}" "${MINIO_PASS}"
+rm -rf "${CURRENT_PATH}/data" "${CURRENT_PATH}/manifest.yml"
+
+export_airgap_patch_pkg "v1.25.6" "${REGISTRY_ADDR}/${RLS_2_21_AIRGAP_PATCH_IMG}"
 import_airgap_patch_pkg "${CURRENT_PATH}/data" "${REGISTRY_ADDR}" "${MINIO_ADDR}" "${MINIO_USER}" "${MINIO_PASS}"
 rm -rf "${CURRENT_PATH}/data" "${CURRENT_PATH}/manifest.yml"
 
@@ -248,12 +269,12 @@ data:
     all:
       hosts:
         node1:
-          ip: 172.30.41.161
-          access_ip: 172.30.41.161
-          ansible_host: 172.30.41.161
+          ip: ${TEST_NODE_ADDR}
+          access_ip: ${TEST_NODE_ADDR}
+          ansible_host: ${TEST_NODE_ADDR}
           ansible_connection: ssh
-          ansible_user: root
-          ansible_password: dangerous
+          ansible_user: ${TEST_NODE_USER}
+          ansible_password: ${TEST_NODE_PASS}
       children:
         kube_control_plane:
           hosts:
@@ -290,8 +311,6 @@ data:
 
     pkg_install_retries: 1
     download_retries: 1
-
-    coredns_version: "{{ 'v1.9.3' if (kube_version is version('v1.25.0','>=')) else 'v1.8.6' }}"
 
     containerd_insecure_registries:
       "${registry_addr}": "http://${registry_addr}"
@@ -610,6 +629,8 @@ EOF
 apply_cluster_operation "install" "v1.23.0" "${REGISTRY_ADDR}/${RLS_2_21_SPRAY_JOB_IMG}"
 
 apply_cluster_operation "upgrade" "v1.24.0" "${REGISTRY_ADDR}/${RLS_2_21_SPRAY_JOB_IMG}"
+
+apply_cluster_operation "upgrade" "v1.25.6" "${REGISTRY_ADDR}/${RLS_2_21_SPRAY_JOB_IMG}"
 
 apply_cluster_operation "upgrade" "v1.25.0" "${REGISTRY_ADDR}/${RLS_2_22_SPRAY_JOB_IMG}"
 
