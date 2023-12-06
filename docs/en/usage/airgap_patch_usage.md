@@ -33,6 +33,15 @@ To meet users' needs for components of certain versions, Kubean provides the scr
     docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/hangscer8/airgap-patch:v0.2.0
     ```
 
+    Available environment variables include:
+    1. ZONE:
+    * `DEFAULT`: Download offline resources using the default original address
+    * `CN`: Download offline resources by using DaoCloud mirror address in China.
+    2. MODE:
+    * `INCR`: Build only the component offline resources specified in the manifest configuration (i.e.: incremental packages)
+    * `FULL`: Offline resources that will build the components specified in the manifest configuration, as well as other components necessary for cluster deployment (i.e.: full packages)
+
+
 ## Use the incremental offline package
 
 The directory structure of the incremental package is as follows:
@@ -54,7 +63,7 @@ data
     │   └── images
     │       ├── import_images.sh
     │       └── offline-images.tar.gz
-    └── kubeanofflineversion.cr.patch.yaml
+    └── localartifactset.cr.yaml
 ```
 
 1. Write file data into MinIO
@@ -82,11 +91,11 @@ data
     * `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`
     * `REGISTRY_USER` and `REGISTRY_PASS` need to be set when username and password authentication exists for the mirror repository
 
-3. Write `kubeanofflineversion.cr.patch.yaml` to the k8s cluster
+3. Write `localartifactset.cr.yaml` to the k8s cluster
 
     ```bash
     $ cd data/airgap_patch
-    $ kubectl apply -f kubeanofflineversion.cr.patch.yaml 
+    $ kubectl apply -f localartifactset.cr.yaml
     ```
 
     > This step is to inform the kubean-operator of the new software version available for offline use.

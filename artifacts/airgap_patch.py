@@ -4,89 +4,57 @@ import shutil
 import subprocess
 import sys
 import yaml
+import json
 from datetime import datetime
 from pathlib import Path
+from shutil import which
 
 # Copyright 2023 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
 
 CUR_DIR = os.getcwd()
-
-OPTION = os.getenv("OPTION", default="all")  # create_files create_images create_offlineversion_cr
-
-SPRAY_REPO_PATH = os.path.join(CUR_DIR, "kubespray")
-MANIFEST_YML_FILE = os.getenv("MANIFEST_CONF", default="manifest.yml")
-ZONE = os.getenv("ZONE", default="Other")  ## Other or CN
-
-EXTRA_PAUSE_URLS = os.getenv("EXTRA_PAUSE", "").split(",")  ## registry.k8s.io/pause:3.6
-
-OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
-                                default=os.path.join(CUR_DIR,
-                                                     "artifacts/template/localartifactset.template.yml"))
+KUBEAN_TAG = "airgap_patch"
+MODE = os.getenv("MODE", default="INCR")  ## INCR or FULL
+ZONE = os.getenv("ZONE", default="DEFAULT")  ## DEFAULT or CN
+OPTION = os.getenv("OPTION", default="all")  # all create_files create_images
 SPRAY_RELEASE = os.getenv("SPRAY_RELEASE")
 SPRAY_COMMIT = os.getenv("SPRAY_COMMIT")
 
-FILE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/files.list")
-IMAGE_LIST_TEMP_PATH = os.path.join(SPRAY_REPO_PATH, "contrib/offline/temp/images.list")
-KUBEAN_TAG = "airgap_patch"
-print(f"CUR_DIR:{CUR_DIR}")
+SPRAY_REPO_PATH = os.path.join(CUR_DIR, "kubespray")
 
+OFFLINE_TMP_REL_PATH = "contrib/offline/temp"
+OFFLINE_TMP_ABS_PATH = os.path.join(SPRAY_REPO_PATH, OFFLINE_TMP_REL_PATH)
+OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
+                                default=os.path.join(CUR_DIR,
+                                                     "artifacts/template/localartifactset.template.yml"))
+KEYWORDS = {
+    "kube_version": ["/kubelet", "/kubectl", "/kubeadm", "/kube-apiserver", "/kube-controller-manager", "/kube-scheduler", "/kube-proxy", "/pause"],
+    "cni_version": ["cni"],
+    "containerd_version": ['containerd'],
+    "calico_version": ['calico'],
+    "cilium_version": ['cilium'],
+    "etcd_version": ['etcd']
+}
 
-def extra_line_str_with_pattern(filepath, *patterns):
+def file_lines_to_list(filename):
+    with open(filename) as file:
+        return [line.rstrip() for line in file]
+
+def get_list_include_keywords(list, *keywords):
     result = []
-    with open(filepath) as f:
-        for line in f:
-            for pattern in patterns:
-                if re.search(pattern, line) is not None:
-                    result.append(line.strip())
-    return list(set(result))
-
-
-def fetch_info_list(env_dict, *patterns):
-    print(f"generating info list for {env_dict}")
-    os.chdir(SPRAY_REPO_PATH)
-    if os.path.exists("contrib/offline/temp"):
-        shutil.rmtree("contrib/offline/temp")
-    cmd = ["bash", "contrib/offline/generate_list.sh"]
-    for key, value in env_dict.items():
-        cmd.append("-e")
-        cmd.append(f"{key}='{value}'")
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        print(result.stdout)
-        print(result.stderr)
-        sys.exit(1)
-    if not os.path.exists("contrib/offline/temp/images.list"):
-        print("not found 'contrib/offline/temp/images.list'")
-        sys.exit(1)
-    if not os.path.exists("contrib/offline/temp/files.list"):
-        print("not found 'contrib/offline/temp/files.list'")
-        sys.exit(1)
-    file_urls = extra_line_str_with_pattern("contrib/offline/temp/files.list", *patterns)
-    image_urls = extra_line_str_with_pattern("contrib/offline/temp/images.list", *patterns)
-    os.chdir(CUR_DIR)
-    return {"files": file_urls, "images": image_urls}
-
+    for line in list:
+        for keyword in keywords:
+            if keyword in line:
+                result.append(line.strip())
+    return result
 
 def check_dependencies():
     if not os.path.exists(SPRAY_REPO_PATH):
         print("kubespray repo path not found")
         sys.exit(1)
-    if subprocess.run(["which", "skopeo"]).returncode != 0:
+    if which("skopeo") is None:
         print("skopeo command not found")
         sys.exit(1)
-
-
-def parse_manifest_yml():
-    if (not os.path.exists(MANIFEST_YML_FILE)) or (Path(MANIFEST_YML_FILE).read_text().replace("\n", "").strip() == ""):
-        print("MANIFEST_YML_FILE does not exist or empty.")
-        sys.exit(1)
-    result = {}
-    f = open(MANIFEST_YML_FILE)
-    result = yaml.load(f, Loader=yaml.loader.FullLoader)  # dict
-    f.close()
-    return result
-
 
 def get_manifest_version(key, manifest_dict):
     result = []
@@ -97,7 +65,6 @@ def get_manifest_version(key, manifest_dict):
         for v in value:
             result.append(str(v).strip())
     return list(set(result))
-
 
 def execute_generate_offline_package(arg_option, arch):
     if not os.path.exists("artifacts/generate_offline_package.sh"):
@@ -112,24 +79,21 @@ def execute_generate_offline_package(arg_option, arch):
         print("execute generate_offline_package.sh but failed")
         sys.exit(1)
 
-
 def create_files(file_urls, arch):
     os.chdir(CUR_DIR)
-    with open(FILE_LIST_TEMP_PATH, "w") as f:
+    with open(os.path.join(OFFLINE_TMP_ABS_PATH, "files.list"), "w") as f:
         f.write("\n".join(file_urls))
         f.flush()
     execute_generate_offline_package("files", arch)
 
-
 def create_images(image_urls, arch):
     os.chdir(CUR_DIR)
-    with open(IMAGE_LIST_TEMP_PATH, "w") as f:
+    with open(os.path.join(OFFLINE_TMP_ABS_PATH, "images.list"), "w") as f:
         f.write("\n".join(image_urls))
         f.flush()
     execute_generate_offline_package("images", arch)
 
-
-def create_offlineversion_cr():
+def create_localartifactset_cr(manifest_data):
     os.chdir(CUR_DIR)
     if not os.path.exists(OFFLINE_VER_CR_TEMP):
         print("not found kubeanofflineversion template")
@@ -141,27 +105,23 @@ def create_offlineversion_cr():
     offlineversion_cr_dict["metadata"]["labels"] = {}
     if SPRAY_RELEASE != "master":
         offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}"
-        offlineversion_cr_dict["metadata"]["labels"]["sprayRelease"] = SPRAY_RELEASE
+        offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = SPRAY_RELEASE
     else:
         offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-patch-{int(datetime.now().timestamp())}"
-        offlineversion_cr_dict["metadata"]["labels"]["sprayRelease"] = "master"
+        offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = "master"
     items_array = offlineversion_cr_dict["spec"]["items"]
 
-    for index in range(len(items_array)):
-        item_dict = items_array[index]
-        if item_dict["name"] == "cni":
-            item_dict["versionRange"] = cni_versions
-        if item_dict["name"] == "containerd":
-            item_dict["versionRange"] = containerd_versions
-        if item_dict["name"] == "kube":
-            item_dict["versionRange"] = kube_versions
-        if item_dict["name"] == "calico":
-            item_dict["versionRange"] = calico_versions
-        if item_dict["name"] == "cilium":
-            item_dict["versionRange"] = cilium_versions
-        if item_dict["name"] == "etcd":
-            item_dict["versionRange"] = etcd_versions
-        items_array[index] = item_dict
+    for item in items_array:
+        item_name = item.get("name", "")
+        manifest_keys = [ key for key in KEYWORDS]
+        for version_key in manifest_keys:
+            component_name = re.split('_', version_key)[0]
+            if item_name == component_name:
+                versions = manifest_data.get(version_key)
+                if isinstance(versions, list):
+                    item["versionRange"] = versions
+                if isinstance(versions, str):
+                    item['versionRange'] = [versions]
 
     offlineversion_cr_dict["spec"]["items"] = items_array
     kubeanofflineversion_file = open(
@@ -171,93 +131,119 @@ def create_offlineversion_cr():
     yaml.dump(offlineversion_cr_dict, kubeanofflineversion_file)
     kubeanofflineversion_file.close()
 
+def get_manifest_data():
+    manifest_yml_file = os.getenv("MANIFEST_CONF", default="manifest.yml")
+    if (not os.path.exists(manifest_yml_file)) or (Path(manifest_yml_file).read_text().replace("\n", "").strip() == ""):
+        print("manifest yaml file does not exist or empty.")
+        sys.exit(1)
+    with open(manifest_yml_file, "r") as stream:
+        return yaml.safe_load(stream)
 
-def add_pause_image(origin_image_urls):
-    pause_images = []
-    for image_name in origin_image_urls:
-        if "registry.k8s.io/pause" in image_name:
-            new_version = format(float(image_name.split(":")[1]) - float(0.1), '.1f')
-            pause_images.append("registry.k8s.io/pause:" + new_version)
-    return list(pause_images)
+def get_other_required_keywords(manifest_dict):
+    other_required_keywords = [
+        "crictl", "cri-o", "runc", "crun", "runsc", "cri-dockerd", "yq",
+        "coredns", "nginx", "k8s-dns-node-cache", "cluster-proportional-autoscaler"]
+    manifest_keys = [ key for key in manifest_dict]
+    keys_range = [ key for key in KEYWORDS]
+    list_diff = list(set(keys_range) - set(manifest_keys))
+    print(f'- keys_range: {keys_range}\n- manifest_keys: {manifest_keys}\n- list_diff: {list_diff}\n')
+    for key in list_diff:
+        other_required_keywords += KEYWORDS[key]
+    return other_required_keywords
 
 
-image_archs = []
-cni_versions = []
-containerd_versions = []
-kube_versions = []
-calico_versions = []
-cilium_versions = []
-etcd_versions = []
+def build_jobs_params(manifest_dict):
+    print(f'- manifest_dict: {manifest_dict}\n')
+    max_len = max(len(item) for _, item in manifest_dict.items() if isinstance(item, list))
+    other_required_keywords = get_other_required_keywords(manifest_dict)
+    jobs_params = {
+        "arch": manifest_dict.get('image_arch', ['amd64']),
+        "jobs": [{"keywords": [], "extra_vars": [],} for i in range(max_len)],
+        "other_keywords": other_required_keywords,
+    }
+    manifest_keys=['image_arch']
+    manifest_keys += [ key for key in KEYWORDS]
+    for index, job in enumerate(jobs_params.get('jobs', [])):
+        for component, versions in manifest_dict.items():
+            if component not in manifest_keys:
+                print(f"unknown component version key: {component}")
+                sys.exit(1)
+            if isinstance(versions, str) and index == 0 and component != "image_arch":
+                job['keywords'] += KEYWORDS.get(component, [])
+                job['extra_vars'].append(f"{component}='{versions}'")
+            if isinstance(versions, list) and index < len(versions) and component != "image_arch":
+                job['keywords'] += KEYWORDS.get(component, [])
+                job['extra_vars'].append(f"{component}='{versions[index]}'")
+    print(f'- jobs_params: {json.dumps(jobs_params, indent=2)}\n')
+    return jobs_params
+
+def gen_airgap_packages(option, arch, bin_urls, img_urls):
+    if option == "all":
+        create_files(bin_urls, arch=arch)
+        create_images(img_urls, arch=arch)
+        execute_generate_offline_package("copy_import_sh", arch=arch)
+    if option == "create_files":
+        create_files(bin_urls, arch=arch)
+    if option == "create_images":
+        create_images(img_urls, arch=arch)
+
+def batch_gen_airgap_resources(jobs_params):
+    other_required_list = {key: [] for key in ['file_list', 'image_list']}
+    list_data = {key: [] for key in ['file_list', 'image_list']}
+    is_executed = False
+    for arch in jobs_params.get('arch', []):
+        for job in jobs_params.get('jobs',[]):
+            extra_vars_cmd = []
+            for var in job.get('extra_vars'):
+                extra_vars_cmd.extend(["-e", var])
+            os.chdir(SPRAY_REPO_PATH)
+            if os.path.exists(f"{OFFLINE_TMP_REL_PATH}"):
+                shutil.rmtree(f"{OFFLINE_TMP_REL_PATH}")
+            cmd = ["bash", "contrib/offline/generate_list.sh", "-e", f"image_arch='{arch}'"]
+            cmd += extra_vars_cmd
+            print(f"\n- cmd: {cmd}\n")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(result.stdout)
+                print(result.stderr)
+                sys.exit(1)
+            if not os.path.exists(f"{OFFLINE_TMP_REL_PATH}/images.list"):
+                print(f"not found '{OFFLINE_TMP_REL_PATH}/images.list'")
+                sys.exit(1)
+            if not os.path.exists(f"{OFFLINE_TMP_REL_PATH}/files.list"):
+                print(f"not found '{OFFLINE_TMP_REL_PATH}/files.list'")
+                sys.exit(1)
+
+            files_list = file_lines_to_list(f"{OFFLINE_TMP_REL_PATH}/files.list")
+            images_list = file_lines_to_list(f"{OFFLINE_TMP_REL_PATH}/images.list")
+            file_urls, image_urls = get_list_include_keywords(files_list, *job.get('keywords')), get_list_include_keywords(images_list, *job.get('keywords'))
+            if MODE == "FULL" and not is_executed:
+                other_required_keywords = jobs_params.get('other_keywords', [])
+                other_required_list['file_list'] = get_list_include_keywords(files_list, *other_required_keywords)
+                other_required_list['image_list'] = get_list_include_keywords(images_list, *other_required_keywords)
+            is_executed = True
+
+            os.chdir(CUR_DIR)
+            list_data['file_list'] += file_urls
+            list_data['image_list'] += image_urls
+
+        list_data['file_list'] += other_required_list['file_list']
+        list_data['image_list'] += other_required_list['image_list']
+        list_data['file_list'], list_data['image_list'] = list(set(list_data['file_list'])), list(set(list_data['image_list']))
+        print_list(list_data['file_list'],  list_data['image_list'])
+        gen_airgap_packages(OPTION, arch, list_data['file_list'], list_data['image_list'])
+
+def print_list(file_list, image_list):
+    print("---------------- file urls -----------------\n")
+    for file_url in file_list:
+        print(f'* {file_url}\n')
+    print("---------------- image urls -----------------\n")
+    for image_url in image_list:
+        print(f'* {image_url}\n')
 
 if __name__ == '__main__':
-    print(f"OPTION:{OPTION}")
-    print(f"ZONE:{ZONE}")
+    print(f"OPTION:{OPTION}, ZONE: {ZONE}, MODE: {MODE}\n")
     check_dependencies()
-    manifest_dict = parse_manifest_yml()
-    # global value setting
-    image_archs = get_manifest_version("image_arch", manifest_dict=manifest_dict)
-    cni_versions = get_manifest_version("cni_version", manifest_dict=manifest_dict)
-    containerd_versions = get_manifest_version("containerd_version", manifest_dict=manifest_dict)
-    kube_versions = get_manifest_version("kube_version", manifest_dict=manifest_dict)
-    calico_versions = get_manifest_version("calico_version", manifest_dict=manifest_dict)
-    cilium_versions = get_manifest_version("cilium_version", manifest_dict=manifest_dict)
-    etcd_versions = get_manifest_version("etcd_version", manifest_dict=manifest_dict)
-    # global value setting
-
-    for image_arch in image_archs:
-        print(f"operating for {image_arch}")
-        file_urls = []
-        images_urls = []
-        for kube_version in kube_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "kube_version": kube_version},
-                                         r"kubernetes-release.*/kube.*", r"registry.k8s.io/kube-.*",
-                                         r"registry.k8s.io/pause.*", r".*crictl.*", r".*kubelet.*",
-                                         r".*kubectl.*", r".*kubeadm.*", r".*coredns.*", r".*etcd.*")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-            images_urls = images_urls + add_pause_image(images_urls)
-            images_urls = images_urls + list(EXTRA_PAUSE_URLS)
-        for cni_version in cni_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "cni_version": cni_version},
-                                         r"containernetworking.*cni-.*")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-        for containerd_version in containerd_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "containerd_version": containerd_version},
-                                         r"containerd.*containerd-")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-        for calico_version in calico_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "calico_version": calico_version}, r"calico.*")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-        for cilium_version in cilium_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "cilium_version": cilium_version}, r"cilium.*")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-        for etcd_version in etcd_versions:
-            tuple_data = fetch_info_list({"image_arch": image_arch, "etcd_version": etcd_version}, r"etcd.*")
-            file_urls = list(file_urls) + list(tuple_data["files"])
-            images_urls = list(images_urls) + list(tuple_data["images"])
-        file_urls = list(set(file_urls))
-        images_urls = filter(lambda item: item != "", images_urls)
-        images_urls = list(set(images_urls))
-        if "registry.k8s.io/pause:3.4" in images_urls:
-            images_urls.remove("registry.k8s.io/pause:3.4")
-        print("file_urls:")
-        print(file_urls)
-        print("")
-        print("images_urls:")
-        print(images_urls)
-        print("")
-        if OPTION == "all":
-            create_files(file_urls, arch=image_arch)
-            create_images(images_urls, arch=image_arch)
-            create_offlineversion_cr()
-            execute_generate_offline_package("copy_import_sh", arch=image_arch)
-        if OPTION == "create_files":
-            create_files(file_urls, arch=image_arch)
-        if OPTION == "create_images":
-            create_images(images_urls, arch=image_arch)
-        if OPTION == "create_offlineversion_cr":
-            create_offlineversion_cr()
+    manifest_data = get_manifest_data()
+    batch_gen_airgap_resources(build_jobs_params(manifest_data))
+    create_localartifactset_cr(manifest_data)
