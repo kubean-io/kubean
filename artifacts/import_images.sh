@@ -152,8 +152,8 @@ EOF
     fi
   fi
 
-  [ ! -s "${OCI_PATH}/images.list" ] && image::log_erro "${OCI_PATH}/images.list not found or empty"
   [ "$OCI_PATH" == "offline-images" -a ! -d $OCI_PATH ] && tar -xzf offline-images.tar.gz
+  [ ! -s "${OCI_PATH}/images.list" ] && image::log_erro "${OCI_PATH}/images.list not found or empty"
 
   [ -n "$TARGET_ARCH" ] && return
   TARGET_ARCH=$(skopeo inspect oci:$OCI_PATH:$(head -1 $OCI_PATH/images.list) | awk -F: '/Architecture/ {print $2}' | sed 's/[[:space:]",]//g')
