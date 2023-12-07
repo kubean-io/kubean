@@ -252,7 +252,7 @@ function resource::push_registry_by_arch(){
   chmod +x ${download_root_path_tag}/img-${arch}/images/import_images.sh
 
   pushd ${download_root_path_tag}/img-${arch}/images
-  REGISTRY_ADDR=${registry_addr} ./import_images.sh > /dev/null
+  REGISTRY_ADDR=${registry_addr} DEST_TLS_VERIFY=false ./import_images.sh ${registry_addr} > /dev/null
   popd
 }
 #####################################
