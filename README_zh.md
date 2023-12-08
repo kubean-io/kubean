@@ -41,7 +41,7 @@ Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构�
 ---
 
 <p>
-<img src="https://github.com/cncf/artwork/blob/master/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
+<img src="https://github.com/cncf/artwork/blob/main/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
 </p>
 
 **Kubean 是一个[云原生计算基金会 (CNCF)](https://cncf.io/) 全景图项目。**

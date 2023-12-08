@@ -41,7 +41,7 @@ kubean is a cluster lifecycle management tool based on [kubespray](https://githu
 ---
 
 <p>
-<img src="https://github.com/cncf/artwork/blob/master/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
+<img src="https://github.com/cncf/artwork/blob/main/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
 </p>
 
 **Kubean is a [Cloud Native Computing Foundation](https://cncf.io/) Landscape project.**
