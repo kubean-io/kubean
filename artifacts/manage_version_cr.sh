@@ -230,6 +230,10 @@ function create_manifest_cr() {
 }
 
 function merge_kubespray_offline_download_files() {
+  if [ -d 'kubespray/roles/kubespray-defaults/defaults/main' ]; then
+    mkdir -p kubespray/roles/download/defaults
+    cat kubespray/roles/kubespray-defaults/defaults/main/* | sed '/^---$/d' > kubespray/roles/download/defaults/main.yml
+  fi
   if [ -d 'kubespray/roles/download/defaults/main' ]; then
     cat kubespray/roles/download/defaults/main/* | sed '/^---$/d' > kubespray/roles/download/defaults/main.yml
   fi
