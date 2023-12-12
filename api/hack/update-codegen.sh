@@ -57,7 +57,7 @@ informer-gen \
   --listers-package=github.com/kubean-io/kubean-api/generated/$SubDirName/listers \
   --output-package=github.com/kubean-io/kubean-api/generated/$SubDirName/informers
 
-if ls "$GOPATH"/src | grep kubean.io; then
+if ls "$GOPATH"/src/github.com | grep -q kubean-io; then
   cp -r "$GOPATH"/src/github.com/kubean-io/kubean-api/apis/$SubDirName/v1alpha1/*.go apis/$SubDirName/v1alpha1/
   cp -r "$GOPATH"/src/github.com/kubean-io/kubean-api/generated/$SubDirName generated/$SubDirName
 fi
