@@ -23,7 +23,11 @@ RUN /usr/bin/python3 -m pip install --no-cache-dir pip -U \
     && python3 -m pip install --no-cache-dir -r requirements.txt
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
-    && KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main.yaml) \
+    && if [ -d 'roles/kubespray-defaults/defaults/main' ]; then \
+         KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main/main.yml); \
+       else \
+         KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main.yaml); \
+       fi \
     && curl -LO https://dl.k8s.io/release/$KUBE_VERSION/bin/linux/$ARCH/kubectl \
     && curl -LO https://github.com/mikefarah/yq/releases/download/v4.25.2/yq_linux_$ARCH \
     && chmod a+x kubectl yq_linux_$ARCH \
