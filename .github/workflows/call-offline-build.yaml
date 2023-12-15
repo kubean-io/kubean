@@ -101,7 +101,7 @@ jobs:
           ${{ github.ref_name }}/*.sh
 
     - name: Upload InfoManifest CR
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: charts/kubean/templates/manifest.cr.yaml
         name: info-manifest-cr-file
