@@ -16,7 +16,7 @@ jobs:
         fetch-depth: 0
 
     - name: Download InfoManifest CR
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: charts/kubean/templates/
         name: info-manifest-cr-file
