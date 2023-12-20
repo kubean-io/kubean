@@ -35,6 +35,7 @@ import (
 	"github.com/kubean-io/kubean-api/constants"
 	localartifactsetv1alpha1fake "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned/fake"
 	manifestv1alpha1fake "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned/fake"
+	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
 )
 
 func newFakeClient() client.Client {
@@ -531,6 +532,127 @@ func TestReconcile(t *testing.T) {
 				return result.Requeue == false && result.RequeueAfter == 0
 			},
 			want: true,
+		},
+		{
+			name: "a complete reconcile",
+			args: func() bool {
+				controller := &Controller{
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+				}
+
+				localartifactset := localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23.0",
+						},
+					},
+					Spec: localartifactsetv1alpha1.Spec{
+						Docker: []*localartifactsetv1alpha1.DockerInfo{
+							{
+								OS:           "redhat-7",
+								VersionRange: []string{"20.1", "20.2"},
+							},
+						},
+					},
+				}
+				manifest := &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.23.0",
+						},
+					},
+				}
+				infomanifest.GetVersionedManifest().Op("add", manifest, nil)
+
+				if err := controller.Client.Create(context.Background(), &localartifactset); err != nil {
+					panic(err)
+				}
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: localartifactset.Name}})
+				return result.Requeue == true && result.RequeueAfter == Loop
+			},
+		},
+		{
+			name: "no manifests that match the label of localartifactset",
+			args: func() bool {
+				controller := &Controller{
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+				}
+
+				localartifactset := localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.22.0",
+						},
+					},
+					Spec: localartifactsetv1alpha1.Spec{
+						Docker: []*localartifactsetv1alpha1.DockerInfo{
+							{
+								OS:           "redhat-7",
+								VersionRange: []string{"20.1", "20.2"},
+							},
+						},
+					},
+				}
+
+				if err := controller.Client.Create(context.Background(), &localartifactset); err != nil {
+					panic(err)
+				}
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: localartifactset.Name}})
+				return result.Requeue == true && result.RequeueAfter == Loop
+			},
+		},
+		{
+			name: "manifest that match the label of localartifactset but not existent",
+			args: func() bool {
+				controller := &Controller{
+					Client:                    newFakeClient(),
+					ClientSet:                 clientsetfake.NewSimpleClientset(),
+					LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
+					InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
+				}
+
+				localartifactset := localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.22.0",
+						},
+					},
+					Spec: localartifactsetv1alpha1.Spec{
+						Docker: []*localartifactsetv1alpha1.DockerInfo{
+							{
+								OS:           "redhat-7",
+								VersionRange: []string{"20.1", "20.2"},
+							},
+						},
+					},
+				}
+				manifest := &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-1",
+						Labels: map[string]string{
+							constants.KeySprayRelease: "2.22.0",
+						},
+					},
+				}
+				infomanifest.GetVersionedManifest().Op("add", manifest, nil)
+
+				if err := controller.Client.Create(context.Background(), &localartifactset); err != nil {
+					panic(err)
+				}
+				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: localartifactset.Name}})
+				return result.Requeue == true && result.RequeueAfter == Loop
+			},
 		},
 	}
 
