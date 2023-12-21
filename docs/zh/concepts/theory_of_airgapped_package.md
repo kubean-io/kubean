@@ -25,7 +25,7 @@ Kubean CI 构建便于在离线环境中安装 Kubernetes 的离线文件。
     得益于 Kubespray [生成二进制和镜像列表的脚本](https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/generate_list.sh)，
     我们可以使用 [manage-offline-files.sh](https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh)
     下载这些二进制文件和镜像。
-    随后 Kubean 提供了 [offline-build.sh](https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml)
+    随后 Kubean 提供了 [call-offline-build.yaml](https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml)（Github Action 脚本）
     将所有这些融合于一起。
 
 2. os-packages (deb/rpm)

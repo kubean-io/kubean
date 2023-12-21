@@ -25,7 +25,7 @@ This chapter explains the theory how the air-gapped packages come from.
 
     With help of Kubespray [script to generate binaries & images list](https://github.com/kubernetes-sigs/kubespray/blob/master/contrib/offline/generate_list.sh),
     then we can use [manage-offline-files.sh](https://github.com/kubernetes-sigs/kubespray/tree/master/contrib/offline#manage-offline-files.sh) to download those binaries and images.
-    At last, Kubean provides an [offline-build.sh](https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml) to make them together.
+    At last, Kubean provides an [call-offline-build.yaml](https://github.com/kubean-io/kubean/blob/main/.github/workflows/call-offline-build.yaml)(Github Action scripts) to make them together.
 
 2. os-packages (deb/rpm)
 
