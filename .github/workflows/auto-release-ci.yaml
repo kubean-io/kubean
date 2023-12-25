@@ -107,5 +107,5 @@ jobs:
     uses: ./.github/workflows/update-kubean-support-matrix.yaml
     needs: get-environment
     permissions:
-      packages: write
-      contents: read
+      pull-requests: write
+      contents: write
