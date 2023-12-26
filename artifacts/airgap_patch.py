@@ -118,6 +118,8 @@ def create_localartifactset_cr(manifest_data):
             component_name = re.split('_', version_key)[0]
             if item_name == component_name:
                 versions = manifest_data.get(version_key)
+                if MODE == "FULL" and component_name != 'kube' and versions is None:
+                    versions = ['default']
                 if isinstance(versions, list):
                     item["versionRange"] = versions
                 if isinstance(versions, str):
