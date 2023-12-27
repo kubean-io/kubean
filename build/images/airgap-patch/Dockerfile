@@ -35,6 +35,7 @@ CMD echo "show supporting versions" \
     && echo "starting generating airgap patch files" \
     && MANIFEST_CONF=/manifest.yml python3 artifacts/airgap_patch.py \
     && echo "copying data" \
+    && rm -rf /data/* \
     && mv airgap_patch/* /data \
     && chmod -R 777 /data/ \
     && echo "finished"
