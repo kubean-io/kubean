@@ -144,13 +144,20 @@ function create_images() {
 
   while read -r image_name; do
     echo "download image $image_name to local"
+    local target_image_name=$image_name
+    target_image_name=${target_image_name/docker.m.daocloud.io/docker.io}
+    target_image_name=${target_image_name/gcr.m.daocloud.io/gcr.io}
+    target_image_name=${target_image_name/ghcr.m.daocloud.io/ghcr.io}
+    target_image_name=${target_image_name/k8s-gcr.m.daocloud.io/k8s.gcr.io}
+    target_image_name=${target_image_name/k8s.m.daocloud.io/registry.k8s.io}
+    target_image_name=${target_image_name/quay.m.daocloud.io/quay.io}
     ret=0
-    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} "docker://$image_name" "oci:offline-images:$image_name" || ret=$?
+    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} "docker://$image_name" "oci:offline-images:$target_image_name" || ret=$?
     if [ ${ret} -ne 0 ]; then
       echo "skopeo copy image failed, image name: ${image_name}."
       exit 1
     fi
-    echo "$image_name" >> offline-images/images.list
+    echo "$target_image_name" >> offline-images/images.list
   done <<< "${images_list_content}"
 
   tar -czvf $OFFLINE_IMAGES_DIR/offline-images.tar.gz offline-images
