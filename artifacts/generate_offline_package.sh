@@ -82,19 +82,6 @@ function generate_temp_list() {
   cp contrib/offline/temp/*.list ${OFFLINE_PACKAGE_DIR}
 }
 
-function update_binaris_cn_mirror() {
-  local file_list="${CURRENT_DIR}/kubespray/contrib/offline/temp/files.list"
-  # 1. backup files list
-  mv "${file_list}" "${file_list}.bak"
-  # 2. update cn mirror
-  local binary_mirror_addr="files.m.daocloud.io"
-  while read -r binary_addr; do
-    echo "${binary_addr}" | sed "s/https:\/\//&${binary_mirror_addr}\//" >> "${file_list}"
-  done <<< "$(cat "${file_list}.bak" || true)"
-  # 3. clear files list backup file
-  rm -rf "${file_list}.bak"
-}
-
 function update_images_cn_mirror() {
   local image_list="${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list"
   # 1. backup images list
@@ -115,11 +102,18 @@ function update_images_cn_mirror() {
 
 function create_files() {
   cd $CURRENT_DIR/kubespray/contrib/offline/
-  if [[ "${ZONE}" == "CN" ]]; then
-    update_binaris_cn_mirror
-  fi
 
+  local mirror_host=files.m.daocloud.io
+  if [[ "${ZONE}" == "CN" ]]; then
+    sed -i -r "s#https?://#https://$mirror_host/#g" temp/files.list
+  fi
+  sed -i "s#storage.googleapis.com/kubernetes-release#dl.k8s.io#g" temp/files.list
   NO_HTTP_SERVER=true bash manage-offline-files.sh
+  if [[ "${ZONE}" == "CN" ]]; then
+    mv offline-files/$mirror_host/* offline-files/
+    rm -rf offline-files/$mirror_host offline-files.tar.gz
+    tar -czf offline-files.tar.gz offline-files
+  fi
   cp offline-files.tar.gz $OFFLINE_FILES_DIR
 }
 
