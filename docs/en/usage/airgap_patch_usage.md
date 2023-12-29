@@ -30,16 +30,18 @@ To meet users' needs for components of certain versions, Kubean provides the scr
 3. Run the following command to generate an incremental offline package in the `data` folder
 
     ```bash
-    docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/hangscer8/airgap-patch:v0.2.0
+    $ docker run \
+          -v $(pwd)/data:/data \
+          -v $(pwd)/manifest.yml:/manifest.yml \
+          ghcr.io/kubean-io/airgap-patch:v0.11.1
     ```
 
-    Available environment variables include:
-    1. ZONE:
-    * `DEFAULT`: Download offline resources using the default original address
-    * `CN`: Download offline resources by using DaoCloud mirror address in China.
-    2. MODE:
-    * `INCR`: Build only the component offline resources specified in the manifest configuration (i.e.: incremental packages)
-    * `FULL`: Offline resources that will build the components specified in the manifest configuration, as well as other components necessary for cluster deployment (i.e.: full packages)
+    | Environment Variables | Optional Value Description （:material-checkbox-marked-circle: is default value） |
+    | ----------- | ------------------------------------ |
+    | ZONE | :material-checkbox-marked-circle: `DEFAULT`: Download offline resources using the default original address.  |
+    |      | :material-checkbox-blank-circle-outline: `CN`: Download offline resources by using DaoCloud mirror address in China. |
+    | MODE | :material-checkbox-marked-circle: `INCR`: Build only the offline resources for the components specified in the configuration (i.e.: incremental packages)|
+    |      | :material-checkbox-blank-circle-outline:  `FULL`: Building offline resources includes the components specified in the configuration along with the components necessary for cluster deployment (i.e.: full packages)|
 
 
 ## Use the incremental offline package

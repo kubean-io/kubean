@@ -60,7 +60,7 @@ jobs:
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
-        bash artifacts/generate_offline_package.sh all
+        bash artifacts/gen_airgap_pkgs.sh all
         cd ${OFFLINE_PACKAGE_DIR}/
         tar -zcvf files-${ARCH}-${KUBEAN_TAG}.tar.gz files/
         tar -zcvf images-${ARCH}-${KUBEAN_TAG}.tar.gz images/
@@ -76,7 +76,7 @@ jobs:
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
         OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
-        bash artifacts/generate_offline_package.sh all
+        bash artifacts/gen_airgap_pkgs.sh all
         cd ${OFFLINE_PACKAGE_DIR}/
         tar -zcvf files-${ARCH}-${KUBEAN_TAG}.tar.gz files/
         tar -zcvf images-${ARCH}-${KUBEAN_TAG}.tar.gz images/

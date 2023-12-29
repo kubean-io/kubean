@@ -31,16 +31,20 @@
 3. 使用镜像，等待运行退出后，在 `data` 文件夹中生成增量离线包
 
     ```bash
-    docker run -v $(pwd)/manifest.yml:/manifest.yml -v $(pwd)/data:/data ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5 
+    $ docker run \
+          -v $(pwd)/data:/data \
+          -v $(pwd)/manifest.yml:/manifest.yml \
+          -e ZONE=CN \
+          ghcr.io/kubean-io/airgap-patch:v0.11.1
     ```
 
-    可用的环境变量:
-    1. ZONE:
-    * `DEFAULT`: 采用默认原始地址下载离线资源
-    * `CN`: 采用国内 DaoCloud 加速器地址下载离线资源
-    2. MODE:
-    * `INCR`: 仅构建 manifest 配置中指定的组件离线资源（即：增量包）
-    * `FULL`: 将构建 manifest 配置中指定的组件以及集群部署必须的其他组件的离线资源（即：全量包）
+    | 环境变量 | 可选值描述 （:material-checkbox-marked-circle: :表示默认值） |
+    | ----------- | ------------------------------------ |
+    | ZONE | :material-checkbox-marked-circle: `DEFAULT`: 采用默认原始地址下载离线资源  |
+    |      | :material-checkbox-blank-circle-outline: `CN`: 采用国内 DaoCloud 加速器地址下载离线资源 |
+    | MODE | :material-checkbox-marked-circle: `INCR`: 仅构建配置中指定组件的离线资源（即：增量包）|
+    |      | :material-checkbox-blank-circle-outline:  `FULL`: 将构建配置中指定的组件以及集群部署必要其他组件的离线资源（即：全量包）|
+
 
 ## 使用增量离线包
 
