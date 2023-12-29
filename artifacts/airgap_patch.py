@@ -66,17 +66,17 @@ def get_manifest_version(key, manifest_dict):
             result.append(str(v).strip())
     return list(set(result))
 
-def execute_generate_offline_package(arg_option, arch):
-    if not os.path.exists("artifacts/generate_offline_package.sh"):
-        print("generate_offline_package.sh not found in artifacts")
+def execute_gen_airgap_pkgs(arg_option, arch):
+    if not os.path.exists("artifacts/gen_airgap_pkgs.sh"):
+        print("gen_airgap_pkgs.sh not found in artifacts")
         sys.exit(1)
-    if subprocess.run(["bash", "artifacts/generate_offline_package.sh", "offline_dir"],
+    if subprocess.run(["bash", "artifacts/gen_airgap_pkgs.sh", "offline_dir"],
                       env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch, "ZONE": ZONE}).returncode != 0:
-        print("execute generate_offline_package.sh but failed")
+        print("execute gen_airgap_pkgs.sh but failed")
         sys.exit(1)
-    if subprocess.run(["bash", "artifacts/generate_offline_package.sh", str(arg_option)],
+    if subprocess.run(["bash", "artifacts/gen_airgap_pkgs.sh", str(arg_option)],
                       env={"KUBEAN_TAG": KUBEAN_TAG, "ARCH": arch, "ZONE": ZONE}).returncode != 0:
-        print("execute generate_offline_package.sh but failed")
+        print("execute gen_airgap_pkgs.sh but failed")
         sys.exit(1)
 
 def create_files(file_urls, arch):
@@ -84,14 +84,14 @@ def create_files(file_urls, arch):
     with open(os.path.join(OFFLINE_TMP_ABS_PATH, "files.list"), "w") as f:
         f.write("\n".join(file_urls))
         f.flush()
-    execute_generate_offline_package("files", arch)
+    execute_gen_airgap_pkgs("files", arch)
 
 def create_images(image_urls, arch):
     os.chdir(CUR_DIR)
     with open(os.path.join(OFFLINE_TMP_ABS_PATH, "images.list"), "w") as f:
         f.write("\n".join(image_urls))
         f.flush()
-    execute_generate_offline_package("images", arch)
+    execute_gen_airgap_pkgs("images", arch)
 
 def create_localartifactset_cr(manifest_data):
     os.chdir(CUR_DIR)
@@ -103,7 +103,7 @@ def create_localartifactset_cr(manifest_data):
     template_file.close()
     offlineversion_cr_dict["spec"]["docker"] = []
     offlineversion_cr_dict["metadata"]["labels"] = {}
-    if SPRAY_RELEASE != "master":
+    if SPRAY_RELEASE != "":
         offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}-{int(datetime.now().timestamp())}"
         offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = SPRAY_RELEASE
     else:
@@ -183,7 +183,7 @@ def gen_airgap_packages(option, arch, bin_urls, img_urls):
     if option == "all":
         create_files(bin_urls, arch=arch)
         create_images(img_urls, arch=arch)
-        execute_generate_offline_package("copy_import_sh", arch=arch)
+        execute_gen_airgap_pkgs("copy_import_sh", arch=arch)
     if option == "create_files":
         create_files(bin_urls, arch=arch)
     if option == "create_images":
