@@ -1937,15 +1937,38 @@
 </li>
 <li>
 <p>使用镜像，等待运行退出后，在 <code>data</code> 文件夹中生成增量离线包</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span>ghcr.io/kubean-io/airgap-patch:v0.4.0-rc5<span class="w"> </span>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-e<span class="w"> </span><span class="nv">ZONE</span><span class="o">=</span>CN<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>ghcr.io/kubean-io/airgap-patch:v0.11.1
 </code></pre></div>
-<p>可用的环境变量:
-1. ZONE:
-* <code>DEFAULT</code>: 采用默认原始地址下载离线资源
-* <code>CN</code>: 采用国内 DaoCloud 加速器地址下载离线资源
-2. MODE:
-* <code>INCR</code>: 仅构建 manifest 配置中指定的组件离线资源（即：增量包）
-* <code>FULL</code>: 将构建 manifest 配置中指定的组件以及集群部署必须的其他组件的离线资源（即：全量包）</p>
+<table>
+<thead>
+<tr>
+<th>环境变量</th>
+<th>可选值描述 （<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10 17-5-5 1.41-1.42L10 14.17l7.59-7.59L19 8m-7-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span> :表示默认值）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ZONE</td>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10 17-5-5 1.41-1.42L10 14.17l7.59-7.59L19 8m-7-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span> <code>DEFAULT</code>: 采用默认原始地址下载离线资源</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 1-8-8 8 8 0 0 1 8-8 8 8 0 0 1 8 8 8 8 0 0 1-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span> <code>CN</code>: 采用国内 DaoCloud 加速器地址下载离线资源</td>
+</tr>
+<tr>
+<td>MODE</td>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10 17-5-5 1.41-1.42L10 14.17l7.59-7.59L19 8m-7-6A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span> <code>INCR</code>: 仅构建配置中指定组件的离线资源（即：增量包）</td>
+</tr>
+<tr>
+<td></td>
+<td><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 1-8-8 8 8 0 0 1 8-8 8 8 0 0 1 8 8 8 8 0 0 1-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg></span>  <code>FULL</code>: 将构建配置中指定的组件以及集群部署必要其他组件的离线资源（即：全量包）</td>
+</tr>
+</tbody>
+</table>
 </li>
 </ol>
 <h2 id="_3">使用增量离线包<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
