@@ -14,6 +14,11 @@
     check_dual_stack_network: true
 
   tasks:
+    - name: Gather minimal facts
+      setup:
+        gather_subset: '!all,!min,architecture,os_family,pkg_mgr'
+        gather_timeout: 5
+
     - name: Perform check_connection
       ansible.builtin.ping:
       register: connection_ping_result
@@ -50,8 +55,11 @@
       when:
         - fetch_os_type
     - name: Store fetch_os_type result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.os_type.{{ item.key }}=\"{{ item.value }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
-      loop: "{{ lookup( 'dict' , fetch_os_type_result ) }}"
+      shell: |-
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi );
+        {%- for key, value in fetch_os_type_result.items() %}
+        yq -i '.{{inventory_hostname}}.os_type.{{ key }}="{{ value }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}};
+        {%- endfor %}
       delegate_to: localhost
       when:
         - fetch_os_type
@@ -148,14 +156,14 @@
       debug: var=check_result
 
     - name: Clean configmap
-      shell: "/usr/local/bin/kubectl -n {{ spray_job_pod_namespace }} delete configmap {{ configmap_name }} "
+      shell: "/usr/local/bin/kubectl -n {{ spray_job_pod_namespace }} delete configmap {{ configmap_name }} --ignore-not-found --timeout=2s"
       args:
         executable: /bin/bash
       ignore_errors: true
       register: clean_cm_result
       until: clean_cm_result.rc == 0
       retries: 3
-      delay: 3
+      delay: 2
       when: namespace_content.rc == 0
 
     - name: Create configmap
