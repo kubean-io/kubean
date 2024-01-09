@@ -1,0 +1,73 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Config for kube-vip
+  hosts: kube_control_plane
+  gather_facts: false
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    kube_vip_enabled: false
+    kube_vip_lb_fwdmethod: local
+  tasks:
+    - name: Enable net.ipv4.vs.conntrack in sysctl
+      ansible.posix.sysctl:
+        name: net.ipv4.vs.conntrack
+        value: 1
+        sysctl_file: "{{ sysctl_file_path | default('/etc/sysctl.d/99-sysctl.conf') }}"
+        state: present
+        reload: true
+      when:
+        - kube_vip_enabled
+        - kube_vip_lb_fwdmethod == "masquerade"
+
+    - name: Persistent iptables rules
+      ansible.builtin.copy:
+        content: |
+          *mangle
+          -A PREROUTING -d {{ kube_vip_address }}/32 -p tcp -m tcp --dport {{ kube_apiserver_port | default(6443) }} -j MARK --set-xmark 0x1119/0xffffffff
+          COMMIT
+          *nat
+          -A POSTROUTING -m mark --mark 0x1119 -j MASQUERADE
+          COMMIT
+        dest: "{{ kube_config_dir | default('/etc/kubernetes') }}/kubevip-iptables"
+        owner: root
+        group: root
+        mode: "0644"
+      register: kubevip_iptables_rules_file
+      when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
+
+    - name: Find iptables-restore path
+      command: command -v iptables-restore
+      register: iptables_restore_path
+      changed_when: false
+      when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
+
+    - name: Create kubevip-iptables.service
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=kube-vip iptables rule loading
+          After=network.target
+
+          [Service]
+          Type=oneshot
+          ExecStart={{ iptables_restore_path.stdout }} -n "{{ kubevip_iptables_rules_file.dest }}"
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/kubevip-iptables.service
+        owner: root
+        group: root
+        mode: "0644"
+      when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
+
+    - name: Enable and start kubevip-iptables service
+      systemd:
+        name: kubevip-iptables
+        masked: false
+        enabled: true
+        daemon_reload: true
+        state: started
+      when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
