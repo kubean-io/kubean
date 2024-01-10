@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import urllib.request
 import sys
 import yaml
 import json
@@ -33,7 +34,8 @@ KEYWORDS = {
     "containerd_version": ['containerd'],
     "calico_version": ['calico'],
     "cilium_version": ['cilium'],
-    "etcd_version": ['etcd']
+    "etcd_version": ['etcd'],
+    "pod_infra_version": ['pause'],
 }
 
 def file_lines_to_list(filename):
@@ -153,8 +155,20 @@ def get_other_required_keywords(manifest_dict):
         other_required_keywords += KEYWORDS[key]
     return other_required_keywords
 
+def get_pod_infra_versions(kube_versions):
+    pod_infra_versions = []
+    for kube_version in list(kube_versions):
+        f = urllib.request.urlopen(f'https://raw.githubusercontent.com/kubernetes/kubernetes/{kube_version}/build/dependencies.yaml')
+        response_content = f.read().decode('utf-8')
+        
+        yaml_obj = yaml.safe_load(response_content)
+        for item in yaml_obj.get("dependencies"):
+            if item.get("name") in ["k8s.gcr.io/pause", "registry.k8s.io/pause"]:
+                pod_infra_versions.append(item.get('version'))
+    return pod_infra_versions
 
 def build_jobs_params(manifest_dict):
+    manifest_dict["pod_infra_version"] = get_pod_infra_versions(manifest_dict["kube_version"])
     print(f'- manifest_dict: {manifest_dict}\n')
     max_len = max(len(item) for _, item in manifest_dict.items() if isinstance(item, list))
     other_required_keywords = get_other_required_keywords(manifest_dict)
