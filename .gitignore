@@ -11,3 +11,5 @@ venv
 
 docs/site/en/
 docs/site/zh/
+
+.dockerignore

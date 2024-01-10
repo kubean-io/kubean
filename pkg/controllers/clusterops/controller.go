@@ -34,6 +34,7 @@ import (
 	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 )
 
 const (
@@ -203,6 +204,10 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 		klog.ErrorS(err, "failed to get cluster ops", "clusterOps", req.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
+	// stop reconcile if the clusterOps has been already finished
+	if clusterOps.Status.Status == clusteroperationv1alpha1.SucceededStatus || clusterOps.Status.Status == clusteroperationv1alpha1.FailedStatus {
+		return controllerruntime.Result{}, nil
+	}
 	needRequeue, err := c.TrySuspendPod(clusterOps)
 	if err != nil {
 		klog.ErrorS(err, "failed to TrySuspendPod", "clusterOps", clusterOps.Name)
@@ -216,7 +221,7 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	}
 	cluster, err := c.GetKuBeanCluster(clusterOps)
 	if err != nil {
-		klog.ErrorS(err, "failed to get kubean cluster", "cluster", cluster.Name)
+		klog.ErrorS(err, "failed to get kubean cluster", "clusterOps", clusterOps.Name)
 		return controllerruntime.Result{RequeueAfter: RequeueAfter}, nil
 	}
 
@@ -887,7 +892,9 @@ func (c *Controller) BackUpDataRef(clusterOps *clusteroperationv1alpha1.ClusterO
 
 func (c *Controller) SetupWithManager(mgr controllerruntime.Manager) error {
 	return utilerrors.NewAggregate([]error{
-		controllerruntime.NewControllerManagedBy(mgr).For(&clusteroperationv1alpha1.ClusterOperation{}).Complete(c),
+		controllerruntime.NewControllerManagedBy(mgr).For(&clusteroperationv1alpha1.ClusterOperation{}).WithOptions(controller.Options{
+			MaxConcurrentReconciles: 5,
+		}).Complete(c),
 		mgr.Add(c),
 	})
 }
