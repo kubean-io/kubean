@@ -44,6 +44,7 @@
       shell: >-
         mv {{ yum_repo_src_path }} {{ yum_repo_bak_path }} &&
         mkdir -p {{ yum_repo_src_path }}
+      changed_when: true
       when:
         - ansible_os_family == "RedHat"
         - not file_data.stat.exists and ( repo_list | length > 0 )
@@ -67,6 +68,7 @@
     - name: Make cache for new repo
       shell: >-
         yum clean all && yum makecache
+      changed_when: true
       when:
         - ansible_os_family == "RedHat"
         - not undo|default(false)|bool
@@ -84,6 +86,7 @@
         mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }} &&
         mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/ &&
         mkdir -p {{ apt_repo_src_path }}/
+      changed_when: true
       when:
         - ansible_pkg_mgr == 'apt'
         - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
@@ -112,6 +115,7 @@
       until: clean_repo_result.rc == 0
       retries: 5
       delay: 5
+      changed_when: clean_repo_result.rc == 0
       when:
         - undo|default(false)|bool
         - ansible_os_family == "RedHat"
@@ -135,6 +139,7 @@
       until: restore_repo_result.rc == 0
       retries: 5
       delay: 5
+      changed_when: restore_repo_result.rc == 0
       when:
         - undo|default(false)|bool
         - ansible_os_family == "RedHat"
@@ -162,6 +167,7 @@
         mv {{ apt_repo_bak_file }} {{ apt_repo_src_file }} &&
         rm {{ apt_repo_src_path }}/ -rf &&
         mv {{ apt_repo_bak_path }}/ {{ apt_repo_src_path }}/
+      changed_when: true
       when:
         - undo|default(false)|bool
         - ansible_pkg_mgr == 'apt'

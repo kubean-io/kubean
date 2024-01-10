@@ -8,7 +8,7 @@
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   tasks:
-    - name: Show cluster info
+    - name: Get cluster info
       shell: |
         /usr/local/bin/kubectl get node -o wide
         /usr/local/bin/kubectl -n kube-system get pod
@@ -19,4 +19,7 @@
       retries: 5
       delay: 30
       until: clusterinfo.rc == 0
-    - debug: var=clusterinfo.stdout_lines
+      changed_when: false
+    - name: Show cluster info
+      debug:
+        var: clusterinfo.stdout_lines
