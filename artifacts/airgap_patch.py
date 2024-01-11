@@ -29,7 +29,7 @@ OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                 default=os.path.join(CUR_DIR,
                                                      "artifacts/template/localartifactset.template.yml"))
 KEYWORDS = {
-    "kube_version": ["/kubelet", "/kubectl", "/kubeadm", "/kube-apiserver", "/kube-controller-manager", "/kube-scheduler", "/kube-proxy", "/pause"],
+    "kube_version": ["kubelet", "kubectl", "kubeadm", "kube-apiserver", "kube-controller-manager", "kube-scheduler", "kube-proxy", "pause", "coredns"],
     "cni_version": ["cni"],
     "containerd_version": ['containerd'],
     "calico_version": ['calico'],
@@ -146,7 +146,7 @@ def get_manifest_data():
 def get_other_required_keywords(manifest_dict):
     other_required_keywords = [
         "crictl", "cri-o", "runc", "crun", "runsc", "cri-dockerd", "yq",
-        "coredns", "nginx", "k8s-dns-node-cache", "cluster-proportional-autoscaler"]
+        "nginx", "k8s-dns-node-cache", "cluster-proportional-autoscaler"]
     manifest_keys = [ key for key in manifest_dict]
     keys_range = [ key for key in KEYWORDS]
     list_diff = list(set(keys_range) - set(manifest_keys))
