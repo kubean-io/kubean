@@ -63,10 +63,10 @@ Execute the following command to import the image file into the Docker Registry 
 
 ``` bash
 # 1. password-free mode
-$ REGISTRY_ADDR=${address} ./import_images.sh
+$ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
 # 2. Username password mode
-$ REGISTRY_ADDR=${address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
+$ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
 ```
 
 * `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`

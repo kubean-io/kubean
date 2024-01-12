@@ -5,6 +5,7 @@
 
 TARGET_ARCH=${TARGET_ARCH:-""}
 OCI_PATH=${OCI_PATH:-"offline-images"}
+REGISTRY_SCHEME=${REGISTRY_SCHEME:-"https"}
 REGISTRY_ADDR=${REGISTRY_ADDR:-""}
 REGISTRY_USER=${REGISTRY_USER:-""}
 REGISTRY_PASS=${REGISTRY_PASS:-""}
@@ -119,6 +120,10 @@ function image::show_multi_arch() {
 }
 
 function image::pre_processing() {
+  # Check if registry http scheme is empty
+  if [[ -z "${REGISTRY_SCHEME}" ]]; then
+    image::log_erro "registry scheme cannot be empty."
+  fi
   # Check if registry addr is empty
   if [[ -z "${REGISTRY_ADDR}" ]]; then
     image::log_erro "registry address cannot be empty."
@@ -197,7 +202,61 @@ function image::batch_remove_manifests() {
   done <<<"${manifest_list}"
 }
 
-if [ "${BASH_SOURCE[0]}" == "$0" ]; then
+########### about harbor project ###########
+
+function image::try_create_harbor_project() {
+  local ping_result
+  ping_result=$(image::ping_harbor "${REGISTRY_ADDR}")
+  if [[ "${ping_result}" = "true" ]] ; then
+    local harbor_projects=( $(image::get_project_names "${OCI_PATH}") )
+    image::batch_create_project_for_harbor "${REGISTRY_ADDR}" "${REGISTRY_USER}" "${REGISTRY_PASS}" "${harbor_projects[*]}"
+  fi
+}
+
+function image::ping_harbor() {
+  local harbor_url=${1}
+  if curl -k -s "${REGISTRY_SCHEME}://${harbor_url}/api/v2.0/ping" | grep -i pong >/dev/null 2>&1 ; then
+    echo true
+  else
+    echo false
+  fi
+}
+
+function image::get_project_names() {
+  local oci_path=${1}
+  local projects=( $(find "${oci_path}" -type f -regex '.*images.list' -print0 |\
+    xargs -0 -r cat |\
+    awk -F / '{print $1}' |\
+    sort -u) )
+  echo "${projects[*]}"
+}
+
+function image::batch_create_project_for_harbor() {
+  local harbor_url=${1}
+  local harbor_user=${2:-""}
+  local harbor_password=${3:-""}
+  local harbor_projects=${4}
+
+  harbor_projects=( $(printf "%s\n" "${harbor_projects[@]}" | sort -u) )
+
+  local auth=""
+  if [[ -n "${harbor_user}" ]]; then
+    auth="-u ${harbor_user}:${harbor_password}"
+  fi
+  for project in "${harbor_projects[@]}"; do
+    if curl -ksS ${auth} -X POST -H "Content-Type: application/json" \
+      "${REGISTRY_SCHEME}://${harbor_url}/api/v2.0/projects" \
+      -d "{ \"project_name\": \"${project}\", \"public\": true}" |& grep -v -E '|already exists' ; then
+      echo "create harbor public project: ${project} failed!"
+      return 1
+    else
+      echo "creating harbor public project: ${project} successful"
+    fi
+  done
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  image::try_create_harbor_project
   image::batch_merge_multi_arch
   image::batch_remove_manifests
 fi

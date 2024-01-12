@@ -86,10 +86,10 @@ data
     $ cd data/airgap_patch/amd64/images
 
     # 1. 免密模式
-    $ REGISTRY_ADDR=${address} ./import_images.sh
+    $ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
     # 2. 用户名口令模式
-    $ REGISTRY_ADDR=${address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
+    $ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
     ```
 
     * `REGISTRY_ADDR` 是镜像仓库的地址，比如`1.2.3.4:5000`
