@@ -157,8 +157,13 @@ def get_other_required_keywords(manifest_dict):
 
 def get_pod_infra_versions(kube_versions):
     pod_infra_versions = []
+    depend_url_templ = "https://raw.githubusercontent.com/kubernetes/kubernetes/{}/build/dependencies.yaml"
+    if ZONE == "CN":
+        depend_url_templ = "https://gitee.com/mirrors/kubernetes/raw/{}/build/dependencies.yaml"
     for kube_version in list(kube_versions):
-        f = urllib.request.urlopen(f'https://raw.githubusercontent.com/kubernetes/kubernetes/{kube_version}/build/dependencies.yaml')
+        dependencies_url = depend_url_templ.format(kube_version)
+        print(f'- dependencies url: {dependencies_url}')
+        f = urllib.request.urlopen(dependencies_url)
         response_content = f.read().decode('utf-8')
         
         yaml_obj = yaml.safe_load(response_content)
