@@ -181,7 +181,7 @@ function import_default_airgap_pkg() {
   
   tar -zxvf "images-${ARCH}-${kubean_version}.tar.gz"
   pushd images || return
-  DEST_TLS_VERIFY=false ./import_images.sh "${registry_addr}"
+  REGISTRY_ADDR="${registry_addr}" ./import_images.sh
   popd || return
 
   tar -zxvf "os-pkgs-${DISTRO}-${kubean_version}.tar.gz"
