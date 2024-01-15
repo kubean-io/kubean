@@ -1,15 +1,15 @@
 apiVersion: "kubean.io/v1alpha1"
 kind: "Manifest"
 metadata:
-  name: "manifest-2.21-d6f688f"
+  name: "manifest-2.21-e4ac3ab"
   labels:
     kubean.io/sprayRelease: "2.21"
   annotations:
-    kubean.io/sprayTimestamp: "1701788905"
+    kubean.io/sprayTimestamp: "1705044531"
     kubean.io/sprayRelease: "2.21"
-    kubean.io/sprayCommit: "d6f688f"
+    kubean.io/sprayCommit: "e4ac3ab"
 spec:
-  kubesprayVersion: "d6f688f06012f89251f8a1158b274e96e48ba881"
+  kubesprayVersion: "e4ac3ab799dffbb7b5622251aa7d8411afc23064"
   kubeanVersion: ""
   docker:
     - os: "redhat-7"
