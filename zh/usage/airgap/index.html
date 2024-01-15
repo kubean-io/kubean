@@ -2322,10 +2322,10 @@
 </code></pre></div>
 <p>执行如下命令, 将镜像文件导入到 docker registry 或 harbor 镜像仓库服务中:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># 1. 免密模式</span>
-$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
+$<span class="w"> </span><span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>http<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. 用户名口令模式</span>
-$<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
+$<span class="w"> </span><span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>https<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
 <li><code>REGISTRY_ADDR</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code></li>
