@@ -19,6 +19,8 @@ set -e
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
+export KUBE_VERSION=${KUBE_VERSION:-""}
+
 GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 rm -f ~/.ssh/known_hosts
@@ -46,6 +48,9 @@ cp -f "${REPO_ROOT}"/test/common/kubeanClusterOps.yml  "${REPO_ROOT}"/test/kubea
 sed -i "s/ip:/ip: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
 sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/hosts-conf-cm.yml
+if [ -n "$KUBE_VERSION" ]; then
+    sed -i "s/kube_version: .*/kube_version: ${KUBE_VERSION}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/vars-conf-cm.yml
+fi
 
 sed -i "s#image:#image: ${SPRAY_JOB}#" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/" "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
@@ -71,6 +76,9 @@ cp -r "${REPO_ROOT}"/test/kubean_functions_e2e/e2e-install-cluster "${REPO_ROOT}
 sed -i "s/${CLUSTER_OPERATION_NAME1}/${CLUSTER_OPERATION_NAME2}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/kubeanClusterOps.yml
 #sed -i "s/containerd/docker/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
 sed -i "$ a\    override_system_hostname: false" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+if [ -n "$KUBE_VERSION" ]; then
+    sed -i "s/kube_version: .*/kube_version: ${KUBE_VERSION}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-install-cluster-docker/vars-conf-cm.yml
+fi
 
 ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}"  \
               --clusterOperationName="${CLUSTER_OPERATION_NAME2}" --vmipaddr="${vm_ip_addr1}" \
