@@ -56,6 +56,21 @@
   
   <tbody>
       <tr>
+        <td rowspan=3> 📅 2024-01-22 16:23:42 </td>
+        <td rowspan=1>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-d8a8fb0.yml">manifest-2.22-d8a8fb0.yml</a></code>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.22-d8a8fb0</code> </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.22-d8a8fb0</code> </td>
+      </tr>
+  </tbody>
+  
+  <tbody>
+      <tr>
         <td rowspan=3> 📅 2024-01-11 13:59:56 </td>
         <td rowspan=1>
            📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.22-774d824.yml">manifest-2.22-774d824.yml</a></code>
