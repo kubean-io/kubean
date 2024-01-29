@@ -77,6 +77,19 @@ func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Reques
 	sprayRelease, ok := localartifactset.ObjectMeta.Labels[constants.KeySprayRelease]
 	if !ok {
 		klog.Warningf("No label %s found in %s", constants.KeySprayRelease, localartifactset.Name)
+
+		// Migrate old versions of LocalArtifactSet without a release version label.
+		sprayRelease = "master"
+		if localartifactset.ObjectMeta.Labels != nil {
+			localartifactset.ObjectMeta.Labels[constants.KeySprayRelease] = sprayRelease
+		} else {
+			localartifactset.ObjectMeta.Labels = map[string]string{constants.KeySprayRelease: sprayRelease}
+		}
+		_, err := c.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Update(context.Background(), localartifactset, metav1.UpdateOptions{})
+		if err != nil {
+			klog.Error(err)
+			return controllerruntime.Result{RequeueAfter: Loop}, nil
+		}
 		return controllerruntime.Result{}, nil
 	}
 

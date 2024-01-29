@@ -489,7 +489,7 @@ func TestReconcile(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "ComponentsversionGlobal not exist",
+			name: "localArtifact missing release label",
 			args: func() bool {
 				controller := &Controller{
 					Client:                    newFakeClient(),
@@ -511,11 +511,20 @@ func TestReconcile(t *testing.T) {
 					},
 				}
 
+				manifest := &manifestv1alpha1.Manifest{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "manifest-master",
+					},
+				}
+				infomanifest.GetVersionedManifest().Op("add", manifest, nil)
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
 				controller.Client.Create(context.Background(), &offlineVersionData)
 				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &offlineVersionData, metav1.CreateOptions{})
 
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
-				return result.RequeueAfter == 0 && result.Requeue == false
+				localartifactset, _ := controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Get(context.Background(), offlineVersionData.Name, metav1.GetOptions{})
+				release, ok := localartifactset.ObjectMeta.Labels[constants.KeySprayRelease]
+				return ok == true && release == "master" && result.Requeue == false && result.RequeueAfter == 0
 			},
 			want: true,
 		},
