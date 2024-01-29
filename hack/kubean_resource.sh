@@ -32,6 +32,7 @@ function offline_pre::prepare_kubean_resource_svc(){
   resource::install_minio "${kubeconfig_file}" ${resource_cluster_prefix}
   resource::install_registry "${kubeconfig_file}" "amd64"
   resource::install_registry "${kubeconfig_file}" "arm64"
+  resource::install_podman
   resource::import_files_minio_by_arch "${download_root_folder}"  "${release_tag}"  "amd64"  ${test_name}
   resource::import_files_minio_by_arch "${download_root_folder}"  "${release_tag}"  "arm64"  ${test_name}
   resource::push_registry_by_arch "${download_root_folder}"  "${release_tag}" "amd64"  ${test_name}
@@ -66,6 +67,7 @@ function case::artifacts_import_scripts_test(){
   resource::create_kind_cluster_by_config_file  "${resource_cluster_prefix}" "${kubeconfig_file}"
   resource::install_minio "${kubeconfig_file}" "${resource_cluster_prefix}"
   resource::install_registry "${kubeconfig_file}"  "amd64"
+  resource::install_podman
   resource::import_files_minio_by_arch "${download_root_folder}"  "${release_tag}" "amd64" ${test_name}
   resource::check_files_after_import "${download_root_folder}"  "${release_tag}"
   resource::import_os_package_minio "${download_root_folder}"  "${release_tag}" ${test_name}

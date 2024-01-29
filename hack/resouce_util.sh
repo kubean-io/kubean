@@ -227,6 +227,36 @@ function resource::install_registry(){
                              --kubeconfig "${kubeconfig_file}"
 }
 
+function resource::install_podman() {
+  local PODMAN_VERSION="v4.7.1"
+  local PODMAN_TAR_NAME="podman-linux-amd64.tar.gz"
+  local PODMAN_TAR_URL="https://files.m.daocloud.io/github.com/mgoltzsche/podman-static/releases/download/${PODMAN_VERSION}/${PODMAN_TAR_NAME}"
+
+  # If you use the kylin linux, uninstall podman by default
+  if [ $(cat /etc/os-release | grep kylin | wc -l) -eq 1 ]; then
+    dnf remove podman -y
+  fi
+  # If you use the RHEL 8.x and runc was preinstalled, uninstall runc by default
+  if [[ $(cat /etc/os-release | sed -n -e 's/^ID=//p' -e 's/^VERSION_ID=//p' | sed ':a;N;$!ba;s/[\n"]//g') == rhel8* ]] && rpm -qa | grep -q runc; then
+    echo "detected preinstalled runc, uninstall it..."
+    yum remove runc -y
+  fi
+  local curr_podman_ver=""
+  if  [ -x "$(command -v podman)" ]; then
+    curr_podman_ver=$(podman --version |awk '{print $3}')
+  fi
+  if ! [ -x "$(command -v podman)" ] || $(version_lt ${curr_podman_ver} "${PODMAN_VERSION:1}"); then
+    echo "install podman or upgrade podman($curr_podman_ver)"
+    curl --retry 10 --retry-max-time 60 -LO ${PODMAN_TAR_URL}
+    tar -zxvf ${PODMAN_TAR_NAME}
+    sudo cp -r "podman-linux-${arch}/usr" "podman-linux-${arch}/etc" / -f
+    rm -rf /usr/bin/podman && ln /usr/local/bin/podman /usr/bin/podman
+    podman --version
+  else
+    log_warn "skip install podman ..."
+  fi
+}
+
 #####################################
 # $test_type: artifacts_test (replace the scripts from artifacts to tgz decompressed path)
 #             offline_test   (use scripts in the tgz)
