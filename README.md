@@ -73,7 +73,7 @@ $ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
 Then check kubean-operator status by running:
 
 ```shell
-$ kubectl get pods -n kubean-system | grep 'kubean'
+$ kubectl get pods -n kubean-system
 ```
 
 #### 3. Online mode deployment of minimal all-in-one clusters
@@ -91,7 +91,7 @@ You can use the example in folder `examples/install/1.minimal` which uses online
    $ kubectl get job -n kubean-system
    ```
 
-[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
+[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/jFTUi2IdU5yydv88kHkPYMni0)
 
 ## :ocean: Kubernetes compatibility
 
