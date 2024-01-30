@@ -227,6 +227,15 @@ function resource::install_registry(){
                              --kubeconfig "${kubeconfig_file}"
 }
 
+function version_le() {
+  # <=
+  [ "$1" == "$(echo -e "$1\n$2" | sort -V | head -n1)" ]
+}
+function version_lt() {
+  # <
+  [ "$1" == "$2" ] && return 1 || version_le $1 $2
+}
+
 function resource::install_podman() {
   local PODMAN_VERSION="v4.7.1"
   local PODMAN_TAR_NAME="podman-linux-amd64.tar.gz"
@@ -253,7 +262,7 @@ function resource::install_podman() {
     rm -rf /usr/bin/podman && ln /usr/local/bin/podman /usr/bin/podman
     podman --version
   else
-    log_warn "skip install podman ..."
+    echo "skip install podman ..."
   fi
 }
 
