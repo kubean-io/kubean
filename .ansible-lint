@@ -50,3 +50,4 @@ warn_list:
   - ignore-errors # Use failed_when and specify error conditions instead of using ignore_errors.
 exclude_paths:
   - playbooks/disable-firewalld.yml
+  - playbooks/config-for-kube-vip.yml

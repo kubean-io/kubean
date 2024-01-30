@@ -11,16 +11,54 @@
     kube_vip_enabled: false
     kube_vip_lb_fwdmethod: local
   tasks:
-    - name: Enable net.ipv4.vs.conntrack in sysctl
-      ansible.posix.sysctl:
-        name: net.ipv4.vs.conntrack
-        value: 1
-        sysctl_file: "{{ sysctl_file_path | default('/etc/sysctl.d/99-sysctl.conf') }}"
-        state: present
-        reload: true
+    - block:
+      - name: Check if booted with ostree
+        ansible.builtin.stat:
+          path: /run/ostree-booted
+          get_attributes: no
+          get_checksum: no
+          get_mime: no
+        register: ostree
+
+      - name: Set is_fedora_coreos
+        ansible.builtin.lineinfile:
+          path: /etc/os-release
+          line: "VARIANT_ID=coreos"
+          state: present
+        check_mode: yes
+        register: os_variant_coreos
+        changed_when: false
+
+      - name: Set is_fedora_coreos
+        ansible.builtin.set_fact:
+          is_fedora_coreos: "{{ ostree.stat.exists and os_variant_coreos is not changed }}"
+
+      - name: Install ipvsadm
+        ansible.builtin.package:
+          name: ipvsadm
+          state: present
+        register: pkgs_task_result
+        until: pkgs_task_result is succeeded
+        retries: 3
+        delay: "{{ 2 | random + 3 }}"
+        when: not (ansible_os_family in ["Flatcar", "Flatcar Container Linux by Kinvolk"] or is_fedora_coreos)
+
+      - name: Modprobe Kernel Module for IPVS
+        community.general.modprobe:
+          name: ip_vs
+          state: present
+          persistent: present
+  
+      - name: Enable net.ipv4.vs.conntrack in sysctl
+        ansible.posix.sysctl:
+          name: net.ipv4.vs.conntrack
+          value: 1
+          sysctl_file: "{{ sysctl_file_path | default('/etc/sysctl.d/99-sysctl.conf') }}"
+          state: present
+          reload: true
       when:
-        - kube_vip_enabled
-        - kube_vip_lb_fwdmethod == "masquerade"
+        - kube_proxy_mode == 'ipvs'
+        - kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
 
     - name: Persistent iptables rules
       ansible.builtin.copy:
@@ -31,7 +69,7 @@
           *nat
           -A POSTROUTING -m mark --mark 0x1119 -j MASQUERADE
           COMMIT
-        dest: "{{ kube_config_dir | default('/etc/kubernetes') }}/kubevip-iptables"
+        dest: /etc/kubevip.iptables
         owner: root
         group: root
         mode: "0644"
