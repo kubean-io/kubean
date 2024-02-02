@@ -1,4 +1,4 @@
-name: kubean_compatibility_schedule
+name: 8. Weekly compatibility test
 
 on:
   # refer: https://crontab.guru/examples.html

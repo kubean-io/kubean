@@ -1,4 +1,4 @@
-name: Auto PR CI
+name: 3. PR verify
 
 on:
   pull_request_target:
