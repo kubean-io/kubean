@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/usage/sshkey_deploy_cluster/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/releases/v0.13.0/">
       
       
-        <link rel="prev" href="../../concepts/theory_of_airgapped_package/">
+        <link rel="prev" href="../../develop/roadmap/">
       
       
-        <link rel="next" href="../install_without_root/">
+        <link rel="next" href="../v0.12.2/">
       
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>以 SSH 密钥方式部署集群 - Kubean</title>
+        <title>V0.13.0 - Kubean</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ssh" class="md-skip">
+        <a href="#whats-changed" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              以 SSH 密钥方式部署集群
+              V0.13.0
             
           </span>
         </div>
@@ -347,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm_install_kubean/" class="md-nav__link">
+      <a href="../../usage/helm_install_kubean/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -368,7 +368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../all_in_one_install/" class="md-nav__link">
+      <a href="../../usage/all_in_one_install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -389,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mirror_install/" class="md-nav__link">
+      <a href="../../usage/mirror_install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -563,21 +563,19 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -591,7 +589,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             用户指南
@@ -602,30 +600,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    以 SSH 密钥方式部署集群
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../usage/sshkey_deploy_cluster/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -634,89 +612,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      内容
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ssh_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      SSH 密钥的生成与分发
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#secret" class="md-nav__link">
-    <span class="md-ellipsis">
-      使用私钥制作 Secret
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      创建主机清单配置
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      制备部署集群的配置参数
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kubean" class="md-nav__link">
-    <span class="md-ellipsis">
-      准备 Kubean 的自定义资源
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      开始部署集群
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -729,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../install_without_root/" class="md-nav__link">
+      <a href="../../usage/install_without_root/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -750,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale_worknode/" class="md-nav__link">
+      <a href="../../usage/scale_worknode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -771,7 +666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../upgrade/" class="md-nav__link">
+      <a href="../../usage/upgrade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -792,7 +687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../uninstall/" class="md-nav__link">
+      <a href="../../usage/uninstall/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -813,7 +708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airgap/" class="md-nav__link">
+      <a href="../../usage/airgap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -834,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airgap_patch_usage/" class="md-nav__link">
+      <a href="../../usage/airgap_patch_usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -924,19 +819,21 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -950,7 +847,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Releases
@@ -961,10 +858,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../releases/v0.13.0/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    V0.13.0
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -973,6 +888,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      What's Changed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What's Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔨 Other Changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -985,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.2/" class="md-nav__link">
+      <a href="../v0.12.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1006,7 +963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.1/" class="md-nav__link">
+      <a href="../v0.12.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1027,7 +984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.0/" class="md-nav__link">
+      <a href="../v0.12.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1048,7 +1005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.2/" class="md-nav__link">
+      <a href="../v0.11.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1069,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.1/" class="md-nav__link">
+      <a href="../v0.11.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1090,7 +1047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.0/" class="md-nav__link">
+      <a href="../v0.11.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1111,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.10.0/" class="md-nav__link">
+      <a href="../v0.10.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1132,7 +1089,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.4-rc2/" class="md-nav__link">
+      <a href="../v0.9.4-rc2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1153,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.4-rc1/" class="md-nav__link">
+      <a href="../v0.9.4-rc1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1174,7 +1131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.3/" class="md-nav__link">
+      <a href="../v0.9.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1195,7 +1152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.2/" class="md-nav__link">
+      <a href="../v0.9.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1216,7 +1173,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.1/" class="md-nav__link">
+      <a href="../v0.9.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1237,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.0/" class="md-nav__link">
+      <a href="../v0.9.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1258,7 +1215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.5/" class="md-nav__link">
+      <a href="../v0.8.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1279,7 +1236,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.4/" class="md-nav__link">
+      <a href="../v0.8.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1300,7 +1257,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.3/" class="md-nav__link">
+      <a href="../v0.8.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1321,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.2/" class="md-nav__link">
+      <a href="../v0.8.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1342,7 +1299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.1/" class="md-nav__link">
+      <a href="../v0.8.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1363,7 +1320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.0/" class="md-nav__link">
+      <a href="../v0.8.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1384,7 +1341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.4/" class="md-nav__link">
+      <a href="../v0.7.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1405,7 +1362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.3/" class="md-nav__link">
+      <a href="../v0.7.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1426,7 +1383,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.2/" class="md-nav__link">
+      <a href="../v0.7.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1447,7 +1404,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.1/" class="md-nav__link">
+      <a href="../v0.7.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1468,7 +1425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.0/" class="md-nav__link">
+      <a href="../v0.7.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1489,7 +1446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.6/" class="md-nav__link">
+      <a href="../v0.6.6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1510,7 +1467,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.5/" class="md-nav__link">
+      <a href="../v0.6.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1531,7 +1488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.4/" class="md-nav__link">
+      <a href="../v0.6.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1552,7 +1509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.3/" class="md-nav__link">
+      <a href="../v0.6.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1573,7 +1530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.2/" class="md-nav__link">
+      <a href="../v0.6.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1594,7 +1551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.1/" class="md-nav__link">
+      <a href="../v0.6.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1615,7 +1572,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.0/" class="md-nav__link">
+      <a href="../v0.6.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1636,7 +1593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.4/" class="md-nav__link">
+      <a href="../v0.5.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1657,7 +1614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.3/" class="md-nav__link">
+      <a href="../v0.5.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1678,7 +1635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.2/" class="md-nav__link">
+      <a href="../v0.5.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1699,7 +1656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.1/" class="md-nav__link">
+      <a href="../v0.5.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1720,7 +1677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.0/" class="md-nav__link">
+      <a href="../v0.5.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1741,7 +1698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.10/" class="md-nav__link">
+      <a href="../v0.4.10/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1762,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.9/" class="md-nav__link">
+      <a href="../v0.4.9/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1783,7 +1740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.8/" class="md-nav__link">
+      <a href="../v0.4.8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1804,7 +1761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.7/" class="md-nav__link">
+      <a href="../v0.4.7/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1825,7 +1782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.6/" class="md-nav__link">
+      <a href="../v0.4.6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1846,7 +1803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.5/" class="md-nav__link">
+      <a href="../v0.4.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1867,7 +1824,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.4/" class="md-nav__link">
+      <a href="../v0.4.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1888,7 +1845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.3/" class="md-nav__link">
+      <a href="../v0.4.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1909,7 +1866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.2/" class="md-nav__link">
+      <a href="../v0.4.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1930,7 +1887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.1/" class="md-nav__link">
+      <a href="../v0.4.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1951,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.0/" class="md-nav__link">
+      <a href="../v0.4.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1972,7 +1929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/artifacts/" class="md-nav__link">
+      <a href="../artifacts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2010,8 +1967,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -2020,65 +1975,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#whats-changed" class="md-nav__link">
     <span class="md-ellipsis">
-      内容
+      What's Changed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What's Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔨 Other Changes
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#ssh_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      SSH 密钥的生成与分发
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#secret" class="md-nav__link">
-    <span class="md-ellipsis">
-      使用私钥制作 Secret
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      创建主机清单配置
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      制备部署集群的配置参数
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#kubean" class="md-nav__link">
-    <span class="md-ellipsis">
-      准备 Kubean 的自定义资源
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      开始部署集群
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2100,199 +2016,18 @@
   
 
 
-<h1 id="ssh">以 SSH 密钥方式部署集群<a class="headerlink" href="#ssh" title="Permanent link">&para;</a></h1>
-<h2 id="_1">内容<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<ul>
-<li>✓ <a href="#SSH密钥的生成与分发">1. SSH 密钥的生成与分发</a></li>
-<li>✓ <a href="#使用私钥制作Secret">2. 使用私钥制作 Secret</a></li>
-<li>✓ <a href="#创建主机清单配置">3. 创建主机清单配置</a></li>
-<li>✓ <a href="#制备部署集群的配置参数">4. 制备部署集群的配置参数</a></li>
-<li>✓ <a href="#准备Kubean的自定义资源">5. 准备 Kubean 的自定义资源</a></li>
-<li>✓ <a href="#开始部署集群">6. 开始部署集群</a></li>
-</ul>
-<h2 id="ssh_1">SSH 密钥的生成与分发<a class="headerlink" href="#ssh_1" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>通过 <code>ssh-keygen</code> 命令生成公私钥对，比如：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$HOME</span>/.ssh/id_rsa
-Generating<span class="w"> </span>public/private<span class="w"> </span>rsa<span class="w"> </span>key<span class="w"> </span>pair.
-Created<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/root/.ssh&#39;</span>.
-Enter<span class="w"> </span>passphrase<span class="w"> </span><span class="o">(</span>empty<span class="w"> </span><span class="k">for</span><span class="w"> </span>no<span class="w"> </span>passphrase<span class="o">)</span>:
-Enter<span class="w"> </span>same<span class="w"> </span>passphrase<span class="w"> </span>again:
-Your<span class="w"> </span>identification<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>/root/.ssh/id_rsa.
-Your<span class="w"> </span>public<span class="w"> </span>key<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>/root/.ssh/id_rsa.pub.
-The<span class="w"> </span>key<span class="w"> </span>fingerprint<span class="w"> </span>is:
-SHA256:oMqlhL8wLuYycOkUNXyiDso62C+ryNYc9k3LMDltQZs<span class="w"> </span>your_email@example.com
-The<span class="w"> </span>keys<span class="w"> </span>randomart<span class="w"> </span>image<span class="w"> </span>is:
-+---<span class="o">[</span>RSA<span class="w"> </span><span class="m">4096</span><span class="o">]</span>----+
-<span class="p">|</span><span class="w">   </span>.<span class="w">             </span><span class="p">|</span>
-<span class="p">|</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>..<span class="w">         </span><span class="p">|</span>
-<span class="p">|</span><span class="w">   </span>o<span class="w"> </span>+o<span class="w"> </span>o<span class="w">        </span><span class="p">|</span>
-<span class="p">|</span>..o<span class="w">  </span>.<span class="w"> </span>E<span class="w">         </span><span class="p">|</span>
-<span class="p">|</span>+o.oo<span class="w"> </span>o<span class="w"> </span>S<span class="w">        </span><span class="p">|</span>
-<span class="p">|</span><span class="nv">o</span><span class="o">==</span>*<span class="w"> </span><span class="o">=</span><span class="w"> </span>+<span class="w">         </span><span class="p">|</span>
-<span class="p">|</span>*<span class="o">=</span>O<span class="w"> </span>o<span class="w"> </span>O<span class="w"> </span>.<span class="w">        </span><span class="p">|</span>
-<span class="p">|</span>@<span class="o">=</span>++<span class="w"> </span>.<span class="w"> </span>+<span class="w">         </span><span class="p">|</span>
-<span class="p">|</span>OBo+.<span class="w">            </span><span class="p">|</span>
-+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
+  <h1>V0.13.0</h1>
 
-$<span class="w"> </span>ls<span class="w"> </span>/root/.ssh/id_rsa*<span class="w"> </span>-lh
--rw-------.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">1</span>.7K<span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa<span class="w">         </span><span class="c1"># 私钥</span>
--rw-r--r--.<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w">  </span><span class="m">408</span><span class="w"> </span>Nov<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">03</span>:47<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w">     </span><span class="c1"># 公钥</span>
-</code></pre></div>
-</li>
-<li>
-<p>分发公钥到集群的各个节点：</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># 比如指定将公钥分发至 `192.168.10.11` `192.168.10.12` 两个节点</span>
-$<span class="w"> </span><span class="nb">declare</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">IPS</span><span class="o">=(</span><span class="m">192</span>.168.10.11<span class="w"> </span><span class="m">192</span>.168.10.12<span class="o">)</span>
+<!-- Release notes generated using configuration in .github/release.yml at v0.13.0 -->
 
-<span class="c1"># 遍历节点 IP 分发公钥(/root/.ssh/id_rsa.pub)，假设用户名为: root, 密码为: kubean</span>
-$<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;kubean&quot;</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w"> </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
-</code></pre></div>
-</li>
-</ol>
-<h2 id="secret">使用私钥制作 Secret<a class="headerlink" href="#secret" title="Permanent link">&para;</a></h2>
-<p>通过 kubectl 命令生成私钥的 Secret：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span><span class="se">\ </span><span class="w">                           </span><span class="c1"># 指定命名空间 kubean-system</span>
-<span class="w">    </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sample-ssh-auth<span class="w"> </span><span class="se">\ </span><span class="w">            </span><span class="c1"># 指定 secret 名称为 sample-ssh-auth</span>
-<span class="w">    </span>--type<span class="o">=</span><span class="s1">&#39;kubernetes.io/ssh-auth&#39;</span><span class="w"> </span><span class="se">\ </span><span class="w">                  </span><span class="c1"># 指定 secret 类型为 kubernetes.io/ssh-auth</span>
-<span class="w">    </span>--from-file<span class="o">=</span>ssh-privatekey<span class="o">=</span>/root/.ssh/id_rsa<span class="w"> </span><span class="se">\ </span><span class="w">     </span><span class="c1"># 指定 ssh 私钥文件路径</span>
-<span class="w">    </span>--dry-run<span class="o">=</span>client<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>SSHAuthSec.yml<span class="w">           </span><span class="c1"># 指定 secret yaml 文件生成路径</span>
-</code></pre></div>
-<p>生成的 <code>SSHAuthSec.yml</code> 内容大致如下所示：</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># SSHAuthSec.yml</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-ssh-auth</span>
-<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes.io/ssh-auth</span>
-<span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">ssh-privatekey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBdWVDbC8rSng1b0RT...</span>
-</code></pre></div>
-<h2 id="_2">创建主机清单配置<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>示例：主机清单 <code>HostsConfCM.yml</code> 内容大致如下，并将下方 <USERNAME> 替换为实际的用户名：</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># HostsConfCM.yml</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-hosts-conf</span>
-<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hosts.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">all:</span>
-<span class="w">      </span><span class="no">hosts:</span>
-<span class="w">        </span><span class="no">master:</span>
-<span class="w">          </span><span class="no">ip: 192.168.10.11</span>
-<span class="w">          </span><span class="no">access_ip: 192.168.10.11</span>
-<span class="w">          </span><span class="no">ansible_host: 192.168.10.11</span>
-<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
-<span class="w">        </span><span class="no">worker:</span>
-<span class="w">          </span><span class="no">ip: 192.168.10.12</span>
-<span class="w">          </span><span class="no">access_ip: 192.168.10.12</span>
-<span class="w">          </span><span class="no">ansible_host: 192.168.10.12</span>
-<span class="w">          </span><span class="no">ansible_user: &lt;USRENAME&gt;</span>
-<span class="w">      </span><span class="no">children:</span>
-<span class="w">        </span><span class="no">kube_control_plane:</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">master:</span>
-<span class="w">        </span><span class="no">kube_node:</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">master:</span>
-<span class="w">            </span><span class="no">worker:</span>
-<span class="w">        </span><span class="no">etcd:</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">master:</span>
-<span class="w">        </span><span class="no">k8s_cluster:</span>
-<span class="w">          </span><span class="no">children:</span>
-<span class="w">            </span><span class="no">kube_control_plane:</span>
-<span class="w">            </span><span class="no">kube_node:</span>
-<span class="w">        </span><span class="no">calico_rr:</span>
-<span class="w">          </span><span class="no">hosts: {}</span>
-</code></pre></div>
-<blockquote>
-<p>注：由于采用私钥登录，所以主机信息中不需要填写密码（即：ansible_password）</p>
-</blockquote>
-<h2 id="_3">制备部署集群的配置参数<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>集群配置参数 <code>VarsConfCM.yml</code>的内容，可以参考
-<a href="https://github.com/kubean-io/kubean/blob/main/examples/install/2.mirror/VarsConfCM.yml">demo vars conf</a>。</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># VarsConfCM.yml</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-vars-conf</span>
-<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">group_vars.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">container_manager: containerd</span>
-<span class="w">    </span><span class="no">kube_network_plugin: calico</span>
-<span class="w">    </span><span class="no">kube_network_plugin_multus: false</span>
-<span class="w">    </span><span class="no">kube_proxy_mode: iptables</span>
-<span class="w">    </span><span class="no">enable_nodelocaldns: false</span>
-<span class="w">    </span><span class="no">etcd_deployment_type: kubeadm</span>
-<span class="w">    </span><span class="no">ntp_enabled: true</span>
-<span class="w">    </span><span class="no">...</span>
-</code></pre></div>
-<h2 id="kubean">准备 Kubean 的自定义资源<a class="headerlink" href="#kubean" title="Permanent link">&para;</a></h2>
+<h2 id="whats-changed">What's Changed<a class="headerlink" href="#whats-changed" title="Permanent link">&para;</a></h2>
+<h3 id="other-changes">🔨 Other Changes<a class="headerlink" href="#other-changes" title="Permanent link">&para;</a></h3>
 <ul>
-<li>
-<p>Cluster 自定义资源内容示例</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Cluster.yml</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
-<span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hostsConfRef</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-hosts-conf</span>
-<span class="w">  </span><span class="nt">varsConfRef</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-vars-conf</span>
-<span class="w">  </span><span class="nt">sshAuthRef</span><span class="p">:</span><span class="w"> </span><span class="c1"># 关键属性，指定集群部署期间的 ssh 私钥 secret</span>
-<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-ssh-auth</span>
-</code></pre></div>
-</li>
-<li>
-<p>ClusterOperation 自定义资源内容示例</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ClusterOperation.yml</span>
-<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample-create-cluster</span>
-<span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
-<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:latest</span>
-<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
-<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
-<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubeconfig.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
-</code></pre></div>
-</li>
+<li>Unrestrict kubeproxy mode for kubevip playbook by @tu1h in https://github.com/kubean-io/kubean/pull/1106</li>
+<li>update spray version to 0dbde75 by @ErikJiang in https://github.com/kubean-io/kubean/pull/1107</li>
+<li>remove cd step in release ci and change workflows name by @ErikJiang in https://github.com/kubean-io/kubean/pull/1105</li>
 </ul>
-<h2 id="_4">开始部署集群<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<p>假设所有 YAML 清单都存放在 <code>create_cluster</code> 目录：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>tree<span class="w"> </span>create_cluster/
-create_cluster
-├──<span class="w"> </span>HostsConfCM.yml<span class="w">       </span><span class="c1"># 主机清单</span>
-├──<span class="w"> </span>SSHAuthSec.yml<span class="w">        </span><span class="c1"># SSH私钥</span>
-├──<span class="w"> </span>VarsConfCM.yml<span class="w">        </span><span class="c1"># 集群参数</span>
-├──<span class="w"> </span>Cluster.yml<span class="w">           </span><span class="c1"># Cluster CR</span>
-└──<span class="w"> </span>ClusterOperation.yml<span class="w">  </span><span class="c1"># ClusterOperation CR</span>
-</code></pre></div>
-<p>通过 <code>kubectl apply</code> 开始部署集群:</p>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>create_cluster/
-</code></pre></div>
+<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.12.2...v0.13.0</p>
 
 
 
@@ -2324,7 +2059,7 @@ create_cluster
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../../concepts/theory_of_airgapped_package/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 离线安装包的原理">
+          <a href="../../develop/roadmap/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Kubean 路线图">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -2334,20 +2069,20 @@ create_cluster
                 上一页
               </span>
               <div class="md-ellipsis">
-                离线安装包的原理
+                Kubean 路线图
               </div>
             </div>
           </a>
         
         
           
-          <a href="../install_without_root/" class="md-footer__link md-footer__link--next" aria-label="下一页: 以非 root 用户部署集群">
+          <a href="../v0.12.2/" class="md-footer__link md-footer__link--next" aria-label="下一页: V0.12.2">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                以非 root 用户部署集群
+                V0.12.2
               </div>
             </div>
             <div class="md-footer__button md-icon">
