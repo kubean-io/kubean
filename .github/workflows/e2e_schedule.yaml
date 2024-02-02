@@ -1,4 +1,4 @@
-name: e2e_schedule
+name: 6. Daily e2e test
 
 on:
   # refer: https://crontab.guru/examples.html

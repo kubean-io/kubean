@@ -1,4 +1,4 @@
-name: Verify Kubespray
+name: 4. Kubespray verify
 
 on:
   workflow_dispatch: #manual run

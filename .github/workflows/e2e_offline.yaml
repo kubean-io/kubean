@@ -1,4 +1,4 @@
-name: Auto OFFLINE CI
+name: 7. Daily airgap mode test
 on:
   workflow_dispatch:
   schedule:

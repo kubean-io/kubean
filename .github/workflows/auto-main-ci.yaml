@@ -1,4 +1,4 @@
-name: Auto Main CI
+name: 2. Main branch verify
 
 on:
   push:

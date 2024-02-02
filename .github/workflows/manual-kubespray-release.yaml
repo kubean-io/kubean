@@ -1,4 +1,4 @@
-name: spray artifact patch
+name: 5. Spray artifact patch build
 
 on:
   workflow_dispatch:
