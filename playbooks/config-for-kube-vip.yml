@@ -56,9 +56,7 @@
           sysctl_file: "{{ sysctl_file_path | default('/etc/sysctl.d/99-sysctl.conf') }}"
           state: present
           reload: true
-      when:
-        - kube_proxy_mode == 'ipvs'
-        - kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
+      when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
 
     - name: Persistent iptables rules
       ansible.builtin.copy:
