@@ -16,13 +16,13 @@ jobs:
         run: rm -rf ./*
 
       - name: Restore offline-build cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ github.ref_name }}/
           key: offline-build
 
       - name: Restore os-pkgs-build-centos7 cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             os-pkgs/kubean-${{ github.ref_name }}-centos7.sha256sum.txt
