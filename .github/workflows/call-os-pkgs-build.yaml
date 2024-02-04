@@ -17,6 +17,8 @@ jobs:
           dockerfile: build/os-packages/Dockerfile.redhat8
         - name: redhat9
           dockerfile: build/os-packages/Dockerfile.redhat9
+        - name: rocky9
+          dockerfile: build/os-packages/Dockerfile.rocky9
         - name: kylinv10
           dockerfile: build/os-packages/Dockerfile.kylinv10
         - name: openeuler22.03

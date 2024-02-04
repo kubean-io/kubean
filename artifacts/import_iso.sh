@@ -101,6 +101,10 @@ function iso::mk_server_path() {
             return
           fi
         fi
+        if [[ "$os" =~ "Rocky Linux" ]]; then
+          echo "/rocky-iso/$version/os/$arch"
+          return
+        fi
       fi
     fi
   done
@@ -178,6 +182,9 @@ function iso::import_data() {
   if [ -d "${iso_mnt_path}/pool" ]; then
     path_list+=("${iso_mnt_path}/pool")
   fi
+  if [ -d "${iso_mnt_path}/minimal" ]; then
+    path_list+=("${iso_mnt_path}/minimal")
+  fi 
   
   if [ "${#path_list[@]}" -gt 0 ]; then
     for path_name in "${path_list[@]}"; do

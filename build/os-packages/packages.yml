@@ -36,6 +36,9 @@ redhat8:
 
 redhat9: []
 
+rocky9:
+  - socat
+
 kylinv10:
   - socat
   - libselinux-python
