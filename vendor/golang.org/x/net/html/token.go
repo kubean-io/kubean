@@ -913,14 +913,7 @@ func (z *Tokenizer) readTagAttrKey() {
 		case ' ', '\n', '\r', '\t', '\f', '/':
 			z.pendingAttr[0].end = z.raw.end - 1
 			return
-		case '=':
-			if z.pendingAttr[0].start+1 == z.raw.end {
-				// WHATWG 13.2.5.32, if we see an equals sign before the attribute name
-				// begins, we treat it as a character in the attribute name and continue.
-				continue
-			}
-			fallthrough
-		case '>':
+		case '=', '>':
 			z.raw.end--
 			z.pendingAttr[0].end = z.raw.end
 			return
