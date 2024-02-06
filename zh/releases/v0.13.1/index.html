@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/releases/v0.4.10/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/zh/releases/v0.13.1/">
       
       
-        <link rel="prev" href="../v0.5.0/">
+        <link rel="prev" href="../../develop/roadmap/">
       
       
-        <link rel="next" href="../v0.4.9/">
+        <link rel="next" href="../v0.13.0/">
       
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>V0.4.10 - Kubean</title>
+        <title>V0.13.1 - Kubean</title>
       
     
     
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              V0.4.10
+              V0.13.1
             
           </span>
         </div>
@@ -858,10 +858,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v0.13.1/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    V0.13.1
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -870,6 +888,57 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      What's Changed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What's Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⬆️ Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔨 Other Changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1656,28 +1725,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    V0.4.10
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../v0.4.10/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1686,33 +1737,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#whats-changed" class="md-nav__link">
-    <span class="md-ellipsis">
-      What's Changed
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1987,6 +2011,30 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What's Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⬆️ Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔨 Other Changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2007,24 +2055,28 @@
   
 
 
-  <h1>V0.4.10</h1>
+  <h1>V0.13.1</h1>
+
+<!-- Release notes generated using configuration in .github/release.yml at v0.13.1 -->
 
 <h2 id="whats-changed">What's Changed<a class="headerlink" href="#whats-changed" title="Permanent link">&para;</a></h2>
+<h3 id="dependencies">⬆️ Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
 <ul>
-<li>update redaht8 related e2e case by @wenting-guo in https://github.com/kubean-io/kubean/pull/654</li>
-<li>fix: ignore actionSourceRef not set by @jonyhy96 in https://github.com/kubean-io/kubean/pull/666</li>
-<li>optimize generate crds by @hangscer8 in https://github.com/kubean-io/kubean/pull/667</li>
-<li>add UT by @hangscer8 in https://github.com/kubean-io/kubean/pull/670</li>
-<li>kubean install on none kubean-system ns e2e by @wenting-guo in https://github.com/kubean-io/kubean/pull/672</li>
-<li>fix speedup offline package by @wenting-guo in https://github.com/kubean-io/kubean/pull/676</li>
-<li>[docs] update and translate theory-of-air-gapped-package.md by @windsonsea in https://github.com/kubean-io/kubean/pull/671</li>
-<li>cleanup: replace pkg ioutil with os by @yyzxw in https://github.com/kubean-io/kubean/pull/680</li>
-<li>update e2e case md by @wenting-guo in https://github.com/kubean-io/kubean/pull/683</li>
-<li>fix create job occasionally unsuccessfully  from ops by @hangscer8 in https://github.com/kubean-io/kubean/pull/684</li>
-<li>Fix ansible lint by @tu1h in https://github.com/kubean-io/kubean/pull/694</li>
-<li>Add kubean examples by @ErikJiang in https://github.com/kubean-io/kubean/pull/693</li>
+<li>Bump github.com/onsi/gomega from 1.27.6 to 1.31.1 by @dependabot in https://github.com/kubean-io/kubean/pull/1091</li>
+<li>Bump actions/cache from 3 to 4 by @dependabot in https://github.com/kubean-io/kubean/pull/1089</li>
+<li>Bump actions/upload-artifact from 3 to 4 by @dependabot in https://github.com/kubean-io/kubean/pull/1057</li>
+<li>Bump actions/download-artifact from 3 to 4 by @dependabot in https://github.com/kubean-io/kubean/pull/1056</li>
 </ul>
-<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.4.9...v0.4.10</p>
+<h3 id="other-changes">🔨 Other Changes<a class="headerlink" href="#other-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Add Rockylinux 9 support by @tu1h in https://github.com/kubean-io/kubean/pull/1104</li>
+<li>Bump default E2E Kubernetes version by @Rei1010 in https://github.com/kubean-io/kubean/pull/1108</li>
+<li>Update Kubean Support Matrix by @github-actions in https://github.com/kubean-io/kubean/pull/1102</li>
+<li>Revert "Bump github.com/onsi/gomega from 1.27.6 to 1.31.1" by @tu1h in https://github.com/kubean-io/kubean/pull/1109</li>
+<li>update kubespray version by @ErikJiang in https://github.com/kubean-io/kubean/pull/1112</li>
+<li>add concurrency policy for PR CI by @ErikJiang in https://github.com/kubean-io/kubean/pull/1113</li>
+</ul>
+<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.13.0...v0.13.1</p>
 
 
 
@@ -2056,7 +2108,7 @@
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../v0.5.0/" class="md-footer__link md-footer__link--prev" aria-label="上一页: V0.5.0">
+          <a href="../../develop/roadmap/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Kubean 路线图">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -2066,20 +2118,20 @@
                 上一页
               </span>
               <div class="md-ellipsis">
-                V0.5.0
+                Kubean 路线图
               </div>
             </div>
           </a>
         
         
           
-          <a href="../v0.4.9/" class="md-footer__link md-footer__link--next" aria-label="下一页: V0.4.9">
+          <a href="../v0.13.0/" class="md-footer__link md-footer__link--next" aria-label="下一页: V0.13.0">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                V0.4.9
+                V0.13.0
               </div>
             </div>
             <div class="md-footer__button md-icon">
