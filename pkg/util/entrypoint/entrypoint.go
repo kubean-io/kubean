@@ -12,7 +12,7 @@ import (
 	klog "k8s.io/klog/v2"
 )
 
-// Generate kubespray job entrypoint script
+// Generate kubespray job entrypoint script test
 
 const (
 	PBAction = "playbook"
