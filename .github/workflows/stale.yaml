@@ -1,0 +1,44 @@
+name: 🧹 Close stale issues and PR(s)
+
+on:
+  schedule:
+    # Run every day at 00:00 UTC
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark stale
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-issue-stale: 90
+          days-before-issue-close: 10
+          exempt-issue-labels: "long-term,enhancement,exempt-stale,waiting-on-code-merge"
+          stale-issue-message: >
+            This issue is stale because it has been open 90 days with no activity. 
+            Remove stale label or comment or this will be closed in 5 days. 
+            Maintainers can add the `exempt-stale` label.
+          close-issue-message: >
+            This issue has been automatically closed because we haven't received a
+            response from the original author 🙈. This automation helps keep the issue
+            tracker clean from issues that are unactionable. Please reach out if you
+            have more information for us! 🙂
+
+          days-before-pr-stale: 60
+          days-before-pr-close: 10
+          exempt-pr-labels: "long-term,enhancement,exempt-stale,waiting-on-code-merge"
+          stale-pr-message: >
+            This PR is stale because it has been open 60 days with no activity. 
+            Remove stale label or comment or this will be closed in 10 days.
+          close-pr-message: >
+            This PR has been automatically closed because we haven't received a
+            response from the original author 🙈. This automation helps keep the issue
+            tracker clean from PRs that are unactionable. Please reach out if you
+            have more information for us! 🙂
+
