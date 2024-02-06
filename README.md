@@ -119,7 +119,7 @@ Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
 <div align="center">
 <p>
-<img src="https://landscape.cncf.io/images/left-logo.svg" width="300"/>&nbsp;&nbsp;<img src="https://landscape.cncf.io/images/right-logo.svg" width="350"/>
+<img src="https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg" width="300"/>
 <br/><br/>
 Kubean enriches the <a href="https://landscape.cncf.io/?selected=kubean">CNCF CLOUD NATIVE Landscape.</a>
 </p>
