@@ -118,7 +118,7 @@ jobs:
     if: github.event.schedule == '0 0 1 1 *'
     steps:
       - name: Install yq tool
-        uses: mikefarah/yq@v4.40.5
+        uses: mikefarah/yq@v4.40.7
       - name: Set env for this job
         run: |
           OS_TYPE="CENTOS7"
