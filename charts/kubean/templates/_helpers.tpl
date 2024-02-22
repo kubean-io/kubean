@@ -75,5 +75,5 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "kubean.prehookImage" -}}
-{{- printf "%s/%s:%s" .Values.sprayJob.image.registry .Values.sprayJob.image.repository (.Values.sprayJob.image.tag | default .Chart.Version) }}
+{{- printf "%s/%s:%v" .Values.sprayJob.image.registry .Values.sprayJob.image.repository (.Values.sprayJob.image.tag | default .Chart.Version) }}
 {{- end }}
