@@ -234,7 +234,7 @@ function merge_kubespray_offline_download_files() {
     mkdir -p kubespray/roles/download/defaults
     cat kubespray/roles/kubespray-defaults/defaults/main/* | sed '/^---$/d' > kubespray/roles/download/defaults/main.yml
   fi
-  if [ -d 'kubespray/roles/download/defaults/main' ]; then
+  if [ -f 'kubespray/roles/download/defaults/main/main.yml' ]; then
     cat kubespray/roles/download/defaults/main/* | sed '/^---$/d' > kubespray/roles/download/defaults/main.yml
   fi
 }
