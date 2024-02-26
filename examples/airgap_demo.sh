@@ -636,4 +636,4 @@ apply_cluster_operation "upgrade" "v1.25.0" "${REGISTRY_ADDR}/${RLS_2_22_SPRAY_J
 
 apply_cluster_operation "upgrade" "v1.26.0" "${REGISTRY_ADDR}/${RLS_2_23_SPRAY_JOB_IMG}"
 
-apply_cluster_operation "upgrade" "v1.27.0" "${REGISTRY_ADDR}/${DEFAULT_SPRAY_JOB_IMG}"
+apply_cluster_operation "upgrade" "v1.27.5" "${REGISTRY_ADDR}/${DEFAULT_SPRAY_JOB_IMG}"
