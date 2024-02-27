@@ -119,6 +119,7 @@ function update_docker_offline_version() {
 function create_localartifactset_cr() {
   cni_version=$(extract_version "cni_version")
   containerd_version=$(extract_version "containerd_version")
+  runc_version=$(extract_version "runc_version")
 
   if [ -z "${KUBE_VERSION}" ]; then
     kube_version=$(extract_version "kube_version" "kubespray-defaults")
@@ -132,22 +133,23 @@ function create_localartifactset_cr() {
   kube_ovn_version=$(extract_version "kube_ovn_version")
   etcd_version=$(extract_etcd_version "$kube_version")
 
-  docker_version_range_redhat7=["18.09","19.03","20.10"]
+  # docker_version_range_redhat7=["18.09","19.03","20.10"]
 
   mkdir -p $OFFLINE_PACKAGE_DIR
   cp ${KUBEAN_LOCALARTIFACTSET_TEMPLATE} ${KUBEAN_LOCALARTIFACTSET_CR}
   update_custom_resource_metadata "localartifactset" "${KUBEAN_LOCALARTIFACTSET_CR}"
   SPRAY_TAG=${SPRAY_TAG} yq -i '.spec.kubespray=strenv(SPRAY_TAG)' ${KUBEAN_LOCALARTIFACTSET_CR}
 
-  update_localartifactset_cr "0" "cni" "$cni_version"
-  update_localartifactset_cr "1" "containerd" "$containerd_version"
-  update_localartifactset_cr "2" "kube" "$kube_version"
-  update_localartifactset_cr "3" "calico" "$calico_version"
-  update_localartifactset_cr "4" "cilium" "$cilium_version"
-  update_localartifactset_cr "5" "flannel" "$flannel_version"
-  update_localartifactset_cr "6" "kube-ovn" "$kube_ovn_version"
-  update_localartifactset_cr "7" "etcd" "$etcd_version"
-  update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
+  update_localartifactset_cr "0" "cni" "${cni_version}"
+  update_localartifactset_cr "1" "containerd" "${containerd_version}"
+  update_localartifactset_cr "2" "kube" "${kube_version}"
+  update_localartifactset_cr "3" "calico" "${calico_version}"
+  update_localartifactset_cr "4" "cilium" "${cilium_version}"
+  update_localartifactset_cr "5" "flannel" "${flannel_version}"
+  update_localartifactset_cr "6" "kube-ovn" "${kube_ovn_version}"
+  update_localartifactset_cr "7" "etcd" "${etcd_version}"
+  update_localartifactset_cr "8" "runc" "${runc_version}"
+  # update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
 }
 
 function update_manifest_cr() {
@@ -182,6 +184,9 @@ function create_manifest_cr() {
 
   containerd_version_default=$(extract_version "containerd_version")
   containerd_version_range=$(extract_version_range ".containerd_archive_checksums.amd64")
+
+  runc_version_default=$(extract_version "runc_version")
+  runc_version_range=$(extract_version_range ".runc_checksums.amd64")
 
   if [ -z "${KUBE_VERSION}" ]; then
     kube_version_default=$(extract_version "kube_version" "kubespray-defaults")
@@ -224,6 +229,7 @@ function create_manifest_cr() {
   update_manifest_cr 5 flannel "${flannel_version_default}" "${flannel_version_range}"
   update_manifest_cr 6 kube-ovn "${kube_ovn_version_default}" "${kube_ovn_version_range}"
   update_manifest_cr 7 etcd "${etcd_version_default}" "${etcd_version_range}"
+  update_manifest_cr 8 runc "${runc_version_default}" "${runc_version_range}"
   update_docker_component_version "redhat-7" "${docker_version_default}" "${docker_version_range_redhat7}"
   update_docker_component_version "debian" "${docker_version_default}" "${docker_version_range_debian}"
   update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"
