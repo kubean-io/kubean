@@ -173,7 +173,7 @@ def get_pod_infra_versions(kube_versions):
     return pod_infra_versions
 
 def build_jobs_params(manifest_dict):
-    manifest_dict["pod_infra_version"] = get_pod_infra_versions(manifest_dict["kube_version"])
+    manifest_dict["pod_infra_version"] = get_pod_infra_versions(manifest_dict.get("kube_version", []))
     print(f'- manifest_dict: {manifest_dict}\n')
     max_len = max(len(item) for _, item in manifest_dict.items() if isinstance(item, list))
     other_required_keywords = get_other_required_keywords(manifest_dict)
