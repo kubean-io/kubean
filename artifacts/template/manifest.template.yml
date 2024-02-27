@@ -16,25 +16,28 @@ spec:
       defaultVersion: ""
       versionRange: [ ]
   components:
-    - name: "cni"
+    - name: cni
       defaultVersion: ""
       versionRange: [ ]
-    - name: "containerd"
+    - name: containerd
       defaultVersion: ""
       versionRange: [ ]
-    - name: "kube"
+    - name: kube
       defaultVersion: ""
       versionRange: [ ]
-    - name: "calico"
+    - name: calico
       defaultVersion: ""
       versionRange: [ ]
-    - name: "cilium"
+    - name: cilium
       defaultVersion: ""
       versionRange: [ ]
-    - name: "flannel"
+    - name: flannel
       versionRange: [ ]
-    - name: "kube-ovn"
+    - name: kube-ovn
       versionRange: [ ]
-    - name: "etcd"
+    - name: etcd
+      defaultVersion: ""
+      versionRange: [ ]
+    - name: runc
       defaultVersion: ""
       versionRange: [ ]
