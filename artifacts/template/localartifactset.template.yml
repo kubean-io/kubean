@@ -13,19 +13,21 @@ spec:
     - os: "ubuntu"
       versionRange: [ ]
   items:
-    - name: "cni"
+    - name: cni
       versionRange: [ ]
-    - name: "containerd"
+    - name: containerd
       versionRange: [ ]
-    - name: "kube"
+    - name: kube
       versionRange: [ ]
-    - name: "calico"
+    - name: calico
       versionRange: [ ]
-    - name: "cilium"
+    - name: cilium
       versionRange: [ ]
-    - name: "flannel"
+    - name: flannel
       versionRange: [ ]
-    - name: "kube-ovn"
+    - name: kube-ovn
       versionRange: [ ]
-    - name: "etcd"
+    - name: etcd
+      versionRange: [ ]
+    - name: runc
       versionRange: [ ]
