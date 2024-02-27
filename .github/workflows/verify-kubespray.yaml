@@ -31,7 +31,7 @@ jobs:
           echo spray_short_sha=$(echo ${spray_version} | cut -c 1-7) >> $GITHUB_OUTPUT
           ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F "/" '{print $1}' | tr '[:upper:]' '[:lower:]')
           echo repo=${ORGANIZATION_NAME} >> $GITHUB_OUTPUT
-          echo container_tag=$(date '+%Y%m%d') >> $GITHUB_OUTPUT
+          echo container_tag=v$(date '+%Y%m%d') >> $GITHUB_OUTPUT
 
 
   build-spray-imgs: #build kubespray base image
