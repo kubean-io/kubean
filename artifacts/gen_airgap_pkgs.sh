@@ -131,8 +131,17 @@ function create_images() {
   fi
 
   echo "begin to download images."
+
+  local images_list_path="${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list"
   local images_list_content
-  images_list_content=$(cat "${CURRENT_DIR}/kubespray/contrib/offline/temp/images.list")
+
+  sed -i '/^$/d' "${images_list_path}"
+
+  if [[ ! -s "${images_list_path}" ]]; then
+    echo "images.list is empty"
+    return
+  fi
+  images_list_content=$(cat "${images_list_path}")
 
   rm -rf offline-images && mkdir offline-images
 
