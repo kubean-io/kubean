@@ -45,7 +45,6 @@ function yamlUtil::prepare_hosts_cm() {
 
 function yamlUtil::prepare_clusteroperation() {
     local CLUSTER_OPERATION_NAME1=${1}
-    local SPRAY_JOB=ghcr.m.daocloud.io/kubean-io/spray-job:v0.6.1-7-ge0d10a35-e2e #for test
     yq -i ".spec.image=\"$SPRAY_JOB\""  $crd_dir/ClusterOperation.yml
     yq -i ".metadata.name=\"$CLUSTER_OPERATION_NAME1\""  $crd_dir/ClusterOperation.yml
     yq -i ".metadata.labels.clusterName=\"cluster1\""  $crd_dir/ClusterOperation.yml

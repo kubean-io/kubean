@@ -20,6 +20,9 @@ spec:
 
     - actionType: playbook
       action: disable-firewalld.yml
+
+    - actionType: playbook
+      action: remove-pkgs.yml
     
     - actionType: shell
       action: |-
