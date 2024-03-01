@@ -30,12 +30,11 @@ OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
                                                      "artifacts/template/localartifactset.template.yml"))
 KEYWORDS = {
     "kube_version": ["kubelet", "kubectl", "kubeadm", "kube-apiserver", "kube-controller-manager", "kube-scheduler", "kube-proxy",
-                     "pause", "coredns", "crictl", "cri-o"],
+                     "etcd", "pause", "coredns", "crictl", "cri-o"],
     "cni_version": ["cni"],
     "containerd_version": ['containerd'],
     "calico_version": ['calico'],
     "cilium_version": ['cilium'],
-    "etcd_version": ['etcd'],
     "runc_version": ['runc'],
 }
 

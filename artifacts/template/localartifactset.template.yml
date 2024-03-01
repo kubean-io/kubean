@@ -27,7 +27,5 @@ spec:
       versionRange: [ ]
     - name: kube-ovn
       versionRange: [ ]
-    - name: etcd
-      versionRange: [ ]
     - name: runc
       versionRange: [ ]
