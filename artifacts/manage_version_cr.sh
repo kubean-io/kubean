@@ -42,15 +42,6 @@ function check_dependencies() {
   fi
 }
 
-function extract_etcd_version() {
-  local kube_version=${1} ## v1.26.5
-  IFS='.'
-  read -ra arr <<<"${kube_version}"
-  major="${arr[0]}.${arr[1]}"
-  version=$(yq ".etcd_supported_versions.\"${major}\"" kubespray/roles/download/defaults/main.yml)
-  echo "${version}"
-}
-
 function extract_version() {
   local version_name="${1}"  ## cni_version
   local dir="${2}" ## kubespray-defaults  or download
@@ -131,7 +122,6 @@ function create_localartifactset_cr() {
   cilium_version=$(extract_version "cilium_version")
   flannel_version=$(extract_version "flannel_version")
   kube_ovn_version=$(extract_version "kube_ovn_version")
-  etcd_version=$(extract_etcd_version "$kube_version")
 
   # docker_version_range_redhat7=["18.09","19.03","20.10"]
 
@@ -147,8 +137,7 @@ function create_localartifactset_cr() {
   update_localartifactset_cr "4" "cilium" "${cilium_version}"
   update_localartifactset_cr "5" "flannel" "${flannel_version}"
   update_localartifactset_cr "6" "kube-ovn" "${kube_ovn_version}"
-  update_localartifactset_cr "7" "etcd" "${etcd_version}"
-  update_localartifactset_cr "8" "runc" "${runc_version}"
+  update_localartifactset_cr "7" "runc" "${runc_version}"
   # update_docker_offline_version "redhat-7" "${docker_version_range_redhat7}"
 }
 
@@ -208,9 +197,6 @@ function create_manifest_cr() {
   kube_ovn_version_default=$(extract_version "kube_ovn_version")
   kube_ovn_version_range="[]"
 
-  etcd_version_default=$(extract_etcd_version "${kube_version_default}")
-  etcd_version_range=$(extract_version_range ".etcd_binary_checksums.amd64")
-
   docker_version_default=$(extract_version "docker_version" "container-engine/docker")
   docker_version_range_redhat7=$(extract_docker_version_range "redhat-7")
   docker_version_range_debian=$(extract_docker_version_range "debian")
@@ -228,8 +214,7 @@ function create_manifest_cr() {
   update_manifest_cr 4 cilium "${cilium_version_default}" "${cilium_version_range}"
   update_manifest_cr 5 flannel "${flannel_version_default}" "${flannel_version_range}"
   update_manifest_cr 6 kube-ovn "${kube_ovn_version_default}" "${kube_ovn_version_range}"
-  update_manifest_cr 7 etcd "${etcd_version_default}" "${etcd_version_range}"
-  update_manifest_cr 8 runc "${runc_version_default}" "${runc_version_range}"
+  update_manifest_cr 7 runc "${runc_version_default}" "${runc_version_range}"
   update_docker_component_version "redhat-7" "${docker_version_default}" "${docker_version_range_redhat7}"
   update_docker_component_version "debian" "${docker_version_default}" "${docker_version_range_debian}"
   update_docker_component_version "ubuntu" "${docker_version_default}" "${docker_version_range_ubuntu}"
