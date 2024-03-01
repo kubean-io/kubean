@@ -102,7 +102,7 @@
 </table>
 
 ### ▶️ release-2.23
-> ⚓ kube_version range: [ v1.25.0 ~ v1.27.8 ]
+> ⚓ kube_version range: [ v1.25.0 ~ v1.27.10 ]
 
 <table>
   <thead>
@@ -111,6 +111,21 @@
       <th>Artifacts</th>
     </tr>
   </thead>
+  
+  <tbody>
+      <tr>
+        <td rowspan=3> 📅 2024-02-06 14:06:16 </td>
+        <td rowspan=1>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.23-07e19e5.yml">manifest-2.23-07e19e5.yml</a></code>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.23-07e19e5</code> </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.23-07e19e5</code> </td>
+      </tr>
+  </tbody>
   
   <tbody>
       <tr>
