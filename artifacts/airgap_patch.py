@@ -36,7 +36,6 @@ KEYWORDS = {
     "calico_version": ['calico'],
     "cilium_version": ['cilium'],
     "etcd_version": ['etcd'],
-    "pod_infra_version": ['pause'],
     "runc_version": ['runc'],
 }
 
@@ -156,25 +155,7 @@ def get_other_required_keywords(manifest_dict):
         other_required_keywords += KEYWORDS[key]
     return other_required_keywords
 
-def get_pod_infra_versions(kube_versions):
-    pod_infra_versions = []
-    depend_url_templ = "https://raw.githubusercontent.com/kubernetes/kubernetes/{}/build/dependencies.yaml"
-    if ZONE == "CN":
-        depend_url_templ = "https://gitee.com/mirrors/kubernetes/raw/{}/build/dependencies.yaml"
-    for kube_version in list(kube_versions):
-        dependencies_url = depend_url_templ.format(kube_version)
-        print(f'- dependencies url: {dependencies_url}')
-        f = urllib.request.urlopen(dependencies_url)
-        response_content = f.read().decode('utf-8')
-        
-        yaml_obj = yaml.safe_load(response_content)
-        for item in yaml_obj.get("dependencies"):
-            if item.get("name") in ["k8s.gcr.io/pause", "registry.k8s.io/pause"]:
-                pod_infra_versions.append(item.get('version'))
-    return pod_infra_versions
-
 def build_jobs_params(manifest_dict):
-    manifest_dict["pod_infra_version"] = get_pod_infra_versions(manifest_dict.get("kube_version", []))
     print(f'- manifest_dict: {manifest_dict}\n')
     max_len = max(len(item) for _, item in manifest_dict.items() if isinstance(item, list))
     other_required_keywords = get_other_required_keywords(manifest_dict)
