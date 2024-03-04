@@ -1,7 +1,6 @@
 ---
 yum:
   - conntrack-tools
-  - container-selinux
 
 apt:
   - conntrack
@@ -17,6 +16,7 @@ common:
 # https://download.docker.com/linux/centos/<centos_version>/x86_64/stable/Packages/
 # or do 'yum --showduplicates list docker-engine'
 centos7:
+  - container-selinux
   - containerd.io-1.6.4-3.1.el7
   - containerd.io-1.6.28-3.1.el7
   - docker-ce-20.10.20-3.el7
@@ -25,6 +25,7 @@ centos7:
   - docker-ce-cli-24.0.9-1.el7
 
 redhat7:
+  - container-selinux
   - containerd.io-1.4.12-3.1.el7
   - containerd.io-1.6.28-3.1.el7
   - docker-ce-20.10.20-3.el7
@@ -33,6 +34,7 @@ redhat7:
   - docker-ce-cli-24.0.9-1.el7
 
 redhat8:
+  - container-selinux-2.167.0
   - containerd.io-1.4.12-3.1.el8
   - containerd.io-1.6.28-3.1.el8
   - docker-ce-3:20.10.20-3.el8
@@ -40,12 +42,15 @@ redhat8:
   - docker-ce-3:24.0.9-1.el8
   - docker-ce-cli-1:24.0.9-1.el8
 
-redhat9: []
+redhat9:
+  - container-selinux
 
 rocky9:
+  - container-selinux
   - socat
 
 kylinv10:
+  - container-selinux
   - socat
   - libselinux-python
   - libselinux-devel
