@@ -44,7 +44,7 @@
 </table>
 
 ### ▶️ release-2.22
-> ⚓ kube_version range: [ v1.25.16 ~ v1.26.11 ]
+> ⚓ kube_version range: [ v1.24.0 ~ v1.26.13 ]
 
 <table>
   <thead>
