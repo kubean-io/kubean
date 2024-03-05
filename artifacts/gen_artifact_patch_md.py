@@ -3,6 +3,7 @@
 import subprocess
 import yaml
 import os
+import re
 from jinja2 import Template
 from datetime import datetime
 
@@ -62,11 +63,12 @@ if __name__ == '__main__':
           components = data.get('spec', {}).get('components', {})
           kube_info = next(item for item in data.get('spec', {}).get('components', {}) if item['name'] == 'kube')
           kube_version_range = kube_info.get('versionRange', [])
+          sorted_versions = sorted(kube_version_range, key=lambda x: [int(x) if x.isdigit() else x for x in re.split('([0-9]+)', x)], reverse=True)
           releases[key].append({
             'commit_short_sha': commit_short_sha, 
             'commit_timestamp': commit_timestamp,
             'commit_date': commit_date,
-            'kube_version_range': kube_version_range})
+            'kube_version_range': sorted_versions})
 
   # print(f'releases: {releases}')
 
