@@ -1,14 +1,14 @@
+#!/usr/bin/env python
+
 import os
 import re
-import shutil
 import subprocess
-import urllib.request
 import sys
 import yaml
 import json
-from datetime import datetime
 from pathlib import Path
-from shutil import which
+from shutil import which, rmtree
+from cr_template import CR_Template
 
 # Copyright 2023 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
@@ -18,19 +18,22 @@ KUBEAN_TAG = "airgap_patch"
 MODE = os.getenv("MODE", default="INCR")  ## INCR or FULL
 ZONE = os.getenv("ZONE", default="DEFAULT")  ## DEFAULT or CN
 OPTION = os.getenv("OPTION", default="all")  # all create_files create_images
-SPRAY_RELEASE = os.getenv("SPRAY_RELEASE")
-SPRAY_COMMIT = os.getenv("SPRAY_COMMIT")
+
+SPRAY_COMMIT = os.getenv("SPRAY_COMMIT", default="")
+SPRAY_RELEASE = os.getenv("SPRAY_RELEASE", default="master")
+SPRAY_COMMIT_TIMESTAMP = os.getenv("SPRAY_COMMIT_TIMESTAMP", default="")
 
 SPRAY_REPO_PATH = os.path.join(CUR_DIR, "kubespray")
 
 OFFLINE_TMP_REL_PATH = "contrib/offline/temp"
 OFFLINE_TMP_ABS_PATH = os.path.join(SPRAY_REPO_PATH, OFFLINE_TMP_REL_PATH)
-OFFLINE_VER_CR_TEMP = os.getenv("OFFLINEVERSION_CR_TEMPLATE",
-                                default=os.path.join(CUR_DIR,
-                                                     "artifacts/template/localartifactset.template.yml"))
+
 KEYWORDS = {
-    "kube_version": ["kubelet", "kubectl", "kubeadm", "kube-apiserver", "kube-controller-manager", "kube-scheduler", "kube-proxy",
-                     "etcd", "pause", "coredns", "crictl", "cri-o"],
+    "kube_version": [
+        "kubelet", "kubectl", "kubeadm", "kube-apiserver",
+        "kube-controller-manager", "kube-scheduler", "kube-proxy",
+        "etcd", "pause", "coredns", "crictl", "cri-o",
+    ],
     "cni_version": ["cni"],
     "containerd_version": ['containerd'],
     "calico_version": ['calico'],
@@ -96,44 +99,27 @@ def create_images(image_urls, arch):
     execute_gen_airgap_pkgs("images", arch)
 
 def create_localartifactset_cr(manifest_data):
-    os.chdir(CUR_DIR)
-    if not os.path.exists(OFFLINE_VER_CR_TEMP):
-        print("not found kubeanofflineversion template")
-        sys.exit(1)
-    template_file = open(OFFLINE_VER_CR_TEMP)
-    offlineversion_cr_dict = yaml.load(template_file, Loader=yaml.loader.FullLoader)  # dict
-    template_file.close()
-    offlineversion_cr_dict["spec"]["docker"] = []
-    offlineversion_cr_dict["metadata"]["labels"] = {}
-    if SPRAY_RELEASE != "":
-        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-{SPRAY_RELEASE}-{SPRAY_COMMIT}-{int(datetime.now().timestamp())}"
-        offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = SPRAY_RELEASE
-    else:
-        offlineversion_cr_dict["metadata"]["name"] = f"localartifactset-patch-{int(datetime.now().timestamp())}"
-        offlineversion_cr_dict["metadata"]["labels"]["kubean.io/sprayRelease"] = "master"
-    items_array = offlineversion_cr_dict["spec"]["items"]
+    spray_info = {
+        "sprayRlease": SPRAY_RELEASE if SPRAY_RELEASE != "" else "master",
+        "sprayCommit": SPRAY_COMMIT,
+        "sprayCommitShort": SPRAY_COMMIT[0:7],
+        "sprayCommitTimestamp": SPRAY_COMMIT_TIMESTAMP,
+    }
+    components = { re.split('_', key_item)[0]: [] for key_item in KEYWORDS }
+    for key in components:
+        versions = manifest_data.get(f"{key}_version")
+        if MODE == "FULL" and key != 'kube' and versions is None:
+            versions = ['default']
+        if isinstance(versions, list):
+            components[key] = versions
+        if isinstance(versions, str):
+            components[key].append(versions)
 
-    for item in items_array:
-        item_name = item.get("name", "")
-        manifest_keys = [ key for key in KEYWORDS]
-        for version_key in manifest_keys:
-            component_name = re.split('_', version_key)[0]
-            if item_name == component_name:
-                versions = manifest_data.get(version_key)
-                if MODE == "FULL" and component_name != 'kube' and versions is None:
-                    versions = ['default']
-                if isinstance(versions, list):
-                    item["versionRange"] = versions
-                if isinstance(versions, str):
-                    item['versionRange'] = [versions]
-
-    offlineversion_cr_dict["spec"]["items"] = items_array
-    kubeanofflineversion_file = open(
-        os.path.join(KUBEAN_TAG, "localartifactset.cr.yaml"),
-        "w",
-        encoding="utf-8")
-    yaml.dump(offlineversion_cr_dict, kubeanofflineversion_file)
-    kubeanofflineversion_file.close()
+    path = Path(KUBEAN_TAG)
+    path.mkdir(parents=True, exist_ok=True)
+    KUBEAN_LOCALARTIFACTSET_CR=f"{KUBEAN_TAG}/localartifactset.cr.yaml"
+    cr = CR_Template(KUBEAN_TAG, spray_info, components, {}, True)
+    cr.render_template(cr.CR_LOCALARTIFACTSET_TEMPLATE, KUBEAN_LOCALARTIFACTSET_CR)
 
 def get_manifest_data():
     manifest_yml_file = os.getenv("MANIFEST_CONF", default="manifest.yml")
@@ -200,7 +186,7 @@ def batch_gen_airgap_resources(jobs_params):
                 extra_vars_cmd.extend(["-e", var])
             os.chdir(SPRAY_REPO_PATH)
             if os.path.exists(f"{OFFLINE_TMP_REL_PATH}"):
-                shutil.rmtree(f"{OFFLINE_TMP_REL_PATH}")
+                rmtree(f"{OFFLINE_TMP_REL_PATH}")
             cmd = ["bash", "contrib/offline/generate_list.sh", "-e", f"image_arch='{arch}'"]
             cmd += extra_vars_cmd
             print(f"\n- cmd: {cmd}\n")

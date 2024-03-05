@@ -30,7 +30,7 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
     && ln -s /kubespray /kubean/kubespray
 
 CMD echo "show supporting versions" \
-    && bash artifacts/manage_version_cr.sh create_manifest \
+    && ./artifacts/gen_airgap_crs.py Manifest \
     && echo $(yq -o=json '.spec.components' charts/kubean/templates/manifest.cr.yaml) \
     && echo "starting generating airgap patch files" \
     && MANIFEST_CONF=/manifest.yml python3 artifacts/airgap_patch.py \

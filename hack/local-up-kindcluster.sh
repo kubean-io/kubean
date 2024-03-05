@@ -70,7 +70,7 @@ while read -r img2pull && [[ -n "$img2pull" ]] ; do
 done <<< "$IMAGE_LIST"
 
 #step1. prepare for kindClusterConfig
-KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/artifacts/kindClusterConfig/kubean-host.yml
+KIND_CLUSTER_CONF_PATH="${REPO_ROOT}"/hack/kindClusterConfig/kubean-host.yml
 
 echo -e "Preparing kindClusterConfig in path: ${KIND_CLUSTER_CONF_PATH}"
 docker pull "${KIND_VERSION}"

@@ -27,14 +27,14 @@ jobs:
     - name: Install yq tool
       uses: mikefarah/yq@v4.42.1
 
-    - name: Generate InfoManifest & OfflineVersion files
+    - name: Generate Manifest & LocalArtifactSet manifests
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
-        SPRAY_TAG: ${{ env.SPRAY_VERSION }}
+        SPRAY_COMMIT: ${{ env.SPRAY_VERSION }}
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
-        bash artifacts/manage_version_cr.sh create_manifest
-        bash artifacts/manage_version_cr.sh create_localartifactset
+        ./artifacts/gen_airgap_crs.py Manifest
+        ./artifacts/gen_airgap_crs.py LocalArtifactSet
         cp artifacts/import_iso.sh ${KUBEAN_TAG}/
 
         echo "localartifactset cr output:"
