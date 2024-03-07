@@ -102,7 +102,7 @@ jobs:
         build-args: |
           SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
-          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1 }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
           SPRAY_COMMIT_TIMESTAMP=${{ needs.check-inputs.outputs.spray_commit_timestamp }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -147,7 +147,7 @@ jobs:
         build-args: |
           SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
           REPO=${{ needs.check-inputs.outputs.image_repo }}
-          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1 }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
           SPRAY_COMMIT_TIMESTAMP=${{ needs.check-inputs.outputs.spray_commit_timestamp }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -180,12 +180,11 @@ jobs:
 
     - name: Generate Kubean manifest file
       env:
-        SPRAY_TAG: ${{ needs.check-inputs.outputs.spray_sha1 }}
-        SPRAY_COMMIT: ${{ needs.check-inputs.outputs.spray_sha1_short }}
+        SPRAY_COMMIT: ${{ needs.check-inputs.outputs.spray_sha1 }}
         SPRAY_RELEASE: ${{ needs.check-inputs.outputs.spray_release_num }}
         SPRAY_COMMIT_TIMESTAMP: ${{ needs.check-inputs.outputs.spray_commit_timestamp }}
       run: |
-        bash artifacts/manage_version_cr.sh create_manifest
+        ./artifacts/gen_airgap_crs.py Manifest
         mkdir manifest && cp charts/kubean/templates/manifest.cr.yaml manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
         echo "manifest cr output:"
         cat manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
@@ -204,7 +203,7 @@ jobs:
       env:
         IMAGE_REPO: ${{ needs.check-inputs.outputs.image_repo }}
       run: |
-        python artifacts/gen_artifact_patch_md.py
+        python artifacts/gen_artifact_doc.py
         mv artifacts.md docs/overrides/releases/artifacts.md
 
     - name: Push artifact patch md

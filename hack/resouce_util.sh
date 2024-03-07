@@ -108,7 +108,7 @@ function resource::download_resource_files(){
 function resource::create_kind_cluster_by_config_file(){
   local kind_name=$1
   local kind_kube_config=$2
-  local kind_cluster_config_path="${REPO_ROOT}/artifacts/kindClusterConfig/kubean-host-offline.yml"
+  local kind_cluster_config_path="${REPO_ROOT}/hack/kindClusterConfig/kubean-host-offline.yml"
   kind::clean_kind_cluster ${kind_name}
   KIND_NODE_VERSION="release-ci.daocloud.io/kpanda/kindest-node:v1.26.4"
   docker pull "${KIND_NODE_VERSION}"

@@ -197,39 +197,36 @@ Here's an example of the `LocalArtifact` CRD:
 apiVersion: kubean.io/v1alpha1
 kind: LocalArtifactSet
 metadata:
-  name: offlineversion-20221101
+  name: "localartifactset-1709796014"
+  labels:
+    kubean.io/sprayRelease: master
 spec:
-  arch: ["x86_64"]
-  kubespray: "c788620"
-  docker:
-    - os: "redhat-7"
-      versionRange:
-        - "18.09"
-        - "19.03"
-        - "20.10"
-    - os: "debian"
-      versionRange: []
-    - os: "ubuntu"
-      versionRange: []
+  kubespray: "989ba207e9da2e1364f375450561d08af80c8535"
   items:
-    - name: "cni"
+    - name: cilium
       versionRange:
-        - v1.1.1
-    - name: "containerd"
+        - "v1.13.4"
+    - name: flannel
       versionRange:
-        - 1.6.9
-    - name: "kube"
+        - "v0.22.0"
+    - name: kube_ovn
       versionRange:
-        - v1.24.7
-    - name: "calico"
+        - "v1.11.5"
+    - name: runc
       versionRange:
-        - v3.23.3
-    - name: "cilium"
+        - "v1.1.12"
+    - name: kube
       versionRange:
-        - v1.12.1
-    - name: "etcd"
+        - "v1.1.12"
+    - name: cni
       versionRange:
-        - v3.5.4
+        - "v1.3.0"
+    - name: calico
+      versionRange:
+        - "v3.26.4"
+    - name: containerd
+      versionRange:
+        - "1.7.13"
 ```
 
 Each field in this CRD is explained as follows:
