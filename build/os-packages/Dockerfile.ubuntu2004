@@ -15,8 +15,16 @@ WORKDIR /ubuntu/${TARGETARCH}
 COPY build/os-packages/packages.yml .
 
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+# The version of docker-ce-cli should be consistent with that of docker-ce.
+# See https://github.com/kubean-io/kubean/issues/1156
 RUN yq eval '.common[],.apt[],.ubuntu2004[]' packages.yml > packages.list \
-    && while read -r line; do apt-get install --reinstall --print-uris ${line} | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; done <<<"$(sort -u packages.list)"
+    && while read -r line; do \
+        if [[ $line == docker-ce* ]]; then \
+            version=$(echo $line | cut -d'=' -f2); \
+            line="$line docker-ce-cli=$version"; \
+        fi; \
+        apt-get install --reinstall --print-uris $line | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; \
+       done <<<"$(sort -u packages.list);"
 
 RUN cat urls.list | sort | uniq > packages.list \
     && wget -q -x -P ${OS_VERSION} -i packages.list \
