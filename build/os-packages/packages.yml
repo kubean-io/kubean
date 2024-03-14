@@ -66,9 +66,7 @@ ubuntu1804:
   - containerd.io=1.4.12-1
   - containerd.io=1.6.4-1
   - docker-ce=5:20.10.20~3-0~ubuntu-bionic
-  - docker-ce-cli=5:20.10.20~3-0~ubuntu-bionic
   - docker-ce=5:24.0.9-1~ubuntu.18.04~bionic
-  - docker-ce-cli=5:24.0.9-1~ubuntu.18.04~bionic
 
 ubuntu2004:
   - containerd.io=1.4.12-1
