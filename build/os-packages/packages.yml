@@ -74,9 +74,7 @@ ubuntu2004:
   - containerd.io=1.4.12-1
   - containerd.io=1.6.28-1
   - docker-ce=5:20.10.20~3-0~ubuntu-focal
-  - docker-ce-cli=5:20.10.20~3-0~ubuntu-focal
   - docker-ce=5:24.0.9-1~ubuntu.20.04~focal
-  - docker-ce-cli=5:24.0.9-1~ubuntu.20.04~focal
 
 openeuler:
   - socat
