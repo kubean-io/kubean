@@ -86,6 +86,25 @@ function yq_install() {
   fi
 }
 
+function prompt_refresh_pkg_list() {
+  while true; do
+    read -rp "Do you want to refresh package list? (y/n): " choice
+    case "${choice}" in
+      [Yy]* )
+          echo "true"
+          return
+          ;;
+      [Nn]* )
+          echo "false"
+          return
+          ;;
+      *)
+          echo "Please answer yes or no."
+          ;;
+    esac
+  done
+}
+
 #============================#
 ###### Build OS Package ######
 #============================#
@@ -103,6 +122,12 @@ function yum_build() {
 
   mkdir -p ${build_path}
   pushd ${build_path}
+
+  local is_refresh
+  is_refresh=$(prompt_refresh_pkg_list)
+  if [[ "${is_refresh}" == "true" ]]; then
+    yum makecache
+  fi
 
   yum install -y ${build_tools}
   set +e
@@ -126,6 +151,12 @@ function dnf_build() {
 
   mkdir -p ${build_path}
   pushd ${build_path}
+
+  local is_refresh
+  is_refresh=$(prompt_refresh_pkg_list)
+  if [[ "${is_refresh}" == "true" ]]; then
+    dnf makecache
+  fi
 
   dnf install -y ${build_tools}
   # why use `--alldeps` ?
@@ -156,6 +187,12 @@ function apt_build() {
 
   mkdir -p ${build_path}
   pushd ${build_path}
+
+  local is_refresh
+  is_refresh=$(prompt_refresh_pkg_list)
+  if [[ "${is_refresh}" == "true" ]]; then
+    apt-get update
+  fi
 
   apt-get install -y --no-install-recommends ${build_tools}
 
