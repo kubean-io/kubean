@@ -11,6 +11,7 @@
     fetch_os_type: true
     fetch_os_kernel_version: true
     check_existing_k8s_service: true
+    check_existing_docker: true
     check_dual_stack_network: true
 
   tasks:
@@ -82,6 +83,17 @@
       delegate_to: localhost
       when:
         - check_existing_k8s_service
+
+    - name: Perform check_existing_docker
+      when: check_existing_docker
+      block:
+        - name: Check existing dockerd  
+          shell: "ps -eo comm= | grep -q dockerd"
+          register: check_docker_cmd_result
+          ignore_errors: true
+        - name: Store result to localhost
+          shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.existing_docker=\"{{ check_docker_cmd_result.rc == 0 }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
+          delegate_to: localhost
 
     - name: Perform fetch ip info
       shell: |
