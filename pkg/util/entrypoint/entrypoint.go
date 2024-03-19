@@ -24,16 +24,17 @@ const (
 	RemoveNodePB     = "remove-node.yml"
 	UpgradeClusterPB = "upgrade-cluster.yml"
 
-	PingPB          = "ping.yml"
-	RepoPB          = "enable-repo.yml"
-	FirewallPB      = "disable-firewalld.yml"
-	KubeconfigPB    = "kubeconfig.yml"
-	ClusterInfoPB   = "cluster-info.yml"
-	UpdateHostsPB   = "update-hosts.yml"
-	RemovePkgsPB    = "remove-pkgs.yml"
-	PreCheckPB      = "precheck.yml"
-	RenewCertsPB    = "renew-certs.yml"
-	KubeVipConfigPB = "config-for-kube-vip.yml"
+	PingPB                   = "ping.yml"
+	RepoPB                   = "enable-repo.yml"
+	FirewallPB               = "disable-firewalld.yml"
+	KubeconfigPB             = "kubeconfig.yml"
+	ClusterInfoPB            = "cluster-info.yml"
+	UpdateHostsPB            = "update-hosts.yml"
+	RemovePkgsPB             = "remove-pkgs.yml"
+	PreCheckPB               = "precheck.yml"
+	RenewCertsPB             = "renew-certs.yml"
+	KubeVipConfigPB          = "config-for-kube-vip.yml"
+	ConfigInsecureRegistryPB = "config-insecure-registry.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -60,7 +61,7 @@ func NewActions() *Actions {
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
 		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
-		RemovePkgsPB, PreCheckPB, RenewCertsPB, KubeVipConfigPB,
+		RemovePkgsPB, PreCheckPB, RenewCertsPB, KubeVipConfigPB, ConfigInsecureRegistryPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {

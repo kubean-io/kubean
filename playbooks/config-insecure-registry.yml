@@ -1,0 +1,28 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Set additional insecure registiries for container manager
+  hosts: k8s_cluster,etcd
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    docker_insecure_registries: []
+    container_manager: containerd
+  tasks:
+    - name: Config for docker insecure registries
+      shell: |-
+        [ ! -f /etc/docker/daemon.json ] && { mkdir -p /etc/docker; echo "{}" > /etc/docker/daemon.json; }
+        python - <<EOF
+        import json
+        with open('/etc/docker/daemon.json', 'r+') as f:
+          data = json.load(f)
+          if "insecure-registries" not in data: data["insecure-registries"]=[]
+          if "{{ item }}" not in data["insecure-registries"]: data["insecure-registries"].append("{{ item }}")
+          f.seek(0)
+          json.dump(data, f, indent=4)
+        EOF
+      with_items: "{{ docker_insecure_registries }}"
+      when:
+        - container_manager == "docker"
+        - docker_insecure_registries | length > 0
