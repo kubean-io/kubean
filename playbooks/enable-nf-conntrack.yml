@@ -1,0 +1,35 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Enable nf_conntrack kernel module
+  hosts: all
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Check OS and enable nf_conntrack
+      command: lsmod | grep nf_conntrack
+      register: nf_conntrack_check
+      ignore_errors: true
+
+    - name: Enable nf_conntrack for non-RedHat8/Rocky OS
+      command: modprobe nf_conntrack
+      when:
+        - ansible_distribution != "Rocky" or (ansible_distribution == "RedHat" and ansible_distribution_major_version != "8")
+        - nf_conntrack_check.rc != 0
+
+    - name: Persist nf_conntrack configuration
+      when:
+        - ansible_distribution != "Rocky" or (ansible_distribution == "RedHat" and ansible_distribution_major_version != "8")
+        - nf_conntrack_check.rc != 0
+      block:
+        - name: Ensure nf_conntrack configuration file exists
+          file:
+            path: /etc/modules-load.d/nf_conntrack.conf
+            state: touch
+            mode: "0644"
+        - name: Add nf_conntrack to configuration file
+          lineinfile:
+            path: /etc/modules-load.d/nf_conntrack.conf
+            line: "nf_conntrack"
+            state: present
