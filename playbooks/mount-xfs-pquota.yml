@@ -1,0 +1,72 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+
+# https://docs.docker.com/reference/cli/dockerd/#overlay2-options
+- name: Mount up device with xfs pquota
+  hosts: k8s_cluster,etcd
+  gather_facts: true
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    docker_mount_device: ""
+    docker_storage_options: ""
+    docker_daemon_graph: /var/lib/docker
+  tasks:
+    - name: Stop if `docker_mount_device` is not defined or `docker_mount_device` is empty
+      assert:
+        that:
+          - docker_mount_device is defined
+          - docker_mount_device != ""
+        msg: >
+          When configuring overlay2.size in `docker_storage_options`, `docker_mount_device` needs to be set.
+      when: "'overlay2.size' in docker_storage_options"
+
+    - name: Get device mount info
+      shell: lsblk -n -o MOUNTPOINT {{ docker_mount_device }}
+      register: mount_info
+      changed_when: false
+      failed_when: false
+      when: "'overlay2.size' in docker_storage_options"
+
+    - name: debug
+      debug:
+        msg: "mount_info: {{ mount_info }}"
+      when:
+        - "'overlay2.size' in docker_storage_options"
+        - debug | default(false)
+
+    - name: Stop if the device outputs an error
+      assert:
+        that:
+          - mount_info.stderr_lines | length == 0
+        msg: >
+          device error: {{ mount_info.stderr_lines }}.
+      when: "'overlay2.size' in docker_storage_options"
+
+    - name: Stop if the device is mounted to a non {{ docker_daemon_graph }} directory.
+      fail:
+        msg: >
+          The device {{ docker_mount_device }} has been mounted to the {{ mount_info.stdout_lines[0] }} directory.
+      when:
+        - "'overlay2.size' in docker_storage_options"
+        - mount_info.stdout_lines | length > 0
+        - mount_info.stdout_lines[0] != docker_daemon_graph
+
+    - name: "Create a xfs filesystem on {{ docker_mount_device }}"
+      community.general.filesystem:
+        fstype: xfs
+        dev: "{{ docker_mount_device }}"
+      when:
+        - "'overlay2.size' in docker_storage_options"
+
+    - name: Mount up xfs device with pquota option
+      mount:
+        path: "{{ docker_daemon_graph }}"
+        src: "{{ docker_mount_device }}"
+        fstype: xfs
+        opts: pquota
+        state: mounted
+      when:
+        - "'overlay2.size' in docker_storage_options"

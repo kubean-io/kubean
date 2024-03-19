@@ -51,3 +51,4 @@ warn_list:
 exclude_paths:
   - playbooks/disable-firewalld.yml
   - playbooks/config-for-kube-vip.yml
+  - playbooks/mount-xfs-pquota.yml
