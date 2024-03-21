@@ -100,10 +100,11 @@ def create_localartifactset():
   merge_spray_components_version_files(comps_version_conf_file)
 
   components = { key_item["name"]: [] for key_item in COMPONENTS_KEYS }
-  verison = KUBE_VERSION
   for key in components:
     if key != "kube" or KUBE_VERSION == "":
       verison = get_value_from_yml(comps_version_conf_file, f"{key}_version")
+    else:
+      verison = KUBE_VERSION
     components[key].append(verison)
 
   path = Path(KUBEAN_TAG)
@@ -127,10 +128,11 @@ def create_manifest():
   merge_spray_components_version_files(comps_version_conf_file)
 
   components = {key_item["name"]: {"defaultVersion": "", "versionRange": []} for key_item in COMPONENTS_KEYS}
-  verison = KUBE_VERSION
   for key in components:
     if key != "kube" or KUBE_VERSION == "":
       verison = get_value_from_yml(comps_version_conf_file, f"{key}_version")
+    else:
+      verison = KUBE_VERSION
     components[key]["defaultVersion"] = verison
     checksumsKey = next(key_item["checksumsKey"] for key_item in COMPONENTS_KEYS if key_item["name"] == key)
     components[key]["versionRange"] = [] if checksumsKey is None else [key for key in get_value_from_yml(comps_version_conf_file, checksumsKey)]
