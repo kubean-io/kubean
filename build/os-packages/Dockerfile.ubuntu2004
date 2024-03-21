@@ -24,7 +24,7 @@ RUN yq eval '.common[],.apt[],.ubuntu2004[]' packages.yml > packages.list \
             line="$line docker-ce-cli=$version"; \
         fi; \
         apt-get install --reinstall --print-uris $line | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; \
-       done <<<"$(sort -u packages.list);"
+       done <<<"$(sort -u packages.list)"
 
 RUN cat urls.list | sort | uniq > packages.list \
     && wget -q -x -P ${OS_VERSION} -i packages.list \
