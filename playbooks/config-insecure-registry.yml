@@ -13,8 +13,7 @@
     - name: Config for docker insecure registries
       shell: |-
         [ ! -f /etc/docker/daemon.json ] && { mkdir -p /etc/docker; echo "{}" > /etc/docker/daemon.json; }
-        python=python; command -v python2 && python=python2; command -v python3 && python=python3;
-        $python - <<EOF
+        {{ ansible_python['executable'] }} - <<EOF
         import json
         with open('/etc/docker/daemon.json', 'r+') as f:
           data = json.load(f)
@@ -27,3 +26,24 @@
       when:
         - container_manager == "docker"
         - docker_insecure_registries | length > 0
+
+    - name: Config live restore for docker
+      shell: |-
+        [ ! -f /etc/docker/daemon.json ] && { mkdir -p /etc/docker; echo "{}" > /etc/docker/daemon.json; }
+        {{ ansible_python['executable'] }} - <<EOF
+        import json
+        with open('/etc/docker/daemon.json', 'r+') as f:
+          data = json.load(f)
+          data["live-restore"]=True
+          f.seek(0)
+          json.dump(data, f, indent=4)
+        EOF
+      when:
+        - container_manager == "docker"
+      
+    - name: Reload docker daemon
+      service:
+        name: docker
+        state: reloaded
+      when:
+        - container_manager == "docker"
