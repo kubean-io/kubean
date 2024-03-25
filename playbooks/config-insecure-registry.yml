@@ -13,7 +13,8 @@
     - name: Config for docker insecure registries
       shell: |-
         [ ! -f /etc/docker/daemon.json ] && { mkdir -p /etc/docker; echo "{}" > /etc/docker/daemon.json; }
-        python - <<EOF
+        python=python; command -v python2 && python=python2; command -v python3 && python=python3;
+        $python - <<EOF
         import json
         with open('/etc/docker/daemon.json', 'r+') as f:
           data = json.load(f)
