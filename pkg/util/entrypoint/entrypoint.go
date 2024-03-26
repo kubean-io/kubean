@@ -36,6 +36,7 @@ const (
 	KubeVipConfigPB          = "config-for-kube-vip.yml"
 	ConfigInsecureRegistryPB = "config-insecure-registry.yml"
 	NfConntrackPB            = "enable-nf-conntrack.yml"
+	MountXFSPquotaPB         = "mount-xfs-pquota.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -62,7 +63,8 @@ func NewActions() *Actions {
 	actions.Playbooks.List = []string{
 		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
 		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
-		RemovePkgsPB, PreCheckPB, RenewCertsPB, KubeVipConfigPB, ConfigInsecureRegistryPB, NfConntrackPB,
+		RemovePkgsPB, PreCheckPB, RenewCertsPB,
+		KubeVipConfigPB, ConfigInsecureRegistryPB, NfConntrackPB, MountXFSPquotaPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
