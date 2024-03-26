@@ -1897,7 +1897,7 @@ func Test_GetRunningPodFromJob(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "",
+			name: "get running pod from job success",
 			args: func() bool {
 				controller := genController()
 				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
@@ -1908,6 +1908,66 @@ func Test_GetRunningPodFromJob(t *testing.T) {
 				}, metav1.CreateOptions{})
 				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}, Spec: batchv1.JobSpec{Selector: &metav1.LabelSelector{MatchLabels: map[string]string{"a": "b"}}}})
 				return targetPod.Name == "pod1" && err == nil
+			},
+			want: true,
+		},
+		{
+			name: "job has no Selector",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "job1-namespace", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}})
+				return targetPod == nil && err != nil
+			},
+			want: true,
+		},
+		{
+			name: "job has no Selector",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "job1-namespace", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}, Spec: batchv1.JobSpec{}})
+				return targetPod == nil && err != nil
+			},
+			want: true,
+		},
+		{
+			name: "job label not matched",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "job1-namespace", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				}, metav1.CreateOptions{})
+				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}, Spec: batchv1.JobSpec{Selector: &metav1.LabelSelector{MatchLabels: map[string]string{"c": "d"}}}})
+				return targetPod == nil && err != nil
+			},
+			want: true,
+		},
+		{
+			name: "pod is not running",
+			args: func() bool {
+				controller := genController()
+				controller.ClientSet.CoreV1().Pods("job1-namespace").Create(context.Background(), &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{Name: "pod1", Namespace: "job1-namespace", Labels: map[string]string{"a": "b"}},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodPending,
+					},
+				}, metav1.CreateOptions{})
+				targetPod, err := controller.GetRunningPodFromJob(&batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: "job1", Namespace: "job1-namespace"}, Spec: batchv1.JobSpec{Selector: &metav1.LabelSelector{MatchLabels: map[string]string{"a": "b"}}}})
+				return targetPod == nil && err != nil
 			},
 			want: true,
 		},

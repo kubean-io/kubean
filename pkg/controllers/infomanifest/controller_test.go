@@ -866,6 +866,21 @@ func TestReconcile(t *testing.T) {
 		InfoManifestClientSet:     manifestv1alpha1fake.NewSimpleClientset(),
 		LocalArtifactSetClientSet: localartifactsetv1alpha1fake.NewSimpleClientset(),
 	}
+
+	manifestName := "manifest1"
+	manifest := &manifestv1alpha1.Manifest{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Manifest",
+			APIVersion: "kubean.io/v1alpha1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: manifestName,
+		},
+		Spec: manifestv1alpha1.Spec{
+			KubeanVersion: "123",
+		},
+	}
+
 	tests := []struct {
 		name string
 		args func() bool
@@ -883,6 +898,63 @@ func TestReconcile(t *testing.T) {
 			name: "fetch infomanifest but error",
 			args: func() bool {
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: "abc-infomanifest"}})
+				return err == nil && result.RequeueAfter == Loop
+			},
+			want: true,
+		},
+		{
+			name: "fetch local service cm error in offline env",
+			args: func() bool {
+				controller.Client.Create(context.Background(), manifest)
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-3",
+					},
+				}, metav1.CreateOptions{})
+				defer func() {
+					controller.Client.Delete(context.Background(), manifest)
+					controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Delete(context.Background(), manifestName, metav1.DeleteOptions{})
+					controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Delete(context.Background(), "localartifactset-3", metav1.DeleteOptions{})
+				}()
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
+				return err == nil && result.Requeue == false
+			},
+			want: true,
+		},
+		{
+			name: "update local service success and requeue",
+			args: func() bool {
+				controller.Client.Create(context.Background(), manifest)
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
+				controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Create(context.Background(), &localartifactsetv1alpha1.LocalArtifactSet{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "localartifactset-2",
+					},
+				}, metav1.CreateOptions{})
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: LocalServiceConfigMap,
+					},
+					Data: map[string]string{"localService": "imageRepoScheme: 'https'"},
+				}, metav1.CreateOptions{})
+				defer func() {
+					controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Delete(context.Background(), "localartifactset-3", metav1.DeleteOptions{})
+				}()
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
+				return err == nil && result.RequeueAfter == Loop
+			},
+			want: true,
+		},
+		{
+			name: "update local available image",
+			args: func() bool {
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Create(context.Background(), manifest, metav1.CreateOptions{})
+				manifest.Spec = manifestv1alpha1.Spec{
+					KubeanVersion: "123",
+				}
+				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
 				return err == nil && result.RequeueAfter == Loop
 			},
 			want: true,
