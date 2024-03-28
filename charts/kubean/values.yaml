@@ -2,7 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-## define kubean-operator configuration
+## @section kubean-operator parameters
+## @param kubeanOperator.replicaCount Number of kubean-operator replicas to deploy
+## @param kubeanOperator.nameOverride String to partially override kubean-operator.fullname
+## @param kubeanOperator.fullnameOverride String to fully override kubean-operator.fullname
+## @param kubeanOperator.operationsBackendLimit Limit of operations backend
+## @param kubeanOperator.podAnnotations Annotations to add to the kubean-operator pods
+## @param kubeanOperator.podSecurityContext Security context for kubean-operator pods
+## @param kubeanOperator.securityContext Security context for kubean-operator containers
 kubeanOperator:
   replicaCount: 1
   nameOverride: ""
@@ -21,6 +28,9 @@ kubeanOperator:
   # runAsNonRoot: true
   # runAsUser: 1000
 
+  ## @param kubeanOperator.serviceAccount.create Specifies whether a service account should be created
+  ## @param kubeanOperator.serviceAccount.annotations Annotations to add to the service account
+  ## @param kubeanOperator.serviceAccount.name The name of the service account to use.
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
@@ -30,7 +40,11 @@ kubeanOperator:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
-  ## define kubean-operator image
+  ## @param kubeanOperator.image.registry kubean-operator image registry
+  ## @param kubeanOperator.image.repository kubean-operator image repository
+  ## @param kubeanOperator.image.tag kubean-operator image tag
+  ## @param kubeanOperator.image.pullPolicy kubean-operator image pull policy
+  ## @param kubeanOperator.image.pullSecrets kubean-operator image pull secrets
   image:
     # -- kubean-operator image registry
     registry: ghcr.io
@@ -43,10 +57,13 @@ kubeanOperator:
     # -- Pull secrets of image
     pullSecrets: []
 
+  ## @param kubeanOperator.service.type kubean-operator service type
+  ## @param kubeanOperator.service.port kubean-operator service port
   service:
     type: ClusterIP
     port: 80
 
+  ## @param kubeanOperator.resources kubean-operator resources
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -59,10 +76,13 @@ kubeanOperator:
   #   cpu: 100m
   #   memory: 128Mi
 
+  ## @param kubeanOperator.nodeSelector kubean-operator node selector
   nodeSelector: {}
 
+  ## @param kubeanOperator.tolerations kubean-operator tolerations
   tolerations: []
 
+  ## @skip kubeanOperator.affinity
   affinity:
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -76,6 +96,11 @@ kubeanOperator:
               - kubean
           topologyKey: kubernetes.io/hostname
 
+## @section kubean admission parameters
+## @param kubeanAdmission.replicaCount Number of kubean-admission replicas to deploy
+## @param kubeanAdmission.image.registry kubean-admission image registry
+## @param kubeanAdmission.image.repository kubean-admission image repository
+## @param kubeanAdmission.image.tag kubean-admission image tag
 kubeanAdmission:
   replicaCount: 1
   ## define admission image
@@ -87,7 +112,10 @@ kubeanAdmission:
     # -- the image tag whose default is the chart appVersion
     tag: ""
 
-## define spray-job configuration
+## @section sprayJob parameters
+## @param sprayJob.image.registry spray-job image registry
+## @param sprayJob.image.repository spray-job image repository
+## @param sprayJob.image.tag spray-job image tag
 sprayJob:
   ## define spray-job image
   image:

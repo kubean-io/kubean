@@ -104,3 +104,19 @@ security-scanning:
 	${REGISTRY}/${REPO}/spray-job:${IMAGE_TAG} \
 	${REGISTRY}/${REPO}/kubean-operator:${IMAGE_TAG} \
 	${REGISTRY}/${REPO}/kubespray:${SPRAY_IMAGE_TAG_SHORT_SHA}
+
+.PHONY: helmdoc
+helmdoc:
+ifeq (, $(shell which readme-generator))
+	@{ \
+	set -e ;\
+	echo 'installing readme-generator-for-helm' ;\
+	npm install -g @bitnami/readme-generator-for-helm ;\
+	}
+else
+	@$(OK) readme-generator-for-helm is already installed
+HELMDOC=$(shell which readme-generator)
+endif
+
+helm-doc-gen: helmdoc
+	readme-generator -v charts/kubean/values.yaml -r charts/kubean/README.md
