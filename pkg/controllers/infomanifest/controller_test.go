@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -956,6 +957,28 @@ func TestReconcile(t *testing.T) {
 				controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
 				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
 				return err == nil && result.RequeueAfter == Loop
+			},
+			want: true,
+		},
+		{
+			name: "list manifests error",
+			args: func() bool {
+				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("list", "manifests", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, fmt.Errorf("this is error when list manifests")
+				})
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
+				return err == nil && result.RequeueAfter == Loop
+			},
+			want: true,
+		},
+		{
+			name: "list manifests error and isNotFound",
+			args: func() bool {
+				fetchTestingFake(controller.InfoManifestClientSet.KubeanV1alpha1()).PrependReactor("list", "manifests", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, errors.NewNotFound(manifestv1alpha1.Resource("manifests"), "manifest-name")
+				})
+				result, err := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: manifestName}})
+				return err == nil && result.Requeue == false
 			},
 			want: true,
 		},
