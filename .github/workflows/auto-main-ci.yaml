@@ -28,7 +28,7 @@ jobs:
     - name: unit test
       run: |
         make test > coverage.temp
-        grep total coverage.temp > covarage.txt
+        grep total coverage.temp > coverage.txt
         rm -rf coverage.temp
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
