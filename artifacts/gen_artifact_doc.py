@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
   manifest_files = subprocess.getoutput(f"ls {manifests_path}")
 
-  release_keys=['2.21', '2.22', '2.23']
+  release_keys=['2.21', '2.22', '2.23', '2.24']
   releases = {key: [] for key in release_keys}
   for manifest in manifest_files.splitlines():
     for key in release_keys:
