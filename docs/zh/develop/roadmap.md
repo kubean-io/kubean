@@ -38,7 +38,27 @@
 - [x] 更新 release 发版流程 https://github.com/kubean-io/kubean/pull/869
 
 ## Q3 2023
-- [ ] kubean 文档站优化
-- [ ] 更多的操作系统离线化支持
-- [ ] 提供便捷的自定义资源模板生成方式
-- [ ] 离线场景相关镜像及二进制等资源的使用优化
+- [x] 添加证书更新剧本 https://github.com/kubean-io/kubean/pull/884
+- [x] 新增流水线对上游 kubespray 最新版本的每日部署验证 https://github.com/kubean-io/kubean/pull/870
+- [x] 确保 Cluster 资源的级联删除 https://github.com/kubean-io/kubean/pull/918
+- [x] 为 ClusterOperation 记录添加清除权重 https://github.com/kubean-io/kubean/pull/983
+
+## Q4 2023
+- [x] 优化镜像离线包为 OCI 格式 https://github.com/kubean-io/kubean/pull/996
+- [x] 优化 Operator 的日志输入 https://github.com/kubean-io/kubean/pull/1032
+- [x] 提高 Manifest 资源的查询效率 https://github.com/kubean-io/kubean/pull/1036
+- [x] 重构镜像导入脚本，使其支持多架构导入 https://github.com/kubean-io/kubean/pull/1040
+
+## Q1 2024
+- [x] 提高 precheck 剧本的执行效率 https://github.com/kubean-io/kubean/pull/1076
+- [x] 优化 ClusterOperation 的调谐性能 https://github.com/kubean-io/kubean/pull/1082
+- [x] 重构自定义资源生成脚本逻辑 https://github.com/kubean-io/kubean/pull/1152
+- [x] 修复 ubuntu18.04 离线包版本问题 https://github.com/kubean-io/kubean/pull/1158
+- [x] 自动化 docker 限制单容器磁盘占用的前置步骤 https://github.com/kubean-io/kubean/pull/1179
+
+## Q2 2024
+- [ ] 提供客户端命令行工具，及便捷的自定义资源模块生成方式
+- [ ] 不同节点规模集群部署的容量规划
+- [ ] 提供完整的离线资源管理方案
+- [ ] 支持多种生命周期管理引擎，比如kubespray、kubekey
+- [ ] 支持基于 ostree 的集群操作回滚

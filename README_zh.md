@@ -20,7 +20,7 @@ Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certifie
 
   <p>
 
-Kubean 是基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 构建的集群生命周期管理工具。
+Kubean 是一款准生产的集群生命周期管理工具，基于 [kubespray](https://github.com/kubernetes-sigs/kubespray) 与其他集群 LCM 引擎。
 
   </p>
 
