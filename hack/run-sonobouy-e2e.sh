@@ -24,9 +24,30 @@ rm -f ~/.ssh/known_hosts
 export ARCH=amd64
 export OS_NAME="CENTOS7"
 export OFFLINE_FLAG=false
-./hack/run-vip.sh
-./hack/kubean_resource.sh ${TARGET_VERSION} "artifacts"
-./hack/run-network-e2e.sh
-./hack/run-nightly-cluster-e2e.sh
+export NIGHTLY_E2E_STEP=${1}
+if [ "${NIGHTLY_E2E_STEP}" == "ALL" ]; then
+    echo "RUN ALL SONOBOUY E2E......."
+    ./hack/run-vip.sh
+    ./hack/kubean_resource.sh ${TARGET_VERSION} "artifacts"
+    ./hack/run-network-e2e.sh
+    ./hack/run-nightly-cluster-e2e.sh
+fi
+if [ "${NIGHTLY_E2E_STEP}" == "STEP1" ]; then
+    echo "RUN SONOBOUY E2E STEP1......."
+    ./hack/run-vip.sh
+fi
+if [ "${NIGHTLY_E2E_STEP}" == "STEP2" ]; then
+    echo "RUN SONOBOUY E2E STEP2......."
+    ./hack/kubean_resource.sh ${TARGET_VERSION} "artifacts"
+fi
+if [ "${NIGHTLY_E2E_STEP}" == "STEP3" ]; then
+    echo "RUN SONOBOUY E2E STEP3......."
+    ./hack/run-network-e2e.sh
+fi
+if [ "${NIGHTLY_E2E_STEP}" == "STEP4" ]; then
+    echo "RUN SONOBOUY E2E STEP4......."
+    ./hack/run-nightly-cluster-e2e.sh
+fi
+
 
 
