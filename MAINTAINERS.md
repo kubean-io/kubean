@@ -14,3 +14,4 @@ Please keep the below list sorted in ascending order.
 | Lihai Tu    | @tu1h       | DaoCloud    | <lihai.tu@daocloud.io>    |
 | Michael Yao | @windsonsea | DaoCloud    | <haifeng.yao@daocloud.io> |
 | Xiao Zhang  | @wawa0210   | DaoCloud    | <xiao.zhang@daocloud.io>  |
+| Peter Pan   | @panpan0000 | DaoCloud    | <peter.pan@daocloud.io>   |
