@@ -878,6 +878,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#q4-2023" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q4 2023
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#q1-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q1 2024
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#q2-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q2 2024
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1319,48 +1346,6 @@
   
   <span class="md-ellipsis">
     V0.10.0
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../releases/v0.9.4-rc2/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    V0.9.4 rc2
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../releases/v0.9.4-rc1/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    V0.9.4 rc1
   </span>
   
 
@@ -2267,6 +2252,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#q4-2023" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q4 2023
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#q1-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q1 2024
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#q2-2024" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q2 2024
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2326,10 +2338,33 @@
 </ul>
 <h2 id="q3-2023">Q3 2023<a class="headerlink" href="#q3-2023" title="Permanent link">&para;</a></h2>
 <ul class="task-list">
-<li class="task-list-item"><input type="checkbox"/> Optimize Kubean documentation website</li>
-<li class="task-list-item"><input type="checkbox"/> Support for deployment in more OS offline scenarios</li>
-<li class="task-list-item"><input type="checkbox"/> Provide a convenient way to generate customized resource templates</li>
-<li class="task-list-item"><input type="checkbox"/> Optimization of the use of resources such as images and binaries related to offline scenarios</li>
+<li class="task-list-item"><input type="checkbox" checked/> Add certificate renewal script: https://github.com/kubean-io/kubean/pull/884</li>
+<li class="task-list-item"><input type="checkbox" checked/> Implement daily deployment verification for the latest version of upstream kubespray: https://github.com/kubean-io/kubean/pull/870</li>
+<li class="task-list-item"><input type="checkbox" checked/> Ensure cascading deletion of Cluster resources: https://github.com/kubean-io/kubean/pull/918</li>
+<li class="task-list-item"><input type="checkbox" checked/> Add cleanup weight for ClusterOperation records: https://github.com/kubean-io/kubean/pull/983</li>
+</ul>
+<h2 id="q4-2023">Q4 2023<a class="headerlink" href="#q4-2023" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" checked/> Optimize offline image package to OCI format: https://github.com/kubean-io/kubean/pull/996</li>
+<li class="task-list-item"><input type="checkbox" checked/> Improve logging input for Operators: https://github.com/kubean-io/kubean/pull/1032</li>
+<li class="task-list-item"><input type="checkbox" checked/> Enhance query efficiency of Manifest resources: https://github.com/kubean-io/kubean/pull/1036</li>
+<li class="task-list-item"><input type="checkbox" checked/> Refactor image import script to support multi-architecture import: https://github.com/kubean-io/kubean/pull/1040</li>
+</ul>
+<h2 id="q1-2024">Q1 2024<a class="headerlink" href="#q1-2024" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" checked/> Improve execution efficiency of precheck script: https://github.com/kubean-io/kubean/pull/1076</li>
+<li class="task-list-item"><input type="checkbox" checked/> Optimize tuning performance of ClusterOperation: https://github.com/kubean-io/kubean/pull/1082</li>
+<li class="task-list-item"><input type="checkbox" checked/> Refactor logic of custom resource generation script: https://github.com/kubean-io/kubean/pull/1152</li>
+<li class="task-list-item"><input type="checkbox" checked/> Fix offline package version issue for Ubuntu 18.04: https://github.com/kubean-io/kubean/pull/1158</li>
+<li class="task-list-item"><input type="checkbox" checked/> Automate pre-steps for limiting disk usage per container in Docker: https://github.com/kubean-io/kubean/pull/1179</li>
+</ul>
+<h2 id="q2-2024">Q2 2024<a class="headerlink" href="#q2-2024" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"/> Provide a client command-line tool and convenient method for generating custom resource modules</li>
+<li class="task-list-item"><input type="checkbox"/> Capacity planning for cluster deployment on different node scales</li>
+<li class="task-list-item"><input type="checkbox"/> Provide a complete offline resource management solution</li>
+<li class="task-list-item"><input type="checkbox"/> Support multiple lifecycle management engines, such as kubespray and kubekey.</li>
+<li class="task-list-item"><input type="checkbox"/> Enable cluster operation rollback based on ostree.</li>
 </ul>
 
 
