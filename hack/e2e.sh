@@ -22,6 +22,7 @@ export VSPHERE_PASSWD=${5}
 export AMD_ROOT_PASSWORD=${6}
 export KYLIN_VM_PASSWORD=${7}
 export E2E_TYPE=${8:-"PR"}
+export NIGHTLY_E2E_STEP=${9:-"ALL"}
 export SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
 export HELM_REPO="https://kubean-io.github.io/kubean-helm-chart"
 export IMG_REGISTRY="ghcr.m.daocloud.io"
@@ -91,7 +92,7 @@ else
         # Judge whether to change the nightlye2e case
         if [[ -n $DIFF_NIGHTLYE2E ]] ; then
             echo "RUN NIGHTLY E2E......."
-            ./hack/run-sonobouy-e2e.sh
+            ./hack/run-sonobouy-e2e.sh "ALL"
         fi
         # Judge whether to change the compatibility case
         if [[ -n $DIFF_COMPATIBILE ]] ; then
@@ -101,7 +102,7 @@ else
         fi
     elif [ "${E2E_TYPE}" == "NIGHTLY" ]; then
         echo "RUN NIGHTLY E2E......."
-        ./hack/run-sonobouy-e2e.sh
+        ./hack/run-sonobouy-e2e.sh "${NIGHTLY_E2E_STEP}"
     else
         echo "RUN COMPATIBILITY E2E......."
         ./hack/run-os-compatibility-e2e.sh
