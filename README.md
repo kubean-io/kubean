@@ -20,7 +20,7 @@ Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certifie
 
   <p>
 
-kubean is a cluster lifecycle management tool based on [kubespray](https://github.com/kubernetes-sigs/kubespray).
+Kubean is a product ready cluster lifecycle management toolchains based on [kubespray](https://github.com/kubernetes-sigs/kubespray) and other cluster LCM engine.
 
   </p>
 

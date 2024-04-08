@@ -40,7 +40,27 @@ The current Roadmap is tentative, and the exact schedule depends on the needs of
 - [x] Update the release process https://github.com/kubean-io/kubean/pull/869
 
 ## Q3 2023
-- [ ] Optimize Kubean documentation website
-- [ ] Support for deployment in more OS offline scenarios
-- [ ] Provide a convenient way to generate customized resource templates
-- [ ] Optimization of the use of resources such as images and binaries related to offline scenarios
+- [x] Add certificate renewal script: https://github.com/kubean-io/kubean/pull/884
+- [x] Implement daily deployment verification for the latest version of upstream kubespray: https://github.com/kubean-io/kubean/pull/870
+- [x] Ensure cascading deletion of Cluster resources: https://github.com/kubean-io/kubean/pull/918
+- [x] Add cleanup weight for ClusterOperation records: https://github.com/kubean-io/kubean/pull/983
+
+## Q4 2023
+- [x] Optimize offline image package to OCI format: https://github.com/kubean-io/kubean/pull/996
+- [x] Improve logging input for Operators: https://github.com/kubean-io/kubean/pull/1032
+- [x] Enhance query efficiency of Manifest resources: https://github.com/kubean-io/kubean/pull/1036
+- [x] Refactor image import script to support multi-architecture import: https://github.com/kubean-io/kubean/pull/1040
+
+## Q1 2024
+- [x] Improve execution efficiency of precheck script: https://github.com/kubean-io/kubean/pull/1076
+- [x] Optimize tuning performance of ClusterOperation: https://github.com/kubean-io/kubean/pull/1082
+- [x] Refactor logic of custom resource generation script: https://github.com/kubean-io/kubean/pull/1152
+- [x] Fix offline package version issue for Ubuntu 18.04: https://github.com/kubean-io/kubean/pull/1158
+- [x] Automate pre-steps for limiting disk usage per container in Docker: https://github.com/kubean-io/kubean/pull/1179
+
+## Q2 2024
+- [ ] Provide a client command-line tool and convenient method for generating custom resource modules
+- [ ] Capacity planning for cluster deployment on different node scales
+- [ ] Provide a complete offline resource management solution
+- [ ] Support multiple lifecycle management engines, such as kubespray and kubekey.
+- [ ] Enable cluster operation rollback based on ostree.
