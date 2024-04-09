@@ -42,7 +42,7 @@ jobs:
           max_attempts: 3
           retry_on: error
           command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
             TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
             if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
@@ -76,7 +76,7 @@ jobs:
           max_attempts: 3
           retry_on: error
           command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
             TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
             if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
@@ -109,7 +109,7 @@ jobs:
           max_attempts: 3
           retry_on: error
           command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
             TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
             if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
@@ -142,7 +142,7 @@ jobs:
           max_attempts: 3
           retry_on: error
           command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
             TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
             if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
