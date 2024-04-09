@@ -105,6 +105,10 @@ You can use the example in folder `examples/install/1.minimal` which uses online
 
 To check the list of Kubernetes versions supported by Kubean, please refer to the [Kubernetes versions list](./docs/zh/usage/support_k8s_version.md).
 
+## :book: Roadmap
+
+For detailed information about all the planned features, please refer to the [roadmap](docs/en/develop/roadmap.md).
+
 ## :book: Documents
 
 Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
