@@ -186,20 +186,23 @@ function iso::import_data() {
     path_list+=("${iso_mnt_path}/minimal")
   fi 
   
-  if [ "${#path_list[@]}" -gt 0 ]; then
-    for path_name in "${path_list[@]}"; do
-      if [ "${is_cp_path}" == "true" ]; then
-        mkdir -p "${target_path}/${minio_server_path}"
-        cp -vr "${path_name}" "${target_path}/${minio_server_path}"
-      else
-        ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
-        mc cp --no-color --recursive "${path_name}" "${minio_files_path}"
-      fi
-    done
-  else
+  if [ "${#path_list[@]}" -le 0 ]; then
     echo "cannot find valid repo data from ${iso_file_path}"
     exit 1
   fi
+
+  for path_name in "${path_list[@]}"; do
+    if [ "${is_cp_path}" == "true" ]; then
+      mkdir -p "${target_path}/${minio_server_path}"
+      cp -vr "${path_name}" "${target_path}/${minio_server_path}"
+    else
+      ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
+      mc cp --no-color --recursive "${path_name}" "${minio_files_path}"
+      if [ "${path_name}" == "${iso_mnt_path}/dists" ]; then
+        mc rm --no-color ${minio_files_path}/dists/$(dir --hide=*stable ${path_name})/Release ${minio_files_path}/dists/$(dir --hide=*stable ${path_name})/Release.gpg
+      fi
+    fi
+  done
 }
 
 function iso::import_main() {
