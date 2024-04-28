@@ -114,7 +114,7 @@ ifeq (, $(shell which readme-generator))
 	npm install -g @bitnami/readme-generator-for-helm ;\
 	}
 else
-	@$(OK) readme-generator-for-helm is already installed
+	@echo readme-generator-for-helm is already installed
 HELMDOC=$(shell which readme-generator)
 endif
 
