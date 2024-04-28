@@ -7,7 +7,6 @@ import (
 	"context"
 	"flag"
 	"net"
-	"os"
 	"strconv"
 
 	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
@@ -26,7 +25,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
 	controllerruntime "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
@@ -103,8 +101,9 @@ func StartManager(ctx context.Context, opt *Options) error {
 func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan struct{}) error {
 	resetConfig, err := rest.InClusterConfig()
 	if err != nil {
-		resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+		// resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 		if err != nil {
+			klog.ErrorS(err, "Failed to build kubernetes config")
 			return err
 		}
 	}

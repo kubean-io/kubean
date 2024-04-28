@@ -7,17 +7,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
 
 	kubeanClusterOperationClientSet "github.com/kubean-io/kubean-api/generated/clusteroperation/clientset/versioned"
-	clusteropswebhook "github.com/kubean-io/kubean/pkg/webhooks/clusterops"
-
 	"github.com/kubean-io/kubean/pkg/version"
+	clusteropswebhook "github.com/kubean-io/kubean/pkg/webhooks/clusterops"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	rest "k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	klog "k8s.io/klog/v2"
 )
 
@@ -50,17 +47,14 @@ func Run(ctx context.Context, opt *Options) error {
 	klog.Warningf("Start Admission Controller")
 	resetConfig, err := rest.InClusterConfig()
 	if err != nil {
-		klog.ErrorS(err, " can not load k8s config")
-		return err
-	}
-	resetConfig.QPS = opt.KubeAPIQPS
-	resetConfig.Burst = opt.KubeAPIBurst
-	if err != nil {
-		resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+		// resetConfig, err = clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 		if err != nil {
+			klog.ErrorS(err, "Failed to build kubernetes config")
 			return err
 		}
 	}
+	resetConfig.QPS = opt.KubeAPIQPS
+	resetConfig.Burst = opt.KubeAPIBurst
 	ClientSet, err := kubernetes.NewForConfig(resetConfig)
 	if err != nil {
 		return err
