@@ -108,6 +108,26 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 
 请浏览: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
+## :envelope: 联系我们
+
+你可以通过以下渠道与我们联系：
+  - Slack: 通过请求 CNCF Slack的[邀请](https://slack.cncf.io/)加入 CNCF Slack的 [#Kubean](https://cloud-native.slack.com/messages/kubean) 频道。一旦您可以访问 CNCF Slack，您就可以加入 Kubean 频道。
+  - 电子邮件: 请参阅 [MAINTAINERS.md](./MAINTAINERS.md) 查找所有维护人员的电子邮件地址。随时通过电子邮件与他们联系，报告任何问题或提出问题。
+
+## :thumbsup: 贡献者
+
+<a href="https://github.com/kubean-io/kubean/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=kubean-io/kubean" />
+</a>
+
+## :mag_right: 其他
+
+Copyright The Kubean Authors
+
+We are a [Cloud Native Computing Foundation sandbox project](https://www.cncf.io/).
+
+The Linux Foundation® (TLF) has registered trademarks and uses trademarks. For a list of TLF trademarks, see [Trademark Usage](https://www.linuxfoundation.org/legal/trademark-usage).
+
 <div align="center">
 <p>
 <img src="https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg" width="300"/>
