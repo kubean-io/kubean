@@ -44,7 +44,7 @@ Kubean is a product ready cluster lifecycle management toolchains based on [kube
 <img src="https://github.com/cncf/artwork/blob/main/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
 </p>
 
-**Kubean is a [Cloud Native Computing Foundation](https://cncf.io/) Landscape project.**
+**Kubean is a [Cloud Native Computing Foundation sandbox project](https://cncf.io/).**
 
 ## :anchor: Awesome features
 
@@ -113,11 +113,25 @@ For detailed information about all the planned features, please refer to the [ro
 
 Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
+## :envelope: Communication
+
+You can connect with us on the following channels:
+  - Slack: join the [#Kubean](https://cloud-native.slack.com/messages/kubean) channel on CNCF Slack by requesting an [invitation](https://slack.cncf.io/) from CNCF Slack. Once you have access to CNCF Slack, you can join the Kubean channel.
+  - Email: refer to the [MAINTAINERS.md](./MAINTAINERS.md) to find the email addresses of all maintainers. Feel free to contact them via email to report any issues or ask questions.
+
 ## :thumbsup: Contributors
 
 <a href="https://github.com/kubean-io/kubean/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=kubean-io/kubean" />
 </a>
+
+## :mag_right: Others
+
+Copyright The Kubean Authors
+
+We are a [Cloud Native Computing Foundation sandbox project](https://www.cncf.io/).
+
+The Linux Foundation® (TLF) has registered trademarks and uses trademarks. For a list of TLF trademarks, see [Trademark Usage](https://www.linuxfoundation.org/legal/trademark-usage).
 
 ---
 
