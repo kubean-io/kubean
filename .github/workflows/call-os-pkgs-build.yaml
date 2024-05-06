@@ -33,6 +33,8 @@ jobs:
           dockerfile: build/os-packages/Dockerfile.ubuntu1804
         - name: ubuntu2004
           dockerfile: build/os-packages/Dockerfile.ubuntu2004
+        - name: ubuntu2204
+          dockerfile: build/os-packages/Dockerfile.ubuntu2204
     steps:
     - name: Checkout
       uses: actions/checkout@v3
