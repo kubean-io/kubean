@@ -1,23 +1,29 @@
-# Use Kubean in offline scenes
+# Use Kubean in offline cases
+
+## Reminder
+
+- For RHEL 8.4 series, the pre-installed fuse package may be uninstalled due to package dependency issues.
 
 ## Preparation
 
 1. Services requiring pre-deployment:
-* Document resource service [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
-* Image registry services: [`docker registry`](https://hub.docker.com/_/registry)（2.7 below）
-  or [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
+
+    * Document resource service [`minio`](https://docs.min.io/docs/minio-quickstart-guide.html)
+    * Image registry services: [`docker registry`](https://hub.docker.com/_/registry)（2.7 below）
+      or [`harbor`](https://goharbor.io/docs/2.0.0/install-config/)
 
 2. Necessary tools to be installed:
 
-* A tool for importing image files: [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md), Required >=1.9.2; [`podman`](https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host), Required >= 4.4.4
-* A tool for importing binary files: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
+    * A tool for importing image files:
+      [`skopeo`](https://github.com/containers/skopeo/blob/main/install.md), Required >=1.9.2;
+      [`podman`](https://github.com/mgoltzsche/podman-static?tab=readme-ov-file#binary-installation-on-a-host), Required >= 4.4.4
+    * A tool for importing binary files: [`minio client`](https://docs.min.io/docs/minio-client-quickstart-guide.html)
 
 3. Deploy Kubean by Helm[`kubean`](https://github.com/kubean-io/kubean/blob/main/charts/kubean/README.md)
 
-
 ## Download offline resources
 
-The [Github Releases](https://github.com/kubean-io/kubean/releases) page allows us to download the offline resources for the version we want
+The [Github Releases](https://github.com/kubean-io/kubean/releases) page allows us to download the offline resources for the version we want.
 
 Basic instructions for offline resources:
 
@@ -29,11 +35,11 @@ Basic instructions for offline resources:
 └── os-pkgs-${linux_distribution}-${tag}.tar.gz # Compressed package of each system, including import script
 ```
 
-## Importing offline resources into the corresponding service
+## Importing offline resources into the proper service
 
-### 1. Import binary resources
+### Import binary resources
 
-Please first unzip the `files-${tag}.tar.gz` file, which contains:
+First unzip the `files-${tag}.tar.gz` file, which contains:
 
 ``` bash
 files/
@@ -44,14 +50,14 @@ files/
 Execute the following command to import the binary file into the minio service:
 
 ``` bash
-$ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
+MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
 ```
 
 * `minio_address` is the `minio API Server` address, typically on port 9000, e.g. `http://1.2.3.4:9000`
 
-### 2. Images  import of resources
+### Import images
 
-You need to unzip the `images-${tag}.tar.gz` file, which contains:
+It's required to unzip the `images-${tag}.tar.gz` file, which contains:
 
 ``` bash
 images/
@@ -62,23 +68,24 @@ images/
 Execute the following command to import the image file into the Docker Registry or the Harbor image repository service:
 
 ``` bash
-# 1. password-free mode
+# password-free mode
 $ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
-# 2. Username password mode
+# username-password mode
 $ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
 ```
 
 * `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`
 * `REGISTRY_USER` and `REGISTRY_PASS` need to be set when username and password authentication exists for the mirror repository
 
-### 3. OS packages import of resources
+### Import OS packages
 
-Note: 
-- [OS Packages](https://github.com/kubean-io/kubean/blob/main/build/os-packages/README.md) resources for Centos / Redhat / Kylin / Ubuntu distributions are currently supported.
-- The OS Package of UnionTech V20 series needs to be built manually, see [README](https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/README.md) for the build method.
+!!! note 
 
-You need to unzip the `os-pkgs-${linux_distribution}-${tag}.tar.gz` file, which contains:
+    - [OS Packages](https://github.com/kubean-io/kubean/blob/main/build/os-packages/README.md) for Centos / Redhat / Kylin / Ubuntu distributions are currently supported.
+    - The OS Package of UnionTech V20 series needs to be built manually, see [README](https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/README.md) for the build method.
+
+It's required to unzip the `os-pkgs-${linux_distribution}-${tag}.tar.gz` file, which contains:
 
 ``` bash
 os-pkgs
@@ -91,34 +98,40 @@ os-pkgs
 Execute the following command to os packages into the minio file service:
 
 ``` bash
-$ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${arch}.tar.gz
+MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${arch}.tar.gz
 ```
 
 ## Create offline sources
 
 ### Create ISO image source
+
 The following [Create local ISO image source] and [Create online ISO image source] only need to execute one of them.
 
-#### 1.1 Create a local ISO image source
+#### Create a local ISO image source
 
 OS Packages are primarily used to resolve docker-ce installation dependencies, but for offline deployments, other packages from the distribution may be used, and a local ISO image source will need to be created.
 
-> Note: We need to download the ISO system distribution image for the host in advance, currently only the ISO image source for the Centos distribution is supported;
-> Note: This operation needs to be performed on each cluster that creates kubernetes nodes;
+!!! note
+
+    It's required to download the ISO system distribution image for the host in advance, currently only the ISO image source for the Centos distribution is supported;
+    This operation needs to be performed on each cluster that creates kubernetes nodes.
 
 The script `artifacts/gen_repo_conf.sh` can be used to mount the ISO image and create the Repo configuration file by executing the following command:
 
 ``` bash
 # Basic format
-$ ./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
+./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
 
 # Execute the script to create the ISO image source
-$ ./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
+./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
 # Check ISO image mounts
-$ df -h | grep mnt
+df -h | grep mnt
 /dev/loop0               9.6G  9.6G     0 100% /mnt/centos-iso
 # Check ISO image source configuration
-$ cat /etc/yum.repos.d/Kubean-ISO.repo
+cat /etc/yum.repos.d/Kubean-ISO.repo
+```
+
+```config
 [kubean-iso]
 name=Kubean ISO Repo
 baseurl=file:///mnt/centos-iso
@@ -127,7 +140,7 @@ gpgcheck=0
 sslverify=0
 ```
 
-#### 1.2 Create an online ISO image source
+#### Create an online ISO image source
 
 To import the image source from the ISO into the minio server, use the script `artifacts/import_iso.sh`
 
@@ -137,7 +150,7 @@ MINIO_USER=${username} MINIO_PASS=${password} ./import_iso.sh ${minio_address} C
 
 Create the following file for the host `/etc/yum.repos.d/centos-iso-online.repo` to use the online ISO image source:
 
-```
+```config
 [kubean-iso-online]
 name=Kubean ISO Repo Online
 baseurl=${minio_address}/kubean/centos-iso/$releasever/os/$basearch
@@ -146,9 +159,9 @@ gpgcheck=0
 sslverify=0
 ```
 
-* Need to replace `${minio_address}` with the minio API Server address
+* It's required to replace `${minio_address}` with the minio API Server address
 
-### 2. Create extras software sources
+### Create extras software sources
 
 > Currently only supported on Centos distributions
 
@@ -157,12 +170,15 @@ When installing a K8S cluster, it also relies on extras, such as `container-seli
 The Extra Repo can also be created using the script `artifacts/gen_repo_conf.sh`, by executing the following command:
 
 ``` bash
-$ ./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
+./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
 
 # Execute the script to create a URL source profile
-$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/kubean/centos/\$releasever/os/\$basearch
+./gen_repo_conf.sh --url-mode centos ${minio_address}/kubean/centos/\$releasever/os/\$basearch
 # View URL source profile
-$ cat /etc/yum.repos.d/Kubean-URL.repo
+cat /etc/yum.repos.d/Kubean-URL.repo
+```
+
+```config
 [kubean-extra]
 name=Kubean Extra Repo
 baseurl=http://10.20.30.40:9000/kubean/centos/$releasever/os/$basearch
@@ -171,11 +187,13 @@ gpgcheck=0
 sslverify=0
 ```
 
-> Note: If the `repo_base_url` parameter has a `$` symbol, it needs to be escaped `\$`
+!!! note
 
-> Need to replace `${minio_address}` with the actual `minio API Server` address
+    If the `repo_base_url` parameter has a `$` symbol, it needs to be escaped `\$`.
 
-### 3. ClusterOperation combined with playbook to create source profiles
+    It's required to replace `${minio_address}` with the actual `minio API Server` address.
+
+### Create source profiles with ClusterOperation and playbook
 
 > Only Centos yum repo additions are currently supported
 
@@ -195,7 +213,8 @@ spec:
     - actionType: playbook
       action: ping.yml
     - actionType: playbook
-      action: enable-repo.yml  # Before deploying the cluster, run the enable-repo playbook to create a source configuration for each node with the specified url
+      action: enable-repo.yml  # Before deploying the cluster, run the enable-repo playbook
+                               # to create a source configuration for each node with the specified url
       extraArgs: |
         -e "{repo_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"
     - actionType: playbook
@@ -204,12 +223,13 @@ spec:
     - actionType: playbook
       action: cluster-info.yml
     - actionType: playbook
-      action: enable-repo.yml  # After deploying the cluster, restore the yum repo configuration for each node. (Note: This step can be added as appropriate.)
+      action: enable-repo.yml  # After deploying the cluster, restore the yum repo configuration for each node.
+                               # (Note: This step can be added as appropriate.)
       extraArgs: |
         -e undo=true
 ```
 
-## Pre-deployment cluster configuration
+## Configure cluster before deployment
 
 Offline settings need to be referred to [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
 Located in `kubespray/inventory/sample/group_vars/all/offline.yml` configuration file:
@@ -293,16 +313,16 @@ For offline deployment, additional parameters are required for some special oper
 | RHEL Series  | `rhel_enable_repos: false` |
 | Oracle Linux Series  | `use_oracle_public_repo: false` |
 
-We use `examples/install/3.airgap` as a template,
+We use `examples/install/3.airgap` as a template.
 
-Adapt the offline configuration as above to your specific situation, especially if you need to replace `<registry_address>` and `<minio_address>`,
+Adapt the offline configuration as above to your specific situation, especially if you need to replace `<registry_address>` and `<minio_address>`.
 
-Finally add the configuration update to the `examples/install/3.airgap/VarsConfCM.yml`  file,
+Finally add the configuration update to the `examples/install/3.airgap/VarsConfCM.yml` file.
 
-We also need to change the cluster node IP and username password in `examples/install/3.airgap/HostsConfCM.yml`,
+We also need to change the cluster node IP and username password in `examples/install/3.airgap/HostsConfCM.yml`.
 
 Finally, the ClusterOperation task is started with `kubectl apply -f examples/install/3.airgap` to install the k8s cluster.
 
-## Generation and use of incremental offline packages
+## Generate and use incremental offline packages
 
-For detailed documentation see: [Air gap patch usage](airgap_patch_usage.md).
+For details see [Air gap patch usage](airgap_patch_usage.md).
