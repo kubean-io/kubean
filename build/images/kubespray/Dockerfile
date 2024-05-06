@@ -5,7 +5,7 @@ ARG SPRAY_REF=master
 ARG TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apk add --update --no-cache python3 openssh curl sshpass rsync bash \
-    gcc musl-dev python3-dev libffi-dev py3-pip git
+    gcc musl-dev python3-dev libffi-dev py3-pip git patch
 
 RUN git clone https://github.com/kubernetes-sigs/kubespray.git /kubespray \
     && cd /kubespray \
@@ -39,15 +39,20 @@ RUN pip3 cache purge \
     && find / -type d -name '*__pycache__' -print0 | xargs -0 -r rm -rf \
     && bash -c "rm -rf /kubespray/{.git,docs}"
 
+COPY build/images/ansible_patchs/* /tmp/
+RUN ANSIBLE_CORE_VERSION=$( pip show -V ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
+    && echo "ANSIBLE_CORE_VERSION: ${ANSIBLE_CORE_VERSION}" \
+    && SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
+    && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
+    && echo "PKG_MGR_PATH: ${PKG_MGR_PATH}" \
+    && if [[ "${ANSIBLE_CORE_VERSION}" == "2.14" ]]; then \
+            echo "patch-2.14"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.14.patch; \
+        elif [[ "${ANSIBLE_CORE_VERSION}" == "2.15" ]]; then  \
+            echo "patch-2.15"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.15.patch; \
+        fi
+
 FROM scratch
 COPY --from=spray-build / /
 
 ENV ANSIBLE_CONFIG=/kubespray/ansible.cfg
 WORKDIR /kubespray
-
-COPY build/images/patch_files/pkg_mgr.py /tmp/
-RUN [[ $(echo -e "$(pip show -V ansible-core | grep Version: | awk '{print $2}')\n2.14.0" | sort -rV | head -1) == 2.14.0 ]] \
-    && : \
-    || ( SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
-    && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
-    && cp /tmp/pkg_mgr.py ${PKG_MGR_PATH})
