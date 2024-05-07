@@ -34,7 +34,7 @@
 
 ## 将离线资源导入对应服务
 
-### 1. Binaries 资源的导入
+### 导入 Binaries 资源
 
 请先解压 `files-${tag}.tar.gz` 文件, 其内部包含:
 
@@ -47,12 +47,12 @@ files/
 执行如下命令, 将二进制文件导入到 minio 服务中:
 
 ``` bash
-$ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
+MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
 ```
 
 * `minio_address` 是 `minio API Server`地址，端口一般为9000，比如 `http://1.2.3.4:9000`
 
-### 2. Images 资源的导入
+### 导入 Images 资源
 
 需要解压 `images-${tag}.tar.gz` 文件, 其内部包含:
 
@@ -65,64 +65,70 @@ images/
 执行如下命令, 将镜像文件导入到 docker registry 或 harbor 镜像仓库服务中:
 
 ``` bash
-# 1. 免密模式
-$ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
+# 免密模式
+REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
-# 2. 用户名口令模式
-$ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
+# 用户名口令模式
+REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
 ```
 
 * `REGISTRY_ADDR` 是镜像仓库的地址，比如`1.2.3.4:5000`
 * 当镜像仓库存在用户名密码验证时，需要设置 `REGISTRY_USER` 和 `REGISTRY_PASS`
 
-### 3. OS packages 资源的导入
+### 导入 OS packages 资源
 
-注意: 
-- 目前支持 Centos / Redhat / Kylin / Ubuntu 等发行版的 [OS Packages](https://github.com/kubean-io/kubean/blob/main/build/os-packages/README.md) 资源
-- 统信 UnionTech V20 系列的 OS Package 需要手动构建，构建方法见 [README](https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/README.md)
+!!! note
 
-需要解压 `os-pkgs-${linux_distribution}-${tag}.tar.gz` 文件, 其内部包含:
+    - 目前支持 Centos / Redhat / Kylin / Ubuntu 等发行版的 [OS Packages](https://github.com/kubean-io/kubean/blob/main/build/os-packages/README.md) 资源
+    - 统信 UnionTech V20 系列的 OS Package 需要手动构建，构建方法见 [README](https://github.com/kubean-io/kubean/blob/main/build/os-packages/others/uos_v20/README.md)
+
+需要解压 `os-pkgs-${linux_distribution}-${tag}.tar.gz` 文件，其内部包含:
 
 ``` bash
 os-pkgs
-├── import_ospkgs.sh              # 该脚本用于导入 os packages 到 minio 文件服务
+├── import_ospkgs.sh       # 该脚本用于导入 os packages 到 minio 文件服务
 ├── os-pkgs-amd64.tar.gz   # amd64 架构的 os packages 包
 ├── os-pkgs-arm64.tar.gz   # arm64 架构的 os packages 包
 └── os-pkgs.sha256sum.txt  # os packages 包的 sha256sum 效验文件
 ```
 
-执行如下命令, 将 os packages 包到 minio 文件服务中:
+执行如下命令，将 os packages 包到 minio 文件服务中：
 
 ``` bash
-$ MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${arch}.tar.gz
+MINIO_USER=${username} MINIO_PASS=${password} ./import_ospkgs.sh ${minio_address} os-pkgs-${arch}.tar.gz
 ```
 
 ## 建立离线源
 
 下面的【建立本地ISO镜像源】与【建立在线ISO镜像源】只需要执行其中一个即可。
-### 1. 建立ISO镜像源
 
-#### 1.1 建立本地 ISO 镜像源
+### 建立 ISO 镜像源
 
-OS Packages 主要用于解决 docker-ce 的安装依赖, 但在实际的离线部署过程中, 可能还需要使用到发行版系统的其他包, 此时需要建立本地
-ISO 镜像源.
+#### 建立本地 ISO 镜像源
 
-> 注: 我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前支持 Centos、Redhat、Ubuntu 发行版的 ISO 镜像源创建;
-> 注：需要在每个创建kubernetes的集群上都执行本操作;
+OS Packages 主要用于解决 docker-ce 的安装依赖，但在实际的离线部署过程中，可能还需要使用到发行版系统的其他包，此时需要建立本地
+ISO 镜像源。
+
+!!! note
+
+    我们需要提前下载主机对应的 ISO 系统发行版镜像, 当前支持 Centos、Redhat、Ubuntu 发行版的 ISO 镜像源创建；
+    需要在每个创建kubernetes的集群上都执行本操作。
 
 这里可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可挂载 ISO 镜像文件, 并创建 Repo 配置文件:
 
 ``` bash
 # 基本格式
-$ ./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
+./gen_repo_conf.sh --iso-mode ${linux_distribution} ${iso_image_file}
 # linux_distribution 的值是 centos、redhat、debian 或者 ubuntu
 # 执行脚本创建 ISO 镜像源
-$ ./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
+./gen_repo_conf.sh --iso-mode centos CentOS-7-x86_64-Everything-2207-02.iso
 # 查看 ISO 镜像挂载情况
-$ df -h | grep mnt
+df -h | grep mnt
 /dev/loop0               9.6G  9.6G     0 100% /mnt/centos-iso
 # 查看 ISO 镜像源配置
-$ cat /etc/yum.repos.d/Kubean-ISO.repo
+cat /etc/yum.repos.d/Kubean-ISO.repo
+```
+```config
 [kubean-iso]
 name=Kubean ISO Repo
 baseurl=file:///mnt/centos-iso
@@ -131,12 +137,12 @@ gpgcheck=0
 sslverify=0
 ```
 
-#### 1.2 建立在线 ISO 镜像源
+#### 建立在线 ISO 镜像源
 
-##### 导入至Minio
+##### 导入至 MinIO
 
-将 ISO 中的镜像源导入到minio server中，需要使用到脚本 `artifacts/import_iso.sh` ，执行如下面命令即可将 ISO 镜像中软件源导入到
-minio server 中
+将 ISO 中的镜像源导入到 minio server中，需要使用到脚本 `artifacts/import_iso.sh`，执行如下面命令即可将 ISO 镜像中软件源导入到
+minio server 中：
 
 ```bash
 MINIO_USER=${username} MINIO_PASS=${password} ./import_iso.sh ${minio_address} Centos-XXXX.ISO
@@ -144,7 +150,7 @@ MINIO_USER=${username} MINIO_PASS=${password} ./import_iso.sh ${minio_address} C
 
 为主机新建如下文件 `/etc/yum.repos.d/centos-iso-online.repo` 即可使用在线 ISO 镜像源:
 
-```
+```config
 [kubean-iso-online]
 name=Kubean ISO Repo Online
 baseurl=${minio_address}/kubean/centos-iso/$releasever/os/$basearch
@@ -155,7 +161,7 @@ sslverify=0
 
 此外，如果导入的是 RHEL ISO，需注意此 ISO 提供两个源：
 
-```
+```config
 [kubean-iso-online-BaseOS]
 name=Kubean ISO Repo Online BaseOS
 baseurl=${minio_address}/kubean/redhat-iso/$releasever/os/$basearch/BaseOS
@@ -186,9 +192,9 @@ sslverify=0
 ./import_iso.sh ${you_local_path} Centos-XXXX.ISO
 ```
 
-repo配置方式类似上方 [导入至Minio](#导入至Minio)
+repo 配置方式类似[导入至 MinIO](#minio)
 
-```
+```config
 [kubean-iso-online]
 name=Kubean ISO Repo Online
 baseurl=${your_local_path}/centos-iso/$releasever/os/$basearch
@@ -197,7 +203,7 @@ gpgcheck=0
 sslverify=0
 ```
 
-### 2. 建立 extras 软件源
+### 建立 extras 软件源
 
 >  当前支持 Red Hat Linux 系列
 
@@ -208,12 +214,14 @@ packages 离线包已对其进行了补充, 其在导入 minio 之后,
 同样可以使用脚本 `artifacts/gen_repo_conf.sh`, 执行如下命令即可创建 Extra Repo:
 
 ``` bash
-$ ./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
+./gen_repo_conf.sh --url-mode ${linux_distribution} ${repo_base_url}
 
 # 执行脚本创建 URL 源配置文件
-$ ./gen_repo_conf.sh --url-mode centos ${minio_address}/kubean/centos/\$releasever/os/\$basearch
+./gen_repo_conf.sh --url-mode centos ${minio_address}/kubean/centos/\$releasever/os/\$basearch
 # 查看 URL 源配置文件
-$ cat /etc/yum.repos.d/Kubean-URL.repo
+cat /etc/yum.repos.d/Kubean-URL.repo
+```
+```config
 [kubean-extra]
 name=Kubean Extra Repo
 baseurl=http://10.20.30.40:9000/kubean/centos/$releasever/os/$basearch
@@ -222,15 +230,18 @@ gpgcheck=0
 sslverify=0
 ```
 
-> 注: 若 `repo_base_url` 参数中带有 `$` 符号, 需要对其进行转义 `\$`
+!!! note
 
-> 需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址
+    若 `repo_base_url` 参数中带有 `$` 符号，需要对其进行转义 `\$`。
 
-### 3. ClusterOperation 结合 playbook 创建源配置文件
+    需要将 `${minio_address}` 替换为实际 `minio API Server` 的地址。
+
+### ClusterOperation 结合 playbook 创建源配置文件
 
 由于创建源的过程涉及到集群的所有节点, 手动脚本操作相对繁琐, 这里提供了一种 playbook 的解决方式.
 
 centos yum repo 的配置示例：
+
 ``` yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
@@ -260,6 +271,7 @@ spec:
 ```
 
 ubuntu20.04 apt repo 的配置示例：
+
 ``` yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
@@ -274,7 +286,8 @@ spec:
     - actionType: playbook
       action: ping.yml
     - actionType: playbook
-      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置 [注：ubuntu 是 os package 离线资源，ubuntu-iso 是 iso 安装包资源]
+      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
+                               # 注：ubuntu 是 os package 离线资源，ubuntu-iso 是 iso 安装包资源
       extraArgs: |
         -e "{repo_list: ['deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu/amd64 focal/', 'deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu-iso focal main restricted']}"
     - actionType: playbook
@@ -291,7 +304,7 @@ spec:
 ## 部署集群前的配置
 
 离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
-位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件:
+位于 `kubespray/inventory/sample/group_vars/all/offline.yml` 的配置文件：
 
 ``` yaml
 ---
@@ -374,19 +387,18 @@ nerdctl_download_url: "{{ files_repo }}/github.com/containerd/nerdctl/releases/d
 | RHEL 系列  | `rhel_enable_repos: false` |
 | Oracle Linux 系列  | `use_oracle_public_repo: false` |
 
+我们以 `examples/install/3.airgap` 作为模板。
 
-我们以 `examples/install/3.airgap` 作为模板,
+将如上离线配置按照具体情况进行调整，特别需要替换`<registry_address>` 和 `<minio_address>`。
 
-将如上离线配置按照具体情况进行调整, 特别需要替换`<registry_address>` 和 `<minio_address>`,
+最终将配置添加更新到 `examples/install/3.airgap/VarsConfCM.yml` 文件中。
 
-最终将配置添加更新到 `examples/install/3.airgap/VarsConfCM.yml` 文件中,
+同时我们还需要修改 `examples/install/3.airgap/HostsConfCM.yml` 中的集群节点 IP 及用户名密码。
 
-同时我们还需要修改 `examples/install/3.airgap/HostsConfCM.yml` 中的集群节点 IP 及用户名密码,
-
-最终, 通过 `kubectl apply -f examples/install/3.airgap` 启动 ClusterOperation 任务来安装 k8s 集群.
+最终，通过 `kubectl apply -f examples/install/3.airgap` 启动 ClusterOperation 任务来安装 k8s 集群。
 
 ---
 
 ## 增量离线包的生成和使用
 
-详细文档见: [Air gap patch usage](airgap_patch_usage.md)。
+详细文档见 [Air gap patch usage](airgap_patch_usage.md)。
