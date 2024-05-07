@@ -1,0 +1,11 @@
+88c88,91
+<             distro_major_ver = int(collected_facts['ansible_distribution_major_version'])
+---
+>             major_version = collected_facts['ansible_distribution_major_version']
+>             if collected_facts['ansible_distribution'] == 'Kylin Linux Advanced Server':
+>                 major_version = major_version.lstrip('V')
+>             distro_major_ver = int(major_version)
+94a98
+>             or (collected_facts['ansible_distribution'] == 'Kylin Linux Advanced Server' and distro_major_ver < 10)
+95a100
+>             or (collected_facts['ansible_distribution'] == 'TencentOS' and distro_major_ver < 3)
