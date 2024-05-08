@@ -61,34 +61,37 @@ Kubean 是一款准生产的集群生命周期管理工具，基于 [kubespray](
 
 ### 本地安装
 
-#### 1. 确保有一个 Kubernetes 集群且安装了 Helm
+1. 确保有一个 Kubernetes 集群且安装了 Helm
 
-#### 2. 部署 kubean-operator
+2. 部署 kubean-operator
 
-``` shell
-$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-$ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
-```
-
-检查 kubean-operator 状态：
-
-```shell
-$ kubectl get pods -n kubean-system | grep 'kubean'
-```
-
-#### 3. 在线模式部署最小化单节点集群
-
-你可以使用 `examples/install/1.minimal` 文件夹中的例子，这些例子使用在线资源安装 K8s 集群。
-
-1. 修改 `examples/install/1.minimal/AllInOne.yml`，替换 `<IP1>`、`<USERNAME>`... 等字符串为真实值。
-2. 启动 kubeanClusterOps，这将启动 kubespray job。
-   ```shell
-   $ kubectl apply -f examples/install/1.minimal
+   ``` shell
+   helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+   helm install kubean kubean-io/kubean --create-namespace -n kubean-system
    ```
-3. 检查 kubespray job 状态。
+
+   检查 kubean-operator 状态：
+
    ```shell
-   $ kubectl get job -n kubean-system
+   kubectl get pods -n kubean-system | grep 'kubean'
    ```
+
+3. 在线模式部署最小化单节点集群
+
+   1. 一个简单的方式是使用 [AllInOne.yml](./examples/install/1.minimal/)，
+      替换 `<IP1>`、`<USERNAME>`... 等字符串为真实值。
+   
+   2. 启动 `kubeanClusterOps`，这将启动 kubespray job。
+
+      ```shell
+      kubectl apply -f examples/install/1.minimal
+      ```
+
+   3. 检查 kubespray job 状态。
+
+      ```shell
+      kubectl get job -n kubean-system
+      ```
 
 [![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/511386)
 
@@ -104,15 +107,22 @@ $ kubectl get pods -n kubean-system | grep 'kubean'
 
 要查看 Kubean 支持的 Kubernetes 版本列表，请参考 [Kubernetes 版本列表](./docs/zh/usage/support_k8s_version.md)。
 
+## :book: 开发路线图
+
+有关功能特性，请参阅 [roadmap](docs/en/develop/roadmap.md)。
+
 ## :book: 参考文档
 
-请浏览: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
+请浏览我们的网站 [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)。
 
 ## :envelope: 联系我们
 
 你可以通过以下渠道与我们联系：
-  - Slack: 通过请求 CNCF Slack的[邀请](https://slack.cncf.io/)加入 CNCF Slack的 [#Kubean](https://cloud-native.slack.com/messages/kubean) 频道。一旦您可以访问 CNCF Slack，您就可以加入 Kubean 频道。
-  - 电子邮件: 请参阅 [MAINTAINERS.md](./MAINTAINERS.md) 查找所有维护人员的电子邮件地址。随时通过电子邮件与他们联系，报告任何问题或提出问题。
+
+- Slack：通过请求 CNCF Slack 的[邀请](https://slack.cncf.io/)加入 CNCF Slack 的
+  [#Kubean](https://cloud-native.slack.com/messages/kubean) 频道。一旦您可以访问 CNCF Slack，您就可以加入 Kubean 频道。
+- 电子邮件: 请参阅 [MAINTAINERS.md](./MAINTAINERS.md) 查找所有维护人员的电子邮件地址。
+  随时通过电子邮件与他们联系，报告任何问题或提出问题。
 
 ## :thumbsup: 贡献者
 
@@ -128,6 +138,8 @@ We are a [Cloud Native Computing Foundation sandbox project](https://www.cncf.io
 
 The Linux Foundation® (TLF) has registered trademarks and uses trademarks. For a list of TLF trademarks, see [Trademark Usage](https://www.linuxfoundation.org/legal/trademark-usage).
 
+---
+
 <div align="center">
 <p>
 <img src="https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg" width="300"/>
@@ -135,3 +147,7 @@ The Linux Foundation® (TLF) has registered trademarks and uses trademarks. For 
 Kubean 位列 <a href="https://landscape.cncf.io/?selected=kubean">CNCF 云原生全景图</a>
 </p>
 </div>
+
+## License
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean?ref=badge_large)
