@@ -38,7 +38,13 @@ jobs:
           SPRAY_SHA=${INPUTS_SPRAY_REF}
         fi
         echo image_tag_short_sha=$(echo ${SPRAY_SHA} | cut -c 1-7) >> $GITHUB_OUTPUT
-        echo dockerfile_commit=$(git log -1 --pretty=format:"%H" build/images/kubespray/Dockerfile) >> $GITHUB_OUTPUT
+
+        echo dockerfile_commit=$(curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${GITHUB_REPOSITORY}/commits?path=build/images/kubespray/Dockerfile \
+          |jq '.[0].sha' | tr -d '"') >> $GITHUB_OUTPUT
 
   build-kubespray-image:
     needs: output-variable
