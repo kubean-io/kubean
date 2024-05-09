@@ -52,6 +52,11 @@ RUN ANSIBLE_CORE_VERSION=$( pip show -V ansible-core | grep Version: | awk '{pri
         fi
 
 FROM scratch
+
+ARG DOCKERFILE_COMMIT
+
+LABEL io.kubean.dockerfile-commit=${DOCKERFILE_COMMIT}
+
 COPY --from=spray-build / /
 
 ENV ANSIBLE_CONFIG=/kubespray/ansible.cfg
