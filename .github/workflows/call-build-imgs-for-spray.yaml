@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_tag_short_sha: ${{ steps.output_variables.outputs.image_tag_short_sha }}
+      dockerfile_commit: ${{ steps.output_variables.outputs.dockerfile_commit }}
 
     steps:
     - name: output environment variable
