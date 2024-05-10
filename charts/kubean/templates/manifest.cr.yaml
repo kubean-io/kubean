@@ -2,15 +2,15 @@
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
 metadata:
-  name: "manifest-2.24-bc6bd21"
+  name: "manifest-2.23-e5fc8a9"
   labels:
-    kubean.io/sprayRelease: "2.24"
+    kubean.io/sprayRelease: "2.23"
   annotations:
-    kubean.io/sprayTimestamp: "1709827149"
-    kubean.io/sprayRelease: "2.24"
-    kubean.io/sprayCommit: "bc6bd21"
+    kubean.io/sprayTimestamp: "1714728040"
+    kubean.io/sprayRelease: "2.23"
+    kubean.io/sprayCommit: "e5fc8a9"
 spec:
-  kubesprayVersion: "bc6bd21ab399ddc86d60ca440cae4f0b6ec9e636"
+  kubesprayVersion: "e5fc8a933f6fa61dcc0a34aafa10209acac38d80"
   kubeanVersion: ""
   docker:
     - os: redhat-7
@@ -66,17 +66,8 @@ spec:
         - "v1.1.4"
         - "v1.1.3"
     - name: kube
-      defaultVersion: "v1.28.6"
+      defaultVersion: "v1.27.10"
       versionRange:
-        - "v1.29.1"
-        - "v1.29.0"
-        - "v1.28.6"
-        - "v1.28.5"
-        - "v1.28.4"
-        - "v1.28.3"
-        - "v1.28.2"
-        - "v1.28.1"
-        - "v1.28.0"
         - "v1.27.10"
         - "v1.27.9"
         - "v1.27.8"
@@ -102,6 +93,23 @@ spec:
         - "v1.26.2"
         - "v1.26.1"
         - "v1.26.0"
+        - "v1.25.16"
+        - "v1.25.15"
+        - "v1.25.14"
+        - "v1.25.13"
+        - "v1.25.12"
+        - "v1.25.11"
+        - "v1.25.10"
+        - "v1.25.9"
+        - "v1.25.8"
+        - "v1.25.7"
+        - "v1.25.6"
+        - "v1.25.5"
+        - "v1.25.4"
+        - "v1.25.3"
+        - "v1.25.2"
+        - "v1.25.1"
+        - "v1.25.0"
     - name: cni
       defaultVersion: "v1.3.0"
       versionRange:
@@ -113,11 +121,8 @@ spec:
         - "v1.0.0"
         - "v0.9.1"
     - name: calico
-      defaultVersion: "v3.26.4"
+      defaultVersion: "v3.25.2"
       versionRange:
-        - "v3.26.4"
-        - "v3.26.3"
-        - "v3.26.2"
         - "v3.26.1"
         - "v3.26.0"
         - "v3.25.2"
