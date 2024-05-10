@@ -1,0 +1,62 @@
+name: Assets sha256sum Generate
+
+on: workflow_call
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v3
+    - id: set-matrix
+      run: |
+        echo "matrix=$(jq -c . < .github/workflows/os-pkgs-matrix.json)" >> $GITHUB_OUTPUT
+  os-pkgs-sha256sum:
+    runs-on: ubuntu-latest
+    needs: matrix
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+    steps:
+    - name: Download os-pkgs sha256sum files
+      uses: actions/download-artifact@v4
+      with:
+        name: os-pkgs-sha256sum-${{ matrix.name }}-key
+    - name: Download offline sha256sum file
+      uses: actions/download-artifact@v4
+      with:
+        name: offline-sha256sum-key
+    - name: Integrate all sha256sum for os-pkgs
+      run: |
+        cat sha256sum-os-pkg-${{ matrix.name }}-${{ github.ref_name }}.txt >> sha256sum-offline-${{ github.ref_name }}.txt
+    - name: Upload offline sha256sum file
+      uses: actions/upload-artifact@v4
+      with:
+        name: offline-sha256sum-key
+        overwrite: true
+        retention-days: 1
+        path: |
+          sha256sum-offline-${{ github.ref_name }}.txt
+
+  upload-sha256sum-file:
+    runs-on: ubuntu-latest
+    needs: os-pkgs-sha256sum
+    steps:
+    - name: Download offline sha256sum file
+      uses: actions/download-artifact@v4
+      with:
+        name: offline-sha256sum-key
+    - name: Rename sha256sum
+      run: |
+        mv sha256sum-offline-${{ github.ref_name }}.txt sha256sum.txt
+    - name: upload sha256sum file
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          sha256sum.txt

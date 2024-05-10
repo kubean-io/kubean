@@ -3,38 +3,22 @@ name: OS Packages Build
 on: workflow_call
 
 jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: |
+          echo "matrix=$(jq -c . < .github/workflows/os-pkgs-matrix.json)" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-latest
+    needs: matrix
     strategy:
       fail-fast: false
       matrix:
-        include:
-        - name: centos7
-          dockerfile: build/os-packages/Dockerfile.centos7
-        - name: redhat7
-          dockerfile: build/os-packages/Dockerfile.redhat7
-        - name: redhat8
-          dockerfile: build/os-packages/Dockerfile.redhat8
-        - name: redhat9
-          dockerfile: build/os-packages/Dockerfile.redhat9
-        - name: rocky9
-          dockerfile: build/os-packages/Dockerfile.rocky9
-        - name: kylinv10
-          dockerfile: build/os-packages/Dockerfile.kylinv10
-        - name: openeuler22.03
-          dockerfile: build/os-packages/Dockerfile.openeuler22.03
-        - name: oracle8
-          dockerfile: build/os-packages/Dockerfile.oracle8
-        - name: oracle9
-          dockerfile: build/os-packages/Dockerfile.oracle9
-        - name: tencent31
-          dockerfile: build/os-packages/Dockerfile.tencent31
-        - name: ubuntu1804
-          dockerfile: build/os-packages/Dockerfile.ubuntu1804
-        - name: ubuntu2004
-          dockerfile: build/os-packages/Dockerfile.ubuntu2004
-        - name: ubuntu2204
-          dockerfile: build/os-packages/Dockerfile.ubuntu2204
+        include: ${{ fromJSON(needs.matrix.outputs.matrix) }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -86,6 +70,18 @@ jobs:
         sha256sum os-pkgs/os-pkgs-{amd64,arm64}.tar.gz > os-pkgs/os-pkgs.sha256sum.txt
         cp artifacts/import_ospkgs.sh os-pkgs/
         tar -I pigz -cf os-pkgs-${{ matrix.name }}-${{ github.ref_name }}.tar.gz os-pkgs/ --remove-files
+
+    - name: Generate sha256sum file
+      run: |
+        sha256sum os-pkgs-${{ matrix.name }}-${{ github.ref_name }}.tar.gz > sha256sum-os-pkg-${{ matrix.name }}-${{ github.ref_name }}.txt
+
+    - name: Upload os-pkgs sha256sum file
+      uses: actions/upload-artifact@v4
+      with:
+        name: os-pkgs-sha256sum-${{ matrix.name }}-key
+        retention-days: 1
+        path: |
+            sha256sum-os-pkg-${{ matrix.name }}-${{ github.ref_name }}.txt
 
     - name: Release and upload packages
       if: startsWith(github.ref, 'refs/tags/')
