@@ -60,7 +60,7 @@ jobs:
         skopeo list-tags --registry-token ${ghcr_token} docker://ghcr.io/${{ inputs.REPO }}/kubespray | jq '.Tags' | tr -d '[",]' > tags
         if grep -q ${commit_short_sha} tags; then
           late_img_dockerfile_commit=${{ needs.output-variable.outputs.dockerfile_commit }}
-          prev_img_dockerfile_commit=$(skopeo inspect docker://ghcr.io/${{ inputs.REPO }}/kubespray:${commit_short_sha} | jq '.Labels."io.kubean.dockerfile-commit"')
+          prev_img_dockerfile_commit=$(skopeo inspect docker://ghcr.io/${{ inputs.REPO }}/kubespray:${commit_short_sha} | jq '.Labels."io.kubean.dockerfile-commit"' | tr -d '"')
           echo ">>>> late_img_dockerfile_commit: ${late_img_dockerfile_commit}"
           echo ">>>> prev_img_dockerfile_commit: ${prev_img_dockerfile_commit}"
           if [[ ${late_img_dockerfile_commit} == ${prev_img_dockerfile_commit} ]]; then
