@@ -17,5 +17,5 @@ Kubean runs several controllers to track changes of Kubean CRDs and communicates
   3. Manifest Controller: monitors `Manifest Objects`. It records and maintains components, packages and versions that are used by or compatible with the current version of Kubean;
   4. LocalArtifactSet Controller：monitors `LocalArtifactSet Objects`. It records information about the components and versions supported by the offline package.
 
-  [kubean-architecture]: /kubean/en/assets/images/kubean-architecture.png
+  [kubean-architecture]: /kubean/en/assets/images/kubean-archit-new.png
   [kubean-components]: /kubean/en/assets/images/kubean-components.png
