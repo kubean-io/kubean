@@ -61,7 +61,7 @@ function case::artifacts_import_scripts_test(){
   else
     resource::delete_redundant_folders ${release_tag} ${download_root_folder}
     echo "Start download file..."
-   resource::download_resource_files ${release_tag} ${download_root_folder} ${test_name}
+    resource::download_resource_files ${release_tag} ${download_root_folder} ${test_name}
   fi
   kind::clean_kind_cluster "${resource_cluster_prefix}"
   resource::create_kind_cluster_by_config_file  "${resource_cluster_prefix}" "${kubeconfig_file}"
