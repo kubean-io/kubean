@@ -16,6 +16,7 @@ jobs:
       run: |
         echo "SPRAY_VERSION=$(yq ".kubespray_version" version.yml)" >> ${GITHUB_ENV}
         echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV}
+        echo "SHA256SUM_TXT=sha256sum-offline-${{ github.ref_name }}.txt" >> ${GITHUB_ENV}
 
     - name: Git clone kubespray repo
       uses: actions/checkout@v3
@@ -37,6 +38,11 @@ jobs:
         ./artifacts/gen_airgap_crs.py LocalArtifactSet
         cp artifacts/import_iso.sh ${KUBEAN_TAG}/
 
+        pushd ${KUBEAN_TAG}
+        sha256sum localartifactset.cr.yaml >> ../${{ env.SHA256SUM_TXT }}
+        sha256sum import_iso.sh >> ../${{ env.SHA256SUM_TXT }}
+        popd
+
         echo "localartifactset cr output:"
         cat ${KUBEAN_TAG}/localartifactset.cr.yaml
         echo "manifest cr output:"
@@ -53,40 +59,47 @@ jobs:
         python3 -m pip install --no-cache-dir -r requirements.txt
         cd ../
 
-    - name: Generate binaries & images offline packages (amd64)
+    - name: Generate binaries & images offline packages (amd64/arm64)
       env:
         KUBEAN_TAG: ${{ github.ref_name }}
-        ARCH: amd64
         KUBE_VERSION: ${{ env.KUBE_VERSION }}
       run: |
-        OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
-        bash artifacts/gen_airgap_pkgs.sh all
-        cd ${OFFLINE_PACKAGE_DIR}/
-        tar -zcvf files-${ARCH}-${KUBEAN_TAG}.tar.gz files/
-        tar -zcvf images-${ARCH}-${KUBEAN_TAG}.tar.gz images/
-        mv files.list files-${ARCH}.list
-        mv images.list images-${ARCH}.list
-        cd ../../
-        tree ${KUBEAN_TAG}/
+        function gen_airgap_pkgs() {
+          export ARCH=$1
+          export OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
+          bash artifacts/gen_airgap_pkgs.sh all
 
-    - name: Generate binaries & images offline packages (arm64)
-      env:
-        KUBEAN_TAG: ${{ github.ref_name }}
-        ARCH: arm64
-        KUBE_VERSION: ${{ env.KUBE_VERSION }}
-      run: |
-        OFFLINE_PACKAGE_DIR=${KUBEAN_TAG}/${ARCH}
-        bash artifacts/gen_airgap_pkgs.sh all
-        cd ${OFFLINE_PACKAGE_DIR}/
-        tar -zcvf files-${ARCH}-${KUBEAN_TAG}.tar.gz files/
-        tar -zcvf images-${ARCH}-${KUBEAN_TAG}.tar.gz images/
-        mv files.list files-${ARCH}.list
-        mv images.list images-${ARCH}.list
-        cd ../../
+          pushd ${OFFLINE_PACKAGE_DIR}
+
+          tar -zcvf files-${ARCH}-${KUBEAN_TAG}.tar.gz files/
+          tar -zcvf images-${ARCH}-${KUBEAN_TAG}.tar.gz images/
+          mv files.list files-${ARCH}.list
+          mv images.list images-${ARCH}.list
+
+          sha256sum files-${ARCH}-${KUBEAN_TAG}.tar.gz >> ../../${{ env.SHA256SUM_TXT }}
+          sha256sum images-${ARCH}-${KUBEAN_TAG}.tar.gz >> ../../${{ env.SHA256SUM_TXT }}
+          sha256sum files-${ARCH}.list >> ../../${{ env.SHA256SUM_TXT }}
+          sha256sum images-${ARCH}.list >> ../../${{ env.SHA256SUM_TXT }}
+
+          popd
+        }
+
+        for arch in 'amd64' 'arm64'; do
+          gen_airgap_pkgs "${arch}"
+        done
+
         tree ${KUBEAN_TAG}/
         echo -e "\noutput files size:\n"
         ls -lh ${KUBEAN_TAG}/amd64/
         ls -lh ${KUBEAN_TAG}/arm64/
+
+    - name: Upload offline sha256sum file
+      uses: actions/upload-artifact@v4
+      with:
+        name: offline-sha256sum-key
+        retention-days: 1
+        path: |
+          ${{ env.SHA256SUM_TXT }}
 
     - name: Release and upload packages
       if: startsWith(github.ref, 'refs/tags/')
@@ -105,3 +118,4 @@ jobs:
       with:
         path: charts/kubean/templates/manifest.cr.yaml
         name: info-manifest-cr-file
+        retention-days: 1

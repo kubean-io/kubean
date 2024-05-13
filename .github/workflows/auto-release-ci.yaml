@@ -47,6 +47,14 @@ jobs:
       packages: write
       contents: write
 
+  call-sha256sum-gen:
+    needs: [call-offline-build, call-os-pkgs-build]
+    uses: ./.github/workflows/call-sha256sum-gen.yaml
+    secrets: inherit
+    permissions:
+      packages: write
+      contents: write
+
   sync-charts-and-api:
     needs: [call-images-build, call-offline-build, call-os-pkgs-build]
     uses: ./.github/workflows/call-sync-repos.yaml
