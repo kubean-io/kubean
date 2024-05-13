@@ -20,7 +20,7 @@ Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certifie
 
   <p>
 
-Kubean is a product ready cluster lifecycle management toolchains based on [kubespray](https://github.com/kubernetes-sigs/kubespray) and other cluster LCM engine.
+Kubean is a production-ready cluster lifecycle management toolchain based on [kubespray](https://github.com/kubernetes-sigs/kubespray) and other cluster LCM engine.
 
   </p>
 
@@ -54,43 +54,45 @@ Kubean is a product ready cluster lifecycle management toolchains based on [kube
 - **Compatibility**: Multi-arch delivery Supporting. Such as AMD, ARM with common Linux distributions. Also include Kunpeng with Kylin.
 - **Expandability**: Allowing custom actions be added to cluster without any changes for Kubespray.
 
-## :surfing_man: Quick Start
+## :surfing_man: Quick start
 
-### Killercoda
+### Killercoda tutorials
 
-We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://killercoda.com), which is a online platform for interactive technique learning. You can try it in there.
+We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://killercoda.com), which is an online platform for interactive technique learning. You can try it in there.
 
 ### Local install
 
-#### 1. Ensure that a Kubernetes Cluster exists and Helm installed
+1. Ensure that you have a Kubernetes cluster running, on which Helm is installed
 
-#### 2. Deploy kubean-operator
+2. Deploy kubean-operator
 
-``` shell
-$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
-$ helm install kubean kubean-io/kubean --create-namespace -n kubean-system
-```
-
-Then check kubean-operator status by running:
-
-```shell
-$ kubectl get pods -n kubean-system
-```
-
-#### 3. Online mode deployment of minimal all-in-one clusters
-
-You can use the example in folder `examples/install/1.minimal` which uses online resources to install k8s cluster.
-
-1. Modify the `examples/install/1.minimal/AllInOne.yml` file by simply replacing `<IP1>`, `<USERNAME>`,
-   and any other placeholders with their actual values.
-2. Start kubeanClusterOps which will start the kubespray job.
    ```shell
-   $ kubectl apply -f examples/install/1.minimal
+   helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+   helm install kubean kubean-io/kubean --create-namespace -n kubean-system
    ```
-3. Check the kubespray job status.
+
+   Then check kubean-operator status by running:
+
    ```shell
-   $ kubectl get job -n kubean-system
+   kubectl get pods -n kubean-system
    ```
+
+3. Online deploy an all-in-one cluster with minimal configuration
+
+   1. A simple way is to use [AllInOne.yml](./examples/install/1.minimal/),
+      replacing `<IP1>`, `<USERNAME>`, and other strings with actual values.
+
+   2. Start `kubeanClusterOps` to run the kubespray job.
+
+      ```shell
+      kubectl apply -f examples/install/1.minimal
+      ```
+
+   3. Check the kubespray job status.
+
+      ```shell
+      kubectl get job -n kubean-system
+      ```
 
 [![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/jFTUi2IdU5yydv88kHkPYMni0)
 
@@ -104,21 +106,22 @@ You can use the example in folder `examples/install/1.minimal` which uses online
 | Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 | Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
 
-To check the list of Kubernetes versions supported by Kubean, please refer to the [Kubernetes versions list](./docs/zh/usage/support_k8s_version.md).
+To check the list of Kubernetes versions supported by Kubean, refer to the [Kubernetes versions list](./docs/zh/usage/support_k8s_version.md).
 
 ## :book: Roadmap
 
-For detailed information about all the planned features, please refer to the [roadmap](docs/en/develop/roadmap.md).
+For detailed information about all the planned features, refer to the [roadmap](docs/en/develop/roadmap.md).
 
 ## :book: Documents
 
-Please visit: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
+Please visit our website: [kubean-io.github.io/kubean/](https://kubean-io.github.io/kubean/)
 
-## :envelope: Communication
+## :envelope: Join us
 
 You can connect with us on the following channels:
-  - Slack: join the [#Kubean](https://cloud-native.slack.com/messages/kubean) channel on CNCF Slack by requesting an [invitation](https://slack.cncf.io/) from CNCF Slack. Once you have access to CNCF Slack, you can join the Kubean channel.
-  - Email: refer to the [MAINTAINERS.md](./MAINTAINERS.md) to find the email addresses of all maintainers. Feel free to contact them via email to report any issues or ask questions.
+
+- Slack: join the [#Kubean](https://cloud-native.slack.com/messages/kubean) channel on CNCF Slack by requesting an [invitation](https://slack.cncf.io/) from CNCF Slack. Once you have access to CNCF Slack, you can join the Kubean channel.
+- Email: refer to the [MAINTAINERS.md](./MAINTAINERS.md) to find the email addresses of all maintainers. Feel free to contact them via email to report any issues or ask questions.
 
 ## :thumbsup: Contributors
 
@@ -144,6 +147,6 @@ Kubean enriches the <a href="https://landscape.cncf.io/?selected=kubean">CNCF CL
 </p>
 </div>
 
-
 ## License
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean?ref=badge_large)
