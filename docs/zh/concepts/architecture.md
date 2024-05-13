@@ -17,5 +17,5 @@ Kubean 运行着多个控制器，这些控制器跟踪 Kubean CRD 对象的变�
   3. Manifest Controller: 监视 `Manifest Objects`。用于记录和维护当前版本的 Kubean 使用和兼容的组件、包及版本；
   4. LocalArtifactSet Controller：监视 `LocalArtifactSet Objects`。用于记录离线包支持的组件及版本信息。
 
-  [kubean-architecture]: /kubean/zh/assets/images/kubean-architecture.png
+  [kubean-architecture]: /kubean/zh/assets/images/kubean-archit-new.png
   [kubean-components]: /kubean/zh/assets/images/kubean-components.png
