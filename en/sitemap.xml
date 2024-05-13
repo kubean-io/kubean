@@ -156,6 +156,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://kubean-io.github.io/kubean/en/releases/v0.15.2/</loc>
+         <lastmod>2024-05-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://kubean-io.github.io/kubean/en/releases/v0.4.0/</loc>
          <lastmod>2024-05-13</lastmod>
          <changefreq>daily</changefreq>
