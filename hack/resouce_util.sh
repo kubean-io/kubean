@@ -117,11 +117,12 @@ function resource::download_resource_files(){
       computed_checksum=$(sha256sum "${download_root_path}/${new_tag}/${file_name}" | awk '{print $1}')
 
       if [ "$computed_checksum" == "$expected_checksum" ]; then
-          echo "checksum success!"
-          break
+        echo "checksum success!"
+        break
       else
-          rm -rf "${download_root_path}/${new_tag}/${file_name}"
-          echo "checksum failed"
+        ll "${download_root_path}/${new_tag}/${file_name}"
+        rm -rf "${download_root_path}/${new_tag}/${file_name}"
+        echo "checksum failed"
       fi
     done
   done
