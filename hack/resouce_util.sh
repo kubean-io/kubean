@@ -109,7 +109,7 @@ function resource::download_resource_files(){
     # retry more times to download files
     attempts=0
     while [ $attempts -lt $max_attempts ]; do
-      ((attempts++))
+      attempts=$(($attempts+1))
       echo "${attempts}th download ${file_name}"
       curl --retry 10 --retry-max-time 60 -Lo "${download_root_path}/${new_tag}/${file_name}"  ${file_url}
 
