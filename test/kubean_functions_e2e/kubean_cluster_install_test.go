@@ -125,7 +125,8 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			//check a test nginx svc for network check
 			nginx1Cmd := exec.Command("kubectl", "run", pod1Name, "-n", tools.DefaultNamespace, "--image", nginxImage, "--kubeconfig", localKubeConfigPath, "--env", "NodeName=node1")
 			nginx1CmdOut, err1 := tools.DoErrCmd(*nginx1Cmd)
-			klog.Info("create %s :", nginx1CmdOut.String(), err1.String())
+			gomega.Expect(err1).Should(gomega.BeNil())
+			klog.Info("create %s", nginx1CmdOut.String())
 			tools.WaitPodBeRunning(cluster1Client, tools.DefaultNamespace, pod1Name, 1000)
 			service1Cmd := exec.Command("kubectl", "expose", "pod", pod1Name, "-n", tools.DefaultNamespace, "--port", "18081", "--target-port", "80", "--type", "NodePort", "--name", svc1Name, "--kubeconfig", localKubeConfigPath)
 			service1CmdOut, err1 := tools.DoErrCmd(*service1Cmd)
