@@ -94,13 +94,37 @@ function resource::download_resource_files(){
       download_file_list=("${RELEASE_FILE_LIST_PARTNAME[@]}")
   fi
   echo ${download_file_list[*]}
+  # download sha256sum
+  sha256sum_file_name=${new_tag}-sha256sum.txt
+  echo "download sha256sum:  ${BASE_URL}/${new_tag}/sha256sum.txt"
+  curl --retry 10 --retry-max-time 60 -Lo "${download_root_path}/${new_tag}/${sha256sum_file_name}"  ${BASE_URL}/${new_tag}/sha256sum.txt
   # shellcheck disable=SC2115
   for item in "${download_file_list[@]}";do
     file_name=${item}-${new_tag}.tar.gz
     file_url=${BASE_URL}/${new_tag}/${file_name}
-      echo "${file_url}"
-      # retry more times to download files
+    max_attempts=3
+
+    echo "${file_url}"
+
+    # retry more times to download files
+    attempts=0
+    while [ $attempts -lt $max_attempts ]; do
+      ((attempts++))
+      echo "${attempts}th download ${file_name}"
       curl --retry 10 --retry-max-time 60 -Lo "${download_root_path}/${new_tag}/${file_name}"  ${file_url}
+
+      expected_checksum=$(grep "${file_name}" "${download_root_path}/${new_tag}/${sha256sum_file_name}" | awk '{print $1}')
+      computed_checksum=$(sha256sum "${download_root_path}/${new_tag}/${file_name}" | awk '{print $1}')
+
+      if [ "$computed_checksum" == "$expected_checksum" ]; then
+        echo "checksum success!"
+        break
+      else
+        ll "${download_root_path}/${new_tag}/${file_name}"
+        rm -rf "${download_root_path}/${new_tag}/${file_name}"
+        echo "checksum failed"
+      fi
+    done
   done
 }
 
