@@ -30,8 +30,21 @@ Prepare the OS package tarball file in advance.
 ``` bash
 $ export PKGS_YML_PATH=/home/pkgs.yml
 $ export PKGS_TAR_PATH=/home/os-pkgs.tar.gz
-$ export SSH_USER=root
-$ export SSH_PASS=dangerous
 $ export HOST_IPS='192.168.10.11 192.168.10.12'
+
+# username/password authentication
+$ export SSH_USER=root
+$ export SSH_CRED=dangerous
+$ ./other_os_pkgs.sh install
+
+# public/private key authentication
+$ export SSH_MODE=KEY
+$ export SSH_USER=root
+$ ./other_os_pkgs.sh install
+
+# public/private key authentication (specify the private key path)
+$ export SSH_MODE=KEY
+$ export SSH_USER=root
+$ export SSH_CRED=/home/ssh/id_rsa
 $ ./other_os_pkgs.sh install
 ```
