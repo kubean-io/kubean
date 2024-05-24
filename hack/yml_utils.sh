@@ -75,7 +75,7 @@ function yamlUtil::abstract_groupVars() {
     yq -i '.metrics_server_enabled = "true"'  $groupVarYml
     yq -i '.local_path_provisioner_enabled = "true"'  $groupVarYml
     yq -i '.kubeadm_init_timeout = "600s"'  $groupVarYml
-    yq -i '.kube_version = "v1.28.8"'  $groupVarYml
+    yq -i '.kube_version = "v1.28.9"'  $groupVarYml
 }
 
 function yamlUtil::update_groupVars() {
