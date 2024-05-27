@@ -57,6 +57,7 @@ jobs:
         outputs: type=local,dest=./
 
     - name: Make OS packages into Tar files
+      id : make-tarball
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
       shell: bash
       run: |
@@ -69,6 +70,7 @@ jobs:
         tar -I pigz -cf os-pkgs/os-pkgs-arm64.tar.gz resources --remove-files
         sha256sum os-pkgs/os-pkgs-{amd64,arm64}.tar.gz > os-pkgs/os-pkgs.sha256sum.txt
         cp artifacts/import_ospkgs.sh os-pkgs/
+        echo "version: ${{ github.ref_name }}" > os-pkgs/.meta
         tar -I pigz -cf os-pkgs-${{ matrix.name }}-${{ github.ref_name }}.tar.gz os-pkgs/ --remove-files
 
     - name: Generate sha256sum file

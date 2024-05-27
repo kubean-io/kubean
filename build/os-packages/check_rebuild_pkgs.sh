@@ -21,6 +21,16 @@ prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
 
 git diff --quiet "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
 
+# rebuild is needed if process of making os-pkg tarball changes
+late_call_build_yml=$(git show "${late_tag}":.github/workflows/call-os-pkgs-build.yaml)
+prev_call_build_yml=$(git show "${prev_tag}":.github/workflows/call-os-pkgs-build.yaml)
+# extract step of making os-pkg tarball
+late_run=$(echo "${late_call_build_yml}" | yq e '.jobs.build.steps[] | select(.id == "make-tarball") | .run')
+prev_run=$(echo "${prev_call_build_yml}" | yq e '.jobs.build.steps[] | select(.id == "make-tarball") | .run')
+if [ "$late_run" != "$prev_run" ]; then
+  echo "true" && exit
+fi
+
 if [ "${OS_NAME}" == "kylinv10" ]; then
   git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.repo || { echo "true"; exit; }
 fi
