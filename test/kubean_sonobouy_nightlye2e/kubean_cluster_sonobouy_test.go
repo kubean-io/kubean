@@ -246,7 +246,7 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			tools.WaitKubeanJobPodToSuccess(kindClient, tools.KubeanNamespace, jobPodName, tools.PodStatusSucceeded)
 			tools.WaitPodSInKubeSystemBeRunning(cluster1Client, 1800)
 
-			kubectlCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "version", "--short"})
+			kubectlCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "kubectl", "version"})
 			kubectlOut, _ := tools.NewDoCmd("sshpass", kubectlCmd...)
 			klog.Info(kubectlOut.String())
 			gomega.Expect(kubectlOut.String()).Should(gomega.ContainSubstring(tools.UpgradeK8Version_Z))
