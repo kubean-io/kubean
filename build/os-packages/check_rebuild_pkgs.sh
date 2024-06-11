@@ -40,8 +40,8 @@ if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NA
   fi
 fi
 
-# ubuntu1804 / ubuntu2004
-if [ "${OS_NAME}" == "ubuntu1804" ] || [ "${OS_NAME}" == "ubuntu2004" ]; then
+# ubuntu2004 / ubuntu2204
+if [ "${OS_NAME}" == "ubuntu2004" ] || [ "${OS_NAME}" == "ubuntu2204" ]; then
   late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then
