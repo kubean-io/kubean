@@ -1,0 +1,5 @@
+[centos8-appstream]
+name=Centos Linux 8 - AppStream
+baseurl=https://dl.rockylinux.org/vault/centos/8-stream/AppStream/$basearch/os/
+gpgcheck=0
+enabled=1
