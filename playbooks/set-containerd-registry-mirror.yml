@@ -1,0 +1,58 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Set containerd registry mirrors
+  hosts: all
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    containerd_config_path: /etc/containerd/config.toml
+    #containerd_mirror:
+    #  override: false
+    #  mirror: docker.io
+    #  endpoints:
+    #  - 192.168.1.1
+  tasks:
+  - name: containerd_mirror must not be empty
+    assert:
+     that: containerd_mirror is defined and containerd_mirror
+
+  - name: fetch containerd config toml
+    ansible.builtin.slurp:
+      src: "{{ containerd_config_path }}"
+    register: containerd_config_file
+
+  - name: parse containerd config toml
+    set_fact:
+      containerd_config: "{{ containerd_config_file['content'] | b64decode | sivel.toiletwater.from_toml }}"
+
+  - name: detect if mirror is already defined
+    set_fact:
+      mirror_exists: "{{ (containerd_mirror.mirror in (containerd_config.plugins['io.containerd.grpc.v1.cri'].registry.mirrors | default([]))) }}"
+
+  - name: update containerd_config
+    set_fact:
+       containerd_config: >-
+         {{
+            containerd_config | combine({
+              "plugins": {
+                "io.containerd.grpc.v1.cri": {
+                  "registry": {
+                    "mirrors": (containerd_config.plugins['io.containerd.grpc.v1.cri'].registry.mirrors | default({})) | combine({
+                      containerd_mirror.mirror: {
+                        "endpoint": containerd_mirror.endpoints + (containerd_config.plugins['io.containerd.grpc.v1.cri'].registry.mirrors[containerd_mirror.mirror].endpoint if (mirror_exists | default(false)) and not (containerd_mirror.override | default(false)) else [])
+                        }
+                    })
+                  },
+                },
+              }
+            }, recursive=True)
+         }}
+
+  - name: writeback containerd config toml
+    copy:
+      dest: "{{ containerd_config_path }}"
+      mode: 0644
+      content: "{{ containerd_config | sivel.toiletwater.to_toml }}"
+      backup: true
+    become: true
