@@ -18,5 +18,5 @@
         state: present
       when:
         - ansible_distribution == "Ubuntu"
-        - ubuntu_kernel_unattended_upgrades_disabled
+        - not ubuntu_kernel_unattended_upgrades_disabled
         - not skip_disable_kernel_unattended_upgrades_playbook
