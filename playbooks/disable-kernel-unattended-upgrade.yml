@@ -1,0 +1,22 @@
+# Copyright 2023 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Disable kernel unattended-upgrades
+  hosts: k8s_cluster,etcd
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    ubuntu_kernel_unattended_upgrades_disabled: true
+    skip_disable_kernel_unattended_upgrades_playbook: false
+  tasks:
+    - name: Disable kernel unattended-upgrades for Ubuntu
+      lineinfile:
+        path: /etc/apt/apt.conf.d/50unattended-upgrades
+        insertafter: "Unattended-Upgrade::Package-Blacklist"
+        line: '"linux-";'
+        state: present
+      when:
+        - ansible_distribution == "Ubuntu"
+        - ubuntu_kernel_unattended_upgrades_disabled
+        - not skip_disable_kernel_unattended_upgrades_playbook
