@@ -302,6 +302,12 @@
 
     - name: Restart kubelet systemd services
       block:
+        - name: Restarting control plane pods
+          shell: >-
+            for component in kube-apiserver kube-controller-manager kube-scheduler etcd; do
+              {{ kubectl_path }} delete pod -n kube-system -l component=$component;
+            done
+
         - name: Restart services
           systemd:
             name: kubelet
