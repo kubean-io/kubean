@@ -21,6 +21,7 @@
 ---
 - name: Renew Cluster Certificates
   hosts: kube_control_plane
+  serial: 1
   gather_facts: true
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
@@ -54,6 +55,30 @@
       register: kubectl_path_raw
       failed_when: kubectl_path_raw.rc != 0
 
+    - name: Get Docker Path
+      shell: |-
+        if command -v docker; then
+          :
+        else
+          echo "not found or no execute permission" && exit 1
+        fi
+      register: docker_path_raw
+      failed_when: docker_path_raw.rc != 0
+      when: container_manager ==  "docker"
+
+    - name: Get Crictl Path
+      shell: |-
+        if command -v crictl; then
+          :
+        elif [ -x '/usr/local/bin/crictl' ]; then
+          echo "/usr/bin/local/crictl"
+        else
+          echo "not found or no execute permission" && exit 1
+        fi
+      register: crictl_path_raw
+      failed_when: crictl_path_raw.rc != 0
+      when: container_manager in ['crio', 'containerd']
+
     - name: Set Kubeadm Path
       set_fact:
         kubeadm_path: "{{ kubeadm_path_raw.stdout }}"
@@ -61,6 +86,16 @@
     - name: Set Kubectl Path
       set_fact:
         kubectl_path: "{{ kubectl_path_raw.stdout }}"
+
+    - name: Set Docker Path
+      set_fact:
+        docker_path: "{{ docker_path_raw.stdout }}"
+      when: container_manager ==  "docker"
+
+    - name: Set Crictl Path
+      set_fact:
+        crictl_path: "{{ crictl_path_raw.stdout }}"
+      when: container_manager in ['crio', 'containerd']
 
     - name: Create k8s backup path
       file:
@@ -302,11 +337,17 @@
 
     - name: Restart kubelet systemd services
       block:
-        - name: Restarting control plane pods
+        - name: Restarting control plane pods [docker]
           shell: >-
-            for component in kube-apiserver kube-controller-manager kube-scheduler etcd; do
-              {{ kubectl_path }} delete pod -n kube-system -l component=$component;
-            done
+            {{ docker_path }} ps -af 'name=k8s_POD_(kube-apiserver|kube-controller-manager|kube-scheduler|etcd)-*' -q | \
+              /usr/bin/xargs {{ docker_path }} rm -f
+          when: container_manager ==  "docker"
+
+        - name: Restarting control plane pods [crio/containerd]
+          shell: >-
+            {{ crictl_path }} pods --namespace kube-system --name 'kube-scheduler-*|kube-controller-manager-*|kube-apiserver-*|etcd-*' -q | \
+              /usr/bin/xargs {{ crictl_path }} rmp -f
+          when: container_manager in ['crio', 'containerd']
 
         - name: Restart services
           systemd:
