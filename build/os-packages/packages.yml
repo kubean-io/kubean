@@ -11,6 +11,8 @@ apt:
 
 common:
   - sshpass
+  - ipvsadm
+  - ipset
 
 # https://download.docker.com/linux/centos/<centos_version>/x86_64/stable/Packages/
 # or do 'yum --showduplicates list docker-engine'
