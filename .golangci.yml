@@ -139,7 +139,6 @@ linters:
     - tagliatelle              # Checks the struct tags.
   enable:
     - asciicheck               # Simple linter to check that your code does not contain non-ASCII identifiers
-    - deadcode                 # Finds unused code
     - depguard                 # Go linter that checks if package imports are in a list of acceptable packages
     - dogsled                  # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
     - dupl                     # Tool for code clone detection
@@ -152,7 +151,6 @@ linters:
     - goprintffuncname         # Checks that printf-like functions are named with `f` at the end
     - gosimple                 # Linter for Go source code that specializes in simplifying a code
     - govet                    # Vet examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
-    - ifshort                  # Checks that your code uses short syntax for if-statements whenever possible
     - importas                 # Enforces consistent import aliases
     - ineffassign              # Detects when assignments to existing variables are not used
     - makezero                 # Finds slice declarations with non-zero initial length
@@ -165,13 +163,11 @@ linters:
     - revive                   # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
     - rowserrcheck             # checks whether Err of rows is checked successfully
     - staticcheck              # Staticcheck is a go vet on steroids, applying a ton of static analysis checks
-    - structcheck              # Finds unused struct fields
     - stylecheck               # Stylecheck is a replacement for golint
     - thelper                  # thelper detects golang test helpers without t.Helper() call and checks the consistency of test helpers
     - typecheck                # Like the front-end of a Go compiler, parses and type-checks Go code
     - unconvert                # Remove unnecessary type conversions
     - unused                   # Checks Go code for unused constants, variables, functions and types
-    - varcheck                 # Finds unused global variables and constants
     - whitespace               # Tool for detection of leading and trailing whitespace
     - godot                    # Check if comments end in a period
 

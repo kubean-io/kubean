@@ -1,6 +1,7 @@
 FROM oraclelinux:7.9 as os-redhat7
 ARG OS_VERSION=7Server
 ARG BUILD_TOOLS="yum-utils createrepo wget"
+ARG PKGS_IN_ISO="selinux-policy-targeted policycoreutils-python iptables libcgroup libnetfilter_conntrack libseccomp libselinux-utils"
 
 RUN rm -rf /etc/yum.repos.d/{virt-ol7,uek-ol7,oracle-linux-ol7}.repo \
     && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
@@ -8,7 +9,8 @@ RUN rm -rf /etc/yum.repos.d/{virt-ol7,uek-ol7,oracle-linux-ol7}.repo \
     && yum-config-manager --disable ol7_UEKR* \
     && yum-config-manager --enable ol7_latest ol7_addons ol7_developer ol7_developer_EPEL docker-ce-stable \
     && yum makecache \
-    && yum install -q -y ${BUILD_TOOLS}
+    && yum install -q -y ${BUILD_TOOLS} \
+    && yum install -y ${PKGS_IN_ISO}
 
 WORKDIR /redhat/$OS_VERSION/os
 COPY build/os-packages/packages.yml .
