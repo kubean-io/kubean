@@ -23,7 +23,7 @@ f_files_arm64__tgz=${base_url}/files-arm64-${TAG}.tar.gz
 f_images_arm64_tgz=${base_url}/images-arm64-${TAG}.tar.gz
 # os pkgs
 f_os_centos7=${base_url}/os-pkgs-centos7-${TAG}.tar.gz
-f_os_kylin10=${base_url}/os-pkgs-kylinv10-${TAG}.tar.gz
+f_os_kylin10=${base_url}/os-pkgs-kylin-v10sp2-${TAG}.tar.gz
 f_os_redhat8=${base_url}/os-pkgs-redhat8-${TAG}.tar.gz
 f_os_redhat7=${base_url}/os-pkgs-redhat7-${TAG}.tar.gz
 # shellcheck disable=SC2206

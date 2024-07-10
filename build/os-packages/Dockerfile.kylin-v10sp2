@@ -1,12 +1,12 @@
-FROM openeuler/openeuler:22.03-lts as os-kylinv10
+FROM openeuler/openeuler:22.03-lts as os-kylin-v10sp2
 ARG OS_VERSION=10
-ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo wget"
+ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo"
 
-WORKDIR /kylin/${OS_VERSION}/os
-COPY build/os-packages/repos/kylin.repo /etc/yum.repos.d/
+WORKDIR /kylin/${OS_VERSION}/sp2/os
+COPY build/os-packages/repos/kylin.sp2.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.common[],.yum[],.kylinv10[]' packages.yml > packages.list
+RUN yq eval '.common[],.yum[],.kylin[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && dnf install -y ${BUILD_TOOLS} \
@@ -17,7 +17,7 @@ RUN ARCH=$(uname -m) \
     && createrepo -d ${ARCH}
 
 FROM scratch
-COPY --from=os-kylinv10 /kylin /resources/kylin
+COPY --from=os-kylin-v10sp2 /kylin /resources/kylin
 
 # One way to make a kylin docker image:
 # https://github.com/moby/moby/blob/master/contrib/mkimage-yum.sh

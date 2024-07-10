@@ -50,7 +50,7 @@ rocky9:
   - container-selinux
   - socat
 
-kylinv10:
+kylin:
   - container-selinux
   - socat
   - libselinux-devel
