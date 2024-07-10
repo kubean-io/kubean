@@ -1,0 +1,22 @@
+FROM rockylinux:8 as os-kylin-v10sp3
+ARG OS_VERSION=10
+ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo"
+
+WORKDIR /kylin/${OS_VERSION}/sp3/os
+COPY build/os-packages/repos/kylin.sp3.repo /etc/yum.repos.d/
+COPY build/os-packages/packages.yml .
+COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.common[],.yum[],.kylin[]' packages.yml > packages.list
+
+RUN ARCH=$(uname -m) \
+    && dnf install -y ${BUILD_TOOLS} \
+    && dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
+    && rm -rf /etc/yum.repos.d/Rocky* && dnf clean all && dnf makecache \
+    && while read -r line; do \
+        dnf install -y --downloadonly --downloaddir=${ARCH} ${line} \
+            --nobest --allowerasing --setopt=install_weak_deps=False; \
+    done <<<"$(sort -u packages.list)" \
+    && createrepo -d ${ARCH}
+
+FROM scratch
+COPY --from=os-kylin-v10sp3 /kylin /resources/kylin

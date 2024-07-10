@@ -21,16 +21,21 @@ prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
 
 git diff --quiet "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
 
-if [ "${OS_NAME}" == "kylinv10" ]; then
-  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.repo || { echo "true"; exit; }
+if [[ "${OS_NAME}" == "kylin-v10sp2" ]]; then
+  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.sp2.repo || { echo "true"; exit; }
+fi
+
+if [[ "${OS_NAME}" == "kylin-v10sp3" ]]; then
+  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.sp3.repo || { echo "true"; exit; }
 fi
 
 git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }
 
 # centos7 / kylinv10 / redhat7 / redhat8
-if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NAME}" == "redhat7" ] || [ "${OS_NAME}" == "redhat8" ] || [ "${OS_NAME}" == "oracle8" ] || [ "${OS_NAME}" == "oracle9" ] || [ "${OS_NAME}" == "tencent31" ]; then
-  late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
-  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.yum[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+if [[ "${OS_NAME}" == "centos"* ]] || [[ "${OS_NAME}" == "kylin"* ]] || [[ "${OS_NAME}" == "redhat"* ]] || [[ "${OS_NAME}" == "oracle"* ]] || [[ "${OS_NAME}" == "tencent"* ]]; then
+  os_key="${OS_NAME/-v10sp*/}"
+  late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')
+  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then
     ret=0
     wget -c https://github.com/${ORG_NAME}/kubean/releases/download/${prev_tag}/os-pkgs-${OS_NAME}-${prev_tag}.tar.gz -O os-pkgs-${OS_NAME}-${late_tag}.tar.gz || ret=$?
@@ -41,7 +46,7 @@ if [ "${OS_NAME}" == "centos7" ] || [ "${OS_NAME}" == "kylinv10" ] || [ "${OS_NA
 fi
 
 # ubuntu2004 / ubuntu2204
-if [ "${OS_NAME}" == "ubuntu2004" ] || [ "${OS_NAME}" == "ubuntu2204" ]; then
+if [[ "${OS_NAME}" == "ubuntu"* ]]; then
   late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then
