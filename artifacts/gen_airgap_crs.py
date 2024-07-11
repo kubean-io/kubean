@@ -140,7 +140,9 @@ def create_manifest():
   dockers = { key_item: {"defaultVersion": "", "versionRange": []} for key_item in DOCKER_KEYS }
   default_docker_verison = get_value_from_yml(f"{SPRAY_DIR}/roles/container-engine/docker/defaults/main.yml", "docker_version")
   for key in dockers:
-    dockers[key]["defaultVersion"] = default_docker_verison if key != "kylin" else "19.03"
+    dockers[key]["defaultVersion"] = default_docker_verison
+    if key == "kylin":
+      dockers[key]["defaultVersion"] = get_value_from_yml(f"{SPRAY_DIR}/roles/container-engine/docker/vars/{key}.yml", "docker_version")
     docker_versioned_pkg = get_value_from_yml(f"{SPRAY_DIR}/roles/container-engine/docker/vars/{key}.yml", "docker_versioned_pkg")
     versions = [verison for verison in docker_versioned_pkg if verison not in ["latest", "stable", "edge"] ]
     dockers[key]["versionRange"] = versions
