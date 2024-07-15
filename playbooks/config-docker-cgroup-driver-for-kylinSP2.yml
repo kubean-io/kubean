@@ -1,0 +1,83 @@
+---
+- name: Change Docker cgroupDriver to cgroupfs in Kylin SP2
+  hosts: all
+  become: true
+  gather_facts: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Check OS version
+      command: cat /etc/os-release
+      register: os_release
+      when:
+        - ansible_distribution == "Kylin Linux Advanced Server"
+        - container_manager ==  "docker"
+
+    - name: Check Docker version
+      command: docker --version
+      register: docker_version
+      when:
+        - ansible_distribution == "Kylin Linux Advanced Server"
+        - container_manager ==  "docker"
+
+    - name: Ensure Docker cgroupDriver is set to cgroupfs
+      when:
+        - ansible_distribution == "Kylin Linux Advanced Server"
+        - container_manager ==  "docker"
+        - "'Sword' in os_release.stdout"
+        - ansible_architecture == "aarch64"
+        - docker_version.stdout | regex_search('Docker version 26\.1\.\d+')
+      block:
+        - name: Ensure /etc/systemd/system/docker.service.d/ directory exists
+          file:
+            path: /etc/systemd/system/docker.service.d/
+            state: directory
+            mode: "0755"
+
+        - name: Check current cgroupDriver setting
+          shell: |
+            if [ -f /etc/systemd/system/docker.service.d/docker-options.conf ]; then
+              grep -oP "(?<=native.cgroupdriver=).*" /etc/systemd/system/docker.service.d/docker-options.conf | sed 's/\\$//'
+            fi
+          register: current_cgroupdriver
+          ignore_errors: true
+
+        - name: Update native.cgroupdriver to cgroupfs
+          lineinfile:
+            path: /etc/systemd/system/docker.service.d/docker-options.conf
+            regexp: '^(.*--exec-opt\s+native.cgroupdriver=)[^ ]+(.*)$'
+            line: '\1cgroupfs\2'
+            backrefs: yes
+            create: yes
+            mode: "0644"
+          when: current_cgroupdriver.stdout != "cgroupfs"
+          notify: Restart docker
+
+    - name: Verify Docker cgroupDriver
+      shell: docker info | grep "Cgroup Driver"
+      register: docker_info
+      when:
+        - ansible_distribution == "Kylin Linux Advanced Server"
+        - container_manager ==  "docker"
+        - "'Sword' in os_release.stdout"
+        - ansible_architecture == "aarch64"
+        - docker_version.stdout | regex_search('Docker version 26\.1\.\d+')
+
+    - name: Display Docker cgroupDriver
+      debug:
+        msg: "{{ docker_info.stdout }}"
+      when:
+        - ansible_distribution == "Kylin Linux Advanced Server"
+        - container_manager ==  "docker"
+        - "'Sword' in os_release.stdout"
+        - ansible_architecture == "aarch64"
+        - docker_version.stdout | regex_search('Docker version 26\.1\.\d+')
+  handlers:
+    - name: Reload systemd daemon
+      command: systemctl daemon-reload
+      listen: Restart docker
+
+    - name: Restart Docker service
+      service:
+        name: docker
+        state: restarted
+      listen: Restart docker
