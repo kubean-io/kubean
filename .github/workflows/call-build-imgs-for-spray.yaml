@@ -92,7 +92,7 @@ jobs:
 
     - name: kubespray base image build
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-      uses: docker/build-push-action@v6.3.0
+      uses: docker/build-push-action@v6.4.0
       with:
         context: ./
         file: build/images/kubespray/Dockerfile
