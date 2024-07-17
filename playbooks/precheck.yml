@@ -13,6 +13,7 @@
     check_existing_k8s_service: true
     check_existing_docker: true
     check_dual_stack_network: true
+    check_node_time_sync: true
 
   tasks:
     - name: Gather minimal facts
@@ -95,6 +96,20 @@
           shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.existing_docker=\"{{ check_docker_cmd_result.rc == 0 }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
           delegate_to: localhost
 
+    - name: Perform fetch time info
+      shell: date +%s
+      register: timestamp_result
+      ignore_errors: true
+      when:
+        - check_node_time_sync
+
+    - name: Perform fetch timezone
+      shell: timedatectl | grep "Time zone"
+      register: timezone_result
+      ignore_errors: true
+      when:
+        - check_node_time_sync
+
     - name: Perform fetch ip info
       shell: |
         ip --brief  address show | grep -i up | grep '{{ access_ip }}' | sed 's/fe80\S*//g' | sed 's/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\S*//g' | head
@@ -135,6 +150,16 @@
         yq -i '.{{inventory_hostname}}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
       ignore_errors: true
       delegate_to: localhost
+
+    - name: Store node time info to localhost
+      shell: |
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
+        yq -i '.{{inventory_hostname}}.node_timestamp="{{ timestamp_result.stdout }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        yq -i '.{{inventory_hostname}}.timezone="{{ timezone_result.stdout.split(':')[1].strip() }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+      ignore_errors: true
+      delegate_to: localhost
+      when:
+        - check_node_time_sync
 
 - hosts: localhost
   gather_facts: false
