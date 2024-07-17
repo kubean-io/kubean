@@ -55,13 +55,27 @@ function iso::mk_server_path() {
       fi
     fi
     if [ -f "$path" ]; then
-      if echo "$path" | grep 'ky10.x86_64.rpm' >/dev/null 2>&1; then
-        echo "/kylin-iso/10/os/x86_64"
-        return
-      fi
-      if echo "$path" | grep 'ky10.aarch64.rpm' >/dev/null 2>&1; then
-        echo "/kylin-iso/10/os/aarch64"
-        return
+
+      if [[ "$(basename $path)" = ".productinfo" ]]; then
+        # release V10（SP2）/(Sword)-aarch64-Build09/20210524
+        if grep -q "SP2" $path; then
+          if grep -q "aarch64" $path; then
+            echo "/kylin-iso/10/sp2/os/aarch64"
+            return
+          else
+            echo "/kylin-iso/10/sp2/os/x86_64"
+            return
+          fi
+        # release V10 SP3 2403/(Halberd)-aarch64-Build20/20240426
+        elif grep -q "SP3" $path; then
+          if grep -q "aarch64" $path; then
+            echo "/kylin-iso/10/sp3/os/aarch64"
+            return
+          else
+            echo "/kylin-iso/10/sp3/os/x86_64"
+            return
+          fi
+        fi
       fi
       if [ "$(basename $path)" = ".treeinfo" ]; then
         local arch=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/arch = //p' | head -1)

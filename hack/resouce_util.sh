@@ -508,10 +508,10 @@ function resource::import_iso_local_path_check(){
 function resource::check_iso_file_minio(){
   file_list=( "${MINIO_URL}/kubean/centos-iso/7/os/x86_64/Packages/389-ds-base-1.3.10.2-16.el7_9.x86_64.rpm" \
      "${MINIO_URL}/kubean/centos-iso/7/os/x86_64/Packages/zziplib-0.13.62-12.el7.x86_64.rpm" \
-     "${MINIO_URL}/kubean/kylin-iso/10/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
-     "${MINIO_URL}/kubean/kylin-iso/10/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
-     "${MINIO_URL}/kubean/kylin-iso/10/os/aarch64/repodata/13df713badb6a33bf7517dcee436d2a565773d5035f980b8e84520bc4f7d1c50-filelists.xml.gz" \
-     "${MINIO_URL}/kubean/kylin-iso/10/os/aarch64/repodata/TRANS.TBL"
+     "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
+     "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
+     "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/repodata/13df713badb6a33bf7517dcee436d2a565773d5035f980b8e84520bc4f7d1c50-filelists.xml.gz" \
+     "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/repodata/TRANS.TBL"
     )
   resource::check_files_url_exist "${file_list[@]}"
 }
@@ -522,10 +522,10 @@ function resource::check_iso_file_local_path(){
   file_list=( "centos-iso/7/os/x86_64/Packages/389-ds-base-1.3.10.2-16.el7_9.x86_64.rpm" \
   "centos-iso/7/os/x86_64/Packages/zziplib-0.13.62-12.el7.x86_64.rpm" \
 
-  "kylin-iso/10/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
-  "kylin-iso/10/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
-  "kylin-iso/10/os/aarch64/repodata/13df713badb6a33bf7517dcee436d2a565773d5035f980b8e84520bc4f7d1c50-filelists.xml.gz" \
-  "kylin-iso/10/os/aarch64/repodata/TRANS.TBL" )
+  "kylin-iso/10/sp2/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
+  "kylin-iso/10/sp2/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
+  "kylin-iso/10/sp2/os/aarch64/repodata/13df713badb6a33bf7517dcee436d2a565773d5035f980b8e84520bc4f7d1c50-filelists.xml.gz" \
+  "kylin-iso/10/sp2/os/aarch64/repodata/TRANS.TBL" )
   for item in "${file_list[@]}"; do
     if [[ ! -f ${father_path}/${item} ]];then
       echo "Error: ${item} not exist in local path ${father_path}"
