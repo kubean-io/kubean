@@ -30,10 +30,10 @@ To meet users' needs for components of certain versions, Kubean provides the scr
 3. Run the following command to generate an incremental offline package in the `data` folder
 
     ```bash
-    $ docker run \
-          -v $(pwd)/data:/data \
-          -v $(pwd)/manifest.yml:/manifest.yml \
-          ghcr.io/kubean-io/airgap-patch:v0.11.1
+    docker run \
+        -v $(pwd)/data:/data \
+        -v $(pwd)/manifest.yml:/manifest.yml \
+        ghcr.io/kubean-io/airgap-patch:v0.11.1
     ```
 
     | Environment Variables | Optional Value Description （:material-checkbox-marked-circle: is default value） |
@@ -42,7 +42,6 @@ To meet users' needs for components of certain versions, Kubean provides the scr
     |      | :material-checkbox-blank-circle-outline: `CN`: Download offline resources by using DaoCloud mirror address in China. |
     | MODE | :material-checkbox-marked-circle: `INCR`: Build only the offline resources for the components specified in the configuration (i.e.: incremental packages)|
     |      | :material-checkbox-blank-circle-outline:  `FULL`: Building offline resources includes the components specified in the configuration along with the components necessary for cluster deployment (i.e.: full packages)|
-
 
 ## Use the incremental offline package
 
@@ -71,9 +70,9 @@ data
 1. Write file data into MinIO
 
     ```bash
-    $ cd data/airgap_patch/amd64/files
+    cd data/airgap_patch/amd64/files
 
-    $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
+    MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
     ```
 
     `minio_address` is the `minio API Server` address, typically on port 9000, for example: `http://1.2.3.4:9000`.
@@ -81,13 +80,13 @@ data
 2. Write image data to the docker registry (recommended version 2.6.2) or harbor
 
     ```bash
-    $ cd data/airgap_patch/amd64/images 
+    cd data/airgap_patch/amd64/images 
 
     # 1. password-free mode
-    $ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
+    REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
     # 2. Username password mode
-    $ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
+    REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
     ```
 
     * `REGISTRY_ADDR` is the address of the mirror repository, e.g. `1.2.3.4:5000`
@@ -96,8 +95,8 @@ data
 3. Write `localartifactset.cr.yaml` to the k8s cluster
 
     ```bash
-    $ cd data/airgap_patch
-    $ kubectl apply -f localartifactset.cr.yaml
+    cd data/airgap_patch
+    kubectl apply -f localartifactset.cr.yaml
     ```
 
     > This step is to inform the kubean-operator of the new software version available for offline use.

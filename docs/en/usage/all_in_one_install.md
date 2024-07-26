@@ -8,7 +8,7 @@
 4. The [kubean project](https://github.com/kubean-io/kubean) has been cloned to your local machine. If you haven't cloned kubean yet, you can execute the following command to clone it:
 
 ```bash
-$ git clone https://github.com/kubean-io/kubean.git
+git clone https://github.com/kubean-io/kubean.git
 ```
 
 ---
@@ -19,14 +19,14 @@ In this tutorial, we will use the `kubean/example` file cloned to your local mac
 
 With the help of the example template, we can use kubean to complete the deployment of a single-node cluster in just two steps.
 
-#### 1. Configure the AllInOne.yml parameters
+### 1. Configure the AllInOne.yml parameters
 
 Navigate to the `kubean/examples/install/1.minimal`  file path, edit the AllInOne.yml template for single-node mode deployment, and replace the following parameters with your actual parameters.
 
-  - `<IP1>`: Node IP.
-  - `<USERNAME>`: The username for logging into the node. It is recommended to use root or a user with root privileges to log in.
-  - `<PASSWORD>`: The password for logging into the node.
-  - `<TAG>`: kubean image version, it is recommended to use the latest version, [Refer to the kubean version list](https://github.com/kubean-io/kubean/tags).
+- `<IP1>`: Node IP.
+- `<USERNAME>`: The username for logging into the node. It is recommended to use root or a user with root privileges to log in.
+- `<PASSWORD>`: The password for logging into the node.
+- `<TAG>`: kubean image version, it is recommended to use the latest version, [Refer to the kubean version list](https://github.com/kubean-io/kubean/tags).
 
 For example, the following shows an example of AllInOne.yml:
 <details>
@@ -115,15 +115,15 @@ postHook:
 Execute the following command to edit the AllInOne.yml configuration template:
 
 ```bash
-$ vi kubean/examples/install/1.minimal/AllInOne.yml
+vi kubean/examples/install/1.minimal/AllInOne.yml
 ```
 
-#### 2.Apply the AllInOne.yml configuration
+### 2. Apply the AllInOne.yml configuration
 
 After completing the above steps and saving the AllInOne.yml file, execute the following command:
 
 ```bash
-$ kubectl apply -f examples/install/1.minimal/AllInOne.yml
+kubectl apply -f examples/install/1.minimal/AllInOne.yml
 ```
 
 At this point, you have completed the deployment of a simple single-node cluster.

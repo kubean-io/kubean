@@ -31,11 +31,11 @@
 3. 使用镜像，等待运行退出后，在 `data` 文件夹中生成增量离线包
 
     ```bash
-    $ docker run \
-          -v $(pwd)/data:/data \
-          -v $(pwd)/manifest.yml:/manifest.yml \
-          -e ZONE=CN \
-          ghcr.io/kubean-io/airgap-patch:v0.11.1
+    docker run \
+        -v $(pwd)/data:/data \
+        -v $(pwd)/manifest.yml:/manifest.yml \
+        -e ZONE=CN \
+        ghcr.io/kubean-io/airgap-patch:v0.11.1
     ```
 
     | 环境变量 | 可选值描述 （:material-checkbox-marked-circle: :表示默认值） |
@@ -44,7 +44,6 @@
     |      | :material-checkbox-blank-circle-outline: `CN`: 采用国内 DaoCloud 加速器地址下载离线资源 |
     | MODE | :material-checkbox-marked-circle: `INCR`: 仅构建配置中指定组件的离线资源（即：增量包）|
     |      | :material-checkbox-blank-circle-outline:  `FULL`: 将构建配置中指定的组件以及集群部署必要其他组件的离线资源（即：全量包）|
-
 
 ## 使用增量离线包
 
@@ -73,9 +72,9 @@ data
 1. 向 MinIO 中写入文件数据
 
     ```bash
-    $ cd data/airgap_patch/amd64/files
+    cd data/airgap_patch/amd64/files
    
-    $ MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
+    MINIO_USER=${username} MINIO_PASS=${password} ./import_files.sh ${minio_address}
     ```
 
     `minio_address` 是 `minio API Server` 地址，端口一般为 9000，比如 `http://1.2.3.4:9000`。
@@ -83,13 +82,13 @@ data
 2. 向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据
 
     ```bash
-    $ cd data/airgap_patch/amd64/images
+    cd data/airgap_patch/amd64/images
 
     # 1. 免密模式
-    $ REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
+    REGISTRY_SCHEME=http REGISTRY_ADDR=${registry_address} ./import_images.sh
 
     # 2. 用户名口令模式
-    $ REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
+    REGISTRY_SCHEME=https REGISTRY_ADDR=${registry_address} REGISTRY_USER=${username} REGISTRY_PASS=${password} ./import_images.sh
     ```
 
     * `REGISTRY_ADDR` 是镜像仓库的地址，比如`1.2.3.4:5000`
@@ -98,8 +97,8 @@ data
 3. 将 `localartifactset.cr.yaml` 写入到 K8s 集群
 
     ```bash
-    $ cd data/airgap_patch
-    $ kubectl apply -f localartifactset.cr.yaml
+    cd data/airgap_patch
+    kubectl apply -f localartifactset.cr.yaml
     ```
 
     > 这一步是为了将新的可离线使用的软件版本信息告知 kubean-operator。

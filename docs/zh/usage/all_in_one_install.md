@@ -8,7 +8,7 @@
 4. [kubean 项目](https://github.com/kubean-io/kubean)已经克隆至您本地，如果您还未克隆 kubean，可以执行执行如下命令进行克隆：
 
 ```bash
-$ git clone https://github.com/kubean-io/kubean.git
+git clone https://github.com/kubean-io/kubean.git
 ```
 
 ---
@@ -19,14 +19,14 @@ $ git clone https://github.com/kubean-io/kubean.git
 
 借助案例模板，仅需两步我们就能使用 kubean 完成一个单节点集群的部署。
 
-#### 1. 配置 AllInOne.yml 参数
+### 1. 配置 AllInOne.yml 参数
 
 进入 `kubean/examples/install/1.minimal` 文件路径下，编辑单节点模式部署模板 AllInOne.yml，将下列参数替换为您的真实参数。
 
-  - `<IP1>`：节点 IP。
-  - `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
-  - `<PASSWORD>`：登陆节点的密码。
-  - `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
+- `<IP1>`：节点 IP。
+- `<USERNAME>`：登陆节点的用户名，建议使用 root 或具有 root 权限的用户登陆。
+- `<PASSWORD>`：登陆节点的密码。
+- `<TAG>`：kubean 镜像版本，推荐使用最新版本，[参阅 kubean 版本列表](https://github.com/kubean-io/kubean/tags)。
 
 例如，下面展示了一个 AllInOne.yml 示例：
 <details>
@@ -115,15 +115,15 @@ postHook:
 执行如下命令编辑 AllInOne.yml 配置模板：
 
 ```bash
-$ vi kubean/examples/install/1.minimal/AllInOne.yml
+vi kubean/examples/install/1.minimal/AllInOne.yml
 ```
 
-#### 2.应用 AllInOne.yml 配置
+### 2. 应用 AllInOne.yml 配置
 
 完成上述步骤并保存 AllInOne.yml 文件后，执行如下命令：
 
 ```bash
-$ kubectl apply -f examples/install/1.minimal/AllInOne.yml
+kubectl apply -f examples/install/1.minimal/AllInOne.yml
 ```
 
 至此，您已经完成了一个简单的单节点集群的部署。
