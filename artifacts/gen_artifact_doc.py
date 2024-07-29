@@ -47,33 +47,33 @@ if __name__ == '__main__':
   repo_name="kubean-manifest"
   subprocess.getoutput(f"git clone https://github.com/{IMAGE_REPO}/{repo_name}.git")
   manifests_path=f'{repo_name}/manifests'
+  rls_pattern = re.compile(r'manifest-(\d+\.\d+)-.*\.yml')
 
-  manifest_files = subprocess.getoutput(f"ls {manifests_path}")
+  releases = {}
+  for manifest in os.listdir(manifests_path):
+    match = rls_pattern.match(manifest)
+    if match:
+      rls_version = match.group(1)
+      releases[rls_version] = []
+      with open(f'{manifests_path}/{manifest}', 'r') as stream:
+        data = yaml.safe_load(stream)
+        commit_short_sha = data.get('metadata', {}).get('annotations', {}).get('kubean.io/sprayCommit')
+        commit_timestamp = int(data.get('metadata', {}).get('annotations', {}).get('kubean.io/sprayTimestamp'))
+        commit_date = datetime.fromtimestamp(commit_timestamp)
+        components = data.get('spec', {}).get('components', {})
+        kube_info = next(item for item in data.get('spec', {}).get('components', {}) if item['name'] == 'kube')
+        kube_version_range = kube_info.get('versionRange', [])
+        sorted_versions = sorted(kube_version_range, key=lambda x: [int(x) if x.isdigit() else x for x in re.split('([0-9]+)', x)], reverse=True)
+        releases[rls_version].append({
+          'commit_short_sha': commit_short_sha,
+          'commit_timestamp': commit_timestamp,
+          'commit_date': commit_date,
+          'kube_version_range': sorted_versions})
 
-  release_keys=['2.21', '2.22', '2.23', '2.24']
-  releases = {key: [] for key in release_keys}
-  for manifest in manifest_files.splitlines():
-    for key in release_keys:
-      if key in manifest:
-        with open(f'{manifests_path}/{manifest}', 'r') as stream:
-          data = yaml.safe_load(stream)
-          commit_short_sha = data.get('metadata', {}).get('annotations', {}).get('kubean.io/sprayCommit')
-          commit_timestamp = int(data.get('metadata', {}).get('annotations', {}).get('kubean.io/sprayTimestamp'))
-          commit_date = datetime.fromtimestamp(commit_timestamp)
-          components = data.get('spec', {}).get('components', {})
-          kube_info = next(item for item in data.get('spec', {}).get('components', {}) if item['name'] == 'kube')
-          kube_version_range = kube_info.get('versionRange', [])
-          sorted_versions = sorted(kube_version_range, key=lambda x: [int(x) if x.isdigit() else x for x in re.split('([0-9]+)', x)], reverse=True)
-          releases[key].append({
-            'commit_short_sha': commit_short_sha, 
-            'commit_timestamp': commit_timestamp,
-            'commit_date': commit_date,
-            'kube_version_range': sorted_versions})
+  for key in releases.keys():
+    releases[key].sort(key=lambda item:item['commit_timestamp'], reverse=True)
 
   # print(f'releases: {releases}')
-
-  for key in release_keys:
-    releases[key].sort(key=lambda item:item['commit_timestamp'], reverse=True)
 
   t = Template(KUBEAN_PATCH_TEMPLATE)
   md_contents = t.render(releases=releases, image_registry='ghcr.io', repo_name=IMAGE_REPO)
