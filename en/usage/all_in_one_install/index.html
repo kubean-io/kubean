@@ -442,9 +442,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2apply-the-allinoneyml-configuration" class="md-nav__link">
+  <a href="#2-apply-the-allinoneyml-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      2.Apply the AllInOne.yml configuration
+      2. Apply the AllInOne.yml configuration
     </span>
   </a>
   
@@ -2521,9 +2521,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2apply-the-allinoneyml-configuration" class="md-nav__link">
+  <a href="#2-apply-the-allinoneyml-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      2.Apply the AllInOne.yml configuration
+      2. Apply the AllInOne.yml configuration
     </span>
   </a>
   
@@ -2560,13 +2560,13 @@
 <li>The <a href="helm-install-kubean.md">kubean helm chart</a> has been deployed on your cluster.</li>
 <li>The <a href="https://github.com/kubean-io/kubean">kubean project</a> has been cloned to your local machine. If you haven't cloned kubean yet, you can execute the following command to clone it:</li>
 </ol>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
 </code></pre></div>
 <hr />
 <h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
 <p>In this tutorial, we will use the <code>kubean/example</code> file cloned to your local machine as a template for demonstration purposes.</p>
 <p>With the help of the example template, we can use kubean to complete the deployment of a single-node cluster in just two steps.</p>
-<h4 id="1-configure-the-allinoneyml-parameters">1. Configure the AllInOne.yml parameters<a class="headerlink" href="#1-configure-the-allinoneyml-parameters" title="Permanent link">&para;</a></h4>
+<h3 id="1-configure-the-allinoneyml-parameters">1. Configure the AllInOne.yml parameters<a class="headerlink" href="#1-configure-the-allinoneyml-parameters" title="Permanent link">&para;</a></h3>
 <p>Navigate to the <code>kubean/examples/install/1.minimal</code>  file path, edit the AllInOne.yml template for single-node mode deployment, and replace the following parameters with your actual parameters.</p>
 <ul>
 <li><code>&lt;IP1&gt;</code>: Node IP.</li>
@@ -2658,11 +2658,11 @@
 </details>
 
 <p>Execute the following command to edit the AllInOne.yml configuration template:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/1.minimal/AllInOne.yml
+<div class="highlight"><pre><span></span><code>vi<span class="w"> </span>kubean/examples/install/1.minimal/AllInOne.yml
 </code></pre></div>
-<h4 id="2apply-the-allinoneyml-configuration">2.Apply the AllInOne.yml configuration<a class="headerlink" href="#2apply-the-allinoneyml-configuration" title="Permanent link">&para;</a></h4>
+<h3 id="2-apply-the-allinoneyml-configuration">2. Apply the AllInOne.yml configuration<a class="headerlink" href="#2-apply-the-allinoneyml-configuration" title="Permanent link">&para;</a></h3>
 <p>After completing the above steps and saving the AllInOne.yml file, execute the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/1.minimal/AllInOne.yml
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/1.minimal/AllInOne.yml
 </code></pre></div>
 <p>At this point, you have completed the deployment of a simple single-node cluster.</p>
 
