@@ -199,7 +199,7 @@ sslverify=0
 
 As the process of creating a source involves all the nodes in the cluster, manual scripting is relatively tedious, so a playbook solution is provided here:
 
-``` yaml
+```yaml
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
 metadata:
@@ -234,7 +234,7 @@ spec:
 Offline settings need to be referred to [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
 Located in `kubespray/inventory/sample/group_vars/all/offline.yml` configuration file:
 
-``` yaml
+```yaml
 ---
 ## Global offline configuration
 ### Configure the address of the private container image repository service
