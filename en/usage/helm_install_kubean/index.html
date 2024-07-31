@@ -942,6 +942,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.17.5/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    V0.17.5
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.17.4/" class="md-nav__link">
         
   
@@ -2578,36 +2599,34 @@
 </ol>
 <hr />
 <h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
-<h4 id="1-add-kubean-helm-repository">1. Add kubean Helm repository<a class="headerlink" href="#1-add-kubean-helm-repository" title="Permanent link">&para;</a></h4>
+<h3 id="1-add-kubean-helm-repository">1. Add kubean Helm repository<a class="headerlink" href="#1-add-kubean-helm-repository" title="Permanent link">&para;</a></h3>
 <p>Add the kubean Helm repository to your local Helm repository by executing the following command on your existing cluster control node or cloud terminal.</p>
-<p><div class="highlight"><pre><span></span><code>$ helm repo add kubean-io https://kubean-io.github.io/kubean-helm-chart/
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>kubean-io<span class="w"> </span>https://kubean-io.github.io/kubean-helm-chart/
 </code></pre></div>
-After completing the previous step, check if the kubean repository has been added correctly to your local Helm repository.</p>
+<p>After completing the previous step, check if the kubean repository has been added correctly to your local Helm repository.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>repo<span class="w"> </span>list
-<span class="c1"># Expected output:</span>
+
 NAME<span class="w">            </span>URL
 kubean-io<span class="w">       </span>https://kubean-io.github.io/kubean-helm-chart/
 </code></pre></div>
-<h4 id="2-install-kubean">2. Install kubean<a class="headerlink" href="#2-install-kubean" title="Permanent link">&para;</a></h4>
+<h3 id="2-install-kubean">2. Install kubean<a class="headerlink" href="#2-install-kubean" title="Permanent link">&para;</a></h3>
 <p>Check the available charts and their versions in the kubean Helm repository by executing the following command, which will list all the charts available in the kubean Helm repository.</p>
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>search<span class="w"> </span>repo<span class="w"> </span>kubean
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>search<span class="w"> </span>repo<span class="w"> </span>kubean
 
-<span class="c1"># Expected output:</span>
 NAME<span class="w">                </span>CHART<span class="w"> </span>VERSION<span class="w">   </span>APP<span class="w"> </span>VERSION<span class="w"> </span>DESCRIPTION
 kubean-io/kubean<span class="w">    </span>v0.5.2<span class="w">          </span>v0.5.2<span class="w">      </span>A<span class="w"> </span>Helm<span class="w"> </span>chart<span class="w"> </span><span class="k">for</span><span class="w"> </span>kubean
 </code></pre></div>
 <p>After completing the above steps, execute the following command to install kubean.</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>install<span class="w"> </span>kubean<span class="w"> </span>kubean-io/kubean<span class="w"> </span>--create-namespace<span class="w"> </span>-n<span class="w"> </span>kubean-system
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>kubean<span class="w"> </span>kubean-io/kubean<span class="w"> </span>--create-namespace<span class="w"> </span>-n<span class="w"> </span>kubean-system
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can also use the "--version" parameter to specify the version of kubean.</p>
 </div>
-<h4 id="3-view-installed-kubean-release">3. View installed kubean release<a class="headerlink" href="#3-view-installed-kubean-release" title="Permanent link">&para;</a></h4>
+<h3 id="3-view-installed-kubean-release">3. View installed kubean release<a class="headerlink" href="#3-view-installed-kubean-release" title="Permanent link">&para;</a></h3>
 <p>You have now completed the deployment of the kubean Helm chart. You can execute the following command to view the helm release in the kubean-system namespace.</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>helm<span class="w"> </span>ls<span class="w"> </span>-n<span class="w"> </span>kubean-system
 
-<span class="c1"># Expected output:</span>
 NAME<span class="w">    </span>NAMESPACE<span class="w">       </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                     </span>STATUS<span class="w">      </span>CHART<span class="w">               </span>APP<span class="w"> </span>VERSION
 kubean<span class="w">  </span>kubean-system<span class="w">   </span><span class="m">1</span><span class="w">           </span><span class="m">2023</span>-05-15<span class="w"> </span><span class="m">00</span>:24:32.719770617<span class="w"> </span>-0400<span class="w"> </span>-0400<span class="w">   </span>deployed<span class="w">    </span>kubean-v0.4.9-rc1<span class="w">   </span>v0.4.9-rc1
 </code></pre></div>

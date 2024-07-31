@@ -909,6 +909,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.17.5/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    V0.17.5
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.17.4/" class="md-nav__link">
         
   
@@ -2534,11 +2555,11 @@
 </li>
 <li>
 <p>使用镜像，等待运行退出后，在 <code>data</code> 文件夹中生成增量离线包</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>-e<span class="w"> </span><span class="nv">ZONE</span><span class="o">=</span>CN<span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>ghcr.io/kubean-io/airgap-patch:v0.11.1
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/manifest.yml:/manifest.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">ZONE</span><span class="o">=</span>CN<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>ghcr.io/kubean-io/airgap-patch:v0.11.1
 </code></pre></div>
 <table>
 <thead>
@@ -2591,21 +2612,21 @@
 <ol>
 <li>
 <p>向 MinIO 中写入文件数据</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/files
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/files
 
-$<span class="w"> </span><span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
+<span class="nv">MINIO_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">MINIO_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_files.sh<span class="w"> </span><span class="si">${</span><span class="nv">minio_address</span><span class="si">}</span>
 </code></pre></div>
 <p><code>minio_address</code> 是 <code>minio API Server</code> 地址，端口一般为 9000，比如 <code>http://1.2.3.4:9000</code>。</p>
 </li>
 <li>
 <p>向 Docker Registry（推荐使用 2.6.2 版本）或者 Harbor 写入镜像数据</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>data/airgap_patch/amd64/images
 
 <span class="c1"># 1. 免密模式</span>
-$<span class="w"> </span><span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>http<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
+<span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>http<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 
 <span class="c1"># 2. 用户名口令模式</span>
-$<span class="w"> </span><span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>https<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
+<span class="nv">REGISTRY_SCHEME</span><span class="o">=</span>https<span class="w"> </span><span class="nv">REGISTRY_ADDR</span><span class="o">=</span><span class="si">${</span><span class="nv">registry_address</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_USER</span><span class="o">=</span><span class="si">${</span><span class="nv">username</span><span class="si">}</span><span class="w"> </span><span class="nv">REGISTRY_PASS</span><span class="o">=</span><span class="si">${</span><span class="nv">password</span><span class="si">}</span><span class="w"> </span>./import_images.sh
 </code></pre></div>
 <ul>
 <li><code>REGISTRY_ADDR</code> 是镜像仓库的地址，比如<code>1.2.3.4:5000</code></li>
@@ -2614,8 +2635,8 @@ $<span class="w"> </span><span class="nv">REGISTRY_SCHEME</span><span class="o">
 </li>
 <li>
 <p>将 <code>localartifactset.cr.yaml</code> 写入到 K8s 集群</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
-$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>localartifactset.cr.yaml
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>data/airgap_patch
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>localartifactset.cr.yaml
 </code></pre></div>
 <blockquote>
 <p>这一步是为了将新的可离线使用的软件版本信息告知 kubean-operator。</p>
