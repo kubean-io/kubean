@@ -95,7 +95,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: sprayjob image build
-      uses: docker/build-push-action@v6.4.0
+      uses: docker/build-push-action@v6.5.0
       with:
         context: ./
         file: build/images/spray-job/Dockerfile
@@ -140,7 +140,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: airgap-patch image build
-      uses: docker/build-push-action@v6.4.0
+      uses: docker/build-push-action@v6.5.0
       with:
         context: ./
         file: build/images/airgap-patch/Dockerfile
