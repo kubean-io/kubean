@@ -444,7 +444,7 @@
           <li class="md-nav__item">
   <a href="#2-allinoneyml" class="md-nav__link">
     <span class="md-ellipsis">
-      2. 应用 AllInOne.yml 配置
+      2.应用 AllInOne.yml 配置
     </span>
   </a>
   
@@ -2523,7 +2523,7 @@
           <li class="md-nav__item">
   <a href="#2-allinoneyml" class="md-nav__link">
     <span class="md-ellipsis">
-      2. 应用 AllInOne.yml 配置
+      2.应用 AllInOne.yml 配置
     </span>
   </a>
   
@@ -2560,13 +2560,13 @@
 <li><a href="helm-install-kubean.md">kubean helm chart</a> 已在您的集群上部署。</li>
 <li><a href="https://github.com/kubean-io/kubean">kubean 项目</a>已经克隆至您本地，如果您还未克隆 kubean，可以执行执行如下命令进行克隆：</li>
 </ol>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
 </code></pre></div>
 <hr />
 <h2 id="_3">开始部署<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
 <p>本教程将使用您克隆至本地的 <code>kubean/example</code> 文件作为范例模板，进行集群部署演示。</p>
 <p>借助案例模板，仅需两步我们就能使用 kubean 完成一个单节点集群的部署。</p>
-<h3 id="1-allinoneyml">1. 配置 AllInOne.yml 参数<a class="headerlink" href="#1-allinoneyml" title="Permanent link">&para;</a></h3>
+<h4 id="1-allinoneyml">1. 配置 AllInOne.yml 参数<a class="headerlink" href="#1-allinoneyml" title="Permanent link">&para;</a></h4>
 <p>进入 <code>kubean/examples/install/1.minimal</code> 文件路径下，编辑单节点模式部署模板 AllInOne.yml，将下列参数替换为您的真实参数。</p>
 <ul>
 <li><code>&lt;IP1&gt;</code>：节点 IP。</li>
@@ -2658,11 +2658,11 @@
 </details>
 
 <p>执行如下命令编辑 AllInOne.yml 配置模板：</p>
-<div class="highlight"><pre><span></span><code>vi<span class="w"> </span>kubean/examples/install/1.minimal/AllInOne.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/1.minimal/AllInOne.yml
 </code></pre></div>
-<h3 id="2-allinoneyml">2. 应用 AllInOne.yml 配置<a class="headerlink" href="#2-allinoneyml" title="Permanent link">&para;</a></h3>
+<h4 id="2-allinoneyml">2.应用 AllInOne.yml 配置<a class="headerlink" href="#2-allinoneyml" title="Permanent link">&para;</a></h4>
 <p>完成上述步骤并保存 AllInOne.yml 文件后，执行如下命令：</p>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/1.minimal/AllInOne.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/1.minimal/AllInOne.yml
 </code></pre></div>
 <p>至此，您已经完成了一个简单的单节点集群的部署。</p>
 
