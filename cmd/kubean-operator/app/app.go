@@ -78,6 +78,7 @@ func StartManager(ctx context.Context, opt *Options) error {
 		LeaderElectionResourceLock: opt.LeaderElection.ResourceLock,
 		HealthProbeBindAddress:     net.JoinHostPort(opt.BindAddress, strconv.Itoa(opt.SecurePort)),
 		LivenessEndpointName:       "/healthz",
+		Namespace:                  util.GetCurrentNSOrDefault(),
 	})
 	if err != nil {
 		klog.Errorf("Failed to build controllerManager ,%s", err)
