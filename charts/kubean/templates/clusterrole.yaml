@@ -5,7 +5,7 @@ metadata:
   name: {{ $name }}
 rules:
   - apiGroups: [ 'kubean.io' ]
-    resources: [ 'clusteroperations','clusteroperations/status','clusters','clusters/status','localartifactsets','localartifactsets/status','manifests','manifest/status' ]
+    resources: [ 'clusteroperations','clusteroperations/status','clusters','clusters/status','localartifactsets','localartifactsets/status','manifests','manifests/status' ]
     verbs: [ '*' ]
   - apiGroups: [ 'admissionregistration.k8s.io' ]
     resources: [ 'validatingwebhookconfigurations' ]
