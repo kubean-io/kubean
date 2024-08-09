@@ -97,6 +97,10 @@ sed -i "s/10.96.0.0\/12/10.88.0.0\/16/" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
 ##add this line to set cilium_kube_proxy_replacement: partial, if kubespray update the cilium_kube_proxy_replacement default value to partial, this line can be deleted
 sed -i "$ a\    cilium_kube_proxy_replacement: partial" "${dest_config_path}"/vars-conf-cm.yml
+##Switch the namespace of configmap to new_kubean_namespace
+sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_config_path}"/hosts-conf-cm.yml
+sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_config_path}"/kubeanCluster.yml
 
 ##set kubean operator replicas to 3
 kubectl scale deployment kubean -n  ${new_kubean_namespace} --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
