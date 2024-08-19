@@ -1,4 +1,4 @@
-FROM golang:1.22.4 as build
+FROM --platform=$BUILDPLATFORM golang:1.22.4 as build
 
 WORKDIR /kubean
 
@@ -7,7 +7,8 @@ ENV GO111MODULE=on \
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -mod vendor -o kubean-admission ./cmd/kubean-admission/main.go
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -mod vendor -o kubean-admission ./cmd/kubean-admission/main.go
 
 FROM alpine:3.15
 
