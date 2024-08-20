@@ -120,7 +120,7 @@ function resource::download_resource_files(){
         echo "checksum success!"
         break
       else
-        ll "${download_root_path}/${new_tag}/${file_name}"
+        ls -l "${download_root_path}/${new_tag}/${file_name}"
         rm -rf "${download_root_path}/${new_tag}/${file_name}"
         echo "checksum failed"
       fi
