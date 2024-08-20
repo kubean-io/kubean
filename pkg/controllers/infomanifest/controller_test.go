@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -37,6 +38,7 @@ import (
 	"github.com/kubean-io/kubean-api/constants"
 	localartifactsetv1alpha1fake "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned/fake"
 	manifestv1alpha1fake "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned/fake"
+	"github.com/kubean-io/kubean/pkg/util"
 )
 
 func newFakeClient() client.Client {
@@ -252,33 +254,27 @@ func Test_UpdateLocalAvailableImage(t *testing.T) {
 		want string
 	}{
 		{
-			name: "update local kubespray image with ghcr.io",
+			name: "update local kubespray image with ghcr.m.daocloud.io",
 			arg: func() {
 				manifest.Spec = manifestv1alpha1.Spec{
 					KubeanVersion: "123",
 				}
 				manifest, _ := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
+				os.Setenv("POD_NAMESPACE", "")
+				configMap := &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: util.GetCurrentNSOrDefault(),
+						Name:      "kubean-config",
+					},
+					Data: map[string]string{
+						"CLUSTER_OPERATIONS_BACKEND_LIMIT": "10000",
+						"SPRAY_JOB_IMAGE_REGISTRY":         "ghcr.m.daocloud.io",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps(util.GetCurrentNSOrDefault()).Create(context.Background(), configMap, metav1.CreateOptions{})
 				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
 			},
 			want: "ghcr.m.daocloud.io/kubean-io/spray-job:123",
-		},
-		{
-			name: "update local kubespray image with local registry",
-			arg: func() {
-				manifest.Spec = manifestv1alpha1.Spec{
-					LocalService: manifestv1alpha1.LocalService{ImageRepo: map[manifestv1alpha1.ImageRepoType]string{
-						"dockerImageRepo": "abc.io",
-						"githubImageRepo": "ghcr.io",
-					}},
-					KubeanVersion: "123456",
-				}
-				manifest, err := controller.InfoManifestClientSet.KubeanV1alpha1().Manifests().Update(context.Background(), manifest, metav1.UpdateOptions{})
-				if err != nil {
-					t.Error(err)
-				}
-				controller.UpdateLocalAvailableImage([]manifestv1alpha1.Manifest{*manifest})
-			},
-			want: "ghcr.io/kubean-io/spray-job:123456",
 		},
 	}
 

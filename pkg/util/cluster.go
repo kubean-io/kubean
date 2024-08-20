@@ -5,22 +5,24 @@ package util
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
 
 	"github.com/kubean-io/kubean-api/apis"
 	clusterv1alpha1 "github.com/kubean-io/kubean-api/apis/cluster/v1alpha1"
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
 	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
-
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes/scheme"
+	"github.com/kubean-io/kubean-api/cluster"
+	"github.com/kubean-io/kubean-api/constants"
 )
 
 // aggregatedScheme aggregates Kubernetes and extended schemes.
@@ -118,4 +120,21 @@ func GetCurrentRunningPodName() string {
 		return name
 	}
 	return "default"
+}
+
+func FetchKubeanConfigProperty(client kubernetes.Interface) *cluster.ConfigProperty {
+	configData, err := client.CoreV1().ConfigMaps(GetCurrentNSOrDefault()).Get(context.Background(), constants.KubeanConfigMapName, metav1.GetOptions{})
+	if err != nil {
+		return &cluster.ConfigProperty{}
+	}
+	jsonData, err := json.Marshal(configData.Data)
+	if err != nil {
+		return &cluster.ConfigProperty{}
+	}
+	result := &cluster.ConfigProperty{}
+	err = json.Unmarshal(jsonData, result)
+	if err != nil {
+		return &cluster.ConfigProperty{}
+	}
+	return result
 }
