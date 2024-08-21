@@ -8,3 +8,4 @@ metadata:
   {{- include "kubean.labels" . | nindent 4}}
 data:
   CLUSTER_OPERATIONS_BACKEND_LIMIT: "{{ .Values.kubeanOperator.operationsBackendLimit }}"
+  SPRAY_JOB_IMAGE_REGISTRY: "{{ .Values.sprayJob.image.registry }}"

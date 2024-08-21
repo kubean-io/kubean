@@ -1,17 +1,22 @@
 package constants
 
-const InfoManifestGlobal = "manifest-global"
+const (
+	InfoManifestGlobal = "manifest-global"
 
-const KubeanClusterLabelKey = "clusterName"
+	KubeanClusterLabelKey = "clusterName"
 
-const Hosts_yml = "hosts.yml"
+	Hosts_yml = "hosts.yml"
 
-const Group_vars_yml = "group_vars.yml"
+	Group_vars_yml = "group_vars.yml"
 
-const SSH_privatekey = "ssh-privatekey"
+	SSH_privatekey = "ssh-privatekey"
 
-const KubeanClusterHasCompleted = "hasCompleted"
+	KubeanClusterHasCompleted = "hasCompleted"
 
-const KeySprayRelease = "kubean.io/sprayRelease"
+	KeySprayRelease = "kubean.io/sprayRelease"
+	KeySprayCommit  = "kubean.io/sprayCommit"
 
-const KeySprayCommit = "kubean.io/sprayCommit"
+	KubeanConfigMapName                  = "kubean-config"
+	DefaultClusterOperationsBackEndLimit = 30
+	MaxClusterOperationsBackEndLimit     = 200
+)

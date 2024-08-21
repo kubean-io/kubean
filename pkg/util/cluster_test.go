@@ -13,6 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/kubernetes"
 	clientsetfake "k8s.io/client-go/kubernetes/fake"
 
 	"github.com/kubean-io/kubean-api/apis"
@@ -20,6 +21,8 @@ import (
 	clusteroperationv1alpha1 "github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1"
 	localartifactsetv1alpha1 "github.com/kubean-io/kubean-api/apis/localartifactset/v1alpha1"
 	manifestv1alpha1 "github.com/kubean-io/kubean-api/apis/manifest/v1alpha1"
+	"github.com/kubean-io/kubean-api/cluster"
+	"github.com/kubean-io/kubean-api/constants"
 )
 
 func TestNewSchema(t *testing.T) {
@@ -199,6 +202,108 @@ func TestUpdateOwnReference(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			if test.args() != test.want {
 				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestFetchKubeanConfigProperty(t *testing.T) {
+	genClient := func() kubernetes.Interface {
+		return clientsetfake.NewSimpleClientset()
+	}
+	tests := []struct {
+		name   string
+		client kubernetes.Interface
+		args   func(client kubernetes.Interface)
+		want   cluster.ConfigProperty
+	}{
+		{
+			name:   "no config and default value",
+			client: genClient(),
+			args: func(client kubernetes.Interface) {
+				// do nothing
+			},
+			want: cluster.ConfigProperty{},
+		},
+		{
+			name:   "the config has been set to 10000",
+			client: genClient(),
+			args: func(client kubernetes.Interface) {
+				os.Setenv("POD_NAMESPACE", "")
+				configMap := &corev1.ConfigMap{}
+				configMap.Name = constants.KubeanConfigMapName
+				configMap.Namespace = GetCurrentNSOrDefault()
+				configMap.Data = map[string]string{"CLUSTER_OPERATIONS_BACKEND_LIMIT": "10000"}
+				client.CoreV1().ConfigMaps(GetCurrentNSOrDefault()).Create(context.Background(), configMap, metav1.CreateOptions{})
+			},
+			want: cluster.ConfigProperty{
+				ClusterOperationsBackEndLimit: "10000",
+				SprayJobImageRegistry:         "",
+			},
+		},
+		{
+			name:   "the config has been set to 10000",
+			client: genClient(),
+			args: func(client kubernetes.Interface) {
+				os.Setenv("POD_NAMESPACE", "")
+				configMap := &corev1.ConfigMap{}
+				configMap.Name = constants.KubeanConfigMapName
+				configMap.Namespace = GetCurrentNSOrDefault()
+				configMap.Data = map[string]string{"CLUSTER_OPERATIONS_BACKEND_LIMIT": "10000", "SPRAY_JOB_IMAGE_REGISTRY": "ghcr.io"}
+				client.CoreV1().ConfigMaps(GetCurrentNSOrDefault()).Create(context.Background(), configMap, metav1.CreateOptions{})
+			},
+			want: cluster.ConfigProperty{
+				ClusterOperationsBackEndLimit: "10000",
+				SprayJobImageRegistry:         "ghcr.io",
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.args(test.client)
+			result := FetchKubeanConfigProperty(test.client)
+			if result.ClusterOperationsBackEndLimit != test.want.ClusterOperationsBackEndLimit || result.SprayJobImageRegistry != test.want.SprayJobImageRegistry {
+				t.Fatal()
+			}
+		})
+	}
+}
+
+func TestGetClusterOperationsBackEndLimit(t *testing.T) {
+	tests := []struct {
+		name     string
+		limit    string
+		expected int
+	}{
+		{
+			name:     "valid limit",
+			limit:    "5",
+			expected: 5,
+		},
+		{
+			name:     "invalid limit, use default",
+			limit:    "0",
+			expected: constants.DefaultClusterOperationsBackEndLimit,
+		},
+		{
+			name:     "invalid limit, use max",
+			limit:    "300",
+			expected: constants.MaxClusterOperationsBackEndLimit,
+		},
+		{
+			name:     "invalid format, use default",
+			limit:    "abc",
+			expected: constants.DefaultClusterOperationsBackEndLimit,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			config := &cluster.ConfigProperty{
+				ClusterOperationsBackEndLimit: tt.limit,
+			}
+			if got := config.GetClusterOperationsBackEndLimit(); got != tt.expected {
+				t.Errorf("GetClusterOperationsBackEndLimit() = %v, want %v", got, tt.expected)
 			}
 		})
 	}
