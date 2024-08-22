@@ -9,6 +9,7 @@ metadata:
     kubean.io/sprayTimestamp: "1718092511"
     kubean.io/sprayRelease: "2.24"
     kubean.io/sprayCommit: "5377247"
+    helm.sh/resource-policy: keep
 spec:
   kubesprayVersion: "5377247d9a12035844d8854ea0a001c714c9eef9"
   kubeanVersion: ""
