@@ -1,2 +1,2 @@
-kubespray_version: 86f980393c3e3239853c79a48d49a247e3b8dddc
+kubespray_version: 2f84567a6911b7258d17a967081b1d464990473d
 kubernetes_version: v1.29.5
