@@ -191,6 +191,9 @@ func (c *Controller) UpdateLocalService(manifests []manifestv1alpha1.Manifest) b
 // UpdateLocalAvailableImage update image infos into status.
 func (c *Controller) UpdateLocalAvailableImage(manifests []manifestv1alpha1.Manifest) {
 	imageRepo := util.FetchKubeanConfigProperty(c.ClientSet).SprayJobImageRegistry
+	if imageRepo == "" {
+		imageRepo = "ghcr.m.daocloud.io"
+	}
 	for _, manifest := range manifests {
 		var newImageName string
 		sprayRelease := manifest.ObjectMeta.Annotations[constants.KeySprayRelease]

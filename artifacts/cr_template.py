@@ -58,10 +58,13 @@ metadata:
     kubean.io/sprayTimestamp: "{{ sprayInfo.sprayCommitTimestamp }}"
     kubean.io/sprayRelease: "{{ sprayInfo.sprayRlease }}"
     kubean.io/sprayCommit: "{{ sprayInfo.sprayCommitShort }}"
+    helm.sh/resource-policy: keep
 {%- else %}
   name: "manifest-{{ kubeanTag|replace('.', '-') }}"
   labels:
     kubean.io/sprayRelease: master
+  annotations:
+    helm.sh/resource-policy: keep
 {%- endif %}
 spec:
   kubesprayVersion: "{{ sprayInfo.sprayCommit }}"
