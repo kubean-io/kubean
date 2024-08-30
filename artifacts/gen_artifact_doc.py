@@ -45,7 +45,7 @@ KUBEAN_PATCH_TEMPLATE = '''
 if __name__ == '__main__':
   try:
     repo_name="kubean-manifest"
-    subprocess.run(["/usr/bing/git", "clone", f"https://github.com/{IMAGE_REPO}/{repo_name}.git"], check=True)
+    subprocess.run(["/usr/bin/git", "clone", f"https://github.com/{IMAGE_REPO}/{repo_name}.git"], check=True)
     manifests_path=f'{repo_name}/manifests'
     rls_pattern = re.compile(r'manifest-(\d+\.\d+)-.*\.yml')
 
