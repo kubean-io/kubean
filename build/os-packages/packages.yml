@@ -46,6 +46,17 @@ redhat8:
 redhat9:
   - container-selinux
 
+rocky8:
+  - container-selinux
+  - socat
+  - container-selinux-2.167.0
+  - containerd.io-1.6.28-3.1.el8
+  - containerd.io-1.6.32-3.1.el8
+  - docker-ce-3:24.0.9-1.el8
+  - docker-ce-cli-1:24.0.9-1.el8
+  - docker-ce-3:26.1.2-1.el8
+  - docker-ce-cli-1:26.1.2-1.el8
+
 rocky9:
   - container-selinux
   - socat

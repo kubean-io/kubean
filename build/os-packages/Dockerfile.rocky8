@@ -1,0 +1,25 @@
+ARG OS_NAME=rocky
+
+FROM rockylinux:8 as os-rocky8
+ARG OS_NAME
+ARG OS_VERSION=8
+ARG BUILD_TOOLS="yum-utils createrepo epel-release wget modulemd-tools findutils"
+
+WORKDIR /$OS_NAME/$OS_VERSION/os
+COPY build/os-packages/packages.yml .
+COPY build/os-packages/repos/centos8.repo /etc/yum.repos.d/
+COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.common[],.yum[],.rocky8[]' packages.yml > packages.list
+
+RUN ARCH=$(uname -m) \
+    && dnf install -q -y ${BUILD_TOOLS} \
+    && yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo \
+    && dnf makecache \
+    && sort -u packages.list | xargs repotrack --destdir ${ARCH} \
+    && createrepo_c ${ARCH} \
+    && repo2module -s stable ${ARCH} ${ARCH}/modules.yaml \
+    && modifyrepo_c --mdtype=modules ${ARCH}/modules.yaml ${ARCH}/repodata
+
+FROM scratch
+ARG OS_NAME
+COPY --from=os-rocky8 /$OS_NAME /resources/$OS_NAME
