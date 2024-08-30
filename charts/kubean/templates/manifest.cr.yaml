@@ -2,16 +2,16 @@
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
 metadata:
-  name: "manifest-2.24-5377247"
+  name: "manifest-2.24-1688e05"
   labels:
     kubean.io/sprayRelease: "2.24"
   annotations:
-    kubean.io/sprayTimestamp: "1718092511"
+    kubean.io/sprayTimestamp: "1722236434"
     kubean.io/sprayRelease: "2.24"
-    kubean.io/sprayCommit: "5377247"
+    kubean.io/sprayCommit: "1688e05"
     helm.sh/resource-policy: keep
 spec:
-  kubesprayVersion: "5377247d9a12035844d8854ea0a001c714c9eef9"
+  kubesprayVersion: "1688e05651ed349a7e09826b918993ff547e62b0"
   kubeanVersion: ""
   docker:
     - os: redhat-7
