@@ -71,7 +71,7 @@
         if command -v crictl; then
           :
         elif [ -x '/usr/local/bin/crictl' ]; then
-          echo "/usr/bin/local/crictl"
+          echo "/usr/local/bin/crictl"
         else
           echo "not found or no execute permission" && exit 1
         fi
