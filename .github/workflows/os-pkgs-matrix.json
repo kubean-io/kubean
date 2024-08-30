@@ -3,6 +3,7 @@
   { "name": "redhat7", "dockerfile":"build/os-packages/Dockerfile.redhat7"},
   { "name": "redhat8", "dockerfile":"build/os-packages/Dockerfile.redhat8"},
   { "name": "redhat9", "dockerfile":"build/os-packages/Dockerfile.redhat9"},
+  { "name": "rocky8", "dockerfile":"build/os-packages/Dockerfile.rocky8"},
   { "name": "rocky9", "dockerfile":"build/os-packages/Dockerfile.rocky9"},
   { "name": "kylin-v10sp2", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp2"},
   { "name": "kylin-v10sp3", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp3"},

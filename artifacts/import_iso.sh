@@ -199,6 +199,9 @@ function iso::import_data() {
   if [ -d "${iso_mnt_path}/minimal" ]; then
     path_list+=("${iso_mnt_path}/minimal")
   fi 
+  if [ -d "${iso_mnt_path}/Minimal" ]; then
+    path_list+=("${iso_mnt_path}/Minimal")
+  fi 
   
   if [ "${#path_list[@]}" -le 0 ]; then
     echo "cannot find valid repo data from ${iso_file_path}"
