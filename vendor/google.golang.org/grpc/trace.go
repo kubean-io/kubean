@@ -26,6 +26,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/net/trace"
 )
 
 // EnableTracing controls whether to trace RPCs using the golang.org/x/net/trace package.
@@ -42,31 +44,9 @@ func methodFamily(m string) string {
 	return m
 }
 
-// traceEventLog mirrors golang.org/x/net/trace.EventLog.
-//
-// It exists in order to avoid importing x/net/trace on grpcnotrace builds.
-type traceEventLog interface {
-	Printf(format string, a ...any)
-	Errorf(format string, a ...any)
-	Finish()
-}
-
-// traceLog mirrors golang.org/x/net/trace.Trace.
-//
-// It exists in order to avoid importing x/net/trace on grpcnotrace builds.
-type traceLog interface {
-	LazyLog(x fmt.Stringer, sensitive bool)
-	LazyPrintf(format string, a ...any)
-	SetError()
-	SetRecycler(f func(any))
-	SetTraceInfo(traceID, spanID uint64)
-	SetMaxEvents(m int)
-	Finish()
-}
-
 // traceInfo contains tracing information for an RPC.
 type traceInfo struct {
-	tr        traceLog
+	tr        trace.Trace
 	firstLine firstLine
 }
 
@@ -117,8 +97,8 @@ func truncate(x string, l int) string {
 
 // payload represents an RPC request or response payload.
 type payload struct {
-	sent bool // whether this is an outgoing payload
-	msg  any  // e.g. a proto.Message
+	sent bool        // whether this is an outgoing payload
+	msg  interface{} // e.g. a proto.Message
 	// TODO(dsymonds): add stringifying info to codec, and limit how much we hold here?
 }
 
@@ -131,7 +111,7 @@ func (p payload) String() string {
 
 type fmtStringer struct {
 	format string
-	a      []any
+	a      []interface{}
 }
 
 func (f *fmtStringer) String() string {

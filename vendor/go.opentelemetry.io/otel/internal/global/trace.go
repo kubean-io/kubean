@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package global // import "go.opentelemetry.io/otel/internal/global"
 
@@ -28,7 +39,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
-	"go.opentelemetry.io/otel/trace/embedded"
 )
 
 // tracerProvider is a placeholder for a configured SDK TracerProvider.
@@ -36,8 +46,6 @@ import (
 // All TracerProvider functionality is forwarded to a delegate once
 // configured.
 type tracerProvider struct {
-	embedded.TracerProvider
-
 	mtx      sync.Mutex
 	tracers  map[il]*tracer
 	delegate trace.TracerProvider
@@ -86,7 +94,6 @@ func (p *tracerProvider) Tracer(name string, opts ...trace.TracerOption) trace.T
 	key := il{
 		name:    name,
 		version: c.InstrumentationVersion(),
-		schema:  c.SchemaURL(),
 	}
 
 	if p.tracers == nil {
@@ -102,15 +109,16 @@ func (p *tracerProvider) Tracer(name string, opts ...trace.TracerOption) trace.T
 	return t
 }
 
-type il struct{ name, version, schema string }
+type il struct {
+	name    string
+	version string
+}
 
 // tracer is a placeholder for a trace.Tracer.
 //
 // All Tracer functionality is forwarded to a delegate once configured.
 // Otherwise, all functionality is forwarded to a NoopTracer.
 type tracer struct {
-	embedded.Tracer
-
 	name     string
 	opts     []trace.TracerOption
 	provider *tracerProvider
@@ -148,8 +156,6 @@ func (t *tracer) Start(ctx context.Context, name string, opts ...trace.SpanStart
 // SpanContext. It performs no operations other than to return the wrapped
 // SpanContext.
 type nonRecordingSpan struct {
-	embedded.Span
-
 	sc     trace.SpanContext
 	tracer *tracer
 }
@@ -179,9 +185,6 @@ func (nonRecordingSpan) RecordError(error, ...trace.EventOption) {}
 
 // AddEvent does nothing.
 func (nonRecordingSpan) AddEvent(string, ...trace.EventOption) {}
-
-// AddLink does nothing.
-func (nonRecordingSpan) AddLink(trace.Link) {}
 
 // SetName does nothing.
 func (nonRecordingSpan) SetName(string) {}

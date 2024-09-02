@@ -20,7 +20,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"os"
+	"io/ioutil"
 	"sync/atomic"
 	"time"
 
@@ -47,7 +47,7 @@ type DynamicCertKeyPairContent struct {
 	listeners []Listener
 
 	// queue only ever has one item, but it has nice error handling backoff/retry semantics
-	queue workqueue.TypedRateLimitingInterface[string]
+	queue workqueue.RateLimitingInterface
 }
 
 var _ CertKeyContentProvider = &DynamicCertKeyPairContent{}
@@ -64,10 +64,7 @@ func NewDynamicServingContentFromFiles(purpose, certFile, keyFile string) (*Dyna
 		name:     name,
 		certFile: certFile,
 		keyFile:  keyFile,
-		queue: workqueue.NewTypedRateLimitingQueueWithConfig(
-			workqueue.DefaultTypedControllerRateLimiter[string](),
-			workqueue.TypedRateLimitingQueueConfig[string]{Name: fmt.Sprintf("DynamicCABundle-%s", purpose)},
-		),
+		queue:    workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), fmt.Sprintf("DynamicCABundle-%s", purpose)),
 	}
 	if err := ret.loadCertKeyPair(); err != nil {
 		return nil, err
@@ -83,11 +80,11 @@ func (c *DynamicCertKeyPairContent) AddListener(listener Listener) {
 
 // loadCertKeyPair determines the next set of content for the file.
 func (c *DynamicCertKeyPairContent) loadCertKeyPair() error {
-	cert, err := os.ReadFile(c.certFile)
+	cert, err := ioutil.ReadFile(c.certFile)
 	if err != nil {
 		return err
 	}
-	key, err := os.ReadFile(c.keyFile)
+	key, err := ioutil.ReadFile(c.keyFile)
 	if err != nil {
 		return err
 	}

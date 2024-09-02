@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package resource // import "go.opentelemetry.io/otel/sdk/resource"
 
@@ -58,11 +69,6 @@ func WithFromEnv() Option {
 // WithHost adds attributes from the host to the configured resource.
 func WithHost() Option {
 	return WithDetectors(host{})
-}
-
-// WithHostID adds host ID information to the configured resource.
-func WithHostID() Option {
-	return WithDetectors(hostIDDetector{})
 }
 
 // WithTelemetrySDK adds TelemetrySDK version info to the configured resource.
@@ -188,8 +194,6 @@ func WithContainer() Option {
 }
 
 // WithContainerID adds an attribute with the id of the container to the configured Resource.
-// Note: WithContainerID will not extract the correct container ID in an ECS environment.
-// Please use the ECS resource detector instead (https://pkg.go.dev/go.opentelemetry.io/contrib/detectors/aws/ecs).
 func WithContainerID() Option {
 	return WithDetectors(cgroupContainerIDDetector{})
 }

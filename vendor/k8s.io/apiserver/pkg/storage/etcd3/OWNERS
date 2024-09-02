@@ -2,6 +2,3 @@
 
 reviewers:
   - wojtek-t
-  - serathius
-labels:
-  - sig/etcd

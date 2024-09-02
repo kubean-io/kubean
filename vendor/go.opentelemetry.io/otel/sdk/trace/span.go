@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package trace // import "go.opentelemetry.io/otel/sdk/trace"
 
@@ -9,7 +20,6 @@ import (
 	"reflect"
 	"runtime"
 	rt "runtime/trace"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -17,12 +27,11 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/internal/global"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"go.opentelemetry.io/otel/sdk/internal"
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
-	"go.opentelemetry.io/otel/trace/embedded"
 )
 
 // ReadOnlySpan allows reading information from the data structure underlying a
@@ -99,8 +108,6 @@ type ReadWriteSpan interface {
 // recordingSpan is an implementation of the OpenTelemetry Span API
 // representing the individual component of a trace that is sampled.
 type recordingSpan struct {
-	embedded.Span
-
 	// mu protects the contents of this span.
 	mu sync.Mutex
 
@@ -137,13 +144,12 @@ type recordingSpan struct {
 	// ReadOnlySpan exported when the span ends.
 	attributes        []attribute.KeyValue
 	droppedAttributes int
-	logDropAttrsOnce  sync.Once
 
 	// events are stored in FIFO queue capped by configured limit.
-	events evictedQueue[Event]
+	events evictedQueue
 
 	// links are stored in FIFO queue capped by configured limit.
-	links evictedQueue[Link]
+	links evictedQueue
 
 	// executionTracerTaskEnd ends the execution tracer span.
 	executionTracerTaskEnd func()
@@ -152,10 +158,8 @@ type recordingSpan struct {
 	tracer *tracer
 }
 
-var (
-	_ ReadWriteSpan = (*recordingSpan)(nil)
-	_ runtimeTracer = (*recordingSpan)(nil)
-)
+var _ ReadWriteSpan = (*recordingSpan)(nil)
+var _ runtimeTracer = (*recordingSpan)(nil)
 
 // SpanContext returns the SpanContext of this span.
 func (s *recordingSpan) SpanContext() trace.SpanContext {
@@ -185,18 +189,15 @@ func (s *recordingSpan) SetStatus(code codes.Code, description string) {
 	if !s.IsRecording() {
 		return
 	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.status.Code > code {
-		return
-	}
 
 	status := Status{Code: code}
 	if code == codes.Error {
 		status.Description = description
 	}
 
+	s.mu.Lock()
 	s.status = status
+	s.mu.Unlock()
 }
 
 // SetAttributes sets attributes of this span.
@@ -220,7 +221,7 @@ func (s *recordingSpan) SetAttributes(attributes ...attribute.KeyValue) {
 	limit := s.tracer.provider.spanLimits.AttributeCountLimit
 	if limit == 0 {
 		// No attributes allowed.
-		s.addDroppedAttr(len(attributes))
+		s.droppedAttributes += len(attributes)
 		return
 	}
 
@@ -233,32 +234,15 @@ func (s *recordingSpan) SetAttributes(attributes ...attribute.KeyValue) {
 
 	// Otherwise, add without deduplication. When attributes are read they
 	// will be deduplicated, optimizing the operation.
-	s.attributes = slices.Grow(s.attributes, len(s.attributes)+len(attributes))
 	for _, a := range attributes {
 		if !a.Valid() {
 			// Drop all invalid attributes.
-			s.addDroppedAttr(1)
+			s.droppedAttributes++
 			continue
 		}
 		a = truncateAttr(s.tracer.provider.spanLimits.AttributeValueLengthLimit, a)
 		s.attributes = append(s.attributes, a)
 	}
-}
-
-// Declared as a var so tests can override.
-var logDropAttrs = func() {
-	global.Warn("limit reached: dropping trace Span attributes")
-}
-
-// addDroppedAttr adds incr to the count of dropped attributes.
-//
-// The first, and only the first, time this method is called a warning will be
-// logged.
-//
-// This method assumes s.mu.Lock is held by the caller.
-func (s *recordingSpan) addDroppedAttr(incr int) {
-	s.droppedAttributes += incr
-	s.logDropAttrsOnce.Do(logDropAttrs)
 }
 
 // addOverCapAttrs adds the attributes attrs to the span s while
@@ -285,12 +269,10 @@ func (s *recordingSpan) addOverCapAttrs(limit int, attrs []attribute.KeyValue) {
 
 	// Now that s.attributes is deduplicated, adding unique attributes up to
 	// the capacity of s will not over allocate s.attributes.
-	sum := len(attrs) + len(s.attributes)
-	s.attributes = slices.Grow(s.attributes, min(sum, limit))
 	for _, a := range attrs {
 		if !a.Valid() {
 			// Drop all invalid attributes.
-			s.addDroppedAttr(1)
+			s.droppedAttributes++
 			continue
 		}
 
@@ -303,7 +285,7 @@ func (s *recordingSpan) addOverCapAttrs(limit int, attrs []attribute.KeyValue) {
 		if len(s.attributes) >= limit {
 			// Do not just drop all of the remaining attributes, make sure
 			// updates are checked and performed.
-			s.addDroppedAttr(1)
+			s.droppedAttributes++
 		} else {
 			a = truncateAttr(s.tracer.provider.spanLimits.AttributeValueLengthLimit, a)
 			s.attributes = append(s.attributes, a)
@@ -317,7 +299,7 @@ func (s *recordingSpan) addOverCapAttrs(limit int, attrs []attribute.KeyValue) {
 // most a length of limit. Each string slice value is truncated in this fashion
 // (the slice length itself is unaffected).
 //
-// No truncation is performed for a negative limit.
+// No truncation is perfromed for a negative limit.
 func truncateAttr(limit int, attr attribute.KeyValue) attribute.KeyValue {
 	if limit < 0 {
 		return attr
@@ -328,13 +310,26 @@ func truncateAttr(limit int, attr attribute.KeyValue) attribute.KeyValue {
 			return attr.Key.String(safeTruncate(v, limit))
 		}
 	case attribute.STRINGSLICE:
-		v := attr.Value.AsStringSlice()
+		// Do no mutate the original, make a copy.
+		trucated := attr.Key.StringSlice(attr.Value.AsStringSlice())
+		// Do not do this.
+		//
+		//   v := trucated.Value.AsStringSlice()
+		//   cp := make([]string, len(v))
+		//   /* Copy and truncate values to cp ... */
+		//   trucated.Value = attribute.StringSliceValue(cp)
+		//
+		// Copying the []string and then assigning it back as a new value with
+		// attribute.StringSliceValue will copy the data twice. Instead, we
+		// already made a copy above that only this function owns, update the
+		// underlying slice data of our copy.
+		v := trucated.Value.AsStringSlice()
 		for i := range v {
 			if len(v[i]) > limit {
 				v[i] = safeTruncate(v[i], limit)
 			}
 		}
-		return attr.Key.StringSlice(v)
+		return trucated
 	}
 	return attr
 }
@@ -384,7 +379,7 @@ func (s *recordingSpan) End(options ...trace.SpanEndOption) {
 
 	// Store the end time as soon as possible to avoid artificially increasing
 	// the span's duration in case some operation below takes a while.
-	et := monotonicEndTime(s.startTime)
+	et := internal.MonotonicEndTime(s.startTime)
 
 	// Do relative expensive check now that we have an end time and see if we
 	// need to do any more processing.
@@ -398,14 +393,14 @@ func (s *recordingSpan) End(options ...trace.SpanEndOption) {
 		defer panic(recovered)
 		opts := []trace.EventOption{
 			trace.WithAttributes(
-				semconv.ExceptionType(typeStr(recovered)),
-				semconv.ExceptionMessage(fmt.Sprint(recovered)),
+				semconv.ExceptionTypeKey.String(typeStr(recovered)),
+				semconv.ExceptionMessageKey.String(fmt.Sprint(recovered)),
 			),
 		}
 
 		if config.StackTrace() {
 			opts = append(opts, trace.WithAttributes(
-				semconv.ExceptionStacktrace(recordStackTrace()),
+				semconv.ExceptionStacktraceKey.String(recordStackTrace()),
 			))
 		}
 
@@ -425,24 +420,15 @@ func (s *recordingSpan) End(options ...trace.SpanEndOption) {
 	}
 	s.mu.Unlock()
 
-	sps := s.tracer.provider.getSpanProcessors()
-	if len(sps) == 0 {
-		return
+	if sps, ok := s.tracer.provider.spanProcessors.Load().(spanProcessorStates); ok {
+		if len(sps) == 0 {
+			return
+		}
+		snap := s.snapshot()
+		for _, sp := range sps {
+			sp.sp.OnEnd(snap)
+		}
 	}
-	snap := s.snapshot()
-	for _, sp := range sps {
-		sp.sp.OnEnd(snap)
-	}
-}
-
-// monotonicEndTime returns the end time at present but offset from start,
-// monotonically.
-//
-// The monotonic clock is used in subtractions hence the duration since start
-// added back to start gives end as a monotonic time. See
-// https://golang.org/pkg/time/#hdr-Monotonic_Clocks
-func monotonicEndTime(start time.Time) time.Time {
-	return start.Add(time.Since(start))
 }
 
 // RecordError will record err as a span event for this span. An additional call to
@@ -455,14 +441,14 @@ func (s *recordingSpan) RecordError(err error, opts ...trace.EventOption) {
 	}
 
 	opts = append(opts, trace.WithAttributes(
-		semconv.ExceptionType(typeStr(err)),
-		semconv.ExceptionMessage(err.Error()),
+		semconv.ExceptionTypeKey.String(typeStr(err)),
+		semconv.ExceptionMessageKey.String(err.Error()),
 	))
 
 	c := trace.NewEventConfig(opts...)
 	if c.StackTrace() {
 		opts = append(opts, trace.WithAttributes(
-			semconv.ExceptionStacktrace(recordStackTrace()),
+			semconv.ExceptionStacktraceKey.String(recordStackTrace()),
 		))
 	}
 
@@ -612,7 +598,7 @@ func (s *recordingSpan) Links() []Link {
 	if len(s.links.queue) == 0 {
 		return []Link{}
 	}
-	return s.links.copy()
+	return s.interfaceArrayToLinksArray()
 }
 
 // Events returns the events of this span.
@@ -622,7 +608,7 @@ func (s *recordingSpan) Events() []Event {
 	if len(s.events.queue) == 0 {
 		return []Event{}
 	}
-	return s.events.copy()
+	return s.interfaceArrayToEventArray()
 }
 
 // Status returns the status of this span.
@@ -656,12 +642,8 @@ func (s *recordingSpan) Resource() *resource.Resource {
 	return s.tracer.provider.resource
 }
 
-func (s *recordingSpan) AddLink(link trace.Link) {
-	if !s.IsRecording() {
-		return
-	}
-	if !link.SpanContext.IsValid() && len(link.Attributes) == 0 &&
-		link.SpanContext.TraceState().Len() == 0 {
+func (s *recordingSpan) addLink(link trace.Link) {
+	if !s.IsRecording() || !link.SpanContext.IsValid() {
 		return
 	}
 
@@ -744,14 +726,30 @@ func (s *recordingSpan) snapshot() ReadOnlySpan {
 	}
 	sd.droppedAttributeCount = s.droppedAttributes
 	if len(s.events.queue) > 0 {
-		sd.events = s.events.copy()
+		sd.events = s.interfaceArrayToEventArray()
 		sd.droppedEventCount = s.events.droppedCount
 	}
 	if len(s.links.queue) > 0 {
-		sd.links = s.links.copy()
+		sd.links = s.interfaceArrayToLinksArray()
 		sd.droppedLinkCount = s.links.droppedCount
 	}
 	return &sd
+}
+
+func (s *recordingSpan) interfaceArrayToLinksArray() []Link {
+	linkArr := make([]Link, 0)
+	for _, value := range s.links.queue {
+		linkArr = append(linkArr, value.(Link))
+	}
+	return linkArr
+}
+
+func (s *recordingSpan) interfaceArrayToEventArray() []Event {
+	eventArr := make([]Event, 0)
+	for _, value := range s.events.queue {
+		eventArr = append(eventArr, value.(Event))
+	}
+	return eventArr
 }
 
 func (s *recordingSpan) addChild() {
@@ -785,8 +783,6 @@ func (s *recordingSpan) runtimeTrace(ctx context.Context) context.Context {
 // that wraps a SpanContext. It performs no operations other than to return
 // the wrapped SpanContext or TracerProvider that created it.
 type nonRecordingSpan struct {
-	embedded.Span
-
 	// tracer is the SDK tracer that created this span.
 	tracer *tracer
 	sc     trace.SpanContext
@@ -817,9 +813,6 @@ func (nonRecordingSpan) RecordError(error, ...trace.EventOption) {}
 
 // AddEvent does nothing.
 func (nonRecordingSpan) AddEvent(string, ...trace.EventOption) {}
-
-// AddLink does nothing.
-func (nonRecordingSpan) AddLink(trace.Link) {}
 
 // SetName does nothing.
 func (nonRecordingSpan) SetName(string) {}

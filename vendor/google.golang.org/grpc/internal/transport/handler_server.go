@@ -35,78 +35,51 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/http2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/internal/grpclog"
 	"google.golang.org/grpc/internal/grpcutil"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 )
 
-// NewServerHandlerTransport returns a ServerTransport handling gRPC from
-// inside an http.Handler, or writes an HTTP error to w and returns an error.
-// It requires that the http Server supports HTTP/2.
+// NewServerHandlerTransport returns a ServerTransport handling gRPC
+// from inside an http.Handler. It requires that the http Server
+// supports HTTP/2.
 func NewServerHandlerTransport(w http.ResponseWriter, r *http.Request, stats []stats.Handler) (ServerTransport, error) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		msg := fmt.Sprintf("invalid gRPC request method %q", r.Method)
-		http.Error(w, msg, http.StatusMethodNotAllowed)
-		return nil, errors.New(msg)
+	if r.ProtoMajor != 2 {
+		return nil, errors.New("gRPC requires HTTP/2")
+	}
+	if r.Method != "POST" {
+		return nil, errors.New("invalid gRPC request method")
 	}
 	contentType := r.Header.Get("Content-Type")
 	// TODO: do we assume contentType is lowercase? we did before
 	contentSubtype, validContentType := grpcutil.ContentSubtype(contentType)
 	if !validContentType {
-		msg := fmt.Sprintf("invalid gRPC request content-type %q", contentType)
-		http.Error(w, msg, http.StatusUnsupportedMediaType)
-		return nil, errors.New(msg)
-	}
-	if r.ProtoMajor != 2 {
-		msg := "gRPC requires HTTP/2"
-		http.Error(w, msg, http.StatusHTTPVersionNotSupported)
-		return nil, errors.New(msg)
+		return nil, errors.New("invalid gRPC request content-type")
 	}
 	if _, ok := w.(http.Flusher); !ok {
-		msg := "gRPC requires a ResponseWriter supporting http.Flusher"
-		http.Error(w, msg, http.StatusInternalServerError)
-		return nil, errors.New(msg)
+		return nil, errors.New("gRPC requires a ResponseWriter supporting http.Flusher")
 	}
 
-	var localAddr net.Addr
-	if la := r.Context().Value(http.LocalAddrContextKey); la != nil {
-		localAddr, _ = la.(net.Addr)
-	}
-	var authInfo credentials.AuthInfo
-	if r.TLS != nil {
-		authInfo = credentials.TLSInfo{State: *r.TLS, CommonAuthInfo: credentials.CommonAuthInfo{SecurityLevel: credentials.PrivacyAndIntegrity}}
-	}
-	p := peer.Peer{
-		Addr:      strAddr(r.RemoteAddr),
-		LocalAddr: localAddr,
-		AuthInfo:  authInfo,
-	}
 	st := &serverHandlerTransport{
 		rw:             w,
 		req:            r,
 		closedCh:       make(chan struct{}),
 		writes:         make(chan func()),
-		peer:           p,
 		contentType:    contentType,
 		contentSubtype: contentSubtype,
 		stats:          stats,
 	}
-	st.logger = prefixLoggerForServerHandlerTransport(st)
 
 	if v := r.Header.Get("grpc-timeout"); v != "" {
 		to, err := decodeTimeout(v)
 		if err != nil {
-			msg := fmt.Sprintf("malformed grpc-timeout: %v", err)
-			http.Error(w, msg, http.StatusBadRequest)
-			return nil, status.Error(codes.Internal, msg)
+			return nil, status.Errorf(codes.Internal, "malformed time-out: %v", err)
 		}
 		st.timeoutSet = true
 		st.timeout = to
@@ -124,9 +97,7 @@ func NewServerHandlerTransport(w http.ResponseWriter, r *http.Request, stats []s
 		for _, v := range vv {
 			v, err := decodeMetadataHeader(k, v)
 			if err != nil {
-				msg := fmt.Sprintf("malformed binary metadata %q in header %q: %v", v, k, err)
-				http.Error(w, msg, http.StatusBadRequest)
-				return nil, status.Error(codes.Internal, msg)
+				return nil, status.Errorf(codes.Internal, "malformed binary metadata: %v", err)
 			}
 			metakv = append(metakv, k, v)
 		}
@@ -149,8 +120,6 @@ type serverHandlerTransport struct {
 
 	headerMD metadata.MD
 
-	peer peer.Peer
-
 	closeOnce sync.Once
 	closedCh  chan struct{} // closed on Close
 
@@ -169,26 +138,16 @@ type serverHandlerTransport struct {
 	// TODO make sure this is consistent across handler_server and http2_server
 	contentSubtype string
 
-	stats  []stats.Handler
-	logger *grpclog.PrefixLogger
+	stats []stats.Handler
 }
 
-func (ht *serverHandlerTransport) Close(err error) {
-	ht.closeOnce.Do(func() {
-		if ht.logger.V(logLevel) {
-			ht.logger.Infof("Closing: %v", err)
-		}
-		close(ht.closedCh)
-	})
+func (ht *serverHandlerTransport) Close() {
+	ht.closeOnce.Do(ht.closeCloseChanOnce)
 }
 
-func (ht *serverHandlerTransport) Peer() *peer.Peer {
-	return &peer.Peer{
-		Addr:      ht.peer.Addr,
-		LocalAddr: ht.peer.LocalAddr,
-		AuthInfo:  ht.peer.AuthInfo,
-	}
-}
+func (ht *serverHandlerTransport) closeCloseChanOnce() { close(ht.closedCh) }
+
+func (ht *serverHandlerTransport) RemoteAddr() net.Addr { return strAddr(ht.req.RemoteAddr) }
 
 // strAddr is a net.Addr backed by either a TCP "ip:port" string, or
 // the empty string if unknown.
@@ -243,20 +202,18 @@ func (ht *serverHandlerTransport) WriteStatus(s *Stream, st *status.Status) erro
 			h.Set("Grpc-Message", encodeGrpcMessage(m))
 		}
 
-		s.hdrMu.Lock()
 		if p := st.Proto(); p != nil && len(p.Details) > 0 {
-			delete(s.trailer, grpcStatusDetailsBinHeader)
 			stBytes, err := proto.Marshal(p)
 			if err != nil {
 				// TODO: return error instead, when callers are able to handle it.
 				panic(err)
 			}
 
-			h.Set(grpcStatusDetailsBinHeader, encodeBinHeader(stBytes))
+			h.Set("Grpc-Status-Details-Bin", encodeBinHeader(stBytes))
 		}
 
-		if len(s.trailer) > 0 {
-			for k, vv := range s.trailer {
+		if md := s.Trailer(); len(md) > 0 {
+			for k, vv := range md {
 				// Clients don't tolerate reading restricted headers after some non restricted ones were sent.
 				if isReservedHeader(k) {
 					continue
@@ -268,7 +225,6 @@ func (ht *serverHandlerTransport) WriteStatus(s *Stream, st *status.Status) erro
 				}
 			}
 		}
-		s.hdrMu.Unlock()
 	})
 
 	if err == nil { // transport has not been closed
@@ -280,7 +236,7 @@ func (ht *serverHandlerTransport) WriteStatus(s *Stream, st *status.Status) erro
 			})
 		}
 	}
-	ht.Close(errors.New("finished writing status"))
+	ht.Close()
 	return err
 }
 
@@ -313,7 +269,7 @@ func (ht *serverHandlerTransport) writeCommonHeaders(s *Stream) {
 }
 
 // writeCustomHeaders sets custom headers set on the stream via SetHeader
-// on the first write call (Write, WriteHeader, or WriteStatus)
+// on the first write call (Write, WriteHeader, or WriteStatus).
 func (ht *serverHandlerTransport) writeCustomHeaders(s *Stream) {
 	h := ht.rw.Header()
 
@@ -370,8 +326,10 @@ func (ht *serverHandlerTransport) WriteHeader(s *Stream, md metadata.MD) error {
 	return err
 }
 
-func (ht *serverHandlerTransport) HandleStreams(ctx context.Context, startStream func(*Stream)) {
+func (ht *serverHandlerTransport) HandleStreams(startStream func(*Stream), traceCtx func(context.Context, string) context.Context) {
 	// With this transport type there will be exactly 1 stream: this HTTP request.
+
+	ctx := ht.req.Context()
 	var cancel context.CancelFunc
 	if ht.timeoutSet {
 		ctx, cancel = context.WithTimeout(ctx, ht.timeout)
@@ -388,22 +346,37 @@ func (ht *serverHandlerTransport) HandleStreams(ctx context.Context, startStream
 		case <-ht.req.Context().Done():
 		}
 		cancel()
-		ht.Close(errors.New("request is done processing"))
+		ht.Close()
 	}()
 
-	ctx = metadata.NewIncomingContext(ctx, ht.headerMD)
 	req := ht.req
+
 	s := &Stream{
-		id:               0, // irrelevant
-		ctx:              ctx,
-		requestRead:      func(int) {},
-		cancel:           cancel,
-		buf:              newRecvBuffer(),
-		st:               ht,
-		method:           req.URL.Path,
-		recvCompress:     req.Header.Get("grpc-encoding"),
-		contentSubtype:   ht.contentSubtype,
-		headerWireLength: 0, // won't have access to header wire length until golang/go#18997.
+		id:             0, // irrelevant
+		requestRead:    func(int) {},
+		cancel:         cancel,
+		buf:            newRecvBuffer(),
+		st:             ht,
+		method:         req.URL.Path,
+		recvCompress:   req.Header.Get("grpc-encoding"),
+		contentSubtype: ht.contentSubtype,
+	}
+	pr := &peer.Peer{
+		Addr: ht.RemoteAddr(),
+	}
+	if req.TLS != nil {
+		pr.AuthInfo = credentials.TLSInfo{State: *req.TLS, CommonAuthInfo: credentials.CommonAuthInfo{SecurityLevel: credentials.PrivacyAndIntegrity}}
+	}
+	ctx = metadata.NewIncomingContext(ctx, ht.headerMD)
+	s.ctx = peer.NewContext(ctx, pr)
+	for _, sh := range ht.stats {
+		s.ctx = sh.TagRPC(s.ctx, &stats.RPCTagInfo{FullMethodName: s.method})
+		inHeader := &stats.InHeader{
+			FullMethod:  s.method,
+			RemoteAddr:  ht.RemoteAddr(),
+			Compression: s.recvCompress,
+		}
+		sh.HandleRPC(s.ctx, inHeader)
 	}
 	s.trReader = &transportReader{
 		reader:        &recvBufferReader{ctx: s.ctx, ctxDone: s.ctx.Done(), recv: s.buf, freeBuffer: func(*bytes.Buffer) {}},
@@ -462,17 +435,17 @@ func (ht *serverHandlerTransport) IncrMsgSent() {}
 
 func (ht *serverHandlerTransport) IncrMsgRecv() {}
 
-func (ht *serverHandlerTransport) Drain(debugData string) {
+func (ht *serverHandlerTransport) Drain() {
 	panic("Drain() is not implemented")
 }
 
 // mapRecvMsgError returns the non-nil err into the appropriate
 // error value as expected by callers of *grpc.parser.recvMsg.
 // In particular, in can only be:
-//   - io.EOF
-//   - io.ErrUnexpectedEOF
-//   - of type transport.ConnectionError
-//   - an error from the status package
+//   * io.EOF
+//   * io.ErrUnexpectedEOF
+//   * of type transport.ConnectionError
+//   * an error from the status package
 func mapRecvMsgError(err error) error {
 	if err == io.EOF || err == io.ErrUnexpectedEOF {
 		return err

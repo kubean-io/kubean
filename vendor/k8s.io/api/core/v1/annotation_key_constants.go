@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// This file should be consistent with pkg/apis/core/annotation_key_constants.go.
+// This file should be consistent with pkg/api/annotation_key_constants.go.
 
 package v1
 
@@ -54,18 +54,21 @@ const (
 	// SeccompLocalhostProfileNamePrefix is the prefix for specifying profiles loaded from the node's disk.
 	SeccompLocalhostProfileNamePrefix = "localhost/"
 
-	// DeprecatedAppArmorBetaContainerAnnotationKeyPrefix is the prefix to an annotation key specifying a container's apparmor profile.
-	// Deprecated: use a pod or container security context `appArmorProfile` field instead.
-	DeprecatedAppArmorBetaContainerAnnotationKeyPrefix = "container.apparmor.security.beta.kubernetes.io/"
+	// AppArmorBetaContainerAnnotationKeyPrefix is the prefix to an annotation key specifying a container's apparmor profile.
+	AppArmorBetaContainerAnnotationKeyPrefix = "container.apparmor.security.beta.kubernetes.io/"
+	// AppArmorBetaDefaultProfileAnnotatoinKey is the annotation key specifying the default AppArmor profile.
+	AppArmorBetaDefaultProfileAnnotationKey = "apparmor.security.beta.kubernetes.io/defaultProfileName"
+	// AppArmorBetaAllowedProfileAnnotationKey is the annotation key specifying the allowed AppArmor profiles.
+	AppArmorBetaAllowedProfilesAnnotationKey = "apparmor.security.beta.kubernetes.io/allowedProfileNames"
 
-	// DeprecatedAppArmorBetaProfileRuntimeDefault is the profile specifying the runtime default.
-	DeprecatedAppArmorBetaProfileRuntimeDefault = "runtime/default"
+	// AppArmorBetaProfileRuntimeDefault is the profile specifying the runtime default.
+	AppArmorBetaProfileRuntimeDefault = "runtime/default"
 
-	// DeprecatedAppArmorBetaProfileNamePrefix is the prefix for specifying profiles loaded on the node.
-	DeprecatedAppArmorBetaProfileNamePrefix = "localhost/"
+	// AppArmorBetaProfileNamePrefix is the prefix for specifying profiles loaded on the node.
+	AppArmorBetaProfileNamePrefix = "localhost/"
 
-	// DeprecatedAppArmorBetaProfileNameUnconfined is the Unconfined AppArmor profile
-	DeprecatedAppArmorBetaProfileNameUnconfined = "unconfined"
+	// AppArmorBetaProfileNameUnconfined is the Unconfined AppArmor profile
+	AppArmorBetaProfileNameUnconfined = "unconfined"
 
 	// DeprecatedSeccompProfileDockerDefault represents the default seccomp profile used by docker.
 	// Deprecated: set a pod or container security context `seccompProfile` of type "RuntimeDefault" instead.
@@ -75,7 +78,7 @@ const (
 	// in the Annotations of a Node.
 	PreferAvoidPodsAnnotationKey string = "scheduler.alpha.kubernetes.io/preferAvoidPods"
 
-	// ObjectTTLAnnotationKey represents a suggestion for kubelet for how long it can cache
+	// ObjectTTLAnnotations represents a suggestion for kubelet for how long it can cache
 	// an object (e.g. secret, config map) before fetching it again from apiserver.
 	// This annotation can be attached to node.
 	ObjectTTLAnnotationKey string = "node.alpha.kubernetes.io/ttl"
@@ -141,19 +144,8 @@ const (
 	// This annotation is beta-level and is only honored when PodDeletionCost feature is enabled.
 	PodDeletionCost = "controller.kubernetes.io/pod-deletion-cost"
 
-	// DeprecatedAnnotationTopologyAwareHints can be used to enable or disable
-	// Topology Aware Hints for a Service. This may be set to "Auto" or
-	// "Disabled". Any other value is treated as "Disabled". This annotation has
-	// been deprecated in favor of the "service.kubernetes.io/topology-mode"
-	// annotation.
-	DeprecatedAnnotationTopologyAwareHints = "service.kubernetes.io/topology-aware-hints"
-
-	// AnnotationTopologyMode can be used to enable or disable Topology Aware
-	// Routing for a Service. Well known values are "Auto" and "Disabled".
-	// Implementations may choose to develop new topology approaches, exposing
-	// them with domain-prefixed values. For example, "example.com/lowest-rtt"
-	// could be a valid implementation-specific value for this annotation. These
-	// heuristics will often populate topology hints on EndpointSlices, but that
-	// is not a requirement.
-	AnnotationTopologyMode = "service.kubernetes.io/topology-mode"
+	// AnnotationTopologyAwareHints can be used to enable or disable Topology
+	// Aware Hints for a Service. This may be set to "Auto" or "Disabled". Any
+	// other value is treated as "Disabled".
+	AnnotationTopologyAwareHints = "service.kubernetes.io/topology-aware-hints"
 )

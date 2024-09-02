@@ -17,7 +17,10 @@ package cel
 import (
 	"context"
 	"fmt"
+	"math"
 	"sync"
+
+	exprpb "google.golang.org/genproto/googleapis/api/expr/v1alpha1"
 
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/common/types/ref"
@@ -28,7 +31,7 @@ import (
 type Program interface {
 	// Eval returns the result of an evaluation of the Ast and environment against the input vars.
 	//
-	// The vars value may either be an `interpreter.Activation` or a `map[string]any`.
+	// The vars value may either be an `interpreter.Activation` or a `map[string]interface{}`.
 	//
 	// If the `OptTrackState`, `OptTrackCost` or `OptExhaustiveEval` flags are used, the `details` response will
 	// be non-nil. Given this caveat on `details`, the return state from evaluation will be:
@@ -40,16 +43,16 @@ type Program interface {
 	// An unsuccessful evaluation is typically the result of a series of incompatible `EnvOption`
 	// or `ProgramOption` values used in the creation of the evaluation environment or executable
 	// program.
-	Eval(any) (ref.Val, *EvalDetails, error)
+	Eval(interface{}) (ref.Val, *EvalDetails, error)
 
 	// ContextEval evaluates the program with a set of input variables and a context object in order
 	// to support cancellation and timeouts. This method must be used in conjunction with the
 	// InterruptCheckFrequency() option for cancellation interrupts to be impact evaluation.
 	//
-	// The vars value may either be an `interpreter.Activation` or `map[string]any`.
+	// The vars value may either be an `interpreter.Activation` or `map[string]interface{}`.
 	//
 	// The output contract for `ContextEval` is otherwise identical to the `Eval` method.
-	ContextEval(context.Context, any) (ref.Val, *EvalDetails, error)
+	ContextEval(context.Context, interface{}) (ref.Val, *EvalDetails, error)
 }
 
 // NoVars returns an empty Activation.
@@ -60,12 +63,9 @@ func NoVars() interpreter.Activation {
 // PartialVars returns a PartialActivation which contains variables and a set of AttributePattern
 // values that indicate variables or parts of variables whose value are not yet known.
 //
-// This method relies on manually configured sets of missing attribute patterns. For a method which
-// infers the missing variables from the input and the configured environment, use Env.PartialVars().
-//
 // The `vars` value may either be an interpreter.Activation or any valid input to the
 // interpreter.NewActivation call.
-func PartialVars(vars any,
+func PartialVars(vars interface{},
 	unknowns ...*interpreter.AttributePattern) (interpreter.PartialActivation, error) {
 	return interpreter.NewPartialActivation(vars, unknowns...)
 }
@@ -105,7 +105,7 @@ func (ed *EvalDetails) State() interpreter.EvalState {
 // ActualCost returns the tracked cost through the course of execution when `CostTracking` is enabled.
 // Otherwise, returns nil if the cost was not enabled.
 func (ed *EvalDetails) ActualCost() *uint64 {
-	if ed == nil || ed.costTracker == nil {
+	if ed.costTracker == nil {
 		return nil
 	}
 	cost := ed.costTracker.ActualCost()
@@ -129,14 +129,10 @@ type prog struct {
 	// Interpretable configured from an Ast and aggregate decorator set based on program options.
 	interpretable     interpreter.Interpretable
 	callCostEstimator interpreter.ActualCostEstimator
-	costOptions       []interpreter.CostTrackerOption
 	costLimit         *uint64
 }
 
 func (p *prog) clone() *prog {
-	costOptsCopy := make([]interpreter.CostTrackerOption, len(p.costOptions))
-	copy(costOptsCopy, p.costOptions)
-
 	return &prog{
 		Env:                     p.Env,
 		evalOpts:                p.evalOpts,
@@ -151,17 +147,16 @@ func (p *prog) clone() *prog {
 // ProgramOption values.
 //
 // If the program cannot be configured the prog will be nil, with a non-nil error response.
-func newProgram(e *Env, a *Ast, opts []ProgramOption) (Program, error) {
+func newProgram(e *Env, ast *Ast, opts []ProgramOption) (Program, error) {
 	// Build the dispatcher, interpreter, and default program value.
 	disp := interpreter.NewDispatcher()
 
 	// Ensure the default attribute factory is set after the adapter and provider are
 	// configured.
 	p := &prog{
-		Env:         e,
-		decorators:  []interpreter.InterpretableDecorator{},
-		dispatcher:  disp,
-		costOptions: []interpreter.CostTrackerOption{},
+		Env:        e,
+		decorators: []interpreter.InterpretableDecorator{},
+		dispatcher: disp,
 	}
 
 	// Configure the program via the ProgramOption values.
@@ -175,7 +170,7 @@ func newProgram(e *Env, a *Ast, opts []ProgramOption) (Program, error) {
 
 	// Add the function bindings created via Function() options.
 	for _, fn := range e.functions {
-		bindings, err := fn.Bindings()
+		bindings, err := fn.bindings()
 		if err != nil {
 			return nil, err
 		}
@@ -218,12 +213,6 @@ func newProgram(e *Env, a *Ast, opts []ProgramOption) (Program, error) {
 		factory := func(state interpreter.EvalState, costTracker *interpreter.CostTracker) (Program, error) {
 			costTracker.Estimator = p.callCostEstimator
 			costTracker.Limit = p.costLimit
-			for _, costOpt := range p.costOptions {
-				err := costOpt(costTracker)
-				if err != nil {
-					return nil, err
-				}
-			}
 			// Limit capacity to guarantee a reallocation when calling 'append(decs, ...)' below. This
 			// prevents the underlying memory from being shared between factory function calls causing
 			// undesired mutations.
@@ -245,16 +234,32 @@ func newProgram(e *Env, a *Ast, opts []ProgramOption) (Program, error) {
 				decs = append(decs, interpreter.Observe(observers...))
 			}
 
-			return p.clone().initInterpretable(a, decs)
+			return p.clone().initInterpretable(ast, decs)
 		}
 		return newProgGen(factory)
 	}
-	return p.initInterpretable(a, decorators)
+	return p.initInterpretable(ast, decorators)
 }
 
-func (p *prog) initInterpretable(a *Ast, decs []interpreter.InterpretableDecorator) (*prog, error) {
-	// When the AST has been exprAST it contains metadata that can be used to speed up program execution.
-	interpretable, err := p.interpreter.NewInterpretable(a.impl, decs...)
+func (p *prog) initInterpretable(ast *Ast, decs []interpreter.InterpretableDecorator) (*prog, error) {
+	// Unchecked programs do not contain type and reference information and may be slower to execute.
+	if !ast.IsChecked() {
+		interpretable, err :=
+			p.interpreter.NewUncheckedInterpretable(ast.Expr(), decs...)
+		if err != nil {
+			return nil, err
+		}
+		p.interpretable = interpretable
+		return p, nil
+	}
+
+	// When the AST has been checked it contains metadata that can be used to speed up program execution.
+	var checked *exprpb.CheckedExpr
+	checked, err := AstToCheckedExpr(ast)
+	if err != nil {
+		return nil, err
+	}
+	interpretable, err := p.interpreter.NewInterpretable(checked, decs...)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +268,7 @@ func (p *prog) initInterpretable(a *Ast, decs []interpreter.InterpretableDecorat
 }
 
 // Eval implements the Program interface method.
-func (p *prog) Eval(input any) (v ref.Val, det *EvalDetails, err error) {
+func (p *prog) Eval(input interface{}) (v ref.Val, det *EvalDetails, err error) {
 	// Configure error recovery for unexpected panics during evaluation. Note, the use of named
 	// return values makes it possible to modify the error response during the recovery
 	// function.
@@ -282,11 +287,11 @@ func (p *prog) Eval(input any) (v ref.Val, det *EvalDetails, err error) {
 	switch v := input.(type) {
 	case interpreter.Activation:
 		vars = v
-	case map[string]any:
+	case map[string]interface{}:
 		vars = activationPool.Setup(v)
 		defer activationPool.Put(vars)
 	default:
-		return nil, nil, fmt.Errorf("invalid input, wanted Activation or map[string]any, got: (%T)%v", input, input)
+		return nil, nil, fmt.Errorf("invalid input, wanted Activation or map[string]interface{}, got: (%T)%v", input, input)
 	}
 	if p.defaultVars != nil {
 		vars = interpreter.NewHierarchicalActivation(p.defaultVars, vars)
@@ -302,7 +307,7 @@ func (p *prog) Eval(input any) (v ref.Val, det *EvalDetails, err error) {
 }
 
 // ContextEval implements the Program interface.
-func (p *prog) ContextEval(ctx context.Context, input any) (ref.Val, *EvalDetails, error) {
+func (p *prog) ContextEval(ctx context.Context, input interface{}) (ref.Val, *EvalDetails, error) {
 	if ctx == nil {
 		return nil, nil, fmt.Errorf("context can not be nil")
 	}
@@ -313,15 +318,20 @@ func (p *prog) ContextEval(ctx context.Context, input any) (ref.Val, *EvalDetail
 	case interpreter.Activation:
 		vars = ctxActivationPool.Setup(v, ctx.Done(), p.interruptCheckFrequency)
 		defer ctxActivationPool.Put(vars)
-	case map[string]any:
+	case map[string]interface{}:
 		rawVars := activationPool.Setup(v)
 		defer activationPool.Put(rawVars)
 		vars = ctxActivationPool.Setup(rawVars, ctx.Done(), p.interruptCheckFrequency)
 		defer ctxActivationPool.Put(vars)
 	default:
-		return nil, nil, fmt.Errorf("invalid input, wanted Activation or map[string]any, got: (%T)%v", input, input)
+		return nil, nil, fmt.Errorf("invalid input, wanted Activation or map[string]interface{}, got: (%T)%v", input, input)
 	}
 	return p.Eval(vars)
+}
+
+// Cost implements the Coster interface method.
+func (p *prog) Cost() (min, max int64) {
+	return estimateCost(p.interpretable)
 }
 
 // progFactory is a helper alias for marking a program creation factory function.
@@ -336,11 +346,7 @@ type progGen struct {
 // the test is successful.
 func newProgGen(factory progFactory) (Program, error) {
 	// Test the factory to make sure that configuration errors are spotted at config
-	tracker, err := interpreter.NewCostTracker(nil)
-	if err != nil {
-		return nil, err
-	}
-	_, err = factory(interpreter.NewEvalState(), tracker)
+	_, err := factory(interpreter.NewEvalState(), &interpreter.CostTracker{})
 	if err != nil {
 		return nil, err
 	}
@@ -348,15 +354,12 @@ func newProgGen(factory progFactory) (Program, error) {
 }
 
 // Eval implements the Program interface method.
-func (gen *progGen) Eval(input any) (ref.Val, *EvalDetails, error) {
+func (gen *progGen) Eval(input interface{}) (ref.Val, *EvalDetails, error) {
 	// The factory based Eval() differs from the standard evaluation model in that it generates a
 	// new EvalState instance for each call to ensure that unique evaluations yield unique stateful
 	// results.
 	state := interpreter.NewEvalState()
-	costTracker, err := interpreter.NewCostTracker(nil)
-	if err != nil {
-		return nil, nil, err
-	}
+	costTracker := &interpreter.CostTracker{}
 	det := &EvalDetails{state: state, costTracker: costTracker}
 
 	// Generate a new instance of the interpretable using the factory configured during the call to
@@ -376,7 +379,7 @@ func (gen *progGen) Eval(input any) (ref.Val, *EvalDetails, error) {
 }
 
 // ContextEval implements the Program interface method.
-func (gen *progGen) ContextEval(ctx context.Context, input any) (ref.Val, *EvalDetails, error) {
+func (gen *progGen) ContextEval(ctx context.Context, input interface{}) (ref.Val, *EvalDetails, error) {
 	if ctx == nil {
 		return nil, nil, fmt.Errorf("context can not be nil")
 	}
@@ -384,10 +387,7 @@ func (gen *progGen) ContextEval(ctx context.Context, input any) (ref.Val, *EvalD
 	// new EvalState instance for each call to ensure that unique evaluations yield unique stateful
 	// results.
 	state := interpreter.NewEvalState()
-	costTracker, err := interpreter.NewCostTracker(nil)
-	if err != nil {
-		return nil, nil, err
-	}
+	costTracker := &interpreter.CostTracker{}
 	det := &EvalDetails{state: state, costTracker: costTracker}
 
 	// Generate a new instance of the interpretable using the factory configured during the call to
@@ -406,6 +406,29 @@ func (gen *progGen) ContextEval(ctx context.Context, input any) (ref.Val, *EvalD
 	return v, det, nil
 }
 
+// Cost implements the Coster interface method.
+func (gen *progGen) Cost() (min, max int64) {
+	// Use an empty state value since no evaluation is performed.
+	p, err := gen.factory(emptyEvalState, nil)
+	if err != nil {
+		return 0, math.MaxInt64
+	}
+	return estimateCost(p)
+}
+
+// EstimateCost returns the heuristic cost interval for the program.
+func EstimateCost(p Program) (min, max int64) {
+	return estimateCost(p)
+}
+
+func estimateCost(i interface{}) (min, max int64) {
+	c, ok := i.(interpreter.Coster)
+	if !ok {
+		return 0, math.MaxInt64
+	}
+	return c.Cost()
+}
+
 type ctxEvalActivation struct {
 	parent                  interpreter.Activation
 	interrupt               <-chan struct{}
@@ -415,7 +438,7 @@ type ctxEvalActivation struct {
 
 // ResolveName implements the Activation interface method, but adds a special #interrupted variable
 // which is capable of testing whether a 'done' signal is provided from a context.Context channel.
-func (a *ctxEvalActivation) ResolveName(name string) (any, bool) {
+func (a *ctxEvalActivation) ResolveName(name string) (interface{}, bool) {
 	if name == "#interrupted" {
 		a.interruptCheckCount++
 		if a.interruptCheckCount%a.interruptCheckFrequency == 0 {
@@ -438,7 +461,7 @@ func (a *ctxEvalActivation) Parent() interpreter.Activation {
 func newCtxEvalActivationPool() *ctxEvalActivationPool {
 	return &ctxEvalActivationPool{
 		Pool: sync.Pool{
-			New: func() any {
+			New: func() interface{} {
 				return &ctxEvalActivation{}
 			},
 		},
@@ -460,21 +483,21 @@ func (p *ctxEvalActivationPool) Setup(vars interpreter.Activation, done <-chan s
 }
 
 type evalActivation struct {
-	vars     map[string]any
-	lazyVars map[string]any
+	vars     map[string]interface{}
+	lazyVars map[string]interface{}
 }
 
 // ResolveName looks up the value of the input variable name, if found.
 //
 // Lazy bindings may be supplied within the map-based input in either of the following forms:
-// - func() any
+// - func() interface{}
 // - func() ref.Val
 //
 // The lazy binding will only be invoked once per evaluation.
 //
 // Values which are not represented as ref.Val types on input may be adapted to a ref.Val using
-// the types.Adapter configured in the environment.
-func (a *evalActivation) ResolveName(name string) (any, bool) {
+// the ref.TypeAdapter configured in the environment.
+func (a *evalActivation) ResolveName(name string) (interface{}, bool) {
 	v, found := a.vars[name]
 	if !found {
 		return nil, false
@@ -487,7 +510,7 @@ func (a *evalActivation) ResolveName(name string) (any, bool) {
 		lazy := obj()
 		a.lazyVars[name] = lazy
 		return lazy, true
-	case func() any:
+	case func() interface{}:
 		if resolved, found := a.lazyVars[name]; found {
 			return resolved, true
 		}
@@ -507,8 +530,8 @@ func (a *evalActivation) Parent() interpreter.Activation {
 func newEvalActivationPool() *evalActivationPool {
 	return &evalActivationPool{
 		Pool: sync.Pool{
-			New: func() any {
-				return &evalActivation{lazyVars: make(map[string]any)}
+			New: func() interface{} {
+				return &evalActivation{lazyVars: make(map[string]interface{})}
 			},
 		},
 	}
@@ -519,13 +542,13 @@ type evalActivationPool struct {
 }
 
 // Setup initializes a pooled Activation object with the map input.
-func (p *evalActivationPool) Setup(vars map[string]any) *evalActivation {
+func (p *evalActivationPool) Setup(vars map[string]interface{}) *evalActivation {
 	a := p.Pool.Get().(*evalActivation)
 	a.vars = vars
 	return a
 }
 
-func (p *evalActivationPool) Put(value any) {
+func (p *evalActivationPool) Put(value interface{}) {
 	a := value.(*evalActivation)
 	for k := range a.lazyVars {
 		delete(a.lazyVars, k)
@@ -534,7 +557,9 @@ func (p *evalActivationPool) Put(value any) {
 }
 
 var (
-	// activationPool is an internally managed pool of Activation values that wrap map[string]any inputs
+	emptyEvalState = interpreter.NewEvalState()
+
+	// activationPool is an internally managed pool of Activation values that wrap map[string]interface{} inputs
 	activationPool = newEvalActivationPool()
 
 	// ctxActivationPool is an internally managed pool of Activation values that expose a special #interrupted variable
