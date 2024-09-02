@@ -15,8 +15,7 @@
 package parser
 
 import (
-	antlr "github.com/antlr4-go/antlr/v4"
-
+	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"github.com/google/cel-go/common/runes"
 )
 
@@ -110,7 +109,7 @@ func (c *charStream) GetTextFromTokens(start, stop antlr.Token) string {
 }
 
 // GetTextFromInterval implements (antlr.CharStream).GetTextFromInterval.
-func (c *charStream) GetTextFromInterval(i antlr.Interval) string {
+func (c *charStream) GetTextFromInterval(i *antlr.Interval) string {
 	return c.GetText(i.Start, i.Stop)
 }
 

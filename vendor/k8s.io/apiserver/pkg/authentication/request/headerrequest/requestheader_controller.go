@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync/atomic"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -36,6 +35,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
+	"sync/atomic"
 )
 
 const (
@@ -74,7 +74,7 @@ type RequestHeaderAuthRequestController struct {
 	configmapInformer       cache.SharedIndexInformer
 	configmapInformerSynced cache.InformerSynced
 
-	queue workqueue.TypedRateLimitingInterface[string]
+	queue workqueue.RateLimitingInterface
 
 	// exportedRequestHeaderBundle is a requestHeaderBundle that contains the last read, non-zero length content of the configmap
 	exportedRequestHeaderBundle atomic.Value
@@ -104,10 +104,7 @@ func NewRequestHeaderAuthRequestController(
 		extraHeaderPrefixesKey: extraHeaderPrefixesKey,
 		allowedClientNamesKey:  allowedClientNamesKey,
 
-		queue: workqueue.NewTypedRateLimitingQueueWithConfig(
-			workqueue.DefaultTypedControllerRateLimiter[string](),
-			workqueue.TypedRateLimitingQueueConfig[string]{Name: "RequestHeaderAuthRequestController"},
-		),
+		queue: workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "RequestHeaderAuthRequestController"),
 	}
 
 	// we construct our own informer because we need such a small subset of the information available.  Just one namespace.

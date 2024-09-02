@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package trace // import "go.opentelemetry.io/otel/sdk/trace"
 
@@ -9,12 +20,9 @@ import (
 
 	"go.opentelemetry.io/otel/sdk/instrumentation"
 	"go.opentelemetry.io/otel/trace"
-	"go.opentelemetry.io/otel/trace/embedded"
 )
 
 type tracer struct {
-	embedded.Tracer
-
 	provider             *TracerProvider
 	instrumentationScope instrumentation.Scope
 }
@@ -43,7 +51,7 @@ func (tr *tracer) Start(ctx context.Context, name string, options ...trace.SpanS
 
 	s := tr.newSpan(ctx, name, &config)
 	if rw, ok := s.(ReadWriteSpan); ok && s.IsRecording() {
-		sps := tr.provider.getSpanProcessors()
+		sps, _ := tr.provider.spanProcessors.Load().(spanProcessorStates)
 		for _, sp := range sps {
 			sp.sp.OnStart(ctx, rw)
 		}
@@ -132,13 +140,13 @@ func (tr *tracer) newRecordingSpan(psc, sc trace.SpanContext, name string, sr Sa
 		spanKind:    trace.ValidateSpanKind(config.SpanKind()),
 		name:        name,
 		startTime:   startTime,
-		events:      newEvictedQueueEvent(tr.provider.spanLimits.EventCountLimit),
-		links:       newEvictedQueueLink(tr.provider.spanLimits.LinkCountLimit),
+		events:      newEvictedQueue(tr.provider.spanLimits.EventCountLimit),
+		links:       newEvictedQueue(tr.provider.spanLimits.LinkCountLimit),
 		tracer:      tr,
 	}
 
 	for _, l := range config.Links() {
-		s.AddLink(l)
+		s.addLink(l)
 	}
 
 	s.SetAttributes(sr.Attributes...)

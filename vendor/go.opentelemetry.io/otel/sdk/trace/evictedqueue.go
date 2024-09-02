@@ -1,45 +1,36 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package trace // import "go.opentelemetry.io/otel/sdk/trace"
 
-import (
-	"slices"
-	"sync"
-
-	"go.opentelemetry.io/otel/internal/global"
-)
-
 // evictedQueue is a FIFO queue with a configurable capacity.
-type evictedQueue[T any] struct {
-	queue        []T
+type evictedQueue struct {
+	queue        []interface{}
 	capacity     int
 	droppedCount int
-	logDropped   func()
 }
 
-func newEvictedQueueEvent(capacity int) evictedQueue[Event] {
+func newEvictedQueue(capacity int) evictedQueue {
 	// Do not pre-allocate queue, do this lazily.
-	return evictedQueue[Event]{
-		capacity:   capacity,
-		logDropped: sync.OnceFunc(func() { global.Warn("limit reached: dropping trace trace.Event") }),
-	}
-}
-
-func newEvictedQueueLink(capacity int) evictedQueue[Link] {
-	// Do not pre-allocate queue, do this lazily.
-	return evictedQueue[Link]{
-		capacity:   capacity,
-		logDropped: sync.OnceFunc(func() { global.Warn("limit reached: dropping trace trace.Link") }),
-	}
+	return evictedQueue{capacity: capacity}
 }
 
 // add adds value to the evictedQueue eq. If eq is at capacity, the oldest
 // queued value will be discarded and the drop count incremented.
-func (eq *evictedQueue[T]) add(value T) {
+func (eq *evictedQueue) add(value interface{}) {
 	if eq.capacity == 0 {
 		eq.droppedCount++
-		eq.logDropped()
 		return
 	}
 
@@ -48,12 +39,6 @@ func (eq *evictedQueue[T]) add(value T) {
 		copy(eq.queue[:eq.capacity-1], eq.queue[1:])
 		eq.queue = eq.queue[:eq.capacity-1]
 		eq.droppedCount++
-		eq.logDropped()
 	}
 	eq.queue = append(eq.queue, value)
-}
-
-// copy returns a copy of the evictedQueue.
-func (eq *evictedQueue[T]) copy() []T {
-	return slices.Clone(eq.queue)
 }

@@ -20,9 +20,11 @@ import (
 	"strings"
 	"time"
 
-	dto "github.com/prometheus/client_model/go"
+	//nolint:staticcheck // Ignore SA1019. Need to keep deprecated package for compatibility.
+	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/common/model"
-	"google.golang.org/protobuf/proto"
+
+	dto "github.com/prometheus/client_model/go"
 )
 
 var separatorByteSlice = []byte{model.SeparatorByte} // For convenient use with xxhash.
@@ -92,9 +94,6 @@ type Opts struct {
 	// machine_role metric). See also
 	// https://prometheus.io/docs/instrumenting/writing_exporters/#target-labels-not-static-scraped-labels
 	ConstLabels Labels
-
-	// now is for testing purposes, by default it's time.Now.
-	now func() time.Time
 }
 
 // BuildFQName joins the given three name components by "_". Empty name

@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package trace // import "go.opentelemetry.io/otel/trace"
 
@@ -8,20 +19,16 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace/embedded"
 )
 
 // NewNoopTracerProvider returns an implementation of TracerProvider that
 // performs no operations. The Tracer and Spans created from the returned
 // TracerProvider also perform no operations.
-//
-// Deprecated: Use [go.opentelemetry.io/otel/trace/noop.NewTracerProvider]
-// instead.
 func NewNoopTracerProvider() TracerProvider {
 	return noopTracerProvider{}
 }
 
-type noopTracerProvider struct{ embedded.TracerProvider }
+type noopTracerProvider struct{}
 
 var _ TracerProvider = noopTracerProvider{}
 
@@ -30,8 +37,8 @@ func (p noopTracerProvider) Tracer(string, ...TracerOption) Tracer {
 	return noopTracer{}
 }
 
-// noopTracer is an implementation of Tracer that performs no operations.
-type noopTracer struct{ embedded.Tracer }
+// noopTracer is an implementation of Tracer that preforms no operations.
+type noopTracer struct{}
 
 var _ Tracer = noopTracer{}
 
@@ -41,15 +48,15 @@ func (t noopTracer) Start(ctx context.Context, name string, _ ...SpanStartOption
 	span := SpanFromContext(ctx)
 	if _, ok := span.(nonRecordingSpan); !ok {
 		// span is likely already a noopSpan, but let's be sure
-		span = noopSpanInstance
+		span = noopSpan{}
 	}
 	return ContextWithSpan(ctx, span), span
 }
 
-// noopSpan is an implementation of Span that performs no operations.
-type noopSpan struct{ embedded.Span }
+// noopSpan is an implementation of Span that preforms no operations.
+type noopSpan struct{}
 
-var noopSpanInstance Span = noopSpan{}
+var _ Span = noopSpan{}
 
 // SpanContext returns an empty span context.
 func (noopSpan) SpanContext() SpanContext { return SpanContext{} }
@@ -74,9 +81,6 @@ func (noopSpan) RecordError(error, ...EventOption) {}
 
 // AddEvent does nothing.
 func (noopSpan) AddEvent(string, ...EventOption) {}
-
-// AddLink does nothing.
-func (noopSpan) AddLink(Link) {}
 
 // SetName does nothing.
 func (noopSpan) SetName(string) {}

@@ -20,7 +20,6 @@ import (
 	"time"
 
 	dto "github.com/prometheus/client_model/go"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Counter is a Metric that represents a single numerical value that only ever
@@ -60,18 +59,6 @@ type ExemplarAdder interface {
 // CounterOpts is an alias for Opts. See there for doc comments.
 type CounterOpts Opts
 
-// CounterVecOpts bundles the options to create a CounterVec metric.
-// It is mandatory to set CounterOpts, see there for mandatory fields. VariableLabels
-// is optional and can safely be left to its default value.
-type CounterVecOpts struct {
-	CounterOpts
-
-	// VariableLabels are used to partition the metric vector by the given set
-	// of labels. Each label value will be constrained with the optional Constraint
-	// function, if provided.
-	VariableLabels ConstrainableLabels
-}
-
 // NewCounter creates a new Counter based on the provided CounterOpts.
 //
 // The returned implementation also implements ExemplarAdder. It is safe to
@@ -91,12 +78,8 @@ func NewCounter(opts CounterOpts) Counter {
 		nil,
 		opts.ConstLabels,
 	)
-	if opts.now == nil {
-		opts.now = time.Now
-	}
-	result := &counter{desc: desc, labelPairs: desc.constLabelPairs, now: opts.now}
+	result := &counter{desc: desc, labelPairs: desc.constLabelPairs, now: time.Now}
 	result.init(result) // Init self-collection.
-	result.createdTs = timestamppb.New(opts.now())
 	return result
 }
 
@@ -111,12 +94,10 @@ type counter struct {
 	selfCollector
 	desc *Desc
 
-	createdTs  *timestamppb.Timestamp
 	labelPairs []*dto.LabelPair
 	exemplar   atomic.Value // Containing nil or a *dto.Exemplar.
 
-	// now is for testing purposes, by default it's time.Now.
-	now func() time.Time
+	now func() time.Time // To mock out time.Now() for testing.
 }
 
 func (c *counter) Desc() *Desc {
@@ -166,7 +147,8 @@ func (c *counter) Write(out *dto.Metric) error {
 		exemplar = e.(*dto.Exemplar)
 	}
 	val := c.get()
-	return populateMetric(CounterValue, val, c.labelPairs, exemplar, out, c.createdTs)
+
+	return populateMetric(CounterValue, val, c.labelPairs, exemplar, out)
 }
 
 func (c *counter) updateExemplar(v float64, l Labels) {
@@ -192,31 +174,19 @@ type CounterVec struct {
 // NewCounterVec creates a new CounterVec based on the provided CounterOpts and
 // partitioned by the given label names.
 func NewCounterVec(opts CounterOpts, labelNames []string) *CounterVec {
-	return V2.NewCounterVec(CounterVecOpts{
-		CounterOpts:    opts,
-		VariableLabels: UnconstrainedLabels(labelNames),
-	})
-}
-
-// NewCounterVec creates a new CounterVec based on the provided CounterVecOpts.
-func (v2) NewCounterVec(opts CounterVecOpts) *CounterVec {
-	desc := V2.NewDesc(
+	desc := NewDesc(
 		BuildFQName(opts.Namespace, opts.Subsystem, opts.Name),
 		opts.Help,
-		opts.VariableLabels,
+		labelNames,
 		opts.ConstLabels,
 	)
-	if opts.now == nil {
-		opts.now = time.Now
-	}
 	return &CounterVec{
 		MetricVec: NewMetricVec(desc, func(lvs ...string) Metric {
-			if len(lvs) != len(desc.variableLabels.names) {
-				panic(makeInconsistentCardinalityError(desc.fqName, desc.variableLabels.names, lvs))
+			if len(lvs) != len(desc.variableLabels) {
+				panic(makeInconsistentCardinalityError(desc.fqName, desc.variableLabels, lvs))
 			}
-			result := &counter{desc: desc, labelPairs: MakeLabelPairs(desc, lvs), now: opts.now}
+			result := &counter{desc: desc, labelPairs: MakeLabelPairs(desc, lvs), now: time.Now}
 			result.init(result) // Init self-collection.
-			result.createdTs = timestamppb.New(opts.now())
 			return result
 		}),
 	}

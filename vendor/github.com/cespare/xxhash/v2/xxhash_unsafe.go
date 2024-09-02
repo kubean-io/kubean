@@ -1,4 +1,3 @@
-//go:build !appengine
 // +build !appengine
 
 // This file encapsulates usage of unsafe.
@@ -12,7 +11,7 @@ import (
 
 // In the future it's possible that compiler optimizations will make these
 // XxxString functions unnecessary by realizing that calls such as
-// Sum64([]byte(s)) don't need to copy s. See https://go.dev/issue/2205.
+// Sum64([]byte(s)) don't need to copy s. See https://golang.org/issue/2205.
 // If that happens, even if we keep these functions they can be replaced with
 // the trivial safe code.
 
@@ -33,7 +32,7 @@ import (
 //
 // See https://github.com/golang/go/issues/42739 for discussion.
 
-// Sum64String computes the 64-bit xxHash digest of s with a zero seed.
+// Sum64String computes the 64-bit xxHash digest of s.
 // It may be faster than Sum64([]byte(s)) by avoiding a copy.
 func Sum64String(s string) uint64 {
 	b := *(*[]byte)(unsafe.Pointer(&sliceHeader{s, len(s)}))

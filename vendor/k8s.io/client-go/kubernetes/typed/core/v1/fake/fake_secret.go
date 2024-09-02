@@ -23,12 +23,13 @@ import (
 	json "encoding/json"
 	"fmt"
 
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	applyconfigurationscorev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	testing "k8s.io/client-go/testing"
 )
 
@@ -38,38 +39,36 @@ type FakeSecrets struct {
 	ns   string
 }
 
-var secretsResource = v1.SchemeGroupVersion.WithResource("secrets")
+var secretsResource = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
 
-var secretsKind = v1.SchemeGroupVersion.WithKind("Secret")
+var secretsKind = schema.GroupVersionKind{Group: "", Version: "v1", Kind: "Secret"}
 
 // Get takes name of the secret, and returns the corresponding secret object, and an error if there is any.
-func (c *FakeSecrets) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Secret, err error) {
-	emptyResult := &v1.Secret{}
+func (c *FakeSecrets) Get(ctx context.Context, name string, options v1.GetOptions) (result *corev1.Secret, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(secretsResource, c.ns, name, options), emptyResult)
+		Invokes(testing.NewGetAction(secretsResource, c.ns, name), &corev1.Secret{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Secret), err
+	return obj.(*corev1.Secret), err
 }
 
 // List takes label and field selectors, and returns the list of Secrets that match those selectors.
-func (c *FakeSecrets) List(ctx context.Context, opts metav1.ListOptions) (result *v1.SecretList, err error) {
-	emptyResult := &v1.SecretList{}
+func (c *FakeSecrets) List(ctx context.Context, opts v1.ListOptions) (result *corev1.SecretList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(secretsResource, secretsKind, c.ns, opts), emptyResult)
+		Invokes(testing.NewListAction(secretsResource, secretsKind, c.ns, opts), &corev1.SecretList{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
 
 	label, _, _ := testing.ExtractFromListOptions(opts)
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1.SecretList{ListMeta: obj.(*v1.SecretList).ListMeta}
-	for _, item := range obj.(*v1.SecretList).Items {
+	list := &corev1.SecretList{ListMeta: obj.(*corev1.SecretList).ListMeta}
+	for _, item := range obj.(*corev1.SecretList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -78,66 +77,63 @@ func (c *FakeSecrets) List(ctx context.Context, opts metav1.ListOptions) (result
 }
 
 // Watch returns a watch.Interface that watches the requested secrets.
-func (c *FakeSecrets) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (c *FakeSecrets) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(secretsResource, c.ns, opts))
+		InvokesWatch(testing.NewWatchAction(secretsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a secret and creates it.  Returns the server's representation of the secret, and an error, if there is any.
-func (c *FakeSecrets) Create(ctx context.Context, secret *v1.Secret, opts metav1.CreateOptions) (result *v1.Secret, err error) {
-	emptyResult := &v1.Secret{}
+func (c *FakeSecrets) Create(ctx context.Context, secret *corev1.Secret, opts v1.CreateOptions) (result *corev1.Secret, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(secretsResource, c.ns, secret, opts), emptyResult)
+		Invokes(testing.NewCreateAction(secretsResource, c.ns, secret), &corev1.Secret{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Secret), err
+	return obj.(*corev1.Secret), err
 }
 
 // Update takes the representation of a secret and updates it. Returns the server's representation of the secret, and an error, if there is any.
-func (c *FakeSecrets) Update(ctx context.Context, secret *v1.Secret, opts metav1.UpdateOptions) (result *v1.Secret, err error) {
-	emptyResult := &v1.Secret{}
+func (c *FakeSecrets) Update(ctx context.Context, secret *corev1.Secret, opts v1.UpdateOptions) (result *corev1.Secret, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(secretsResource, c.ns, secret, opts), emptyResult)
+		Invokes(testing.NewUpdateAction(secretsResource, c.ns, secret), &corev1.Secret{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Secret), err
+	return obj.(*corev1.Secret), err
 }
 
 // Delete takes name of the secret and deletes it. Returns an error if one occurs.
-func (c *FakeSecrets) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+func (c *FakeSecrets) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(secretsResource, c.ns, name, opts), &v1.Secret{})
+		Invokes(testing.NewDeleteActionWithOptions(secretsResource, c.ns, name, opts), &corev1.Secret{})
 
 	return err
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeSecrets) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
-	action := testing.NewDeleteCollectionActionWithOptions(secretsResource, c.ns, opts, listOpts)
+func (c *FakeSecrets) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(secretsResource, c.ns, listOpts)
 
-	_, err := c.Fake.Invokes(action, &v1.SecretList{})
+	_, err := c.Fake.Invokes(action, &corev1.SecretList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched secret.
-func (c *FakeSecrets) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Secret, err error) {
-	emptyResult := &v1.Secret{}
+func (c *FakeSecrets) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *corev1.Secret, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(secretsResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
+		Invokes(testing.NewPatchSubresourceAction(secretsResource, c.ns, name, pt, data, subresources...), &corev1.Secret{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Secret), err
+	return obj.(*corev1.Secret), err
 }
 
 // Apply takes the given apply declarative configuration, applies it and returns the applied secret.
-func (c *FakeSecrets) Apply(ctx context.Context, secret *corev1.SecretApplyConfiguration, opts metav1.ApplyOptions) (result *v1.Secret, err error) {
+func (c *FakeSecrets) Apply(ctx context.Context, secret *applyconfigurationscorev1.SecretApplyConfiguration, opts v1.ApplyOptions) (result *corev1.Secret, err error) {
 	if secret == nil {
 		return nil, fmt.Errorf("secret provided to Apply must not be nil")
 	}
@@ -149,12 +145,11 @@ func (c *FakeSecrets) Apply(ctx context.Context, secret *corev1.SecretApplyConfi
 	if name == nil {
 		return nil, fmt.Errorf("secret.Name must be provided to Apply")
 	}
-	emptyResult := &v1.Secret{}
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(secretsResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
+		Invokes(testing.NewPatchSubresourceAction(secretsResource, c.ns, *name, types.ApplyPatchType, data), &corev1.Secret{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Secret), err
+	return obj.(*corev1.Secret), err
 }

@@ -23,12 +23,13 @@ import (
 	json "encoding/json"
 	"fmt"
 
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	applyconfigurationscorev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	testing "k8s.io/client-go/testing"
 )
 
@@ -38,38 +39,36 @@ type FakeServices struct {
 	ns   string
 }
 
-var servicesResource = v1.SchemeGroupVersion.WithResource("services")
+var servicesResource = schema.GroupVersionResource{Group: "", Version: "v1", Resource: "services"}
 
-var servicesKind = v1.SchemeGroupVersion.WithKind("Service")
+var servicesKind = schema.GroupVersionKind{Group: "", Version: "v1", Kind: "Service"}
 
 // Get takes name of the service, and returns the corresponding service object, and an error if there is any.
-func (c *FakeServices) Get(ctx context.Context, name string, options metav1.GetOptions) (result *v1.Service, err error) {
-	emptyResult := &v1.Service{}
+func (c *FakeServices) Get(ctx context.Context, name string, options v1.GetOptions) (result *corev1.Service, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewGetActionWithOptions(servicesResource, c.ns, name, options), emptyResult)
+		Invokes(testing.NewGetAction(servicesResource, c.ns, name), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // List takes label and field selectors, and returns the list of Services that match those selectors.
-func (c *FakeServices) List(ctx context.Context, opts metav1.ListOptions) (result *v1.ServiceList, err error) {
-	emptyResult := &v1.ServiceList{}
+func (c *FakeServices) List(ctx context.Context, opts v1.ListOptions) (result *corev1.ServiceList, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewListActionWithOptions(servicesResource, servicesKind, c.ns, opts), emptyResult)
+		Invokes(testing.NewListAction(servicesResource, servicesKind, c.ns, opts), &corev1.ServiceList{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
 
 	label, _, _ := testing.ExtractFromListOptions(opts)
 	if label == nil {
 		label = labels.Everything()
 	}
-	list := &v1.ServiceList{ListMeta: obj.(*v1.ServiceList).ListMeta}
-	for _, item := range obj.(*v1.ServiceList).Items {
+	list := &corev1.ServiceList{ListMeta: obj.(*corev1.ServiceList).ListMeta}
+	for _, item := range obj.(*corev1.ServiceList).Items {
 		if label.Matches(labels.Set(item.Labels)) {
 			list.Items = append(list.Items, item)
 		}
@@ -78,71 +77,67 @@ func (c *FakeServices) List(ctx context.Context, opts metav1.ListOptions) (resul
 }
 
 // Watch returns a watch.Interface that watches the requested services.
-func (c *FakeServices) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (c *FakeServices) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
-		InvokesWatch(testing.NewWatchActionWithOptions(servicesResource, c.ns, opts))
+		InvokesWatch(testing.NewWatchAction(servicesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a service and creates it.  Returns the server's representation of the service, and an error, if there is any.
-func (c *FakeServices) Create(ctx context.Context, service *v1.Service, opts metav1.CreateOptions) (result *v1.Service, err error) {
-	emptyResult := &v1.Service{}
+func (c *FakeServices) Create(ctx context.Context, service *corev1.Service, opts v1.CreateOptions) (result *corev1.Service, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewCreateActionWithOptions(servicesResource, c.ns, service, opts), emptyResult)
+		Invokes(testing.NewCreateAction(servicesResource, c.ns, service), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // Update takes the representation of a service and updates it. Returns the server's representation of the service, and an error, if there is any.
-func (c *FakeServices) Update(ctx context.Context, service *v1.Service, opts metav1.UpdateOptions) (result *v1.Service, err error) {
-	emptyResult := &v1.Service{}
+func (c *FakeServices) Update(ctx context.Context, service *corev1.Service, opts v1.UpdateOptions) (result *corev1.Service, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateActionWithOptions(servicesResource, c.ns, service, opts), emptyResult)
+		Invokes(testing.NewUpdateAction(servicesResource, c.ns, service), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeServices) UpdateStatus(ctx context.Context, service *v1.Service, opts metav1.UpdateOptions) (result *v1.Service, err error) {
-	emptyResult := &v1.Service{}
+func (c *FakeServices) UpdateStatus(ctx context.Context, service *corev1.Service, opts v1.UpdateOptions) (*corev1.Service, error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceActionWithOptions(servicesResource, "status", c.ns, service, opts), emptyResult)
+		Invokes(testing.NewUpdateSubresourceAction(servicesResource, "status", c.ns, service), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // Delete takes name of the service and deletes it. Returns an error if one occurs.
-func (c *FakeServices) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+func (c *FakeServices) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(servicesResource, c.ns, name, opts), &v1.Service{})
+		Invokes(testing.NewDeleteActionWithOptions(servicesResource, c.ns, name, opts), &corev1.Service{})
 
 	return err
 }
 
 // Patch applies the patch and returns the patched service.
-func (c *FakeServices) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (result *v1.Service, err error) {
-	emptyResult := &v1.Service{}
+func (c *FakeServices) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *corev1.Service, err error) {
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(servicesResource, c.ns, name, pt, data, opts, subresources...), emptyResult)
+		Invokes(testing.NewPatchSubresourceAction(servicesResource, c.ns, name, pt, data, subresources...), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // Apply takes the given apply declarative configuration, applies it and returns the applied service.
-func (c *FakeServices) Apply(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (result *v1.Service, err error) {
+func (c *FakeServices) Apply(ctx context.Context, service *applyconfigurationscorev1.ServiceApplyConfiguration, opts v1.ApplyOptions) (result *corev1.Service, err error) {
 	if service == nil {
 		return nil, fmt.Errorf("service provided to Apply must not be nil")
 	}
@@ -154,19 +149,18 @@ func (c *FakeServices) Apply(ctx context.Context, service *corev1.ServiceApplyCo
 	if name == nil {
 		return nil, fmt.Errorf("service.Name must be provided to Apply")
 	}
-	emptyResult := &v1.Service{}
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(servicesResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions()), emptyResult)
+		Invokes(testing.NewPatchSubresourceAction(servicesResource, c.ns, *name, types.ApplyPatchType, data), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }
 
 // ApplyStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating ApplyStatus().
-func (c *FakeServices) ApplyStatus(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (result *v1.Service, err error) {
+func (c *FakeServices) ApplyStatus(ctx context.Context, service *applyconfigurationscorev1.ServiceApplyConfiguration, opts v1.ApplyOptions) (result *corev1.Service, err error) {
 	if service == nil {
 		return nil, fmt.Errorf("service provided to Apply must not be nil")
 	}
@@ -178,12 +172,11 @@ func (c *FakeServices) ApplyStatus(ctx context.Context, service *corev1.ServiceA
 	if name == nil {
 		return nil, fmt.Errorf("service.Name must be provided to Apply")
 	}
-	emptyResult := &v1.Service{}
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceActionWithOptions(servicesResource, c.ns, *name, types.ApplyPatchType, data, opts.ToPatchOptions(), "status"), emptyResult)
+		Invokes(testing.NewPatchSubresourceAction(servicesResource, c.ns, *name, types.ApplyPatchType, data, "status"), &corev1.Service{})
 
 	if obj == nil {
-		return emptyResult, err
+		return nil, err
 	}
-	return obj.(*v1.Service), err
+	return obj.(*corev1.Service), err
 }

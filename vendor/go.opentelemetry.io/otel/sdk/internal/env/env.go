@@ -1,5 +1,16 @@
 // Copyright The OpenTelemetry Authors
-// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package env // import "go.opentelemetry.io/otel/sdk/internal/env"
 
@@ -22,7 +33,7 @@ const (
 	BatchSpanProcessorMaxQueueSizeKey = "OTEL_BSP_MAX_QUEUE_SIZE"
 	// BatchSpanProcessorMaxExportBatchSizeKey is the maximum batch size (i.e.
 	// 512). Note: it must be less than or equal to
-	// BatchSpanProcessorMaxQueueSize.
+	// EnvBatchSpanProcessorMaxQueueSize.
 	BatchSpanProcessorMaxExportBatchSizeKey = "OTEL_BSP_MAX_EXPORT_BATCH_SIZE"
 
 	// AttributeValueLengthKey is the maximum allowed attribute value size.
@@ -59,8 +70,8 @@ const (
 // returned.
 func firstInt(defaultValue int, keys ...string) int {
 	for _, key := range keys {
-		value := os.Getenv(key)
-		if value == "" {
+		value, ok := os.LookupEnv(key)
+		if !ok {
 			continue
 		}
 
@@ -77,10 +88,10 @@ func firstInt(defaultValue int, keys ...string) int {
 }
 
 // IntEnvOr returns the int value of the environment variable with name key if
-// it exists, it is not empty, and the value is an int. Otherwise, defaultValue is returned.
+// it exists and the value is an int. Otherwise, defaultValue is returned.
 func IntEnvOr(key string, defaultValue int) int {
-	value := os.Getenv(key)
-	if value == "" {
+	value, ok := os.LookupEnv(key)
+	if !ok {
 		return defaultValue
 	}
 

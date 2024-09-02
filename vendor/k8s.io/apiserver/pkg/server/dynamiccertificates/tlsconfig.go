@@ -56,7 +56,7 @@ type DynamicServingCertificateController struct {
 	currentServingTLSConfig atomic.Value
 
 	// queue only ever has one item, but it has nice error handling backoff/retry semantics
-	queue         workqueue.TypedRateLimitingInterface[string]
+	queue         workqueue.RateLimitingInterface
 	eventRecorder events.EventRecorder
 }
 
@@ -76,10 +76,7 @@ func NewDynamicServingCertificateController(
 		servingCert:   servingCert,
 		sniCerts:      sniCerts,
 
-		queue: workqueue.NewTypedRateLimitingQueueWithConfig(
-			workqueue.DefaultTypedControllerRateLimiter[string](),
-			workqueue.TypedRateLimitingQueueConfig[string]{Name: "DynamicServingCertificateController"},
-		),
+		queue:         workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "DynamicServingCertificateController"),
 		eventRecorder: eventRecorder,
 	}
 
