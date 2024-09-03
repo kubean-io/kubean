@@ -54,13 +54,77 @@ spec:
           configMap:
             name: {{ $name }}-pre-manifests
 ---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ $name }}-pre-hook-add-manifest-annotation"
+  namespace: {{ $namespace }}
+  annotations:
+    # only for pre-upgrade and do not need this for pre-install
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "4"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ $name }}
+      labels:
+        app.kubernetes.io/instance: {{ $name | quote }}
+    spec:
+      serviceAccountName: {{ $name }}-pre-hook-job
+      restartPolicy: Never
+      containers:
+        - name: keep-manifest
+          image: {{ include "kubean.prehookImage" . }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              bash <<'EOF'
+              set -ex
+              kubectl annotate manifest --all helm.sh/resource-policy=keep
+              EOF
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ $name }}-pre-hook-delete-all-manifest"
+  namespace: {{ $namespace }}
+  annotations:
+    # delete all manifests in pre-hook to avoid being kept due to the resource policy (helm.sh/resource-policy=keep).
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ $name }}
+      labels:
+        app.kubernetes.io/instance: {{ $name | quote }}
+    spec:
+      serviceAccountName: {{ $name }}-pre-hook-job
+      restartPolicy: Never
+      containers:
+        - name: delete-all-manifest
+          image: {{ include "kubean.prehookImage" . }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              bash <<'EOF'
+              set -ex
+              kubectl delete manifest --all
+              EOF
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ $name }}-pre-hook-job
   namespace: {{ $namespace }}
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": pre-install,pre-upgrade,pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 ---
@@ -69,7 +133,7 @@ kind: ClusterRole
 metadata:
   name: {{ $name }}-pre-hook-job
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": pre-install,pre-upgrade,pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 rules:
@@ -84,7 +148,7 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ $name }}-pre-hook-job
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": pre-install,pre-upgrade,pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 roleRef:
