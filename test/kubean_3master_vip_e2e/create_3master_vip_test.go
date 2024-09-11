@@ -15,20 +15,34 @@ import (
 
 func GetVipNode(password string, nodes []string, vipAdd string) (string, error) {
 	allNodesNotMatched := true
-	for _, node := range nodes {
-		var rootNode string
-		newMasterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{node, "ip a"})
-		out, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
-		if strings.Contains(out.String(), vipAdd) {
-			rootNode = node
-			vipNode := strings.Replace(rootNode, "root@", "", -1)
-			klog.Info("the node where vip is located is ", vipNode)
-			allNodesNotMatched = false
-			return rootNode, nil
-		} else {
-			klog.Info("have not matched node ", node)
+
+	maxRetries := 10
+	delay := 30 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		for _, node := range nodes {
+			var rootNode string
+			newMasterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{node, "ip a"})
+			out, _ := tools.NewDoCmd("sshpass", newMasterCmd...)
+			if strings.Contains(out.String(), vipAdd) {
+				rootNode = node
+				vipNode := strings.Replace(rootNode, "root@", "", -1)
+				klog.Info("the node where vip is located is ", vipNode)
+				allNodesNotMatched = false
+				return rootNode, nil
+			} else {
+				klog.Info("have not matched node ", node)
+			}
+		}
+		if allNodesNotMatched == false {
+			break
+		}
+		if i < maxRetries-1 {
+			klog.Info("Wait 30 seconds and try again...")
+			time.Sleep(delay)
 		}
 	}
+
 	gomega.Expect(allNodesNotMatched == false).Should(gomega.BeTrue())
 	return "", fmt.Errorf("no node matched with vip address %s", vipAdd)
 }
@@ -105,7 +119,7 @@ var _ = ginkgo.Describe("Create 3master cluster", func() {
 			} else {
 				klog.Info(out.String())
 			}
-			time.Sleep(30 * time.Second)
+			time.Sleep(90 * time.Second)
 
 			// check which node has vip after the node is rebooted
 			klog.Info("vip address is ", vipaddcr)
