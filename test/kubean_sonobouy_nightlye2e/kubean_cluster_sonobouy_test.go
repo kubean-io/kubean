@@ -96,6 +96,7 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		// check network configuration:
 		// cat /proc/sys/net/ipv4/ip_forward: 1
 		// cat /proc/sys/net/ipv4/tcp_tw_recycle: 0
+		// The tcp_tw_recycle configuration has been removed from Linux kernel version 4.12.
 		ginkgo.It("do network configurations checking", func() {
 			masterCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
 			workerCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{workerSSH, "cat", "/proc/sys/net/ipv4/ip_forward"})
@@ -105,15 +106,6 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			workerOut, _ := tools.NewDoCmd("sshpass", workerCmd...)
 			klog.Info("out: ", workerOut.String())
 			gomega.Expect(workerOut.String()).Should(gomega.ContainSubstring("1"))
-
-			masterCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
-			workerCmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{workerSSH, "cat", "/proc/sys/net/ipv4/tcp_tw_recycle"})
-			masterOut, _ = tools.NewDoCmd("sshpass", masterCmd...)
-			klog.Info("out: ", masterOut.String())
-			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("0"))
-			workerOut, _ = tools.NewDoCmd("sshpass", workerCmd...)
-			klog.Info("out: ", workerOut.String())
-			gomega.Expect(workerOut.String()).Should(gomega.ContainSubstring("0"))
 		})
 
 		ginkgo.It("Support CNI: Calico", func() {
