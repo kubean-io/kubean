@@ -10,8 +10,8 @@ set -o pipefail
 #####################################
 source "${REPO_ROOT}"/hack/util.sh
 
-RELEASE_FILE_LIST_PARTNAME=( "files-amd64" "images-amd64" "files-arm64" "images-arm64" "os-pkgs-centos7" "os-pkgs-kylin-v10sp2" "os-pkgs-kylin-v10sp3" "os-pkgs-redhat8" "os-pkgs-redhat7" )
-KUBEAN_ARTIFACTS_USED_FILE_LIST_PARANAME=("files-amd64" "images-amd64" "os-pkgs-centos7")
+RELEASE_FILE_LIST_PARTNAME=( "files-amd64" "images-amd64" "files-arm64" "images-arm64" "os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-kylin-v10sp3" "os-pkgs-redhat8" "os-pkgs-redhat7" )
+KUBEAN_ARTIFACTS_USED_FILE_LIST_PARANAME=("files-amd64" "images-amd64" "os-pkgs-rocky8")
 BASE_URL="https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download"
 
 #####################################

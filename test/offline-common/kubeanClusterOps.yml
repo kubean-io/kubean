@@ -16,7 +16,7 @@ spec:
     - actionType: playbook
       action: enable-repo.yml
       extraArgs: |
-        -e "{repo_list: ['{offline_minio_url}/kubean/centos/\$releasever/os/\$basearch','{offline_minio_url}/kubean/centos-iso/\$releasever/os/\$basearch']}"
+        -e "{repo_list: ['{offline_minio_url}/kubean/rocky/\$releasever/os/\$basearch','{offline_minio_url}/kubean/rocky-iso/\$releasever/os/\$basearch']}"
 
     - actionType: playbook
       action: disable-firewalld.yml
