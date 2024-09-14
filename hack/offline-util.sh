@@ -259,7 +259,7 @@ function util::init_yum_repo_config_when_offline(){
           sed -i "s#m,{#m','{#g" ${dest_yaml_path}/kubeanClusterOps.yml
         fi
         #sed -i "s#{offline_minio_url}#${MINIO_URL}#g" ${dest_yaml_path}/kubeanClusterOps.yml
-        sed -i  "s#centos#redhat#g" ${dest_yaml_path}/kubeanClusterOps.yml
+        sed -i  "s#rocky#redhat#g" ${dest_yaml_path}/kubeanClusterOps.yml
         # vars-conf-cm.yml set
         sed -i "s#{{ files_repo }}/centos#{{ files_repo }}/redhat#" ${dest_yaml_path}/vars-conf-cm.yml
         sed -i "$ a\    rhel_enable_repos: false"  ${dest_yaml_path}/vars-conf-cm.yml
