@@ -35,7 +35,7 @@ sed -i "s/root_password/${KYLIN_VM_PASSWORD}/g" ${REPO_ROOT}/test/kubean_os_comp
 sed -i "s#image:#image: ${SPRAY_JOB}#" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
 sed -i "s#e2e-cluster1-install#${CLUSTER_OPERATION_NAME1}#" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
 sed -i "s#{offline_minio_url}#${MINIO_URL}#g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
-sed -i  "s#centos#kylin#g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
+sed -i  "s#rocky#kylin#g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
 sed -i  "s#\/os\/#\/sp2\/os\/#g" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/kubeanClusterOps.yml
 # vars-conf-cm.yml set
 sed -i "s#registry_host:#registry_host: ${registry_addr_arm64}#"    ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
