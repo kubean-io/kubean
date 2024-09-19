@@ -456,7 +456,7 @@ function resource::import_iso_minio(){
   if [[ $# -gt 0 ]] && [[ $1 =~ "artifact" ]];then
     iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "CentOS-7-x86_64-DVD-2207-02.iso")
   else
-    iso_list=( "rhel-server-7.9-x86_64-dvd.iso"  "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
+    iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
   fi
   for iso in "${iso_list[@]}";do
     iso_image_file=${iso_file_dir}/${iso}
@@ -489,7 +489,7 @@ function resource::import_iso_local_path_check(){
   if [[ "${test_type}" =~ "artifact" ]];then
     iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "CentOS-7-x86_64-DVD-2207-02.iso")
   else
-    iso_list=( "rhel-server-7.9-x86_64-dvd.iso"  "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
+    iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
   fi
     for iso in "${iso_list[@]}";do
     iso_image_file=${iso_file_dir}/${iso}
