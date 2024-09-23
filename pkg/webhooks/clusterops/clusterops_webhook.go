@@ -35,12 +35,16 @@ import (
 )
 
 var (
-	certsDir          = "/etc/webhook/certs"
-	certKey           = "tls.key"
+	// #nosec
+	certsDir = "/etc/webhook/certs"
+	// #nosec
+	certKey = "tls.key"
+	// #nosec
 	certFile          = "tls.crt"
 	Organization      = "kubean.io"
 	DefaultEffectTime = 10 * 365 * 24 * time.Hour
-	CAStoreSecret     = "webhook-http-ca-secret"
+	// #nosec
+	CAStoreSecret = "webhook-http-ca-secret"
 
 	WebHookPath             = "/webhook"
 	WebhookSVCNamespace, _  = os.LookupEnv("WEBHOOK_SERVICE_NAMESPACE")

@@ -76,6 +76,17 @@ linters-settings:
     min-complexity: 20
   nestif:
     min-complexity: 20
+  gosec:
+    config:
+      nosec: true
+      G101:
+        # Regexp pattern for variables and constants to find.
+        pattern: "(?i)passwd|pass|password|pwd|secret|token|pw|apiKey|bearer|cred|crt|cert|certificate"
+    excludes:
+      - G112
+      - G401
+      - G501
+      - G601
 
 output:
   formats: colored-line-number
@@ -117,7 +128,6 @@ linters:
     - cyclop                   # checks function and package cyclomatic complexity
     - errcheck                 # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases
     - unparam                  # Reports unused function parameters
-    - gosec                    # Inspects source code for security problems
     - funlen                   # Tool for detection of long functions
     - gocognit                 # Computes and checks the cognitive complexity of functions
     - gocyclo                  # Computes and checks the cyclomatic complexity of functions
@@ -160,4 +170,5 @@ linters:
     - unused                   # Checks Go code for unused constants, variables, functions and types
     - whitespace               # Tool for detection of leading and trailing whitespace
     - godot                    # Check if comments end in a period
+    - gosec                    # Inspects source code for security problems
 
