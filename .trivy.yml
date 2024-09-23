@@ -1,0 +1,12 @@
+rules:
+- id: scan cert
+  category: ScanHardcodeCert
+  title: Hardcode CERTIFICATE is not allowed
+  severity: HIGH
+  keywords:
+  - -----
+  regex: (?i)-----\s*?BEGIN[ A-Z0-9_-]*?CERTIFICATE( BLOCK)?\s*?-----[\s]*?(?P<secret>[A-Za-z0-9=+/\\\r\n][A-Za-z0-9=+/\\\s]+)[\s]*?-----\s*?END[ A-Z0-9_-]*? CERTIFICATE( BLOCK)?\s*?-----
+
+disable-rules:
+- private-key
+- JWT

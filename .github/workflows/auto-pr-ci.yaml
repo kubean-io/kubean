@@ -64,6 +64,14 @@ jobs:
         with:
           path: "playbooks/"
 
+      - name: Run Trivy vulnerability scanner in fs mode
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          scanners: secret
+          trivy-config: .trivy.yml
+
   unit-test:
     needs: [ static-check,get_ref ]
     runs-on: ubuntu-latest
