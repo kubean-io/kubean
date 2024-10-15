@@ -15,7 +15,7 @@ export OS_NAME="CENTOS7"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 cp -f  ${REPO_ROOT}/test/offline-common/hosts-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 cp -f  ${REPO_ROOT}/test/offline-common/kubeanCluster.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
-cp -f  ${REPO_ROOT}/test/offline-common/kubeanClusterOps.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
+cp -f  ${REPO_ROOT}/test/offline-common/kubeanClusterOps-rocky.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
 cp -f  ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 
 util::vm_name_ip_init_offline_by_os ${OS_NAME}
