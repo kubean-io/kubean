@@ -93,6 +93,14 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			}
 		})
 
+		// check ca auto_renew
+		ginkgo.It("do ca auto_renew checking", func() {
+			checkCmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "systemctl list-timers |grep k8s-certs-renew.timer |wc -l"})
+			checkOut, _ := tools.NewDoCmd("sshpass", checkCmd...)
+			klog.Info("ca auto_renew check out: ", checkOut.String())
+			gomega.Expect(checkOut.String()).Should(gomega.ContainSubstring("1"))
+		})
+
 		// check network configuration:
 		// cat /proc/sys/net/ipv4/ip_forward: 1
 		// cat /proc/sys/net/ipv4/tcp_tw_recycle: 0
