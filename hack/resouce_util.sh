@@ -401,9 +401,9 @@ function resource::import_os_package_minio(){
 
   local os_list=()
   if [[ ${test_type} =~ "artifact" ]];then
-    os_list=("os-pkgs-centos7" )
+    os_list=("os-pkgs-rocky8" )
   else
-    os_list=( "os-pkgs-centos7" "os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-redhat8" "os-pkgs-redhat7" )
+    os_list=("os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-redhat8" "os-pkgs-redhat7" )
   fi
   for os_name in "${os_list[@]}";do
     echo "Import os pkgs to minio: ${os_name}..."
