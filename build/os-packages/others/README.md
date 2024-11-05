@@ -9,7 +9,6 @@ Please make sure these tools are installed in your OS environment:
 
 ``` bash
 $ cd /home
-$ curl -Lo ./pkgs.yml https://raw.githubusercontent.com/kubean-io/kubean/main/build/os-packages/others/pkgs.yml
 $ curl -Lo ./other_os_pkgs.sh https://raw.githubusercontent.com/kubean-io/kubean/main/build/os-packages/others/other_os_pkgs.sh && chmod +x other_os_pkgs.sh
 ```
 
@@ -19,7 +18,6 @@ Since the build process will download packages, you need to make sure that the n
 
 ``` bash
 $ cd /home
-$ export PKGS_YML_PATH=/home/pkgs.yml
 $ ./other_os_pkgs.sh build
 ```
 
@@ -28,7 +26,6 @@ $ ./other_os_pkgs.sh build
 Prepare the OS package tarball file in advance.
 
 ``` bash
-$ export PKGS_YML_PATH=/home/pkgs.yml
 $ export PKGS_TAR_PATH=/home/os-pkgs.tar.gz
 $ export HOST_IPS='192.168.10.11 192.168.10.12'
 

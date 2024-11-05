@@ -37,10 +37,12 @@ jobs:
         ./artifacts/gen_airgap_crs.py Manifest
         ./artifacts/gen_airgap_crs.py LocalArtifactSet
         cp artifacts/import_iso.sh ${KUBEAN_TAG}/
+        cp build/os-packages/others/other_os_pkgs.sh ${KUBEAN_TAG}/
 
         pushd ${KUBEAN_TAG}
         sha256sum localartifactset.cr.yaml >> ../${{ env.SHA256SUM_TXT }}
         sha256sum import_iso.sh >> ../${{ env.SHA256SUM_TXT }}
+        sha256sum other_os_pkgs.sh >> ../${{ env.SHA256SUM_TXT }}
         popd
 
         echo "localartifactset cr output:"
