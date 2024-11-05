@@ -11,7 +11,7 @@ source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 
 ############### Base case
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 cp -f  ${REPO_ROOT}/test/offline-common/hosts-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 cp -f  ${REPO_ROOT}/test/offline-common/kubeanCluster.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/

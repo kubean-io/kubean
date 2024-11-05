@@ -22,13 +22,13 @@ f_images_amd64_tgz=${base_url}/images-amd64-${TAG}.tar.gz
 f_files_arm64__tgz=${base_url}/files-arm64-${TAG}.tar.gz
 f_images_arm64_tgz=${base_url}/images-arm64-${TAG}.tar.gz
 # os pkgs
-f_os_centos7=${base_url}/os-pkgs-centos7-${TAG}.tar.gz
+f_os_rocky8=${base_url}/os-pkgs-rocky8-${TAG}.tar.gz
 f_os_kylin10=${base_url}/os-pkgs-kylin-v10sp2-${TAG}.tar.gz
 f_os_redhat8=${base_url}/os-pkgs-redhat8-${TAG}.tar.gz
 f_os_redhat7=${base_url}/os-pkgs-redhat7-${TAG}.tar.gz
 # shellcheck disable=SC2206
 file_down_list=(${f_files_amd64_tgz}  ${f_images_amd64_tgz} ${f_files_arm64__tgz} ${f_images_arm64_tgz} \
-                ${f_os_centos7} ${f_os_kylin10} ${f_os_redhat8} ${f_os_redhat7})
+                ${f_os_rocky8} ${f_os_kylin10} ${f_os_redhat8} ${f_os_redhat7})
 for (( i=0; i<${#file_down_list[@]};i++)); do
   echo "${file_down_list[$i]}"
   timeout 1m wget -q -c  -P  "${DOWNLOAD_FOLDER}"  "${file_down_list[$i]}"

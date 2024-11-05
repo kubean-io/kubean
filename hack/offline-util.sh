@@ -66,7 +66,7 @@ function util::vm_name_ip_init_offline_by_os(){
            vm_name1="gwt-kubean-offline-e2e-kylin-node3"
            vm_name2="gwt-kubean-offline-e2e-kylin-node4"
            ;;
-        "CENTOS7")
+        "ROCKY8")
             vm_ip_addr1="10.16.10.163"
             vm_ip_addr2="10.16.10.164"
             vm_name1="gwt-kubean-offline-e2e-node3"
@@ -93,7 +93,7 @@ function util::vm_name_ip_init_offline_by_os(){
           vm_name1="gwt-kubean-offline-e2e-kylin-node1"
           vm_name2="gwt-kubean-offline-e2e-kylin-node2"
            ;;
-        "CENTOS7")
+        "ROCKY8")
           vm_ip_addr1="10.16.10.161"
           vm_ip_addr2="10.16.10.162"
           vm_name1="gwt-kubean-offline-e2e-node1"

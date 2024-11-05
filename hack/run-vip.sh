@@ -12,7 +12,7 @@ source "${REPO_ROOT}"/hack/offline-util.sh
 
 rm -f ~/.ssh/known_hosts
 export ARCH=amd64
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 export OFFLINE_FLAG=false
 echo "ARCH: ${ARCH}"
 echo "IS_OFFLINE: ${OFFLINE_FLAG}"
@@ -36,11 +36,11 @@ function func_prepare_config_yaml_3node() {
 
 ####################### create vip cluster ################
 echo "create vip cluster....."
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 echo "OS_NAME: ${OS_NAME}"
 util::power_on_2vms ${OS_NAME}
 
-export OS_NAME="CENTOS7-3MASTER"
+export OS_NAME="ROCKY8-3MASTER"
 echo "OS_NAME: ${OS_NAME}"
 util::power_on_third_vms ${OS_NAME}
 echo "this:"

@@ -47,7 +47,7 @@ function func_prepare_config_yaml_single_stack() {
 
 ####################### create ipvs cluster ################
 echo "create ipvs cluster....."
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 echo "OS_NAME: ${OS_NAME}"
 
 util::power_on_2vms ${OS_NAME}
@@ -70,7 +70,7 @@ ginkgo -v -race -timeout=3h  --fail-fast ./${go_test_path}  -- --kubeconfig="${K
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="REDHAT8"
 else
-  export OS_NAME="CENTOS7-HK"
+  export OS_NAME="ROCKY8-HK"
 fi
 echo "create cilium cluster....."
 echo "OS_NAME: ${OS_NAME}"
@@ -119,7 +119,7 @@ helm list -n  "kubean-system" --kubeconfig ${KUBECONFIG_FILE}
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="REDHAT8"
 else
-  export OS_NAME="CENTOS7-HK"
+  export OS_NAME="ROCKY8-HK"
 fi
 
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
@@ -195,7 +195,7 @@ util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_US
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
 
 ############## calico single stuck ##############
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 ### CALICO: IPIP_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/

@@ -322,22 +322,22 @@ main() {
         echo "🥦🥦🥦run testcase: "$case
         case $case in
             "kubean_ipvs_cluster_e2e")
-            export OS_NAME="CENTOS7"
+            export OS_NAME="ROCKY8"
             prepare_case_vars
             kubean_ipvs_cluster_e2e
             ;;
             "kubean_cilium_cluster_e2e")
-            export OS_NAME="CENTOS7-HK"
+            export OS_NAME="ROCKY8-HK"
             prepare_case_vars
             kubean_cilium_cluster_e2e
             ;;
             "kubean_calico_dualstack_e2e")
-            export OS_NAME="CENTOS7-HK"
+            export OS_NAME="ROCKY8-HK"
             prepare_case_vars
             kubean_calico_dualstack_e2e
             ;;
             "kubean_calico_single_stack_e2e")
-            export OS_NAME="CENTOS7"
+            export OS_NAME="ROCKY8"
             prepare_case_vars
             kubean_calico_single_stack_e2e
             ;;

@@ -22,7 +22,7 @@ generate_rsa_key(){
 
 rm -f ~/.ssh/known_hosts
 export ARCH=amd64
-export OS_NAME="CENTOS7"
+export OS_NAME="ROCKY8"
 export OFFLINE_FLAG=false
 export NIGHTLY_E2E_STEP=${1}
 if [ "${NIGHTLY_E2E_STEP}" == "ALL" ]; then
