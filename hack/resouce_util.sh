@@ -428,7 +428,7 @@ function resource::import_os_package_minio(){
 }
 
 #####################################
-# when the imported os package is centos7
+# when the imported os package is rocky8
 function resource::check_os_package_minio(){
   file_list=( "${MINIO_URL}/kubean/rocky/8/os/aarch64/repodata/repomd.xml" \
               "${MINIO_URL}/kubean/rocky/8/os/x86_64/repodata/repomd.xml" \

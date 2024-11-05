@@ -25,7 +25,7 @@ GOPATH=$(go env GOPATH | awk -F ':' '{print $1}')
 export PATH=$PATH:$GOPATH/bin
 rm -f ~/.ssh/known_hosts
 arch=amd64
-os_name="CENTOS7"
+os_name="ROCKY8"
 util::vm_name_ip_init_online_by_os ${os_name}
 echo "vm_name1: ${vm_name1}"
 SNAPSHOT_NAME="os-installed"
