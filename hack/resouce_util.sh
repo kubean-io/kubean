@@ -430,10 +430,10 @@ function resource::import_os_package_minio(){
 #####################################
 # when the imported os package is centos7
 function resource::check_os_package_minio(){
-  file_list=( "${MINIO_URL}/kubean/centos/7/os/aarch64/repodata/repomd.xml" \
-              "${MINIO_URL}/kubean/centos/7/os/x86_64/repodata/repomd.xml" \
-              "${MINIO_URL}/kubean/centos/7/os/packages.list" \
-              "${MINIO_URL}/kubean/centos/7/os/packages.yml" \
+  file_list=( "${MINIO_URL}/kubean/rocky/8/os/aarch64/repodata/repomd.xml" \
+              "${MINIO_URL}/kubean/rocky/8/os/x86_64/repodata/repomd.xml" \
+              "${MINIO_URL}/kubean/rocky/8/os/packages.list" \
+              "${MINIO_URL}/kubean/rocky/8/os/packages.yml" \
             )
   resource::check_files_url_exist "${file_list[@]}"
 }
@@ -454,7 +454,7 @@ function resource::import_iso_minio(){
   local shell_path="${REPO_ROOT}/artifacts"
   local iso_list=()
   if [[ $# -gt 0 ]] && [[ $1 =~ "artifact" ]];then
-    iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "CentOS-7-x86_64-DVD-2207-02.iso")
+    iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "Rocky-8.10-x86_64-dvd1.iso")
   else
     iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
   fi
@@ -487,9 +487,9 @@ function resource::import_iso_local_path_check(){
   local  local_path=$(pwd)/"iso_mount_local_path"
   rm -fr ${local_path}
   if [[ "${test_type}" =~ "artifact" ]];then
-    iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "CentOS-7-x86_64-DVD-2207-02.iso")
+    iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "Rocky-8.10-x86_64-dvd1.iso")
   else
-    iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
+    iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
   fi
     for iso in "${iso_list[@]}";do
     iso_image_file=${iso_file_dir}/${iso}
@@ -506,8 +506,8 @@ function resource::import_iso_local_path_check(){
 
 #####################################
 function resource::check_iso_file_minio(){
-  file_list=( "${MINIO_URL}/kubean/centos-iso/7/os/x86_64/Packages/389-ds-base-1.3.10.2-16.el7_9.x86_64.rpm" \
-     "${MINIO_URL}/kubean/centos-iso/7/os/x86_64/Packages/zziplib-0.13.62-12.el7.x86_64.rpm" \
+  file_list=( "${MINIO_URL}/kubean/rocky-iso/8/os/x86_64/AppStream/Packages/3/389-ds-base-1.4.3.39-3.module+el8.10.0+1754+15117a6d.x86_64.rpm" \
+     "${MINIO_URL}/kubean/rocky-iso/8/os/x86_64/AppStream/Packages/z/zziplib-utils-0.13.68-13.el8_10.x86_64.rpm" \
      "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
      "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
      "${MINIO_URL}/kubean/kylin-iso/10/sp2/os/aarch64/repodata/13df713badb6a33bf7517dcee436d2a565773d5035f980b8e84520bc4f7d1c50-filelists.xml.gz" \
@@ -519,8 +519,8 @@ function resource::check_iso_file_minio(){
 #####################################
 function resource::check_iso_file_local_path(){
   local father_path=$1
-  file_list=( "centos-iso/7/os/x86_64/Packages/389-ds-base-1.3.10.2-16.el7_9.x86_64.rpm" \
-  "centos-iso/7/os/x86_64/Packages/zziplib-0.13.62-12.el7.x86_64.rpm" \
+  file_list=( "rocky-iso/8/os/x86_64/AppStream/Packages/3/389-ds-base-1.4.3.39-3.module+el8.10.0+1754+15117a6d.x86_64.rpm" \
+  "rocky-iso/8/os/x86_64/AppStream/Packages/z/zziplib-utils-0.13.68-13.el8_10.x86_64.rpm" \
 
   "kylin-iso/10/sp2/os/aarch64/Packages/abattis-cantarell-fonts-0.201-1.ky10.noarch.rpm" \
   "kylin-iso/10/sp2/os/aarch64/Packages/zziplib-help-0.13.69-6.ky10.noarch.rpm" \
