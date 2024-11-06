@@ -8,7 +8,6 @@ DISTRO=${DISTRO:-''}
 VERSION=${VERSION:-''}
 ARCH=${ARCH:-''}
 
-PKGS_YML_PATH=${PKGS_YML_PATH:-"pkgs.yml"}
 PKGS_TAR_PATH=${PKGS_TAR_PATH:-"os-pkgs-${DISTRO}-${VERSION}.tar.gz"}
 
 SSH_MODE=${SSH_MODE:-'PWD'} # PWD or KEY
@@ -17,6 +16,60 @@ SSH_CRED=${SSH_CRED:=''}
 HOST_IPS=${HOST_IPS:-''}
 
 REMOTE_REPO_PATH='/home/other_repo'
+
+#===========================#
+###### Packages config ######
+#===========================#
+
+PKGS_YML_CONF='
+yum:
+  build_tools:
+  - createrepo
+  - yum-utils
+  required_pkgs:
+  - libselinux-python
+  - python3-libselinux
+  - device-mapper-libs
+  - nss-tools
+  - conntrack
+  - container-selinux
+  - libseccomp
+  - chrony
+  - iputils
+  required_mods:
+  - container-tools
+
+apt:
+  build_tools:
+  - dpkg-dev
+  required_pkgs:
+  - python-apt
+  - python3-apt
+  - aufs-tools
+  - apt-transport-https
+  - software-properties-common
+  - conntrack
+  - apparmor
+  - libseccomp2
+  - ntp
+  - iputils-ping
+
+commons:
+- openssl
+- curl
+- rsync
+- socat
+- unzip
+- e2fsprogs
+- xfsprogs
+- ebtables
+- bash-completion
+- tar
+- ipvsadm
+- ipset
+- sshpass
+'
+
 
 #============================#
 ###### Common Functions ######
@@ -118,8 +171,8 @@ function get_local_os_release() {
 
 function yum_build() {
   local build_path="/${DISTRO}/${VERSION}/os"
-  local build_tools=$(cat ${PKGS_YML_PATH} | yq eval '.yum.build_tools[]' | tr '\n' ' ')
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local build_tools=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.build_tools[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
 
   mkdir -p ${build_path}
   pushd ${build_path}
@@ -146,9 +199,9 @@ function yum_build() {
 
 function dnf_build() {
   local build_path="/${DISTRO}/${VERSION}/os"
-  local build_tools=$(cat ${PKGS_YML_PATH} | yq eval '.yum.build_tools[]' | tr '\n' ' ')
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
-  local modules=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_mods[]' | tr '\n' ' ')
+  local build_tools=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.build_tools[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local modules=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.required_mods[]' | tr '\n' ' ')
 
   mkdir -p ${build_path}
   pushd ${build_path}
@@ -183,8 +236,8 @@ function dnf_build() {
 
 function apt_build() {
   local build_path="/${DISTRO}/$(require_arch)/${VERSION}"
-  local build_tools=$(cat ${PKGS_YML_PATH} | yq eval '.apt.build_tools[]' | tr '\n' ' ')
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.apt.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local build_tools=$(echo "${PKGS_YML_CONF}" | yq eval '.apt.build_tools[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.apt.required_pkgs[],.commons[]' | tr '\n' ' ')
 
   mkdir -p ${build_path}
   pushd ${build_path}
@@ -227,10 +280,6 @@ function Build() {
   # Check if tar is installed
   if [ ! -x "$(command -v tar)" ]; then
     log_erro "Please install the tar command line tool."
-  fi
-
-  if [ -z "${PKGS_YML_PATH}" ] || [ ! -f ${PKGS_YML_PATH} ]; then
-    log_erro "package config: \${PKGS_YML_PATH} should exist."
   fi
 
   if [ -z "${DISTRO}" ]; then
@@ -318,7 +367,7 @@ function dnf_install() {
   local ip=$1
   local yum_repos_path='/etc/yum.repos.d'
   local yum_repo_config='other-extra.repo'
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
 
   remote_exec "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak/ && mkdir -p /etc/yum.repos.d/"
   # Distribute yum repo configuration
@@ -356,7 +405,7 @@ function yum_install() {
   local ip=$1
   local yum_repos_path='/etc/yum.repos.d'
   local yum_repo_config='other-extra.repo'
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.yum.required_pkgs[],.commons[]' | tr '\n' ' ')
 
   remote_exec "${ip}" "mv /etc/yum.repos.d/ /etc/yum.repos.d.bak/ && mkdir -p /etc/yum.repos.d/"
   # Distribute yum repo configuration
@@ -385,7 +434,7 @@ EOF
 function apt_install() {
   local ip=$1
   local apt_repo_path='/etc/apt/sources.list'
-  local packages=$(cat ${PKGS_YML_PATH} | yq eval '.apt.required_pkgs[],.commons[]' | tr '\n' ' ')
+  local packages=$(echo "${PKGS_YML_CONF}" | yq eval '.apt.required_pkgs[],.commons[]' | tr '\n' ' ')
   local extra_repo="deb [trusted=yes] file://${REMOTE_REPO_PATH}/os-pkgs/resources/${DISTRO}/$(require_arch)/${VERSION} ./"
   local install_failed_list=()
 
@@ -440,10 +489,6 @@ function Install() {
   # Check if PKGS_TAR_PATH exists
   if [ -z "${PKGS_TAR_PATH}" ] || [ ! -f ${PKGS_TAR_PATH} ]; then
     log_erro "Package tar path: \${PKGS_TAR_PATH} should exist."
-  fi
-  # Check if PKGS_YML_PATH exists
-  if [ -z "${PKGS_YML_PATH}" ] || [ ! -f ${PKGS_YML_PATH} ]; then
-    log_erro "Package yml path: \${PKGS_YML_PATH} should exist."
   fi
   # Check if HOST_IPS is empty
   if [ -z "${HOST_IPS}" ]; then
@@ -520,11 +565,9 @@ Commands
 
 Examples
   # Build OS Package
-  export PKGS_YML_PATH=/home/pkgs.yml
   ./$cmd build
 
   # Install OS Package
-  export PKGS_YML_PATH=/home/pkgs.yml
   export PKGS_TAR_PATH=/home/os-pkgs.tar.gz
   export SSH_USER=root
   export SSH_CRED=dangerous
