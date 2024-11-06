@@ -7,6 +7,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+LATEST_TAG=${1:-"NONE"}
+
+
+
 KUBEAN_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)")
 SUPPORTED_FILE_PATH="./docs/zh/usage/support_k8s_version.md"
 
@@ -34,14 +38,24 @@ function get_k8s_version_range() {
   # get versionRange string
   range=$(cat manifest.cr.yaml| yq '.spec.components[] | select(.name=="kube")' | yq '.versionRange' | tr '"' "'")
   # replace each - with <br\/>       -, divide into one line, remove \n and remove the first <br\/>
-  echo "$range" | sed 's/-/<br\/>       -/g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/<br\/>       //'
+  if [[ "$LATEST_TAG" == "NONE" ]]; then
+   echo "$range" | sed 's/-/<br\/>       -/g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/<br\/>       //'
+  else
+  # replace each - with &nbsp;     , divide into one line, remove \n and remove the first &nbsp;
+   echo "$range" | sed 's/-/ \&nbsp\;  /g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/ \&nbsp\;      //'
+  fi
+
 }
 
 # print tab content
 function k8s_version_tab_render() {
   #printf -- "| %-13s | %-24s | %s |\n" 'kubean Version' 'Default Kubernetes Version' 'Supported Kubernetes Version Range'
   #printf -- "| %-13s| %-24s| %s|\n" '-----------' '----------------------' '------------------------------------------------------------'
-  printf -- "| %-13s | %-24s| %s|\n" "$KUBEAN_VERSION" "$k8s_default_version" "$k8s_version_range"
+  if [[ "$LATEST_TAG" == "NONE" ]]; then
+   printf -- "| %-13s | %-24s| %s|\n" "$KUBEAN_VERSION" "$k8s_default_version" "$k8s_version_range"
+  else
+   printf -- "| %-24s| %s|\n"  "$k8s_default_version" "$k8s_version_range"
+  fi
 }
 
 #############################################################################
@@ -53,5 +67,12 @@ k8s_version_range=$(get_k8s_version_range)
 echo "k8s_version_range: ${k8s_version_range}"
 
 rm -rf manifest.cr.yaml
+if [[ "$LATEST_TAG" == "NONE" ]]; then
+ k8s_version_tab_render >> "$SUPPORTED_FILE_PATH"
+else
+ echo "| Default Kubernetes Version | Supported Kubernetes Version Range                                   |"  >> docs/overrides/releases/${LATEST_TAG}.md
+ echo "| ---------------------------| ---------------------------------------------------------------------|" >> docs/overrides/releases/${LATEST_TAG}.md
+ k8s_version_tab_render >> docs/overrides/releases/${LATEST_TAG}.md
+fi
 
-k8s_version_tab_render >> "$SUPPORTED_FILE_PATH"
+
