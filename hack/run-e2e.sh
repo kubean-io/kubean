@@ -88,4 +88,4 @@ ginkgo -v -race --fail-fast --skip "\[bug\]" ./test/kubean_reset_e2e/  -- --kube
               --isOffline="false" --arch=${arch} --vmPassword="${AMD_ROOT_PASSWORD}"
 
 SNAPSHOT_NAME="power-down"
-util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
+# util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
