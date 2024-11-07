@@ -33,6 +33,12 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${latest_tag} |yq '.body' > docs/overrides/releases/${latest_tag}.md
 
+    - name: Add support list in release notes markdown
+      run: |
+        latest_tag=${GITHUB_REF#refs/*/}
+        bash ./hack/autoversion.sh ${latest_tag}
+        
+
     - name: Push release notes
       id: push_directory
       uses: cpina/github-action-push-to-another-repository@v1.7.2
