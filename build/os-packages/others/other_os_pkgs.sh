@@ -36,6 +36,7 @@ yum:
   - libseccomp
   - chrony
   - iputils
+  - nfs-utils
   required_mods:
   - container-tools
 
@@ -53,6 +54,7 @@ apt:
   - libseccomp2
   - ntp
   - iputils-ping
+  - nfs-common
 
 commons:
 - openssl
