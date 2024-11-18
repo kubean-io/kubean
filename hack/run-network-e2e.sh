@@ -31,13 +31,20 @@ function func_prepare_config_yaml_dual_stack() {
 }
 
 function func_prepare_config_yaml_single_stack() {
-    local source_path=$1
-    local dest_path=$2
+    local os_name=$1
+    local source_path=$2
+    local dest_path=$3
     rm -fr "${dest_path}"
     mkdir "${dest_path}"
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
     cp -f "${source_path}"/vars-conf-cm.yml  "${dest_path}"
     cp -f "${source_path}"/kubeanCluster.yml "${dest_path}"
+    if [[ "${os_name}" = "ROCKY8" ]]; then
+        cp -f "${source_path}"/kubeanClusterOps-rocky.yml  "${dest_path}"
+    else
+        cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+    fi
+
     cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" "${dest_path}"/hosts-conf-cm.yml
@@ -55,7 +62,7 @@ go_test_path="test/kubean_ipvs_cluster_e2e"
 dest_config_path="${REPO_ROOT}"/${go_test_path}/${E2eInstallClusterYamlFolder}
 
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 
 CLUSTER_OPERATION_NAME1="cluster1-ipvs-"`date "+%H-%M-%S"`
@@ -86,7 +93,7 @@ helm list -n "${new_kubean_namespace}" --kubeconfig ${KUBECONFIG_FILE}
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 dest_config_path="${REPO_ROOT}"/test/kubean_cilium_cluster_e2e/e2e-install-cilium-cluster
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 
 CLUSTER_OPERATION_NAME1="cluster1-cilium-"`date "+%H-%M-%S"`
@@ -200,7 +207,7 @@ export OS_NAME="ROCKY8"
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-ipip-always-"`date "+%H-%M-%S"`
 
@@ -218,7 +225,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 ### CALICO: IPIP_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-ipip-cross-"`date "+%H-%M-%S"`
 
@@ -236,7 +243,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 ### CALICO: VXLAN_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-vxlan-always-"`date "+%H-%M-%S"`
 
@@ -253,7 +260,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 ### CALICO: VXLAN_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
-func_prepare_config_yaml_single_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_single_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-calico-vxlan-cross-"`date "+%H-%M-%S"`
 
