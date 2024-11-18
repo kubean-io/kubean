@@ -42,7 +42,7 @@ function get_k8s_version_range() {
    echo "$range" | sed 's/-/<br\/>       -/g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/<br\/>       //'
   else
   # replace each - with &nbsp;     , divide into one line, remove \n and remove the first &nbsp;
-   echo "$range" | sed 's/-/ \&nbsp\;  /g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/ \&nbsp\;      //'
+   echo "$range" | sed 's/-/\&nbsp\;/g'|sed ':a;N;$!ba;s/\n/ /g'| sed 's/\&nbsp\;//'
   fi
 
 }
