@@ -38,6 +38,15 @@ jobs:
         latest_tag=${GITHUB_REF#refs/*/}
         bash ./hack/autoversion.sh ${latest_tag}
         
+    - name: Add support list in release body
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        body_path: docs/overrides/releases/${GITHUB_REF#refs/*/}.md
+
+
 
     - name: Push release notes
       id: push_directory
