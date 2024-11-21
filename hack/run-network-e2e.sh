@@ -39,10 +39,10 @@ function func_prepare_config_yaml_single_stack() {
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
     cp -f "${source_path}"/vars-conf-cm.yml  "${dest_path}"
     cp -f "${source_path}"/kubeanCluster.yml "${dest_path}"
+    cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
     if [[ "${os_name}" = "ROCKY8" ]]; then
-        cp -f "${source_path}"/kubeanClusterOps-rocky.yml  "${dest_path}"
-    else
-        cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+        minio_url="        -e \"{repo_list: ['{offline_minio_url}/kubean/rocky/\\\\\$releasever/os/\\\\\$basearch','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/BaseOS','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/AppStream']}\""
+        sed -i "s|.*repo_list.*|${minio_url}|" "${dest_path}"/kubeanClusterOps.yml
     fi
 
     cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"

@@ -15,7 +15,9 @@ export OS_NAME="ROCKY8"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 cp -f  ${REPO_ROOT}/test/offline-common/hosts-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 cp -f  ${REPO_ROOT}/test/offline-common/kubeanCluster.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
-cp -f  ${REPO_ROOT}/test/offline-common/kubeanClusterOps-rocky.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
+cp -f  ${REPO_ROOT}/test/offline-common/kubeanClusterOps.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
+minio_url="        -e \"{repo_list: ['{offline_minio_url}/kubean/rocky/\\\\\$releasever/os/\\\\\$basearch','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/BaseOS','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/AppStream']}\""
+sed -i "s|.*repo_list.*|${minio_url}|" ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/kubeanClusterOps.yml
 cp -f  ${REPO_ROOT}/test/offline-common/vars-conf-cm.yml ${REPO_ROOT}/test/kubean_functions_e2e/e2e-install-cluster/
 
 util::vm_name_ip_init_offline_by_os ${OS_NAME}
