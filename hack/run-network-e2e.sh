@@ -44,8 +44,6 @@ function func_prepare_config_yaml_single_stack() {
         minio_url="        -e \"{repo_list: ['{offline_minio_url}/kubean/rocky/\\\\\$releasever/os/\\\\\$basearch','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/BaseOS','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/AppStream']}\""
         sed -i "s|.*repo_list.*|${minio_url}|" "${dest_path}"/kubeanClusterOps.yml
     fi
-
-    cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_path}/hosts-conf-cm.yml
