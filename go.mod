@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/go-logr/logr v1.4.2
 	github.com/kubean-io/kubean-api v0.0.0
-	github.com/onsi/ginkgo/v2 v2.21.0
+	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.35.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
