@@ -39,7 +39,10 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/handlers/negotiation"
 	"k8s.io/apiserver/pkg/endpoints/metrics"
 	"k8s.io/apiserver/pkg/endpoints/request"
+	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/apiserver/pkg/server/routine"
+	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/component-base/tracing"
 	"k8s.io/klog/v2"
 )
@@ -198,7 +201,8 @@ func ListResource(r rest.Lister, rw rest.Watcher, scope *RequestScope, forceWatc
 			return
 		}
 
-		if errs := metainternalversionvalidation.ValidateListOptions(&opts); len(errs) > 0 {
+		metainternalversion.SetListOptionsDefaults(&opts, utilfeature.DefaultFeatureGate.Enabled(features.WatchList))
+		if errs := metainternalversionvalidation.ValidateListOptions(&opts, utilfeature.DefaultFeatureGate.Enabled(features.WatchList)); len(errs) > 0 {
 			err := errors.NewInvalid(schema.GroupKind{Group: metav1.GroupName, Kind: "ListOptions"}, "", errs)
 			scope.err(err, w, req)
 			return
@@ -256,16 +260,37 @@ func ListResource(r rest.Lister, rw rest.Watcher, scope *RequestScope, forceWatc
 			}
 			klog.V(3).InfoS("Starting watch", "path", req.URL.Path, "resourceVersion", opts.ResourceVersion, "labels", opts.LabelSelector, "fields", opts.FieldSelector, "timeout", timeout)
 			ctx, cancel := context.WithTimeout(ctx, timeout)
-			defer cancel()
+			defer func() { cancel() }()
 			watcher, err := rw.Watch(ctx, &opts)
 			if err != nil {
 				scope.err(err, w, req)
 				return
 			}
-			requestInfo, _ := request.RequestInfoFrom(ctx)
-			metrics.RecordLongRunning(req, requestInfo, metrics.APIServerComponent, func() {
-				serveWatch(watcher, scope, outputMediaType, req, w, timeout)
-			})
+			handler, err := serveWatchHandler(watcher, scope, outputMediaType, req, w, timeout, metrics.CleanListScope(ctx, &opts))
+			if err != nil {
+				scope.err(err, w, req)
+				return
+			}
+			// Invalidate cancel() to defer until serve() is complete.
+			deferredCancel := cancel
+			cancel = func() {}
+
+			serve := func() {
+				defer deferredCancel()
+				requestInfo, _ := request.RequestInfoFrom(ctx)
+				metrics.RecordLongRunning(req, requestInfo, metrics.APIServerComponent, func() {
+					defer watcher.Stop()
+					handler.ServeHTTP(w, req)
+				})
+			}
+
+			// Run watch serving in a separate goroutine to allow freeing current stack memory
+			t := routine.TaskFrom(req.Context())
+			if t != nil {
+				t.Func = serve
+			} else {
+				serve()
+			}
 			return
 		}
 
