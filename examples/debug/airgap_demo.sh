@@ -154,7 +154,7 @@ function batch_sync_images() {
   local registry=$1
   local images=$2
   for image_item in ${images}; do
-    skopeo copy --insecure-policy -a --dest-tls-verify=false --retry-times=3 "docker://${image_item}" "docker://${registry}/${image_item}"
+    skopeo copy --insecure-policy -a --quiet --dest-tls-verify=false --retry-times=3 "docker://${image_item}" "docker://${registry}/${image_item}"
   done
 }
 

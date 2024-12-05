@@ -214,7 +214,12 @@ function iso::import_data() {
       cp -vr "${path_name}" "${target_path}/${minio_server_path}"
     else
       ## "/mnt/kubean-temp-iso/Pkgs" => "kubeaniominioserver/kubean/centos-dvd/7/os/x86_64/"
-      mc cp --no-color --recursive "${path_name}" "${minio_files_path}"
+      stderr=$(mc cp --quiet --no-color --recursive "${path_name}" "${minio_files_path}" 2>&1 > /dev/null)
+      if [[ -n "${stderr}" ]]; then
+        echo "error: ${stderr}"
+        exit 1
+      fi
+
       if [ "${path_name}" == "${iso_mnt_path}/dists" ]; then
         mc rm --no-color ${minio_files_path}/dists/$(dir --hide=*stable ${path_name})/Release ${minio_files_path}/dists/$(dir --hide=*stable ${path_name})/Release.gpg
       fi

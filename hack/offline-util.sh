@@ -132,7 +132,7 @@ function util::init_kylin_vm_template_map(){
 function util::scope_copy_test_images(){
    dest_registry_addr=${1}
    image_name=${2:-""}
-   skopeo_cmd="skopeo copy --insecure-policy --src-tls-verify=false --dest-tls-verify=false  "
+   skopeo_cmd="skopeo copy --insecure-policy --quiet --src-tls-verify=false --dest-tls-verify=false  "
    if [ "${image_name}" != "" ]; then
         echo "skopeo copy image to registry: ${image_name}"
         ${skopeo_cmd} docker://"${image_name}"  docker://"${dest_registry_addr}"/test/"${image_name}"
