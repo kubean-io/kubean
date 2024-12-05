@@ -11,6 +11,11 @@ jobs:
         fetch-depth: 0
         ref: main
 
+    - name: Extract  latest tag
+      id: latest_tag
+      run: |
+        echo tag=${GITHUB_REF#refs/*/} >> $GITHUB_OUTPUT
+
     - name: Create release notes markdown
       run: |
         # 1. get pre-release id
@@ -27,7 +32,7 @@ jobs:
           -d '{"draft":false,"prerelease":false,"make_latest":"true"}'
 
         # 3. generate release notes content for new release
-        latest_tag=${GITHUB_REF#refs/*/}
+        latest_tag=${{ steps.latest_tag.outputs.tag }}
         curl \
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -35,7 +40,7 @@ jobs:
 
     - name: Add support list in release notes markdown
       run: |
-        latest_tag=${GITHUB_REF#refs/*/}
+        latest_tag=${{ steps.latest_tag.outputs.tag }}
         bash ./hack/autoversion.sh ${latest_tag}
         
     - name: Add support list in release body
@@ -44,9 +49,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        body_path: docs/overrides/releases/${GITHUB_REF#refs/*/}.md
-
-
+        body_path: docs/overrides/releases/${{ steps.latest_tag.outputs.tag }}.md
 
     - name: Push release notes
       id: push_directory
