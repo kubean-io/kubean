@@ -84,8 +84,15 @@ func UpdateOwnReference(client kubernetes.Interface, configMapList []*apis.Confi
 			}
 			return err // not ignore
 		}
-		if len(cm.OwnerReferences) != 0 {
-			continue // do nothing
+		hasSet := false
+		for _, ownerRef := range cm.OwnerReferences {
+			if ownerRef.UID == belongToReference.UID {
+				hasSet = true
+				break
+			}
+		}
+		if hasSet {
+			continue
 		}
 		// cm belongs to `Cluster`
 		cm.OwnerReferences = append(cm.OwnerReferences, belongToReference)
@@ -104,8 +111,15 @@ func UpdateOwnReference(client kubernetes.Interface, configMapList []*apis.Confi
 			}
 			return err // not ignore
 		}
-		if len(secret.OwnerReferences) != 0 {
-			continue // do nothing
+		hasSet := false
+		for _, ownerRef := range secret.OwnerReferences {
+			if ownerRef.UID == belongToReference.UID {
+				hasSet = true
+				break
+			}
+		}
+		if hasSet {
+			continue
 		}
 		secret.OwnerReferences = append(secret.OwnerReferences, belongToReference)
 		if _, err := client.CoreV1().Secrets(ref.NameSpace).Update(context.Background(), secret, metav1.UpdateOptions{}); err != nil {
