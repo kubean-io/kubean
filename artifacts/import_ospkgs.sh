@@ -54,7 +54,11 @@ function import_os_packages() {
   tar -xvf "$TAR_GZ_FILE_PATH" ## got resources folder
 
   for dirName in resources/*; do
-    mc cp --no-color --recursive "$dirName" "kubeaniominioserver/kubean/"
+    stderr=$(mc cp --quiet --no-color --recursive "$dirName" "kubeaniominioserver/kubean/" 2>&1 > /dev/null)
+    if [[ -n "${stderr}" ]]; then
+      echo "error: ${stderr}"
+      exit 1
+    fi
   done
 }
 

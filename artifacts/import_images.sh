@@ -38,7 +38,7 @@ function image::merge_multi_arch() {
 
   ### Push {registry_address}/{image_name}:{tag}-{target_arch} to registry.
   image::log_info "import image from ${copy_args} to ${target_image_name}"
-  skopeo copy --insecure-policy --retry-times=3 --src-tls-verify=false --dest-tls-verify=false \
+  skopeo copy --insecure-policy --quiet --retry-times=3 --src-tls-verify=false --dest-tls-verify=false \
     "${copy_args}" docker://"${target_image_name}" >/dev/null
   if [[ $? -ne 0 ]]; then
     image::log_warn "skopeo copy ${copy_args} failed!"
@@ -69,7 +69,7 @@ function image::merge_multi_arch() {
     local origin_arch=$(podman manifest inspect "${manifest_list_name}" | awk -F: '/"architecture"/ {print $2}' | sed 's/[", ]//g')
     if [[ "${origin_arch}" != "${TARGET_ARCH}" ]]; then
       image::log_info "image retag from ${src_image_name} to ${src_image_name}-${origin_arch}"
-      skopeo copy --insecure-policy --retry-times=3 --src-tls-verify=false --dest-tls-verify=false \
+      skopeo copy --insecure-policy --quiet --retry-times=3 --src-tls-verify=false --dest-tls-verify=false \
         docker://"${src_image_name}" docker://"${src_image_name}-${origin_arch}" >/dev/null
       podman manifest create --amend "${manifest_list_name}" "${src_image_name}-${origin_arch}"
     fi

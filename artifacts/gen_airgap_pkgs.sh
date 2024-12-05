@@ -118,7 +118,7 @@ function create_images() {
     target_image_name=${target_image_name/k8s.m.daocloud.io/registry.k8s.io}
     target_image_name=${target_image_name/quay.m.daocloud.io/quay.io}
     ret=0
-    skopeo copy --insecure-policy --retry-times=3 --override-os linux --override-arch ${ARCH} "docker://$image_name" "oci:offline-images:$target_image_name" || ret=$?
+    skopeo copy --insecure-policy --quiet --retry-times=3 --override-os linux --override-arch ${ARCH} "docker://$image_name" "oci:offline-images:$target_image_name" || ret=$?
     if [ ${ret} -ne 0 ]; then
       echo "skopeo copy image failed, image name: ${image_name}."
       exit 1

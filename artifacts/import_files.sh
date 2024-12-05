@@ -53,7 +53,11 @@ function import_files() {
   fi
 
   for dirName in offline-files/*; do
-     mc cp --no-color --recursive "$dirName" "kubeaniominioserver/kubean/"
+    stderr=$(mc cp --quiet --no-color --recursive "$dirName" "kubeaniominioserver/kubean/" 2>&1 > /dev/null)
+    if [[ -n "${stderr}" ]]; then
+      echo "error: ${stderr}"
+      exit 1
+    fi
   done
 
 }
