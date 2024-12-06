@@ -2,7 +2,7 @@
 
 # Copyright 2023 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
-
+set -x
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -23,18 +23,40 @@ if ! which yq; then
     mv yq_linux_amd64 /usr/bin/yq
 fi
 
+
+
+#!/bin/bash
+
+
+download_file() {
+    local MAX_RETRIES=5
+    local COUNT=0
+    while [ $COUNT -lt $MAX_RETRIES ]; do
+      rm -rf manifest.cr.yaml
+      curl https://raw.githubusercontent.com/kubean-io/kubean-helm-chart/kubean-${KUBEAN_VERSION}/charts/kubean/templates/manifest.cr.yaml -O
+      range=$(cat manifest.cr.yaml| yq '.spec.components[] | select(.name=="kube")' | yq '.defaultVersion' | tr '"' "'")
+      if [ "$range" != "null" ]; then
+          return 0
+      else
+          COUNT=$((COUNT + 1))
+          sleep 60
+      fi
+    done
+    exit 1
+}
+
+
+
 # get default k8s version from /charts/kubean/templates/manifest.cr.yaml
 function get_k8s_default_version() {
-  rm manifest.cr.yaml -rf
-  curl https://raw.githubusercontent.com/kubean-io/kubean-helm-chart/kubean-${KUBEAN_VERSION}/charts/kubean/templates/manifest.cr.yaml -O
+  download_file
   range=$(cat manifest.cr.yaml| yq '.spec.components[] | select(.name=="kube")' | yq '.defaultVersion' | tr '"' "'")
   echo ${range//- / }
 }
 
 # get k8s version range from /charts/kubean/templates/manifest.cr.yaml
 function get_k8s_version_range() {
-  rm manifest.cr.yaml -rf
-  curl https://raw.githubusercontent.com/kubean-io/kubean-helm-chart/kubean-${KUBEAN_VERSION}/charts/kubean/templates/manifest.cr.yaml -O
+  download_file
   # get versionRange string
   range=$(cat manifest.cr.yaml| yq '.spec.components[] | select(.name=="kube")' | yq '.versionRange' | tr '"' "'")
   # replace each - with <br\/>       -, divide into one line, remove \n and remove the first <br\/>
