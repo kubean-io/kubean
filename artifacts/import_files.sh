@@ -44,7 +44,7 @@ function check_mc_cmd() {
 
 function import_files() {
   if [ ! -d "offline-files" ]; then
-    tar -xvf offline-files.tar.gz
+    tar -xf offline-files.tar.gz
     echo "unzip successfully"
   fi
 

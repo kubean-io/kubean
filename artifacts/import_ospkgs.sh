@@ -51,7 +51,7 @@ function import_os_packages() {
   fi
   echo "$TAR_GZ_FILE_PATH"
 
-  tar -xvf "$TAR_GZ_FILE_PATH" ## got resources folder
+  tar -xf "$TAR_GZ_FILE_PATH" ## got resources folder
 
   for dirName in resources/*; do
     stderr=$(mc cp --quiet --no-color --recursive "$dirName" "kubeaniominioserver/kubean/" 2>&1 > /dev/null)

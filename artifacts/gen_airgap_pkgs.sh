@@ -71,7 +71,11 @@ function create_files() {
     sed -i -r "s#https?://#https://$mirror_host/#g" temp/files.list
   fi
   sed -i "s#storage.googleapis.com/kubernetes-release#dl.k8s.io#g" temp/files.list
-  NO_HTTP_SERVER=true bash manage-offline-files.sh
+  export NO_HTTP_SERVER=true
+  if ! bash ./manage-offline-files.sh; then
+    echo "Error: manage-offline-files.sh execution failed"
+    exit 1
+  fi
   if [[ "${ZONE}" == "CN" ]]; then
     mv offline-files/$mirror_host/* offline-files/
     rm -rf offline-files/$mirror_host offline-files.tar.gz
