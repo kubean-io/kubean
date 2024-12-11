@@ -114,6 +114,9 @@ CLUSTER_OPERATION_NAME2="cluster1-add-worker"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME2}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/action: cluster.yml/action: scale.yml\n  extraArgs: --limit=node2/"  ${dest_config_path}/kubeanClusterOps.yml
+sed -i '/remove-pkgs.yml/a\
+    - actionType: playbook\
+      action: facts.yml' ${dest_config_path}/kubeanClusterOps.yml
 
 ## prepare kubean remove worker job yml files
 dest_config_path="${REPO_ROOT}"/test/kubean_add_remove_worker_nightlye2e/remove-worker-node
@@ -125,6 +128,9 @@ CLUSTER_OPERATION_NAME3="cluster1-remove-worker"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/action: cluster.yml/action: remove-node.yml\n  extraArgs: -e node=node2/"  ${dest_config_path}/kubeanClusterOps.yml
+sed -i '/remove-pkgs.yml/a\
+    - actionType: playbook\
+      action: facts.yml' ${dest_config_path}/kubeanClusterOps.yml
 ginkgo -v -timeout=3h -race --fail-fast ./test/kubean_add_remove_worker_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"
