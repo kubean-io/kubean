@@ -18,6 +18,7 @@ const (
 	PBAction = "playbook"
 	SHAction = "shell"
 
+	FactsPB          = "facts.yml"
 	ResetPB          = "reset.yml"
 	ScalePB          = "scale.yml"
 	ClusterPB        = "cluster.yml"
@@ -65,7 +66,7 @@ func NewActions() *Actions {
 	actions.Types = []string{PBAction, SHAction}
 	actions.Playbooks = &Playbooks{}
 	actions.Playbooks.List = []string{
-		ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
+		FactsPB, ResetPB, ScalePB, ClusterPB, RemoveNodePB, UpgradeClusterPB,
 		PingPB, RepoPB, FirewallPB, KubeconfigPB, ClusterInfoPB, UpdateHostsPB,
 		RemovePkgsPB, PreCheckPB, RenewCertsPB,
 		KubeVipConfigPB, ConfigInsecureRegistryPB, NfConntrackPB, MountXFSPquotaPB,
