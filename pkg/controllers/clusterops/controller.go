@@ -811,7 +811,12 @@ func (c *Controller) UpdateOwnReferenceToClusterOps(clusterOps *clusteroperation
 		c.ClientSet,
 		clusterOps.Spec.ConfigDataList(),
 		clusterOps.Spec.SecretDataList(),
-		*metav1.NewControllerRef(clusterOps, clusteroperationv1alpha1.SchemeGroupVersion.WithKind("ClusterOperation")),
+		metav1.OwnerReference{
+			APIVersion: clusterv1alpha1.SchemeGroupVersion.String(),
+			Kind:       clusterv1alpha1.SchemeGroupVersion.WithKind("ClusterOperation").Kind,
+			Name:       clusterOps.Name,
+			UID:        clusterOps.GetUID(),
+		},
 	)
 }
 
