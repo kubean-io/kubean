@@ -180,7 +180,12 @@ func (c *Controller) UpdateOwnReferenceToCluster(cluster *clusterv1alpha1.Cluste
 	return util.UpdateOwnReference(c.ClientSet,
 		cluster.Spec.ConfigDataList(),
 		cluster.Spec.SecretDataList(),
-		*metav1.NewControllerRef(cluster, clusterv1alpha1.SchemeGroupVersion.WithKind("Cluster")),
+		metav1.OwnerReference{
+			APIVersion: clusterv1alpha1.SchemeGroupVersion.String(),
+			Kind:       clusterv1alpha1.SchemeGroupVersion.WithKind("Cluster").Kind,
+			Name:       cluster.Name,
+			UID:        cluster.GetUID(),
+		},
 	)
 }
 
