@@ -51,7 +51,7 @@ helm upgrade --install  --create-namespace --cleanup-on-fail \
              ${LOCAL_RELEASE_NAME}     ${LOCAL_REPO_ALIAS}/kubean   \
              ${value_override} \
              -n "${TARGET_NS}"  --version ${KUBEAN_CHART_VERSION} \
-             --kubeconfig ${KUBE_CONF}
+             --kubeconfig ${KUBE_CONF} --timeout 600s
 
 # check it
 helm list -n "${TARGET_NS}" --kubeconfig ${KUBE_CONF}
