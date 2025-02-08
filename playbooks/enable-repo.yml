@@ -80,9 +80,14 @@
         - ansible_pkg_mgr == 'apt'
 
     - name: Backup original apt repo if extension repo not exist
-      shell: >-
-        mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }} &&
-        mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/ &&
+      shell: |-
+        set -e
+        if [ -f "{{ apt_repo_src_file }}" ]; then
+          mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }}
+        fi
+        if [ -d "{{ apt_repo_src_path }}" ]; then
+          mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/
+        fi
         mkdir -p {{ apt_repo_src_path }}/
       when:
         - ansible_pkg_mgr == 'apt'
