@@ -16,9 +16,11 @@ limitations under the License.
 
 package cel
 
+import celconfig "k8s.io/apiserver/pkg/apis/cel"
+
 const (
 	// DefaultMaxRequestSizeBytes is the size of the largest request that will be accepted
-	DefaultMaxRequestSizeBytes = int64(3 * 1024 * 1024)
+	DefaultMaxRequestSizeBytes = celconfig.MaxRequestSizeBytes
 
 	// MaxDurationSizeJSON
 	// OpenAPI duration strings follow RFC 3339, section 5.6 - see the comment on maxDatetimeSizeJSON
@@ -45,4 +47,8 @@ const (
 	MinBoolSize = 4
 	// MinNumberSize is the length of literal 0
 	MinNumberSize = 1
+
+	// MaxFormatSize is the maximum size we allow for format strings
+	MaxFormatSize          = 64
+	MaxNameFormatRegexSize = 128
 )
