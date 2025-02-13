@@ -19,9 +19,12 @@ jobs:
   build-push-for-e2e:
     uses: ./.github/workflows/build-push-for-e2e.yml
 
-  schedule_sonobouy_e2e_step_1:
+  schedule_sonobouy_e2e_step:
     needs: build-push-for-e2e
     runs-on: [self-hosted, online]
+    strategy:
+      matrix:
+        NIGHTLY_E2E_STEP: [ "STEP1", "STEP2", "STEP3", "network-e2e-step1" , "network-e2e-step2",  "network-e2e-step3",  "network-e2e-step4",  "network-e2e-step5" , "network-e2e-step6" , "network-e2e-step7" , "network-e2e-step8",  "network-e2e-step9"]
     timeout-minutes: 900
     permissions:
       packages: write
@@ -51,104 +54,5 @@ jobs:
             echo ${{ runner.name }}
             echo "${HELM_CHART_VERSION}"
             echo "${CONTAINER_TAG}"
-            bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "STEP1"
+            bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "${NIGHTLY_E2E_STEP}"
 
-  schedule_sonobouy_e2e_step_2:
-    needs: schedule_sonobouy_e2e_step_1
-    runs-on: [self-hosted, online]
-    timeout-minutes: 900
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.22.4
-
-      - name: e2e_schedule_sonobuoy
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 300
-          max_attempts: 3
-          retry_on: error
-          command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
-            TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
-            if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
-            fi
-            echo ${{ runner.name }}
-            echo "${HELM_CHART_VERSION}"
-            echo "${CONTAINER_TAG}"
-            bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "STEP2"
-  schedule_sonobouy_e2e_step_3:
-    needs: schedule_sonobouy_e2e_step_2
-    runs-on: [self-hosted, online]
-    timeout-minutes: 900
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.22.4
-
-      - name: e2e_schedule_sonobuoy
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 300
-          max_attempts: 3
-          retry_on: error
-          command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
-            TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
-            if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
-            fi
-            echo ${{ runner.name }}
-            echo "${HELM_CHART_VERSION}"
-            echo "${CONTAINER_TAG}"
-            bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "STEP3"
-  schedule_sonobouy_e2e_step_4:
-    needs: schedule_sonobouy_e2e_step_3
-    runs-on: [self-hosted, online]
-    timeout-minutes: 900
-    permissions:
-      packages: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 1.22.4
-
-      - name: e2e_schedule_sonobuoy
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 300
-          max_attempts: 3
-          retry_on: error
-          command: |
-            CONTAINER_TAG="$(git describe --tags --abbrev=8)-e2e"
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
-            TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
-            if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
-            fi
-            echo ${{ runner.name }}
-            echo "${HELM_CHART_VERSION}"
-            echo "${CONTAINER_TAG}"
-            bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "STEP4"

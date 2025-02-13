@@ -7,6 +7,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+export NETWORK_E2E_STEP=${1:-"ALL"}
+
 source "${REPO_ROOT}"/hack/util.sh
 source "${REPO_ROOT}"/hack/offline-util.sh
 echo "ARCH: ${ARCH}"
@@ -50,6 +52,8 @@ function func_prepare_config_yaml_single_stack() {
     sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
 }
 
+
+function network-e2e-step1() {
 ####################### create ipvs cluster ################
 echo "create ipvs cluster....."
 export OS_NAME="ROCKY8"
@@ -118,6 +122,9 @@ helm uninstall ${LOCAL_RELEASE_NAME} -n ${new_kubean_namespace} --kubeconfig=${K
 bash "${REPO_ROOT}"/hack/deploy.sh "${TARGET_VERSION}" "${IMAGE_VERSION}"  "${KUBECONFIG_FILE}"  "kubean-system"  "${HELM_REPO}" "${IMG_REGISTRY}"
 helm list -n  "kubean-system" --kubeconfig ${KUBECONFIG_FILE}
 #= kubectl get pod -n kubean-system --kubeconfig=${KUBECONFIG_FILE}
+}
+
+function network-e2e-step2(){
 ############### calico dual stuck ##############
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
@@ -145,7 +152,19 @@ sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/tes
 ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_ALWAYS-VXLAN_ALWAYS"
+}
 
+function network-e2e-step3(){
+############### calico dual stuck ##############
+#### calico dual stack cluster need install on a Redhat8 os
+#### the vm  need add a ipv6 in snapshot
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  export OS_NAME="REDHAT8"
+else
+  export OS_NAME="ROCKY8-HK"
+fi
+
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: VXLAN_CrossSubnet-VXLAN_ALWAYS ####
 util::power_on_2vms ${OS_NAME}
 func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
@@ -160,7 +179,19 @@ sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/tes
 ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_CrossSubnet-VXLAN_ALWAYS"
+}
 
+function network-e2e-step4(){
+############### calico dual stuck ##############
+#### calico dual stack cluster need install on a Redhat8 os
+#### the vm  need add a ipv6 in snapshot
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  export OS_NAME="REDHAT8"
+else
+  export OS_NAME="ROCKY8-HK"
+fi
+
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: IPIP_ALWAYS-VXLAN_CrossSubnet ####
 util::power_on_2vms ${OS_NAME}
 func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
@@ -177,7 +208,19 @@ sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/tes
 ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always-VXLAN_CrossSubnet"
+}
 
+function network-e2e-step5(){
+############### calico dual stuck ##############
+#### calico dual stack cluster need install on a Redhat8 os
+#### the vm  need add a ipv6 in snapshot
+if [[ "${OFFLINE_FLAG}" == "true" ]]; then
+  export OS_NAME="REDHAT8"
+else
+  export OS_NAME="ROCKY8-HK"
+fi
+
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: IPIP_CrossSubnet-VXLAN_CrossSubnet ####
 util::power_on_2vms ${OS_NAME}
 func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
@@ -198,7 +241,9 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_dualstack_e2e/  -- --kubeconfig
 SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
+}
 
+function network-e2e-step6(){
 ############## calico single stuck ##############
 export OS_NAME="ROCKY8"
 ### CALICO: IPIP_ALWAYS ###
@@ -219,7 +264,12 @@ sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm
 ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_Always"
+}
 
+function network-e2e-step7(){
+############## calico single stuck ##############
+export OS_NAME="ROCKY8"
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: IPIP_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
@@ -237,7 +287,12 @@ sed -i "$ a\    calico_network_backend: bird" "${dest_config_path}"/vars-conf-cm
 ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="IPIP_CrossSubnet"
+}
 
+function network-e2e-step8(){
+############## calico single stuck ##############
+export OS_NAME="ROCKY8"
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: VXLAN_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
@@ -254,7 +309,12 @@ sed -i "$ a\    calico_vxlan_mode: Always" "${dest_config_path}"/vars-conf-cm.ym
 ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
           --isOffline="${OFFLINE_FLAG}" --arch=${ARCH}  --vmPassword="${AMD_ROOT_PASSWORD}"  --otherLabel="VXLAN_Always"
+}
 
+function network-e2e-step9(){
+############## calico single stuck ##############
+export OS_NAME="ROCKY8"
+dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: VXLAN_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
 sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
@@ -275,3 +335,29 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 SNAPSHOT_NAME=${POWER_DOWN_SNAPSHOT_NAME}
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name1}"
 util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_USER} "${SNAPSHOT_NAME}" "${vm_name2}"
+}
+
+
+
+steps=("network-e2e-step1" "network-e2e-step2" "network-e2e-step3" "network-e2e-step4" "network-e2e-step5" "network-e2e-step6" "network-e2e-step7" "network-e2e-step8" "network-e2e-step9")
+
+if [[ "${NETWORK_E2E_STEP}" == "ALL" ]]; then
+  for step in "${steps[@]}"; do
+    $step
+  done
+elif [[ "${NETWORK_E2E_STEP}" =~ ^[1-9]$ ]]; then
+  index=$((NETWORK_E2E_STEP - 1))
+  if [[ $index -ge 0 && $index -lt ${#steps[@]} ]]; then
+    ${steps[$index]}
+  else
+    echo "Invalid step number: ${NETWORK_E2E_STEP}"
+    exit 1
+  fi
+else
+  echo "Invalid NETWORK_E2E_STEP value: ${NETWORK_E2E_STEP}"
+  exit 1
+fi
+
+
+
+
