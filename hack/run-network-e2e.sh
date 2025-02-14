@@ -339,24 +339,40 @@ util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_US
 
 
 
-steps=("network-e2e-step1" "network-e2e-step2" "network-e2e-step3" "network-e2e-step4" "network-e2e-step5" "network-e2e-step6" "network-e2e-step7" "network-e2e-step8" "network-e2e-step9")
-
+echo "Start to run network e2e step ${NETWORK_E2E_STEP}"
 if [[ "${NETWORK_E2E_STEP}" == "ALL" ]]; then
-  for step in "${steps[@]}"; do
-    $step
-  done
-elif [[ "${NETWORK_E2E_STEP}" =~ ^[1-9]$ ]]; then
-  index=$((NETWORK_E2E_STEP - 1))
-  if [[ $index -ge 0 && $index -lt ${#steps[@]} ]]; then
-    ${steps[$index]}
-  else
-    echo "Invalid step number: ${NETWORK_E2E_STEP}"
-    exit 1
-  fi
+  network-e2e-step1
+  network-e2e-step2
+  network-e2e-step3
+  network-e2e-step4
+  network-e2e-step5
+  network-e2e-step6
+  network-e2e-step7
+  network-e2e-step8
+  network-e2e-step9
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step1" ]]; then
+  network-e2e-step1
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step2" ]]; then
+  network-e2e-step2
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step3" ]]; then
+  network-e2e-step3
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step4" ]]; then
+  network-e2e-step4
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step5" ]]; then
+  network-e2e-step5
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step6" ]]; then
+  network-e2e-step6
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step7" ]]; then
+  network-e2e-step7
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step8" ]]; then
+  network-e2e-step8
+elif [[ "${NETWORK_E2E_STEP}" == "network-e2e-step9" ]]; then
+  network-e2e-step9
 else
-  echo "Invalid NETWORK_E2E_STEP value: ${NETWORK_E2E_STEP}"
+  echo "Please input the correct step number"
   exit 1
 fi
+
 
 
 
