@@ -40,6 +40,8 @@ jobs:
 
       - name: e2e_schedule_sonobuoy
         uses: nick-fields/retry@v3
+        env:
+          NIGHTLY_E2E_STEP: ${{ matrix.NIGHTLY_E2E_STEP }}
         with:
           timeout_minutes: 300
           max_attempts: 3
@@ -54,5 +56,6 @@ jobs:
             echo ${{ runner.name }}
             echo "${HELM_CHART_VERSION}"
             echo "${CONTAINER_TAG}"
+            echo "${NIGHTLY_E2E_STEP}"
             bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "NIGHTLY" "${NIGHTLY_E2E_STEP}"
 
