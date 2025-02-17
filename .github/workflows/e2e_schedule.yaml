@@ -23,6 +23,7 @@ jobs:
     needs: build-push-for-e2e
     runs-on: [self-hosted, online]
     strategy:
+      fail-fast: false
       matrix:
         NIGHTLY_E2E_STEP: [ "STEP1", "STEP2", "STEP3", "network-e2e-step1" , "network-e2e-step2",  "network-e2e-step3",  "network-e2e-step4",  "network-e2e-step5" , "network-e2e-step6" , "network-e2e-step7" , "network-e2e-step8",  "network-e2e-step9"]
     timeout-minutes: 900
