@@ -149,7 +149,10 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			klog.Info("check calicoctl: ", masterOut.String())
 			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("Client Version"))
 			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("Cluster Version"))
-			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("k8s,bgp,kubeadm,kdd"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("k8s"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("bgp"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("kubeadm"))
+			gomega.Expect(masterOut.String()).Should(gomega.ContainSubstring("kdd"))
 
 			//6. check pod connection:
 			tools.CreatePod(pod1Name, tools.DefaultNamespace, "node1", nginxImage, localKubeConfigPath)
