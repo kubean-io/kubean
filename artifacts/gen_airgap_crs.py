@@ -72,16 +72,6 @@ def merge_spray_components_version_files(merged_file_path):
   elif os.path.exists(f"{checkpointPath3}/main.yml"):
     print("checkpoint path 3")
     merge_dir_content_to_file([checkpointPath3, sprayDefaultPath], merged_file_path)
-  
-  f = None
-  with open(merged_file_path, "r") as file:
-    f = yaml.safe_load(file) 
-    if re.match(r".*{{.*", f.get("kube_version", "")):
-      f["kube_version"] = list(f['kubelet_checksums']['amd64'].keys())[0]
-  
-  if f is not None:
-    with open(merged_file_path, "w") as file:
-      yaml.dump(f, file)
 
 
 def get_value_from_yml(yml_file_path, key):
@@ -94,6 +84,11 @@ def get_value_from_yml(yml_file_path, key):
         else:
           print(f"The '{key}' key was not found in the file: {yml_file_path}.")
           sys.exit(1)
+
+    if isinstance(value, str) and re.match(r".*{{.*", value):
+      checksumsKey = next((key_item["checksumsKey"] for key_item in COMPONENTS_KEYS if key_item["name"] == keys[-1].replace("_version", "")), None)
+      value = list(get_value_from_yml(yml_file_path, checksumsKey).keys())[0]
+
     return value
 
 
