@@ -24,6 +24,7 @@ function func_prepare_config_yaml_dual_stack() {
     cp -f "${source_path}"/kubeanCluster.yml "${dest_path}"
     cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" "${dest_path}"/hosts-conf-cm.yml
+    sed -i "s/access_ip/access_ip6/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_path}/hosts-conf-cm.yml
     sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
