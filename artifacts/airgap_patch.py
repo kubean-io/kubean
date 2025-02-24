@@ -123,8 +123,16 @@ def create_localartifactset_cr(manifest_data):
 
 def get_manifest_data():
     manifest_yml_file = os.getenv("MANIFEST_CONF", default="manifest.yml")
-    if (not os.path.exists(manifest_yml_file)) or (Path(manifest_yml_file).read_text().replace("\n", "").strip() == ""):
-        print("manifest yaml file does not exist or empty.")
+    if not os.path.exists(manifest_yml_file):
+        # if not `manifest.yml`, try to find `manifest.yaml`
+        alternative_file = manifest_yml_file.replace(".yml", ".yaml")
+        if os.path.exists(alternative_file):
+            manifest_yml_file = alternative_file
+        else:
+            print("manifest yaml file does not exist.")
+            sys.exit(1)
+    if Path(manifest_yml_file).read_text().replace("\n", "").strip() == "":
+        print("manifest yaml file is empty.")
         sys.exit(1)
     with open(manifest_yml_file, "r") as stream:
         return yaml.safe_load(stream)
