@@ -75,7 +75,7 @@
       when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
 
     - name: Find iptables-restore path
-      command: command -v iptables-restore
+      command: which iptables-restore
       register: iptables_restore_path
       changed_when: false
       when: kube_vip_enabled and kube_vip_lb_fwdmethod == "masquerade"
