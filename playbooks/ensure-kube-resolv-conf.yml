@@ -1,0 +1,39 @@
+- name: Ensure kube_resolv_conf exists
+  hosts: k8s_cluster,etcd
+  gather_facts: false
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  become: true
+  vars:
+    kube_config_dir: /etc/kubernetes
+  roles:
+  - kubespray-defaults
+  tasks:
+  - name: Ensure kube_resolv_conf exists
+    when: kube_resolv_conf is defined and kube_resolv_conf != ""
+    block:
+    - name: Check if kube_resolv_conf exists
+      stat:
+        path: "{{ kube_resolv_conf }}"
+      register: kube_resolv_conf_stat
+    - name: Ensure kube_resolv_conf directory exists
+      file:
+        path: "{{ kube_resolv_conf | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      when: not kube_resolv_conf_stat.stat.exists
+    - name: Write domain/search/nameserver/options to kube_resolv_conf
+      blockinfile:
+        path: "{{ kube_resolv_conf }}"
+        block: |
+          search default.svc.{{ dns_domain }} svc.{{ dns_domain }}
+          nameserver {{ skydns_server }}
+          options ndots:{{ ndots }} timeout:{{ dns_timeout | default('2') }} attempts:{{ dns_attempts | default('2') }}
+        create: true
+        owner: root
+        group: root
+        mode: '0644'
+        insertbefore: BOF
+        marker: "# Ansible entries {mark}"
+      when: not kube_resolv_conf_stat.stat.exists
