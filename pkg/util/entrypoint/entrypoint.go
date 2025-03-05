@@ -42,6 +42,7 @@ const (
 	SetContainerdRegistryMirror         = "set-containerd-registry-mirror.yml"
 	DisableKernelUnattendedUpgrade      = "disable-kernel-unattended-upgrade.yml"
 	ConfigDockerCgroupDriverForKylinSP2 = "config-docker-cgroup-driver-for-kylinSP2.yml"
+	EnsureKubeResolvConfPB              = "ensure-kube-resolv-conf.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -71,6 +72,7 @@ func NewActions() *Actions {
 		RemovePkgsPB, PreCheckPB, RenewCertsPB,
 		KubeVipConfigPB, ConfigInsecureRegistryPB, NfConntrackPB, MountXFSPquotaPB,
 		SetContainerdRegistryMirror, DisableKernelUnattendedUpgrade, ConfigDockerCgroupDriverForKylinSP2,
+		EnsureKubeResolvConfPB,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
