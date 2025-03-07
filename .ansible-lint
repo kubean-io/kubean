@@ -52,3 +52,4 @@ exclude_paths:
   - playbooks/disable-firewalld.yml
   - playbooks/config-for-kube-vip.yml
   - playbooks/mount-xfs-pquota.yml
+  - playbooks/ensure-kube-resolv-conf.yml
