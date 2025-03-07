@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/usage/mirror_install/">
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/en/releases/v0.23.4/">
       
       
-        <link rel="prev" href="../all_in_one_install/">
+        <link rel="prev" href="../../develop/roadmap/">
       
       
-        <link rel="next" href="../../concepts/architecture/">
+        <link rel="next" href="../v0.23.3/">
       
       
       <link rel="icon" href="../../assets/images/kubean_logo_1.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Deploying a Cluster using Accelerated Mode - Kubean</title>
+        <title>V0.23.4 - Kubean</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deploying-a-cluster-using-accelerated-mode" class="md-skip">
+        <a href="#whats-changed" class="md-skip">
           跳转至
         </a>
       
@@ -120,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Deploying a Cluster using Accelerated Mode
+              V0.23.4
             
           </span>
         </div>
@@ -308,19 +308,17 @@
       
   
   
-    
   
   
-  
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -335,7 +333,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Quick Start
@@ -349,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm_install_kubean/" class="md-nav__link">
+      <a href="../../usage/helm_install_kubean/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -371,7 +369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../all_in_one_install/" class="md-nav__link">
+      <a href="../../usage/all_in_one_install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -390,31 +388,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Deploying a Cluster using Accelerated Mode
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../usage/mirror_install/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -424,77 +401,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="目录">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      目录
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisites
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Getting Started
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Getting Started">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Configure Host Parameters in HostsConfCM.yml
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-configure-kubean-task-parameters-in-clusteroperationyml" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Configure kubean Task Parameters in ClusterOperation.yml
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Apply all configurations under the 2.mirror directory
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -703,7 +609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sshkey_deploy_cluster/" class="md-nav__link">
+      <a href="../../usage/sshkey_deploy_cluster/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -725,7 +631,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../install_without_root/" class="md-nav__link">
+      <a href="../../usage/install_without_root/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -747,7 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../scale_worknode/" class="md-nav__link">
+      <a href="../../usage/scale_worknode/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -769,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../upgrade/" class="md-nav__link">
+      <a href="../../usage/upgrade/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -791,7 +697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../uninstall/" class="md-nav__link">
+      <a href="../../usage/uninstall/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -813,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airgap/" class="md-nav__link">
+      <a href="../../usage/airgap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -835,7 +741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airgap_patch_usage/" class="md-nav__link">
+      <a href="../../usage/airgap_patch_usage/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -926,17 +832,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -951,7 +859,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Releases
@@ -962,10 +870,29 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../releases/v0.23.4/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    V0.23.4
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -975,6 +902,66 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      What's Changed
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s Changed">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🐛 Bug Fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⬆️ Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔨 Other Changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -987,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.23.3/" class="md-nav__link">
+      <a href="../v0.23.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1009,7 +996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.23.2/" class="md-nav__link">
+      <a href="../v0.23.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1031,7 +1018,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.23.1/" class="md-nav__link">
+      <a href="../v0.23.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1053,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.23.0/" class="md-nav__link">
+      <a href="../v0.23.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1075,7 +1062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.5/" class="md-nav__link">
+      <a href="../v0.22.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1097,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.4/" class="md-nav__link">
+      <a href="../v0.22.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1119,7 +1106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.3/" class="md-nav__link">
+      <a href="../v0.22.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1141,7 +1128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.2/" class="md-nav__link">
+      <a href="../v0.22.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1163,7 +1150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.1/" class="md-nav__link">
+      <a href="../v0.22.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1185,7 +1172,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.22.0/" class="md-nav__link">
+      <a href="../v0.22.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1207,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.21.1/" class="md-nav__link">
+      <a href="../v0.21.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1229,7 +1216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.21.0/" class="md-nav__link">
+      <a href="../v0.21.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1251,7 +1238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.20.0/" class="md-nav__link">
+      <a href="../v0.20.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1273,7 +1260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.19.0/" class="md-nav__link">
+      <a href="../v0.19.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1295,7 +1282,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.5/" class="md-nav__link">
+      <a href="../v0.18.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1317,7 +1304,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.4/" class="md-nav__link">
+      <a href="../v0.18.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1339,7 +1326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.3/" class="md-nav__link">
+      <a href="../v0.18.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1361,7 +1348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.2/" class="md-nav__link">
+      <a href="../v0.18.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1383,7 +1370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.1/" class="md-nav__link">
+      <a href="../v0.18.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1405,7 +1392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.18.0/" class="md-nav__link">
+      <a href="../v0.18.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1427,7 +1414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.5/" class="md-nav__link">
+      <a href="../v0.17.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1449,7 +1436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.4/" class="md-nav__link">
+      <a href="../v0.17.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1471,7 +1458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.3/" class="md-nav__link">
+      <a href="../v0.17.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1493,7 +1480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.2/" class="md-nav__link">
+      <a href="../v0.17.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1515,7 +1502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.1/" class="md-nav__link">
+      <a href="../v0.17.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1537,7 +1524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.17.0/" class="md-nav__link">
+      <a href="../v0.17.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1559,7 +1546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.16.3/" class="md-nav__link">
+      <a href="../v0.16.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1581,7 +1568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.16.2/" class="md-nav__link">
+      <a href="../v0.16.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1603,7 +1590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.16.1/" class="md-nav__link">
+      <a href="../v0.16.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1625,7 +1612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.16.0/" class="md-nav__link">
+      <a href="../v0.16.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1647,7 +1634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.15.3/" class="md-nav__link">
+      <a href="../v0.15.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1669,7 +1656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.15.2/" class="md-nav__link">
+      <a href="../v0.15.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1691,7 +1678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.15.1/" class="md-nav__link">
+      <a href="../v0.15.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1713,7 +1700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.15.0/" class="md-nav__link">
+      <a href="../v0.15.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1735,7 +1722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.14.0/" class="md-nav__link">
+      <a href="../v0.14.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1757,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.11/" class="md-nav__link">
+      <a href="../v0.13.11/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1779,7 +1766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.10/" class="md-nav__link">
+      <a href="../v0.13.10/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1801,7 +1788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.9/" class="md-nav__link">
+      <a href="../v0.13.9/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1823,7 +1810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.8/" class="md-nav__link">
+      <a href="../v0.13.8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1845,7 +1832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.7/" class="md-nav__link">
+      <a href="../v0.13.7/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1867,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.6/" class="md-nav__link">
+      <a href="../v0.13.6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1889,7 +1876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.5/" class="md-nav__link">
+      <a href="../v0.13.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1911,7 +1898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.4/" class="md-nav__link">
+      <a href="../v0.13.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1933,7 +1920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.3/" class="md-nav__link">
+      <a href="../v0.13.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1955,7 +1942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.2/" class="md-nav__link">
+      <a href="../v0.13.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1977,7 +1964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.1/" class="md-nav__link">
+      <a href="../v0.13.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1999,7 +1986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.13.0/" class="md-nav__link">
+      <a href="../v0.13.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2021,7 +2008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.3/" class="md-nav__link">
+      <a href="../v0.12.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2043,7 +2030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.2/" class="md-nav__link">
+      <a href="../v0.12.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2065,7 +2052,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.1/" class="md-nav__link">
+      <a href="../v0.12.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2087,7 +2074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.12.0/" class="md-nav__link">
+      <a href="../v0.12.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2109,7 +2096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.2/" class="md-nav__link">
+      <a href="../v0.11.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2131,7 +2118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.1/" class="md-nav__link">
+      <a href="../v0.11.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2153,7 +2140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.11.0/" class="md-nav__link">
+      <a href="../v0.11.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2175,7 +2162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.10.0/" class="md-nav__link">
+      <a href="../v0.10.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2197,7 +2184,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.3/" class="md-nav__link">
+      <a href="../v0.9.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2219,7 +2206,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.2/" class="md-nav__link">
+      <a href="../v0.9.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2241,7 +2228,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.1/" class="md-nav__link">
+      <a href="../v0.9.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2263,7 +2250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.9.0/" class="md-nav__link">
+      <a href="../v0.9.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2285,7 +2272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.5/" class="md-nav__link">
+      <a href="../v0.8.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2307,7 +2294,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.4/" class="md-nav__link">
+      <a href="../v0.8.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2329,7 +2316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.3/" class="md-nav__link">
+      <a href="../v0.8.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2351,7 +2338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.2/" class="md-nav__link">
+      <a href="../v0.8.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2373,7 +2360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.1/" class="md-nav__link">
+      <a href="../v0.8.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2395,7 +2382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.8.0/" class="md-nav__link">
+      <a href="../v0.8.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2417,7 +2404,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.4/" class="md-nav__link">
+      <a href="../v0.7.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2439,7 +2426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.3/" class="md-nav__link">
+      <a href="../v0.7.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2461,7 +2448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.2/" class="md-nav__link">
+      <a href="../v0.7.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2483,7 +2470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.1/" class="md-nav__link">
+      <a href="../v0.7.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2505,7 +2492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.7.0/" class="md-nav__link">
+      <a href="../v0.7.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2527,7 +2514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.6/" class="md-nav__link">
+      <a href="../v0.6.6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2549,7 +2536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.5/" class="md-nav__link">
+      <a href="../v0.6.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2571,7 +2558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.4/" class="md-nav__link">
+      <a href="../v0.6.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2593,7 +2580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.3/" class="md-nav__link">
+      <a href="../v0.6.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2615,7 +2602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.2/" class="md-nav__link">
+      <a href="../v0.6.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2637,7 +2624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.1/" class="md-nav__link">
+      <a href="../v0.6.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2659,7 +2646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.6.0/" class="md-nav__link">
+      <a href="../v0.6.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2681,7 +2668,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.4/" class="md-nav__link">
+      <a href="../v0.5.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2703,7 +2690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.3/" class="md-nav__link">
+      <a href="../v0.5.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2725,7 +2712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.2/" class="md-nav__link">
+      <a href="../v0.5.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2747,7 +2734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.1/" class="md-nav__link">
+      <a href="../v0.5.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2769,7 +2756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.5.0/" class="md-nav__link">
+      <a href="../v0.5.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2791,7 +2778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.10/" class="md-nav__link">
+      <a href="../v0.4.10/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2813,7 +2800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.9/" class="md-nav__link">
+      <a href="../v0.4.9/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2835,7 +2822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.8/" class="md-nav__link">
+      <a href="../v0.4.8/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2857,7 +2844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.7/" class="md-nav__link">
+      <a href="../v0.4.7/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2879,7 +2866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.6/" class="md-nav__link">
+      <a href="../v0.4.6/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2901,7 +2888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.5/" class="md-nav__link">
+      <a href="../v0.4.5/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2923,7 +2910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.4/" class="md-nav__link">
+      <a href="../v0.4.4/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2945,7 +2932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.3/" class="md-nav__link">
+      <a href="../v0.4.3/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2967,7 +2954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.2/" class="md-nav__link">
+      <a href="../v0.4.2/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -2989,7 +2976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.1/" class="md-nav__link">
+      <a href="../v0.4.1/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3011,7 +2998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.4.0/" class="md-nav__link">
+      <a href="../v0.4.0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3033,7 +3020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/artifacts/" class="md-nav__link">
+      <a href="../artifacts/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -3072,8 +3059,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -3082,46 +3067,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#whats-changed" class="md-nav__link">
     <span class="md-ellipsis">
-      Prerequisites
+      What's Changed
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Getting Started
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Getting Started">
+    <nav class="md-nav" aria-label="What&#39;s Changed">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-configure-host-parameters-in-hostsconfcmyml" class="md-nav__link">
+  <a href="#bug-fixes" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Configure Host Parameters in HostsConfCM.yml
+      🐛 Bug Fixes
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configure-kubean-task-parameters-in-clusteroperationyml" class="md-nav__link">
+  <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Configure kubean Task Parameters in ClusterOperation.yml
+      ⬆️ Dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-apply-all-configurations-under-the-2mirror-directory" class="md-nav__link">
+  <a href="#other-changes" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Apply all configurations under the 2.mirror directory
+      🔨 Other Changes
     </span>
   </a>
   
@@ -3151,126 +3127,31 @@
   
 
 
-<h1 id="deploying-a-cluster-using-accelerated-mode">Deploying a Cluster using Accelerated Mode<a class="headerlink" href="#deploying-a-cluster-using-accelerated-mode" title="Permanent link">&para;</a></h1>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<ol>
-<li>You already have a standard Kubernetes cluster or a cluster provided by a cloud provider.</li>
-<li>The control node or cloud terminal for the cluster has the <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/">kubect</a> tool installed.。</li>
-<li>The <a href="helm-install-kubean.md">kubean helm chart</a> has been deployed on your cluster.</li>
-<li>The <a href="https://github.com/kubean-io/kubean">kubean project</a>has been cloned to your local machine. If you haven't cloned kubean yet, you can do so by executing the following command:</li>
-</ol>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kubean-io/kubean.git
-</code></pre></div>
-<hr />
-<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
-<p>This tutorial will use the <code>kubean/example/2.mirror</code> file that you cloned to your local machine as an example template for demonstrating cluster deployment using accelerated mode.</p>
-<p>The <code>2.mirror</code> accelerated deployment template already contains built-in acceleration parameter configurations. 
-You only need to modify the host information and other relevant information in the two configuration template files, <strong><code>HostsConfCM.yml</code> and <code>ClusterOperation.yml</code></strong>, located in the /2.mirror file path.</p>
-<details open>
-<summary>The main configuration files and purposes inside the `2.mirror` file are as follows:</summary>
+  <h1>V0.23.4</h1>
 
-<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">.2.mirror</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── Cluster.yml</span><span class="w">                        </span><span class="c1"># The main configuration files and their purposes in the `2.mirror` file are as follows:</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── ClusterOperation.yml</span><span class="w">        </span><span class="c1"># kubean version and task configuration</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">├── HostsConfCM.yml</span><span class="w">              </span><span class="c1"># Node information configuration for the cluster to be built</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">└── VarsConfCM.yml</span><span class="w">                </span><span class="c1"># Configuration for acceleration and other features</span>
-</code></pre></div>
-</details>
+<!-- Release notes generated using configuration in .github/release.yml at v0.23.4 -->
 
-<h4 id="1-configure-host-parameters-in-hostsconfcmyml">1. Configure Host Parameters in HostsConfCM.yml<a class="headerlink" href="#1-configure-host-parameters-in-hostsconfcmyml" title="Permanent link">&para;</a></h4>
-<p>Navigate to the <code>kubean/examples/install/2.mirror/</code> path and edit the <code>HostsConfCM.yml</code>template for the node configuration information of the cluster to be built. Replace the following parameters with your actual parameters:</p>
+<h2 id="whats-changed">What's Changed<a class="headerlink" href="#whats-changed" title="Permanent link">&para;</a></h2>
+<h3 id="bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#bug-fixes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>&lt;IP1&gt;</code>：Node IP.</li>
-<li><code>&lt;USERNAME&gt;</code>： Username for logging in to the node. We recommend using root or a user with root privileges to log in.</li>
-<li><code>&lt;PASSWORD&gt;</code>：Password for logging in to the node.</li>
+<li>Fix command module issues in kube-vip playbook by @ErikJiang in https://github.com/kubean-io/kubean/pull/1489</li>
 </ul>
-<p>For example, the following is an example HostsConfCM.yml file:</p>
-<details>
-<summary> HostsConfCM.yml Example</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">online-hosts-conf</span>
-<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean-system</span>
-<span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hosts.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">all:</span>
-<span class="w">      </span><span class="no">hosts:</span>
-<span class="w">        </span><span class="no">node1:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.10 # Your node IP</span>
-<span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # The username for logging into the node</span>
-<span class="w">          </span><span class="no">ansible_password: password01 # The password for logging into the node</span>
-<span class="w">        </span><span class="no">node2:</span>
-<span class="w">          </span><span class="no">ip: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">access_ip: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">ansible_host: 10.6.175.20 # Your node2 IP</span>
-<span class="w">          </span><span class="no">ansible_connection: ssh</span>
-<span class="w">          </span><span class="no">ansible_user: root # The username for logging into the node2</span>
-<span class="w">          </span><span class="no">ansible_password: password02 # The password for logging into the node2</span>
-<span class="w">      </span><span class="no">children:</span>
-<span class="w">        </span><span class="no">kube_control_plane: # Configuring the control node</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">        </span><span class="no">kube_node: # Configuring the working nodes of the cluster</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">            </span><span class="no">node2:</span>
-<span class="w">        </span><span class="no">etcd: # Configuring the ETCD nodes of the cluster</span>
-<span class="w">          </span><span class="no">hosts:</span>
-<span class="w">            </span><span class="no">node1:</span>
-<span class="w">        </span><span class="no">k8s_cluster:</span>
-<span class="w">          </span><span class="no">children:</span>
-<span class="w">            </span><span class="no">kube_control_plane:</span>
-<span class="w">            </span><span class="no">kube_node:</span>
-<span class="w">        </span><span class="no">calico_rr:</span>
-<span class="w">          </span><span class="no">hosts: {}</span>
-</code></pre></div>
-</details>
-
-<p>Execute the following command to edit the HostsConfCM.yml configuration template:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/HostsConfCM.yml
-</code></pre></div>
-<h4 id="2-configure-kubean-task-parameters-in-clusteroperationyml">2. Configure kubean Task Parameters in ClusterOperation.yml<a class="headerlink" href="#2-configure-kubean-task-parameters-in-clusteroperationyml" title="Permanent link">&para;</a></h4>
-<p>Navigate to the <code>kubean/examples/install/2.mirror/</code> path and edit the <code>ClusterOperation.yml</code> template for the configuration information of the cluster to be built. Replace the following parameters with your actual parameters:</p>
+<h3 id="dependencies">⬆️ Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>&lt;TAG&gt;</code>: kubean image version. We recommend using the latest version.<a href="https://github.com/kubean-io/kubean/tags">Refer to the kubean version list</a></li>
+<li>Bump github.com/onsi/ginkgo/v2 from 2.22.1 to 2.22.2 by @dependabot in https://github.com/kubean-io/kubean/pull/1488</li>
+<li>Bump docker/build-push-action from 6.14.0 to 6.15.0 by @dependabot in https://github.com/kubean-io/kubean/pull/1491</li>
+<li>Bump docker/setup-buildx-action from 3.9.0 to 3.10.0 by @dependabot in https://github.com/kubean-io/kubean/pull/1490</li>
 </ul>
-<p>For example, the following is an example <code>ClusterOperation.yml</code> file:</p>
-<details>
-<summary> ClusterOperation.yml Example</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
-<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
-<span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-online-install-ops</span>
-<span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster1-online</span>
-<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2</span><span class="w"> </span><span class="c1"># kubean image version</span>
-<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
-<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
-<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubeconfig.yml</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
-<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
-</code></pre></div>
-</details>
-
-<p>To edit the ClusterOperation.yml configuration template, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>vi<span class="w"> </span>kubean/examples/install/2.mirror/ClusterOperation.yml
-</code></pre></div>
-<h4 id="3-apply-all-configurations-under-the-2mirror-directory">3. Apply all configurations under the <code>2.mirror</code> directory<a class="headerlink" href="#3-apply-all-configurations-under-the-2mirror-directory" title="Permanent link">&para;</a></h4>
-<p>After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/2.mirror
-</code></pre></div>
-<p>With this, you have completed the deployment of a cluster using the acceleration mode.</p>
+<h3 id="other-changes">🔨 Other Changes<a class="headerlink" href="#other-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Add ensure-kube-resolv-conf playbook by @0ekk in https://github.com/kubean-io/kubean/pull/1492</li>
+<li>Update Kubean Support Matrix by @github-actions in https://github.com/kubean-io/kubean/pull/1487</li>
+<li>bump kubespray to 7c61189 by @ErikJiang in https://github.com/kubean-io/kubean/pull/1493</li>
+</ul>
+<p><strong>Full Changelog</strong>: https://github.com/kubean-io/kubean/compare/v0.23.3...v0.23.4
+| Default Kubernetes Version | Supported Kubernetes Version Range                                   |
+| ---------------------------| ---------------------------------------------------------------------|
+| v1.31.6                 |  'v1.32.2' &nbsp; 'v1.32.1' &nbsp; 'v1.32.0' &nbsp; 'v1.31.6' &nbsp; 'v1.31.5' &nbsp; 'v1.31.4' &nbsp; 'v1.31.3' &nbsp; 'v1.31.2' &nbsp; 'v1.31.1' &nbsp; 'v1.31.0' &nbsp; 'v1.30.10' &nbsp; 'v1.30.9' &nbsp; 'v1.30.8' &nbsp; 'v1.30.7' &nbsp; 'v1.30.6' &nbsp; 'v1.30.5' &nbsp; 'v1.30.4' &nbsp; 'v1.30.3' &nbsp; 'v1.30.2' &nbsp; 'v1.30.1' &nbsp; 'v1.30.0'|</p>
 
 
 
@@ -3302,7 +3183,7 @@ You only need to modify the host information and other relevant information in t
       <nav class="md-footer__inner md-grid" aria-label="页脚" >
         
           
-          <a href="../all_in_one_install/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Minimal Deployment">
+          <a href="../../develop/roadmap/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Kubean Roadmap">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3312,20 +3193,20 @@ You only need to modify the host information and other relevant information in t
                 上一页
               </span>
               <div class="md-ellipsis">
-                Minimal Deployment
+                Kubean Roadmap
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../concepts/architecture/" class="md-footer__link md-footer__link--next" aria-label="下一页: Kubean Infrastructure">
+          <a href="../v0.23.3/" class="md-footer__link md-footer__link--next" aria-label="下一页: V0.23.3">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 下一页
               </span>
               <div class="md-ellipsis">
-                Kubean Infrastructure
+                V0.23.3
               </div>
             </div>
             <div class="md-footer__button md-icon">
