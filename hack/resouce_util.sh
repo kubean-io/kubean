@@ -223,7 +223,7 @@ function resource::install_minio(){
           --set resources.requests.memory=200Mi \
           --set persistence.existingClaim=pvc-minio \
           --kubeconfig=${kubeconfig_file} \
-          minio ${minio_helm_src} ${minio_img_par} --wait
+          minio ${minio_helm_src} ${minio_img_par} --wait --timeout 600s
 }
 
 #####################################
