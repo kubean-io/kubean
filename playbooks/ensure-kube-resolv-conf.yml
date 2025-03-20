@@ -5,6 +5,7 @@
   become: true
   vars:
     kube_config_dir: /etc/kubernetes
+    nameservers: []
   roles:
   - kubespray-defaults
   tasks:
@@ -29,6 +30,9 @@
         block: |
           search default.svc.{{ dns_domain }} svc.{{ dns_domain }}
           nameserver {{ skydns_server }}
+          {% for item in nameservers %}
+          nameserver {{ item }}
+          {% endfor %}
           options ndots:{{ ndots }} timeout:{{ dns_timeout | default('2') }} attempts:{{ dns_attempts | default('2') }}
         create: true
         owner: root
