@@ -121,15 +121,15 @@ func (w *Writer) ClearTeeWriters() {
 	w.teeWriters = []io.Writer{}
 }
 
-func (w *Writer) Print(a ...any) {
+func (w *Writer) Print(a ...interface{}) {
 	fmt.Fprint(w, a...)
 }
 
-func (w *Writer) Printf(format string, a ...any) {
+func (w *Writer) Printf(format string, a ...interface{}) {
 	fmt.Fprintf(w, format, a...)
 }
 
-func (w *Writer) Println(a ...any) {
+func (w *Writer) Println(a ...interface{}) {
 	fmt.Fprintln(w, a...)
 }
 

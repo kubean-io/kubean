@@ -107,7 +107,7 @@ OUTER_LOOP:
 		}
 
 		opc := internal.NewOrderedParallelCompiler(r.cliConfig.ComputedNumCompilers())
-		opc.StartCompiling(suites, r.goFlagsConfig, false)
+		opc.StartCompiling(suites, r.goFlagsConfig)
 
 	SUITE_LOOP:
 		for {
@@ -142,7 +142,7 @@ OUTER_LOOP:
 			}
 
 			if !endTime.IsZero() {
-				r.suiteConfig.Timeout = time.Until(endTime)
+				r.suiteConfig.Timeout = endTime.Sub(time.Now())
 				if r.suiteConfig.Timeout <= 0 {
 					suites[suiteIdx].State = internal.TestSuiteStateFailedDueToTimeout
 					opc.StopAndDrain()

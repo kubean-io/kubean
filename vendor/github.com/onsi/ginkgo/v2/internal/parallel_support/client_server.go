@@ -30,7 +30,7 @@ type Server interface {
 	Close()
 	Address() string
 	RegisterAlive(node int, alive func() bool)
-	GetSuiteDone() chan any
+	GetSuiteDone() chan interface{}
 	GetOutputDestination() io.Writer
 	SetOutputDestination(io.Writer)
 }

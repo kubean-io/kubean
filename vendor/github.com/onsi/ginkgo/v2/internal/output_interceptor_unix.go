@@ -13,7 +13,7 @@ func NewOutputInterceptor() OutputInterceptor {
 	return &genericOutputInterceptor{
 		interceptedContent: make(chan string),
 		pipeChannel:        make(chan pipePair),
-		shutdown:           make(chan any),
+		shutdown:           make(chan interface{}),
 		implementation:     &dupSyscallOutputInterceptorImpl{},
 	}
 }
