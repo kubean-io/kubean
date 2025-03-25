@@ -68,6 +68,7 @@ func (p Program) RunAndExit(osArgs []string) {
 			fmt.Fprintln(p.ErrWriter, deprecationTracker.DeprecationsReport())
 		}
 		p.Exiter(exitCode)
+		return
 	}()
 
 	args, additionalArgs := []string{}, []string{}
@@ -156,6 +157,7 @@ func (p Program) handleHelpRequestsAndExit(writer io.Writer, args []string) {
 		p.EmitUsage(writer)
 		Abort(AbortDetails{ExitCode: 1})
 	}
+	return
 }
 
 func (p Program) EmitUsage(writer io.Writer) {
