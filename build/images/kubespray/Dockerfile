@@ -31,7 +31,7 @@ RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -
        else \
          KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main.yaml); \
        fi \
-    && curl -LO https://dl.k8s.io/release/$KUBE_VERSION/bin/linux/$ARCH/kubectl \
+    && curl -LO https://dl.k8s.io/release/v$KUBE_VERSION/bin/linux/$ARCH/kubectl \
     && curl -LO https://github.com/mikefarah/yq/releases/download/v4.44.2/yq_linux_$ARCH \
     && chmod a+x kubectl yq_linux_$ARCH \
     && mv kubectl /usr/local/bin/kubectl \
