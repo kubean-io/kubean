@@ -25,6 +25,27 @@
         mode: '0755'
       when: not kube_resolv_conf_stat.stat.exists
 
+    - name: Check if systemd-resolved is running
+      systemd_service:
+        name: systemd-resolved
+      register: systemd_resolved_status
+      check_mode: true
+      failed_when: false
+      when: not kube_resolv_conf_stat.stat.exists
+
+    - name: Get resovlectl_nameservers
+      when: 
+      - not kube_resolv_conf_stat.stat.exists
+      - systemd_resolved_status.status.SubState == 'running'
+      block:
+      - name: Get resovlectl_nameservers
+        shell: |
+          resolvectl dns | awk -F : '{print $2}' | sed ':a;N;s/\n/ /;ba'
+        register: resovlectl_nameservers
+      - name: Set resovlectl_nameservers
+        set_fact:
+          resovlectl_nameservers: "{{ resovlectl_nameservers.stdout | split(' ') }}"
+
     - name: Import specific task from kubernetes/preinstall role
       import_role:
         name: kubernetes/preinstall
@@ -32,6 +53,8 @@
       when: not kube_resolv_conf_stat.stat.exists
 
     - name: Write domain/search/nameserver/options to kube_resolv_conf
+      vars:
+        resovlectl_nameservers: []
       blockinfile:
         path: "{{ kube_resolv_conf }}"
         block: |
@@ -40,7 +63,7 @@
           {% for item in upstream_dns_servers %}
           nameserver {{ item }}
           {% endfor %}
-          {% for item in (configured_nameservers | difference([skydns_server]) if not disable_host_nameservers else []) %}
+          {% for item in (((configured_nameservers + resovlectl_nameservers) | unique | select | list | difference([skydns_server]) | reject('search', '^127\.'))[:2] if not disable_host_nameservers else []) %}
           nameserver {{ item }}
           {% endfor %}
           options ndots:{{ ndots }} timeout:{{ dns_timeout | default('2') }} attempts:{{ dns_attempts | default('2') }}
