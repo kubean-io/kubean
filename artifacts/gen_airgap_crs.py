@@ -28,7 +28,7 @@ COMPONENTS_KEYS = [
   {"name": "containerd", "checksumsKey": "containerd_archive_checksums.amd64"},
 ]
 
-DOCKER_KEYS = ["redhat-7", "redhat", "debian", "ubuntu", "kylin"]
+DOCKER_KEYS = ["redhat", "debian", "ubuntu", "kylin"]
 
 
 def merge_dir_content_to_file(input_dir_paths, output_file_path):
