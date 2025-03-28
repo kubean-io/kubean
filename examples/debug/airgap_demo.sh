@@ -406,7 +406,7 @@ data:
     override_system_hostname: true
     ntp_enabled: true
 
-    coredns_version: "{{ 'v1.9.3' if (kube_version is version('v1.25.0','>=')) else 'v1.8.6' }}"
+    coredns_version: "{{ '1.9.3' if (kube_version is version('1.25.0','>=')) else '1.8.6' }}"
 
     pkg_install_retries: 1
     download_retries: 1
