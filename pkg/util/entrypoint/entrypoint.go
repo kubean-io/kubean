@@ -130,15 +130,16 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 		klog.Infof("use external action %s, type %s", action, actionType)
 	}
 	hookRunCmd := ""
-	if actionType == PBAction {
+	switch actionType {
+	case PBAction:
 		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey, builtinAction)
 		if err != nil {
 			return "", ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
 		hookRunCmd = playbookCmd
-	} else if actionType == SHAction {
+	case SHAction:
 		hookRunCmd = action
-	} else {
+	default:
 		return "", ArgsError{fmt.Sprintf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)}
 	}
 	return hookRunCmd, nil
@@ -166,15 +167,16 @@ func (ep *EntryPoint) SprayRunPart(actionType, action, extraArgs string, isPriva
 	if !builtinAction {
 		klog.Infof("use external action %s, type %s", action, actionType)
 	}
-	if actionType == PBAction {
+	switch actionType {
+	case PBAction:
 		playbookCmd, err := ep.buildPlaybookCmd(action, extraArgs, isPrivateKey, builtinAction)
 		if err != nil {
 			return ArgsError{fmt.Sprintf("buildPlaybookCmd: %s", err)}
 		}
 		ep.SprayCMD = playbookCmd
-	} else if actionType == SHAction {
+	case SHAction:
 		ep.SprayCMD = action
-	} else {
+	default:
 		return ArgsError{fmt.Sprintf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)}
 	}
 	return nil

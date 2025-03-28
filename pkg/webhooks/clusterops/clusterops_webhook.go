@@ -205,7 +205,7 @@ func (handler AdmissionReviewHandler) ServeHTTP(writer http.ResponseWriter, requ
 	if err := json.NewDecoder(request.Body).Decode(&admissionReviewReq); err != nil {
 		klog.ErrorS(err, "parse http body to AdmissionReview")
 		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte(fmt.Sprint(err, "parse http body to AdmissionReview")))
+		fmt.Fprint(writer, err, "parse http body to AdmissionReview")
 		return
 	}
 	if admissionReviewReq.Request == nil || len(admissionReviewReq.Request.Object.Raw) == 0 { // for validate create ,so Object.Raw is not empty
@@ -218,7 +218,7 @@ func (handler AdmissionReviewHandler) ServeHTTP(writer http.ResponseWriter, requ
 	if err := json.Unmarshal(admissionReviewReq.Request.Object.Raw, &clusterOperation); err != nil {
 		klog.ErrorS(err, "parse AdmissionReview.Object.Raw in ClusterOperation but failed")
 		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte(fmt.Sprint(err, "parse AdmissionReview.Object.Raw in ClusterOperation but failed")))
+		fmt.Fprint(writer, err, "parse AdmissionReview.Object.Raw in ClusterOperation but failed")
 		return
 	}
 	if clusterOperation.Spec.Cluster == "" {
@@ -239,7 +239,7 @@ func (handler AdmissionReviewHandler) ServeHTTP(writer http.ResponseWriter, requ
 	if err != nil {
 		klog.ErrorS(err, "fetch ClusterOperations but failed")
 		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte(fmt.Sprint(err, "fetch ClusterOperations but failed")))
+		fmt.Fprint(writer, err, "fetch ClusterOperations but failed")
 		return
 	}
 	admissionReviewResponse := admissionv1.AdmissionReview{

@@ -87,7 +87,7 @@ func TestUpdateStatusLoop(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
 	ops := clusteroperationv1alpha1.ClusterOperation{}
-	ops.ObjectMeta.Name = "clusteropsname"
+	ops.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	tests := []struct {
 		name string
@@ -179,7 +179,7 @@ func TestCompareSalt(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
 	ops := clusteroperationv1alpha1.ClusterOperation{}
-	ops.ObjectMeta.Name = "clusteropsname"
+	ops.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	tests := []struct {
 		name string
@@ -212,7 +212,7 @@ func TestUpdateClusterOpsStatusSalt(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
 	ops := clusteroperationv1alpha1.ClusterOperation{}
-	ops.ObjectMeta.Name = "clusteropsname"
+	ops.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	tests := []struct {
 		name string
@@ -259,7 +259,7 @@ func TestUpdateStatusHasModified(t *testing.T) {
 	controller := Controller{}
 	controller.Client = newFakeClient()
 	ops := clusteroperationv1alpha1.ClusterOperation{}
-	ops.ObjectMeta.Name = "clusteropsname"
+	ops.Name = "clusteropsname"
 	controller.Client.Create(context.Background(), &ops)
 	tests := []struct {
 		name string

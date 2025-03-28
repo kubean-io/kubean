@@ -1,130 +1,125 @@
+version: "2"
 run:
-  go: '1.20'
-  timeout: 10m
-
-  # The default concurrency value is the number of available CPU.
   concurrency: 4
-
-  # One of 'readonly' and 'vendor'.
-  #  - readonly: the go command is disallowed from the implicit automatic updating of go.mod described above.
-  #              Instead, it fails when any changes to go.mod are needed. This setting is most useful to check
-  #              that go.mod does not need updates, such as in a continuous integration and testing system.
-  #  - vendor: the go command assumes that the vendor directory holds the correct copies of dependencies and ignores
-  #            the dependency descriptions in go.mod.
+  go: "1.20"
   modules-download-mode: readonly
-
-issues:
-  exclude-rules:
-    - path: pkg
-      linters:
-        - revive
-    - path: cmd
-      linters:
-        - revive
-  exclude-dirs:
-    - test/
-    - hack
-    - vendor
-    - api/vendor
-
-linters-settings:
-  dupl:
-    threshold: 800
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-    # exclude: .errcheckignore
-  errorlint:
-    errorf: true
-    asserts: true
-    comparison: true
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-    disabled-checks:
-      - commentedOutCode
-      - whyNoLint
-    settings:
-      hugeParam:
-        sizeThreshold: 80
-      rangeExprCopy:
-        sizeThreshold: 512
-      rangeValCopy:
-        sizeThreshold: 128
-  godot:
-    scope: declarations
-    capital: false
-  gofmt:
-    simplify: true
-  gofumpt:
-    extra-rules: true
-  goimports:
-    local-prefixes: github.com/kubean-io/kubean
-  gocyclo:
-    # minimal code complexity to report, 30 by default (but we recommend 10-20)
-    min-complexity: 20
-  nestif:
-    min-complexity: 20
-  gosec:
-    config:
-      nosec: true
-      G101:
-        # Regexp pattern for variables and constants to find.
-        pattern: "(?i)passwd|pass|password|pwd|secret|token|pw|apiKey|bearer|cred|crt|cert|certificate"
-    excludes:
-      - G112
-      - G401
-      - G501
-      - G601
-
-output:
-  formats:
-    - format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-  uniq-by-line: true
-  sort-results: true
-
 linters:
-  disable-all: true
+  default: none
   enable:
-    - asciicheck               # Simple linter to check that your code does not contain non-ASCII identifiers
-    - dogsled                  # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
-    - dupl                     # Tool for code clone detection
-    - durationcheck            # check for two durations multiplied together
-    - exportloopref            # checks for pointers to enclosing loop variables
-    - gofmt                    # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification
-    - gofumpt                  # Gofumpt checks whether code was gofumpt-ed.
-    - goheader                 # Checks is file header matches to pattern
-    - goimports                # Goimports does everything that gofmt does. Additionally it checks unused imports
-    - goprintffuncname         # Checks that printf-like functions are named with `f` at the end
-    - gosimple                 # Linter for Go source code that specializes in simplifying a code
-    - govet                    # Vet examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
-    - importas                 # Enforces consistent import aliases
-    - ineffassign              # Detects when assignments to existing variables are not used
-    - makezero                 # Finds slice declarations with non-zero initial length
-    - misspell                 # Finds commonly misspelled English words in comments
-    - nakedret                 # Finds naked returns in functions greater than a specified function length
-    - nilerr                   # Finds the code that returns nil even if it checks that the error is not nil.
-    - nolintlint               # Reports ill-formed or insufficient nolint directives
-    - prealloc                 # Finds slice declarations that could potentially be preallocated
-    - predeclared              # find code that shadows one of Go's predeclared identifiers
-    - revive                   # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
-    - rowserrcheck             # checks whether Err of rows is checked successfully
-    - staticcheck              # Staticcheck is a go vet on steroids, applying a ton of static analysis checks
-    - stylecheck               # Stylecheck is a replacement for golint
-    - thelper                  # thelper detects golang test helpers without t.Helper() call and checks the consistency of test helpers
-    - typecheck                # Like the front-end of a Go compiler, parses and type-checks Go code
-    - unconvert                # Remove unnecessary type conversions
-    - unused                   # Checks Go code for unused constants, variables, functions and types
-    - whitespace               # Tool for detection of leading and trailing whitespace
-    - godot                    # Check if comments end in a period
-    - gosec                    # Inspects source code for security problems
-
+    - asciicheck
+    - dogsled
+    - dupl
+    - durationcheck
+    - godot
+    - goheader
+    - goprintffuncname
+    - gosec
+    - govet
+    - importas
+    - ineffassign
+    - makezero
+    - misspell
+    - nakedret
+    - nilerr
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - rowserrcheck
+    - staticcheck
+    - thelper
+    - unconvert
+    - unused
+    - whitespace
+  settings:
+    dupl:
+      threshold: 800
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    errorlint:
+      errorf: true
+      asserts: true
+      comparison: true
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocritic:
+      disabled-checks:
+        - commentedOutCode
+        - whyNoLint
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      settings:
+        hugeParam:
+          sizeThreshold: 80
+        rangeExprCopy:
+          sizeThreshold: 512
+        rangeValCopy:
+          sizeThreshold: 128
+    gocyclo:
+      min-complexity: 20
+    godot:
+      scope: declarations
+      capital: false
+    gosec:
+      excludes:
+        - G112
+        - G401
+        - G501
+        - G601
+      config:
+        G101:
+          pattern: (?i)passwd|pass|password|pwd|secret|token|pw|apiKey|bearer|cred|crt|cert|certificate
+        nosec: true
+    nestif:
+      min-complexity: 20
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - revive
+        path: pkg
+      - linters:
+          - revive
+        path: cmd
+    paths:
+      - test/
+      - hack
+      - vendor
+      - api/vendor
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    gofumpt:
+      extra-rules: true
+    goimports:
+      local-prefixes:
+        - github.com/kubean-io/kubean
+  exclusions:
+    generated: lax
+    paths:
+      - test/
+      - hack
+      - vendor
+      - api/vendor
+      - third_party$
+      - builtin$
+      - examples$
