@@ -523,7 +523,7 @@ func TestReconcile(t *testing.T) {
 
 				result, _ := controller.Reconcile(context.Background(), controllerruntime.Request{NamespacedName: types.NamespacedName{Name: offlineVersionData.Name}})
 				localartifactset, _ := controller.LocalArtifactSetClientSet.KubeanV1alpha1().LocalArtifactSets().Get(context.Background(), offlineVersionData.Name, metav1.GetOptions{})
-				release, ok := localartifactset.ObjectMeta.Labels[constants.KeySprayRelease]
+				release, ok := localartifactset.Labels[constants.KeySprayRelease]
 				return ok == true && release == "master" && result.Requeue == false && result.RequeueAfter == 0
 			},
 			want: true,

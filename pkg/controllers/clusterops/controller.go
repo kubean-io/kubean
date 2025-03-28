@@ -6,6 +6,7 @@ package clusterops
 import (
 	"context"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -664,7 +665,7 @@ func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.Clust
 	for _, action := range clusterOps.Spec.PreHook {
 		if action.ActionSource != nil && *action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 			if action.ActionSourceRef.IsEmpty() {
-				return fmt.Errorf(errMsg)
+				return errors.New(errMsg)
 			}
 			if err := c.injectCustomAction(clusterOps, job, action.Action, action.ActionType, action.ActionSourceRef); err != nil {
 				return err
@@ -673,7 +674,7 @@ func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.Clust
 	}
 	if clusterOps.Spec.ActionSource != nil && *clusterOps.Spec.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 		if clusterOps.Spec.ActionSourceRef.IsEmpty() {
-			return fmt.Errorf(errMsg)
+			return errors.New(errMsg)
 		}
 		if err := c.injectCustomAction(clusterOps, job, clusterOps.Spec.Action, clusterOps.Spec.ActionType, clusterOps.Spec.ActionSourceRef); err != nil {
 			return err
@@ -682,7 +683,7 @@ func (c *Controller) HookCustomAction(clusterOps *clusteroperationv1alpha1.Clust
 	for _, action := range clusterOps.Spec.PostHook {
 		if action.ActionSource != nil && *action.ActionSource != clusteroperationv1alpha1.BuiltinActionSource {
 			if action.ActionSourceRef.IsEmpty() {
-				return fmt.Errorf(errMsg)
+				return errors.New(errMsg)
 			}
 			if err := c.injectCustomAction(clusterOps, job, action.Action, action.ActionType, action.ActionSourceRef); err != nil {
 				return err

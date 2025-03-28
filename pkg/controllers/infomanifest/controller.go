@@ -77,7 +77,7 @@ func (m *VersionedManifest) Op(op string, m1, m2 *manifestv1alpha1.Manifest) {
 }
 
 func (m *VersionedManifest) add(manifest *manifestv1alpha1.Manifest) {
-	sprayRelease, ok := manifest.ObjectMeta.Labels[constants.KeySprayRelease]
+	sprayRelease, ok := manifest.Labels[constants.KeySprayRelease]
 	if !ok {
 		return
 	}
@@ -90,8 +90,8 @@ func (m *VersionedManifest) add(manifest *manifestv1alpha1.Manifest) {
 }
 
 func (m *VersionedManifest) update(manifest1, manifest2 *manifestv1alpha1.Manifest) {
-	oldSprayRelease, ok1 := manifest1.ObjectMeta.Labels[constants.KeySprayRelease]
-	newSprayRelease, ok2 := manifest2.ObjectMeta.Labels[constants.KeySprayRelease]
+	oldSprayRelease, ok1 := manifest1.Labels[constants.KeySprayRelease]
+	newSprayRelease, ok2 := manifest2.Labels[constants.KeySprayRelease]
 	if !ok1 && !ok2 {
 		return
 	} else if ok1 && !ok2 {
@@ -105,7 +105,7 @@ func (m *VersionedManifest) update(manifest1, manifest2 *manifestv1alpha1.Manife
 }
 
 func (m *VersionedManifest) delete(manifest *manifestv1alpha1.Manifest) {
-	sprayRelease, ok := manifest.ObjectMeta.Labels[constants.KeySprayRelease]
+	sprayRelease, ok := manifest.Labels[constants.KeySprayRelease]
 	if !ok {
 		return
 	}
@@ -196,8 +196,8 @@ func (c *Controller) UpdateLocalAvailableImage(manifests []manifestv1alpha1.Mani
 	}
 	for _, manifest := range manifests {
 		var newImageName string
-		sprayRelease := manifest.ObjectMeta.Annotations[constants.KeySprayRelease]
-		sprayCommit := manifest.ObjectMeta.Annotations[constants.KeySprayCommit]
+		sprayRelease := manifest.Annotations[constants.KeySprayRelease]
+		sprayCommit := manifest.Annotations[constants.KeySprayCommit]
 		if sprayRelease != "" && sprayCommit != "" {
 			newImageName = fmt.Sprintf("%s/kubean-io/spray-job:%s-%s", imageRepo, sprayRelease, sprayCommit)
 		} else {
