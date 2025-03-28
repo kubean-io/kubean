@@ -52,7 +52,7 @@ metadata:
   namespace: kubean-system
 data:
   group_vars.yml: |
-    kube_version: v1.25.8
+    kube_version: 1.25.8
     # upgrade_cluster_setup: true
     # upgrade_node_confirm: true
     # upgrade_node_pause_seconds: 60
@@ -75,7 +75,7 @@ data:
           namespace: kubean-system
         data:
           group_vars.yml: |
-            kube_version: v1.25.0
+            kube_version: 1.25.0
             # upgrade_cluster_setup: true
             # upgrade_node_confirm: true
             # upgrade_node_pause_seconds: 60
@@ -95,7 +95,7 @@ data:
           namespace: kubean-system
         data:
           group_vars.yml: |
-            kube_version: v1.25.8
+            kube_version: 1.25.8
             # upgrade_cluster_setup: true
             # upgrade_node_confirm: true
             # upgrade_node_pause_seconds: 60

@@ -11,18 +11,16 @@ To meet users' needs for components of certain versions, Kubean provides the scr
       - "amd64"
       - "arm64"
     kube_version:
-      - "v1.24.6"
-      - "v1.24.4"
+      - "1.24.6"
+      - "1.24.4"
     calico_version:
-      - "v3.23.3"
+      - "3.23.3"
     cni_version:
-      - "v1.1.1"
+      - "1.1.1"
     containerd_version:
       - "1.6.8"
     cilium_version:
-      - "v1.12.1"
-    etcd_version:
-      - "v3.5.3"
+      - "1.12.1"
     ```
 
 2. Create a new `data` folder in the same folder
