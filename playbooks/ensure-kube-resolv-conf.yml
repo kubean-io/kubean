@@ -41,10 +41,10 @@
       - name: Get resovlectl_nameservers
         shell: |
           resolvectl dns | awk -F : '{print $2}' | sed ':a;N;s/\n/ /;ba'
-        register: resovlectl_nameservers
+        register: resovlectl_nameservers_result
       - name: Set resovlectl_nameservers
         set_fact:
-          resovlectl_nameservers: "{{ resovlectl_nameservers.stdout | split(' ') }}"
+          resovlectl_nameservers: "{{ resovlectl_nameservers_result.stdout | split(' ') }}"
 
     - name: Import specific task from kubernetes/preinstall role
       import_role:
