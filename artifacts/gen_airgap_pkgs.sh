@@ -24,6 +24,20 @@ function generate_offline_dir() {
   mkdir -p $OFFLINE_OSPKGS_DIR
 }
 
+function patch_temp_list() {
+    local temp_dir="contrib/offline/temp"
+
+    # add containerd v1.7.x related files
+    echo "https://github.com/containerd/nerdctl/releases/download/v1.7.7/nerdctl-1.7.7-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
+    echo "https://github.com/containerd/containerd/releases/download/v1.7.23/containerd-1.7.23-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
+
+    # clean up unused images
+    local remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
+    mv "${temp_dir}/images.list" "${temp_dir}/images.list.old"
+    cat ${temp_dir}/images.list.old | egrep -v "${remove_images}" > "${temp_dir}/images.list"
+    rm -f ${temp_dir}/images.list.old
+}
+
 function generate_temp_list() {
   if [ ! -d "kubespray" ]; then
     echo "kubespray git repo should exist."
@@ -38,10 +52,8 @@ function generate_temp_list() {
     bash contrib/offline/generate_list.sh -e"image_arch=${ARCH}" -e"kube_version=${KUBE_VERSION}"
   fi
 
-  # Clean up unused images
-  remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
-  mv contrib/offline/temp/images.list contrib/offline/temp/images.list.old
-  cat contrib/offline/temp/images.list.old | egrep -v ${remove_images} > contrib/offline/temp/images.list
+  patch_temp_list
+
   cp contrib/offline/temp/*.list ${OFFLINE_PACKAGE_DIR}
 }
 
