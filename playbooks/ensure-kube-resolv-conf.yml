@@ -58,15 +58,12 @@
       blockinfile:
         path: "{{ kube_resolv_conf }}"
         block: |
-          search default.svc.{{ dns_domain }} svc.{{ dns_domain }}
-          nameserver {{ skydns_server }}
           {% for item in upstream_dns_servers %}
           nameserver {{ item }}
           {% endfor %}
           {% for item in (((configured_nameservers + resovlectl_nameservers) | unique | select | list | difference([skydns_server]) | reject('search', '^127\.'))[:2] if not disable_host_nameservers else []) %}
           nameserver {{ item }}
           {% endfor %}
-          options ndots:{{ ndots }} timeout:{{ dns_timeout | default('2') }} attempts:{{ dns_attempts | default('2') }}
         create: true
         owner: root
         group: root
