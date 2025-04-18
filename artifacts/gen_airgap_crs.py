@@ -24,7 +24,7 @@ COMPONENTS_KEYS = [
   {"name": "runc", "checksumsKey": "runc_checksums.amd64"},
   {"name": "kube", "checksumsKey": "kubelet_checksums.amd64"},
   {"name": "cni", "checksumsKey": "cni_binary_checksums.amd64"},
-  {"name": "calico", "checksumsKey": "calico_crds_archive_checksums"},
+  {"name": "calico", "checksumsKey": "calicoctl_binary_checksums.amd64"},
   {"name": "containerd", "checksumsKey": "containerd_archive_checksums.amd64"},
 ]
 
