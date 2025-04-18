@@ -1,0 +1,44 @@
+---
+- name: Check kernel compatibility
+  hosts: k8s_cluster,etcd
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Gather kernel facts
+      setup:
+        gather_subset:
+          - '!all'
+          - '!min'
+          - hardware
+        filter:
+          - ansible_kernel
+        gather_timeout: 5
+
+    - name: Compare kernel and kubernetes versions
+      set_fact:
+        kernel_version: "{{ ansible_kernel.split('-')[0] }}"
+        kernel_version_incompatible: >-
+          {{
+            (ansible_kernel.split('-')[0] is version('4.19', '<')) and
+            (kube_version is version('1.32.0', '>='))
+          }}
+
+    - name: Check if SystemVerification is configured
+      set_fact:
+        system_verification_configured: >-
+          {{
+            kubeadm_ignore_preflight_errors is defined and
+            kubeadm_ignore_preflight_errors is sequence and
+            'SystemVerification' in kubeadm_ignore_preflight_errors
+          }}
+
+    - name: Display kernel compatibility warning and exit
+      fail:
+        msg: >-
+          ERROR: Kernel version {{ kernel_version }} is too low for Kubernetes {{ kube_version }}.
+          Either upgrade to kernel 4.19+ (recommended)
+          or add 'SystemVerification' to kubeadm_ignore_preflight_errors (experimental).
+      when:
+        - kernel_version_incompatible | bool
+        - not (system_verification_configured | default(false))

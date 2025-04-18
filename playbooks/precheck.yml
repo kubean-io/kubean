@@ -161,6 +161,8 @@
       when:
         - check_node_time_sync
 
+- import_playbook: check-kernel-compatibility.yml
+
 - hosts: localhost
   gather_facts: false
   vars:
