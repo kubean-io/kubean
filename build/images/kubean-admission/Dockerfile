@@ -10,7 +10,7 @@ COPY . .
 ARG TARGETARCH
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -mod vendor -o kubean-admission ./cmd/kubean-admission/main.go
 
-FROM alpine:3.15
+FROM alpine:3.19
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 

@@ -17,8 +17,8 @@ WORKDIR /kubean
 COPY artifacts /kubean/artifacts
 COPY charts /kubean/charts
 
-ARG SKOPEO_VERSION="v1.11.2"
-ARG YQ_VERSION="v4.33.3"
+ARG SKOPEO_VERSION="v1.18.0"
+ARG YQ_VERSION="v4.44.6"
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
     && apk add --update --no-cache curl wget libc6-compat \
     && echo "install skopeo" \

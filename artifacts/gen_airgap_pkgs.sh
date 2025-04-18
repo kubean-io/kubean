@@ -34,7 +34,7 @@ function patch_temp_list() {
     # clean up unused images
     local remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
     mv "${temp_dir}/images.list" "${temp_dir}/images.list.old"
-    cat ${temp_dir}/images.list.old | egrep -v "${remove_images}" > "${temp_dir}/images.list"
+    grep -E -v "${remove_images}" ${temp_dir}/images.list.old > "${temp_dir}/images.list"
     rm -f ${temp_dir}/images.list.old
 }
 
@@ -54,7 +54,7 @@ function generate_temp_list() {
 
   patch_temp_list
 
-  cp contrib/offline/temp/*.list ${OFFLINE_PACKAGE_DIR}
+  cp contrib/offline/temp/*.list "${OFFLINE_PACKAGE_DIR}"
 }
 
 function update_images_cn_mirror() {
