@@ -99,11 +99,26 @@
         repo: "{{ item }}"
         state: present
         filename: "{{ repo_name }}"
+        update_cache: false
       with_items: "{{ repo_list }}"
+      register: repo_result
       when:
         - ansible_pkg_mgr == 'apt'
         - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
         - not undo|default(false)|bool
+
+    - name: Update apt cache once
+      apt:
+        update_cache: true
+      register: apt_update_result
+      retries: 3
+      delay: 5
+      until: apt_update_result is success
+      when:
+        - ansible_pkg_mgr == 'apt'
+        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+        - not undo|default(false)|bool
+        - repo_result is changed
 
     # Uninstall
 
