@@ -139,7 +139,7 @@ def get_manifest_data():
 
 def get_other_required_keywords(manifest_dict):
     other_required_keywords = [
-        "crun", "runsc", "cri-dockerd", "yq", "nginx", "k8s-dns-node-cache", "cluster-proportional-autoscaler"]
+        "nerdctl", "crun", "runsc", "cri-dockerd", "yq", "nginx", "k8s-dns-node-cache", "cluster-proportional-autoscaler"]
     manifest_keys = [ key for key in manifest_dict]
     keys_range = [ key for key in KEYWORDS]
     list_diff = list(set(keys_range) - set(manifest_keys))
