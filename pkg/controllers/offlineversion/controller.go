@@ -14,6 +14,7 @@ import (
 	localartifactsetClientSet "github.com/kubean-io/kubean-api/generated/localartifactset/clientset/versioned"
 	manifestClientSet "github.com/kubean-io/kubean-api/generated/manifest/clientset/versioned"
 	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
+	"github.com/kubean-io/kubean/pkg/util"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -55,6 +56,9 @@ func (c *Controller) MergeManifestsStatus(localartifactset *localartifactsetv1al
 		}
 		if !updated {
 			continue
+		}
+		for _, component := range manifest.Status.LocalAvailable.Components {
+			component.VersionRange = util.UnifyVersions(component.VersionRange)
 		}
 		klog.Infof("Update manifest status for %s since %s", manifest.Name, localartifactset.Name)
 		if _, err := c.InfoManifestClientSet.KubeanV1alpha1().Manifests().UpdateStatus(context.Background(), manifest, metav1.UpdateOptions{}); err != nil {
