@@ -1,7 +1,7 @@
-// Code generated from /Users/tswadell/go/src/github.com/google/cel-go/parser/gen/CEL.g4 by ANTLR 4.10.1. DO NOT EDIT.
+// Code generated from /usr/local/google/home/jdtatum/github/cel-go/parser/gen/CEL.g4 by ANTLR 4.13.1. DO NOT EDIT.
 
 package gen // CEL
-import "github.com/antlr/antlr4/runtime/Go/antlr"
+import "github.com/antlr4-go/antlr/v4"
 
 type BaseCELVisitor struct {
 	*antlr.BaseParseTreeVisitor
@@ -43,7 +43,11 @@ func (v *BaseCELVisitor) VisitNegate(ctx *NegateContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCELVisitor) VisitSelectOrCall(ctx *SelectOrCallContext) interface{} {
+func (v *BaseCELVisitor) VisitMemberCall(ctx *MemberCallContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCELVisitor) VisitSelect(ctx *SelectContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -55,11 +59,11 @@ func (v *BaseCELVisitor) VisitIndex(ctx *IndexContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCELVisitor) VisitCreateMessage(ctx *CreateMessageContext) interface{} {
+func (v *BaseCELVisitor) VisitIdent(ctx *IdentContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseCELVisitor) VisitIdentOrGlobalCall(ctx *IdentOrGlobalCallContext) interface{} {
+func (v *BaseCELVisitor) VisitGlobalCall(ctx *GlobalCallContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
@@ -75,6 +79,10 @@ func (v *BaseCELVisitor) VisitCreateStruct(ctx *CreateStructContext) interface{}
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseCELVisitor) VisitCreateMessage(ctx *CreateMessageContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseCELVisitor) VisitConstantLiteral(ctx *ConstantLiteralContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -83,11 +91,31 @@ func (v *BaseCELVisitor) VisitExprList(ctx *ExprListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseCELVisitor) VisitListInit(ctx *ListInitContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseCELVisitor) VisitFieldInitializerList(ctx *FieldInitializerListContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseCELVisitor) VisitOptField(ctx *OptFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseCELVisitor) VisitMapInitializerList(ctx *MapInitializerListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCELVisitor) VisitSimpleIdentifier(ctx *SimpleIdentifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCELVisitor) VisitEscapedIdentifier(ctx *EscapedIdentifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseCELVisitor) VisitOptExpr(ctx *OptExprContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
