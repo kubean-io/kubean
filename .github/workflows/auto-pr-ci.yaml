@@ -55,7 +55,7 @@ jobs:
       - name: static check
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v2.0.2
+          version: v2.1.0
           args: --timeout=10m
 
       - name: ansible-lint
