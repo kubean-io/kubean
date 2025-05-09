@@ -8,6 +8,9 @@ apt:
   - unzip
   - ebtables
   - ntp
+  - bash-completion
+  - iputils-ping
+  - rsync
 
 common:
   - sshpass
@@ -77,16 +80,25 @@ kylin:
 
 # https://download.docker.com/linux/ubuntu/
 ubuntu2004:
-  - containerd.io=1.6.28-1
   - containerd.io=1.6.32-1
-  - docker-ce=5:24.0.9-1~ubuntu.20.04~focal
+  - containerd.io=1.7.25-1
   - docker-ce=5:26.1.2-1~ubuntu.20.04~focal
+  - docker-ce=5:27.4.1-1~ubuntu.20.04~focal
+  - docker-ce=5:28.0.2-1~ubuntu.20.04~focal
 
 ubuntu2204:
-  - containerd.io=1.6.28-1
   - containerd.io=1.6.32-1
-  - docker-ce=5:24.0.9-1~ubuntu.22.04~jammy
+  - containerd.io=1.7.25-1
   - docker-ce=5:26.1.2-1~ubuntu.22.04~jammy
+  - docker-ce=5:27.4.1-1~ubuntu.22.04~jammy
+  - docker-ce=5:28.0.2-1~ubuntu.22.04~jammy
+
+ubuntu2404:
+  - containerd.io=1.6.32-1
+  - containerd.io=1.7.25-1
+  - docker-ce=5:26.1.2-1~ubuntu.24.04~noble
+  - docker-ce=5:27.4.1-1~ubuntu.24.04~noble
+  - docker-ce=5:28.0.2-1~ubuntu.24.04~noble
 
 openeuler:
   - socat
