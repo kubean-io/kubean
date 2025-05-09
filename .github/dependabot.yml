@@ -6,15 +6,22 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gomod"
-    directory: "/"
+  - package-ecosystem: gomod
+    directory: /
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/build/images"
+      interval: weekly
+    groups:
+      golang-x:
+        patterns:
+          - golang.org/x/*
+      k8s:
+        patterns:
+          - k8s.io/*
+  - package-ecosystem: docker
+    directory: /build/images
     schedule:
-      interval: "daily"
-  - package-ecosystem: "github-actions"
-    directory: "/"
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "daily"
+      interval: weekly
