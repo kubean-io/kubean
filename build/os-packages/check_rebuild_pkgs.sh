@@ -45,7 +45,7 @@ if [[ "${OS_NAME}" =~ ^(centos|kylin|redhat|rocky|oracle|tencent|openeuler).* ]]
   fi
 fi
 
-# ubuntu2004 / ubuntu2204
+# ubuntu2004 / ubuntu2204 / ubuntu 2404
 if [[ "${OS_NAME}" == "ubuntu"* ]]; then
   late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.apt[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')

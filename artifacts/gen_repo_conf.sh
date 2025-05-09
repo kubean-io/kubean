@@ -112,7 +112,7 @@ function get_apt_codename_from_os_release() {
 
 function get_apt_codename_from_iso() {
   for codename in $(find ${ISO_MOUNT_PATH}/dists/ -maxdepth 1 -type d -exec basename {} \;); do
-    [[ "${codename}" =~ xenial|bionic|focal|jammy ]] && { echo "${codename}"; return; }
+    [[ "${codename}" =~ xenial|bionic|focal|jammy|noble ]] && { echo "${codename}"; return; }
   done
   echo $(get_apt_codename_from_os_release)
 }
