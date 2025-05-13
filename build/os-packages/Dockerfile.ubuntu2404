@@ -1,6 +1,6 @@
-FROM ubuntu:focal as os-focal
+FROM ubuntu:noble as os-noble
 ARG TARGETARCH
-ARG OS_VERSION=focal
+ARG OS_VERSION=noble
 ARG DEP_PACKAGES="apt-transport-https ca-certificates curl wget gnupg dpkg-dev"
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh \
@@ -25,7 +25,7 @@ RUN while read -r line; do \
           line="$line docker-ce-cli=$version containerd.io=1.6.32-1"; \
       fi; \
       apt-get install --reinstall --print-uris $line | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; \
-    done <<<"$(yq eval '.common[],.apt[],.ubuntu2004[]' ./${PACKAGES_PREFIX}/packages.yml | sort -u)" \
+    done <<<"$(yq eval '.common[],.apt[],.ubuntu2404[]' ./${PACKAGES_PREFIX}/packages.yml | sort -u)" \
     && sort -u urls.list > ./${PACKAGES_PREFIX}/packages.list \
     && rm -f urls.list
 
@@ -33,4 +33,4 @@ RUN wget -q -x -P ${PACKAGES_PREFIX} -i ./${PACKAGES_PREFIX}/packages.list \
     && dpkg-scanpackages --multiversion ${PACKAGES_PREFIX} | gzip -9c > ${PACKAGES_PREFIX}/Packages.gz
 
 FROM scratch
-COPY --from=os-focal /ubuntu /resources/ubuntu
+COPY --from=os-noble /ubuntu /resources/ubuntu
