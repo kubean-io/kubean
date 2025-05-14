@@ -60,7 +60,11 @@ def merge_spray_components_version_files(merged_file_path):
   checkpointPath2 = f"{SPRAY_DIR}/roles/download/defaults/main"
   # The file was removed in release 2.23
   checkpointPath3 = f"{SPRAY_DIR}/roles/download/defaults"
+  # The directory first appeared since 4052cd5
+  checkpointPath4 = f"{SPRAY_DIR}/roles/kubespray_defaults/defaults/main"
 
+  if not os.path.exists(sprayDefaultPath):
+    os.makedirs(sprayDefaultPath, exist_ok=True)
   if os.path.exists(checkpointPath1):
     print("checkpoint path 1")
     path = Path(f"{SPRAY_DIR}/roles/download/defaults")
@@ -72,6 +76,9 @@ def merge_spray_components_version_files(merged_file_path):
   elif os.path.exists(f"{checkpointPath3}/main.yml"):
     print("checkpoint path 3")
     merge_dir_content_to_file([checkpointPath3, sprayDefaultPath], merged_file_path)
+  elif os.path.exists(f"{checkpointPath4}/main.yml"):
+    print("checkpoint path 4")
+    merge_dir_content_to_file([checkpointPath4, sprayDefaultPath], merged_file_path)
 
 
 def get_value_from_yml(yml_file_path, key):
