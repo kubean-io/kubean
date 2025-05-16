@@ -8,6 +8,8 @@ metadata:
   namespace: kubean-system
 data:
   group_vars.yml: |
+    kube_version: "1.31.6"
+    
     registry_host: "<REGISTRY_HOST>:<REGISTRY_PORT>"
     minio_address: "http://<MINIO_API_HOST>:<MINIO_API_PORT>"
     files_repo: "{{ minio_address }}/kubean"

@@ -8,6 +8,7 @@ metadata:
   namespace: kubean-system
 data:
   group_vars.yml: |
+    kube_version: "1.31.6"
     container_manager: containerd
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico
