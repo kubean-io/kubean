@@ -62,6 +62,8 @@ def merge_spray_components_version_files(merged_file_path):
   checkpointPath3 = f"{SPRAY_DIR}/roles/download/defaults"
   # The directory first appeared since 4052cd5
   checkpointPath4 = f"{SPRAY_DIR}/roles/kubespray_defaults/defaults/main"
+  # The directory first appeared since 3a2862e
+  checkpointPath5 = f"{SPRAY_DIR}/roles/kubespray_defaults/vars/main"
 
   if not os.path.exists(sprayDefaultPath):
     os.makedirs(sprayDefaultPath, exist_ok=True)
@@ -76,6 +78,9 @@ def merge_spray_components_version_files(merged_file_path):
   elif os.path.exists(f"{checkpointPath3}/main.yml"):
     print("checkpoint path 3")
     merge_dir_content_to_file([checkpointPath3, sprayDefaultPath], merged_file_path)
+  elif os.path.exists(f"{checkpointPath5}/checksums.yml"):
+    print("checkpoint path 5")
+    merge_dir_content_to_file([checkpointPath4, checkpointPath5, sprayDefaultPath], merged_file_path)
   elif os.path.exists(f"{checkpointPath4}/main.yml"):
     print("checkpoint path 4")
     merge_dir_content_to_file([checkpointPath4, sprayDefaultPath], merged_file_path)
