@@ -23,7 +23,12 @@ RUN /usr/bin/python3 -m pip install --no-cache-dir pip -U \
     && python3 -m pip install --no-cache-dir -r requirements.txt
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
-    && if [ -d 'roles/kubespray-defaults/defaults/main' ]; then \
+    && if [ -d 'roles/kubespray_defaults/vars/main/checksums.yml' ]; then \
+         KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray_defaults/defaults/main/main.yml); \
+         if [[ "$KUBE_VERSION" == *{{* ]]; then \
+           KUBE_VERSION=$(python3 -c "import yaml,pathlib;f=pathlib.Path('roles/kubespray_defaults/vars/main/checksums.yml');d=yaml.safe_load(f.read_text());print(list(d['kubelet_checksums']['amd64'].keys())[0])"); \
+         fi \
+       elif [ -d 'roles/kubespray-defaults/defaults/main' ]; then \
          KUBE_VERSION=$(sed -n 's/^kube_version: //p' roles/kubespray-defaults/defaults/main/main.yml); \
          if [[ "$KUBE_VERSION" == *{{* ]]; then \
            KUBE_VERSION=$(python3 -c "import yaml,pathlib;f=pathlib.Path('roles/kubespray-defaults/defaults/main/checksums.yml');d=yaml.safe_load(f.read_text());print(list(d['kubelet_checksums']['amd64'].keys())[0])"); \
