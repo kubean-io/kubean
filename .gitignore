@@ -11,3 +11,4 @@ charts/kubean/templates/manifest.cr.yaml
 docs/site/en/
 docs/site/zh/
 .dockerignore
+site/

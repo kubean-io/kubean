@@ -250,7 +250,7 @@ spec:
   action: remove-node.yml
   extraArgs: -e node=node2
 ```
-**重要参数：**
+**Key parameters​：**
 >* `spec.cluster`: specifies the name of the cluster to be scaled. The above example specifies the cluster named cluster-mini as the scaling target.
 >* `spec.action`: specifies the kubespray script for scaling the node, which is set to remove-node.yml here.
 >* `spec.extraArgs`: specifies the nodes to be scaled down. Here, the -e parameter is used to specify the node2 to be scaled down.
