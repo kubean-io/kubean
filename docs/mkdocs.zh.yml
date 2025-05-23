@@ -4,7 +4,7 @@ site_url: https://kubean-io.github.io/kubean/zh
 repo_name: kubean-io/kubean
 repo_url: https://github.com/kubean-io/kubean
 docs_dir: './zh'
-site_dir: './site/zh'
+site_dir: ../site/zh
 plugins:
 - search
 - glightbox

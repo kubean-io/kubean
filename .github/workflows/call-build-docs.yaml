@@ -21,17 +21,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
-      - name: Install mkdocs-material
-        run: |
-          pip install mkdocs-material
-          pip install mkdocs-glightbox
-          pip install mkdocs-awesome-pages-plugin
       - name: Build en docs
         run: |
-          mkdocs build -f docs/mkdocs.zh.yml
-          mkdocs build -f docs/mkdocs.en.yml
+          bash docs/build.sh
       - name: Deploy docs to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/site
+          publish_dir: ./site
