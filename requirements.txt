@@ -1,0 +1,5 @@
+mkdocs-material==9.6.14
+mkdocs-glightbox==0.4.0
+mkdocs-awesome-pages-plugin==2.10.1
+mkdocs-redirects==1.2.2
+mkdocs==1.6.1

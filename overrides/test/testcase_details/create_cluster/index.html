@@ -1,0 +1,1040 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://kubean-io.github.io/kubean/overrides/test/testcase_details/create_cluster/">
+      
+      
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Create cluster case - Kubean</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#create-cluster-case" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Kubean" class="md-header__button md-logo" aria-label="Kubean" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kubean
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Create cluster case
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/kubean/en/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/kubean/zh/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../en/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  English
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../zh/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  中文
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Kubean" class="md-nav__button md-logo" aria-label="Kubean" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kubean
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    English
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    中文
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-basic-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create basic cluster
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-cni-calico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support CNI: Calico
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-cri-containerd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support CRI: ContainerD
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-overwrite-hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      Not overwrite hostname
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-with-one-master-and-one-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster with one master and one worker
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-cri-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support CRI: docker
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ssh-authorization-private-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSH authorization: private key
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-cri-cilium" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support CRI: Cilium
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-kube_pods_subnet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support kube_pods_subnet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-kube_service_addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support kube_service_addresses
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-cluster-ca-auto_renew" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support cluster ca auto_renew
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-overwrite-hostname" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support overwrite hostname
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-iptables-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support iptables mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-readhat8-os" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support Readhat8 OS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support-centos8-os" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support Centos8 OS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ntp-func-when-create-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ntp func when create cluster
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-topology-3-master-and-2-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster topology ：3 master and 2 worker
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-set-all-the-nodes-with-same-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster set all the nodes with same name
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-with-calico-ipip_always-tuning-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster with calico IPIP_Always tuning mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-with-calico-ipip_crosssubnet-tuning-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster with calico IPIP_CrossSubnet tuning mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-with-calico-vxlan_always-tuning-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster with calico Vxlan_Always tuning mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-with-calico-vxlan_crosssubnet-tuning-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster with calico Vxlan_CrossSubnet tuning mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redhat84-os-compitable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Redhat84 OS Compitable
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-support-calico-dual-stack-v4-vxlan_alwaysv4_vxlan_alwaysv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster support calico dual stack v4: Vxlan_Always(v4)_Vxlan_Always(v6)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-support-calico-dual-stack-v4-vxlan_crosssubnetv4_vxlan_alwaysv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster support calico dual stack v4: Vxlan_CrossSubnet(v4)_Vxlan_Always(v6)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-support-calico-dual-stack-v4-ipip_alwaysv4_vxlan_crosssubnetv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster support calico dual stack v4: IPIP_Always(v4)_Vxlan_CrossSubnet(v6)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cluster-support-calico-dual-stack-v4-ipip_crosssubnetv4_vxlan_crosssubnetv6" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cluster support calico dual stack v4: IPIP_CrossSubnet(v4)_Vxlan_CrossSubnet(v6)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-cilium-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create cilium cluster
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-3master-cluster-vip" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create 3master cluster (vip)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="create-cluster-case">Create cluster case</h1>
+<h3 id="create-basic-cluster">Create basic cluster</h3>
+<pre><code>1. deploy kubean in a k8s cluster
+2. prepare config files (include: hosts-conf-cm.yml, kubeanCluster.yml, kubeanClusterOps.yml, vars-conf-cm.yml)
+3. prepare one machine to setup k8s cluster: centos 7.9, x86
+4. set k8s version :1.24.3
+5. set CRI: containerD
+6. set CNI: calico
+7. set Calico tunnel mode: IPIP always
+8. set override_system_hostname: false
+9. set auto_renew_certificates: false
+10. set ssh method: username and password
+11. start create cluster
+</code></pre>
+<h3 id="support-cni-calico">Support CNI: Calico</h3>
+<pre><code>1. prepare the config file and set CNI: Calico
+2. set cluster topology to：1 master + 1 worker
+3. start create cluster
+3. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+4. check calico (calico-node and calico-kube-controller)pod status: pod status should be "Running"
+5. check folder /opt/cni/bin contains  file "calico" and "calico-ipam" are exist in both master and worker node
+6. check pod connection:
+    6.1. create a deployment of nginx1 on master, on namespace ns1: set replicaset to 1(here call the pod as pod1)
+    6.2. create a deployment of nginx2 on worker, on namespace ns2: set replicaset to 1(here call the pod as pod2)
+    6.3  login master node, ping the pod2 ip, should be success
+    6.4  login pod2, ping pod1 ip, should be success
+</code></pre>
+<h3 id="support-cri-containerd">Support CRI: ContainerD</h3>
+<pre><code>1. prepare the config file and set CRI: ContainerD
+2. set cluster topology to：1 master
+3. start create cluster
+3. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+4. check containerD with cmd: systemctl status containerD, the output should contain 'active' and 'running'
+</code></pre>
+<h3 id="not-overwrite-hostname">Not overwrite hostname</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. check hostname of node: the hostname is not changed by kubean
+</code></pre>
+<h3 id="create-cluster-with-one-master-and-one-worker">Create cluster with one master and one worker</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set cluster topology config: 1 master and 1 worker
+3. prepare 2 hosts
+4. start setup cluster
+5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+6. check the cluster topology is: 1 master and 1 worker
+</code></pre>
+<h3 id="support-cri-docker">Support CRI: docker</h3>
+<pre><code>1. prepare the config file and set CRI: ContainerD
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. check docker status with cmd: systemctl status docker, the output should contain 'active' and 'running'
+</code></pre>
+<h3 id="ssh-authorization-private-key">SSH authorization: private key</h3>
+<pre><code>1. prepare the config file, and set cluster topology to: 1 master + 0 worker
+2. generate secret key on kubean node with cmd: ssh-keygen
+3. scp public key file to every cluster node use cmd: ssh-copy-id -i ~/.ssh/id_rsa.pub root@xx.xx.xx.xx
+4. write base64 code of /root/.ssh/id_rsa to the config file ssh-auth-secret.yml
+5. start create cluster
+6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+</code></pre>
+<h3 id="support-cri-cilium">Support CRI: Cilium</h3>
+<pre><code>1. prepare the config file and set CNI: Cilium
+2. set cluster topology to：1 master + 1 worker
+3. start create cluster
+3. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+4. check calico pod status: pod status be "Running"
+5. login node, check the file "cilium" and "cilium-ipam" are in folder  /opt/cni/bin
+6. create 2 pods, check the connection between pod to pod and between node to pod:
+    6.1 login node, then ping the pod ip
+    6.2 login pod, ping the other pod ip
+</code></pre>
+<h3 id="support-kube_pods_subnet">Support kube_pods_subnet</h3>
+<pre><code>1. prepare the config file and set kube_pods_subnet: 192.168.128.0/20
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. create a nginx deployment, check whether the pod ip is within the subnet
+</code></pre>
+<h3 id="support-kube_service_addresses">Support kube_service_addresses</h3>
+<pre><code>1. prepare the config file and set kube_service_addresses: 10.96.0.0/12
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. create a nginx service, check whether the service ip is within the service subnet
+</code></pre>
+<h3 id="support-cluster-ca-auto_renew">Support cluster ca auto_renew</h3>
+<pre><code>1. prepare the config file, and set config of auto_renew_certificates: true
+2. set cluster topology to：1 master + 0 worker
+3. set config of update frequency, refer to: auto_renew_certificates_systemd_calendar: "*-*-* 15:{{ groups['kube_control_plane'].index(inventory_hostname) }}0:00"
+4. start create cluster
+5. after creation, list timer on master node with cmd: systemctl list-timers
+6. check timer whether the list include k8s-cert-renew.timer, and the cert-renew timer's frequency is right
+7. after timer excused, check whether the k8s ca info is updated with cmd: kubeadm certs check-expiration
+</code></pre>
+<h3 id="support-overwrite-hostname">Support overwrite hostname</h3>
+<pre><code>1. prepare the config file and set override_system_hostname: true
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. check the hostname of cluster node: the hostname is overwrited by kuean
+</code></pre>
+<h3 id="support-iptables-mode">Support iptables mode</h3>
+<pre><code>1. prepare the config file and set kube_proxy_mode: iptables
+2. set cluster topology to：1 master + 0 worker
+3. start create cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. check the prox mode of cluster node: the prox mode is iptables
+</code></pre>
+<h3 id="support-readhat8-os">Support Readhat8 OS</h3>
+<pre><code>1. prepare the config file
+2. set cluster topology config in hosts-config-cm.yml： 1 master + 0 worker
+3. prepare 2 redhat8 machines and enable the repository using subscription-manager in RHEL
+4. start install cluster
+5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+</code></pre>
+<h3 id="support-centos8-os">Support Centos8 OS</h3>
+<pre><code>1. prepare the config file
+2. set cluster topology: 1 master + 0 worker
+3. prepare 2 Centos8 machines and change the Yum source
+4. start install cluster
+5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+</code></pre>
+<h3 id="ntp-func-when-create-cluster">Ntp func when create cluster</h3>
+<pre><code>1. prepare the config file and set parameter: ntp_enabled=true
+2. set cluster topology: 1 master + 1 worker
+3. change the system time of one master node with cmd: date -s "**:**:**"
+4. start create cluster
+5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+</code></pre>
+<h3 id="create-cluster-topology-3-master-and-2-worker">Create cluster topology ：3 master and 2 worker</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set cluster topology: 3 master + 2 worker
+3. prepare 5 machines
+4. start setup cluster
+5. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+</code></pre>
+<h3 id="create-cluster-set-all-the-nodes-with-same-name">Create cluster set all the nodes with same name</h3>
+<pre><code>1. prepare the config file, and set all the node name with same name in host-conf-cm.yml(ex set both nodes name as "master1")
+2. start create cluster
+3. after creation, check the job-related pod status is "Error"
+</code></pre>
+<h3 id="create-cluster-with-calico-ipip_always-tuning-mode">Create cluster with calico IPIP_Always tuning mode</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+3. set calico tunning mode to IPIP_Always:
+        calico_ipip_mode: Always
+        calico_vxlan_mode: Never
+        calico_network_backend: bird
+4. set cluster topology: 1 master + 1 worker
+5. start setup cluster
+6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+7. check tunning mode:
+        7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+        7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+        7.3 check point:
+                spec.ipipMode=Always;
+                spec.vxlanMode=Never
+8. create pod1 on master, on namespace1
+9. create pod2 on worker, on namespace2
+10. login master node, ping pod2; login worker, ping pod1
+11. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-with-calico-ipip_crosssubnet-tuning-mode">Create cluster with calico IPIP_CrossSubnet tuning mode</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+3. set calico tunning mode to IPIP_Always:
+    calico_ipip_mode: CrossSubnet
+    calico_vxlan_mode: Never
+    calico_network_backend: bird
+4. set cluster topology: 1 master + 1 worker
+5. start setup cluster
+6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+7. check tunning mode:
+    7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+    7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+    7.3 check point:
+            spec.ipipMode=CrossSubnet
+            spec.vxlanMode=Never
+8. create pod1 on master, on namespace1
+9. create pod2 on worker, on namespace2
+10. login master node, ping pod2; login worker, ping pod1
+11. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-with-calico-vxlan_always-tuning-mode">Create cluster with calico Vxlan_Always tuning mode</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+3. set calico tunning mode to IPIP_CrossSubnet:
+    calico_ipip_mode: Never
+    calico_vxlan_mode: Always
+4. set cluster topology: 1 master + 1 worker
+5. start setup cluster
+6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+7. check tunning mode:
+        7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+        7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+        7.3 check point:
+                spec.ipipMode=Never
+                spec.vxlanMode=Always
+8. create pod1 on master, on namespace1
+9. create pod2 on worker, on namespace2
+10. login master node, ping pod2; login worker, ping pod1
+11. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-with-calico-vxlan_crosssubnet-tuning-mode">Create cluster with calico Vxlan_CrossSubnet tuning mode</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set network card mode to any one of the (FIRST FOUND, KUBERNETES INTERNAL_IP, INTERFACE REGEX)
+3. set calico tunning mode to IPIP_CrossSubnet:
+    calico_ipip_mode: Never
+    calico_vxlan_mode: CrossSubnet
+4. set cluster topology: 1 master + 1 worker
+5. start setup cluster
+6. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+7. check tunning mode:
+    7.1 get ippool inf cmd: "calicoctl get ippools", and get the poolName
+    7.2 query pool details: calicoctl get ippools {{poolName}} -o yaml
+    7.3 check point:
+            spec.ipipMode=Never
+            spec.vxlanMode=CrossSubnet
+8. create pod1 on master, on namespace1
+9. create pod2 on worker, on namespace2
+10. login master node, ping pod2; login worker, ping pod1
+11. login pod2, ping pod1
+</code></pre>
+<h3 id="redhat84-os-compitable">Redhat84 OS Compitable</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. set cluster topology: 1 master + 1 worker
+3. start setup cluster
+4. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+5. create pod1 on master, on namespace1
+6. create pod2 on worker, on namespace2
+7. login master node, ping pod2; login worker, ping pod1
+8. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-support-calico-dual-stack-v4-vxlan_alwaysv4_vxlan_alwaysv6">Create cluster support  calico dual stack v4: Vxlan_Always(v4)_Vxlan_Always(v6)</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. enable the dual stack switch
+     enable_dual_stack_networks: true
+3. set network card mode to any one of the:
+    calico_ip_auto_method: first-found
+    calico_ip6_auto_method: first-found
+4. set calico tunning mode:
+    calico_ipip_mode: Never
+    calico_vxlan_mode: Always
+    calico_ipip_mode_ipv6: Never
+    calico_vxlan_mode_ipv6: Always
+5. set cluster topology: 1 master + 1 worker
+6. start setup cluster
+7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+8. check calico pods are Running
+9. check tunning mode of ipv4
+10. check tunning mode of ipv6
+11. create pod1 on master, on namespace1
+12. create pod2 on worker, on namespace2
+13. check pod1 and pod2 both have 2 ips
+14. login master node, ping pod2; login worker, ping pod1
+15. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-support-calico-dual-stack-v4-vxlan_crosssubnetv4_vxlan_alwaysv6">Create cluster support  calico dual stack v4: Vxlan_CrossSubnet(v4)_Vxlan_Always(v6)</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. enable the dual stack switch
+     enable_dual_stack_networks: true
+3. set network card mode to any one of the:
+    calico_ip_auto_method: first-found
+    calico_ip6_auto_method: first-found
+4. set calico tunning mode:
+    calico_ipip_mode: Never
+    calico_vxlan_mode: CrossSubnet
+    calico_ipip_mode_ipv6: Never
+    calico_vxlan_mode_ipv6: Always
+5. set cluster topology: 1 master + 1 worker
+6. start setup cluster
+7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+8. check calico pods are Running
+9. check tunning mode of ipv4
+10. check tunning mode of ipv6
+11. create pod1 on master, on namespace1
+12. create pod2 on worker, on namespace2
+13. check pod1 and pod2 both have 2 ips
+14. login master node, ping pod2; login worker, ping pod1
+15. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-support-calico-dual-stack-v4-ipip_alwaysv4_vxlan_crosssubnetv6">Create cluster support  calico dual stack v4: IPIP_Always(v4)_Vxlan_CrossSubnet(v6)</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. enable the dual stack switch
+    enable_dual_stack_networks: true
+3. set network card mode to any one of the:
+    calico_ip_auto_method: first-found
+    calico_ip6_auto_method: first-found
+4. set calico tunning mode:
+    calico_ipip_mode: Always
+    calico_vxlan_mode: Never
+    calico_network_backend: bird
+    calico_ipip_mode_ipv6: Never
+    calico_vxlan_mode_ipv6: CrossSubnet
+5. set cluster topology: 1 master + 1 worker
+6. start setup cluster
+7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+8. check calico pods are Running
+9. check tunning mode of ipv4
+10. check tunning mode of ipv6
+11. create pod1 on master, on namespace1
+12. create pod2 on worker, on namespace2
+13. check pod1 and pod2 both have 2 ips
+14. login master node, ping pod2; login worker, ping pod1
+15. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cluster-support-calico-dual-stack-v4-ipip_crosssubnetv4_vxlan_crosssubnetv6">Create cluster support  calico dual stack v4: IPIP_CrossSubnet(v4)_Vxlan_CrossSubnet(v6)</h3>
+<pre><code>1. prepare the config file as basic cluster
+2. enable the dual stack switch
+    enable_dual_stack_networks: true
+3. set network card mode to any one of the:
+    calico_ip_auto_method: first-found
+    calico_ip6_auto_method: first-found
+4. set calico tunning mode:
+    calico_ipip_mode: CrossSubnet
+    calico_vxlan_mode: Never
+    calico_network_backend: bird
+    calico_ipip_mode_ipv6: Never
+    calico_vxlan_mode_ipv6: CrossSubnet
+5. set cluster topology: 1 master + 1 worker
+6. start setup cluster
+7. after creation, check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+8. check calico pods are Running
+9. check tunning mode of ipv4
+10. check tunning mode of ipv6
+11. create pod1 on master, on namespace1
+12. create pod2 on worker, on namespace2
+13. check pod1 and pod2 both have 2 ips
+14. login master node, ping pod2; login worker, ping pod1
+15. login pod2, ping pod1
+</code></pre>
+<h3 id="create-cilium-cluster">Create cilium cluster</h3>
+<pre><code>1. prepare one master and one worker as basic cluster, the os should be redhat8.
+2. set cni to cilium
+    kube_network_plugin: cilium
+3. set kube_service_addresses and kube_pods_subnet in vars-conf-cm.yml, for example:
+    kube_service_addresses: 10.88.0.0/16
+    kube_pods_subnet: 192.88.128.0/20
+4. set cluster topology: 1 master + 1 worker, change config of hosts
+5. start setup cluster, use kubectl apply -f ***
+6. check the job-related pod status is "Succeeded", and check cluster status by sonobuoy
+7. check there are four pods named 'cilium-***'
+8. create pod1 and pod2 on master, pod3 on worker
+9. check ip, it should in the range of kube_pods_subnet
+10. create a service, and check the ip of the service, it should in the range of kube_service_addresses
+11. login master node, ping pod2 and pod3; login worker, ping pod1
+12. login pod1, ping pod2 and pod3
+</code></pre>
+<h3 id="create-3master-cluster-vip">Create 3master cluster (vip)</h3>
+<pre><code>1 Prepare three virtual machines as the nodes of the created work cluster. The OS is centos7
+2. yml files required for configuring Kubean:
+Configure hosts-config-cm.yml file to write the information of the three nodes
+Configure kubeanClusterOps using action: cluster.yml
+Configure parameters in vars-conf-cm.yml that support kube-vip
+kube_vip_arp_enabled: true
+kube_proxy_strict_arp: false
+kube_vip_enabled: true
+kube_vip_controlplane_enabled: true
+kube_vip_address: &lt;ip address&gt; # Select an ip address that is the same network segment as the host and cannot be pinged
+3. Create a cluster using kubectl apply - f ***
+4. Check that the job related pod status is "Succeeded" and check the cluster status by sonobuoy
+5. Traverse and login to each master node to check which vip is in effect
+6. shutdown the node where vip is located
+7. Login with kube-vip ip address and check that vip has drifted to a node that is not powered off
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

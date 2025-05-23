@@ -1,0 +1,32 @@
+site_name: Kubean
+site_url: https://kubean-io.github.io/kubean/
+docs_dir: .
+site_dir: ../site
+
+plugins:
+  - search
+  - redirects:
+      redirect_maps:
+        'index.md': en/index.md
+        '': en/
+
+theme:
+  name: material
+  language: en
+  palette:
+    primary: blue
+  features:
+    - navigation.tabs
+
+nav:
+  - English: en/
+  - 中文: zh/
+
+extra:
+  alternate:
+    - name: English
+      link: /kubean/en/
+      lang: en
+    - name: 中文
+      link: /kubean/zh/
+      lang: zh
