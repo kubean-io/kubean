@@ -1,52 +1,33 @@
 # :seedling: Kubean
 
-<a href="https://trackgit.com">
-<img src="https://us-central1-trackgit-analytics.cloudfunctions.net/token/ping/la6t1t81jgv27ys97ila" alt="trackgit-views" />
-</a>
-
 > [简体中文](./README_zh.md)
 
-<div align="center">
+<p align="center">
+  <a href="https://github.com/cncf/k8s-conformance/pull/2240"><img src="docs/overrides/assets/images/certified_k8s.png" height=120 alt="k8s conformance"></a>
+  <a href="https://kubean-io.github.io/kubean"><img src="docs/overrides/assets/images/kubean_logo.png" height=120 alt="kubean"></a>
+</p>
 
-  <p>
+<p align="center">
+  Kubean is a production-ready cluster lifecycle management toolchain based on <a href="https://github.com/kubernetes-sigs/kubespray">kubespray</a> and other cluster LCM engine.
+</p>
 
-[<img src="docs/overrides/assets/images/certified_k8s.png" height=120>](https://github.com/cncf/k8s-conformance/pull/2240)
-[<img src="docs/overrides/assets/images/kubean_logo.png" height=120>](https://kubean-io.github.io/website/)
-<!--
-Source: https://github.com/cncf/artwork/tree/master/projects/kubernetes/certified-kubernetes
--->
-
-  </p>
-
-  <p>
-
-Kubean is a production-ready cluster lifecycle management toolchain based on [kubespray](https://github.com/kubernetes-sigs/kubespray) and other cluster LCM engine.
-
-  </p>
-
-  <p>
-
-[![main workflow](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml/badge.svg)](https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml)
-[![codecov](https://codecov.io/gh/kubean-io/kubean/branch/main/graph/badge.svg?token=8FX807D3QQ)](https://codecov.io/gh/kubean-io/kubean)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6263/badge)](https://bestpractices.coreinfrastructure.org/projects/6263)
-[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage.svg)](https://github.com/kubean-io/kubean/blob/main/docs/overrides/test/kubean_testcase.md)
-[![kubean coverage](https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage2.svg)](https://github.com/kubean-io/kubean/blob/main/docs/overrides/test/kubean_testcase.md)
-[![license](https://img.shields.io/badge/license-AL%202.0-blue)](https://github.com/kubean-io/kubean/blob/main/LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kubean-io/kubean)](https://goreportcard.com/report/github.com/kubean-io/kubean)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean?ref=badge_shield)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean.svg?type=small)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean?ref=badge_large)
-
-  </p>
-
-</div>
+<p align="center">
+  <a href="https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml"><img src="https://github.com/kubean-io/kubean/actions/workflows/auto-main-ci.yaml/badge.svg" alt="main workflow"></a>
+  <a href="https://codecov.io/gh/kubean-io/kubean"><img src="https://codecov.io/gh/kubean-io/kubean/branch/main/graph/badge.svg?token=8FX807D3QQ" alt="codecov"></a>
+  <a href="https://bestpractices.coreinfrastructure.org/projects/6263"><img src="https://bestpractices.coreinfrastructure.org/projects/6263/badge" alt="Best Practices"></a>
+  <a href="https://github.com/kubean-io/kubean/blob/main/docs/overrides/test/kubean_testcase.md"><img src="https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage.svg" alt="kubean coverage"></a>
+  <a href="https://github.com/kubean-io/kubean/blob/main/docs/overrides/test/kubean_testcase.md"><img src="https://raw.githubusercontent.com/dasu23/e2ecoverage/master/badges/kubean/kubeanCoverage2.svg" alt="kubean coverage"></a>
+  <a href="https://github.com/kubean-io/kubean/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AL%202.0-blue" alt="license"></a>
+  <a href="https://goreportcard.com/report/github.com/kubean-io/kubean"><img src="https://goreportcard.com/badge/github.com/kubean-io/kubean" alt="Go Report Card"></a>
+  <a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean?ref=badge_large"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkubean-io%2Fkubean.svg?type=small" alt="FOSSA Status"></a>
+</p>
 
 ---
 
-<p>
-<img src="https://github.com/cncf/artwork/blob/main/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" style="width:700px;" />
+<p align="center">
+<img src="https://github.com/cncf/artwork/blob/main/other/illustrations/ashley-mcnamara/transparent/cncf-cloud-gophers-transparent.png" width="500" /><br/>
+Kubean is a <a href="https://cncf.io/">Cloud Native Computing Foundation sandbox project</a>.
 </p>
-
-**Kubean is a [Cloud Native Computing Foundation sandbox project](https://cncf.io/).**
 
 ## :anchor: Awesome features
 
@@ -95,17 +76,18 @@ We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://k
       kubectl get job -n kubean-system
       ```
 
-[![quick_start_image](docs/overrides/assets/images/quick_start.gif)](https://asciinema.org/a/jFTUi2IdU5yydv88kHkPYMni0)
+<p align="center">
+  <a href="https://asciinema.org/a/jFTUi2IdU5yydv88kHkPYMni0"><img src="docs/overrides/assets/images/quick_start.gif" height=800 alt="quick start"></a>
+</p>
 
 ## :ocean: Kubernetes compatibility
 
-|               | Kubernetes 1.27 | Kubernetes 1.26 | Kubernetes 1.25 | Kubernetes 1.24 | Kubernetes 1.23 | Kubernetes 1.22 | Kubernetes 1.21 | Kubernetes 1.20 |
-|---------------|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|:---------------:|
-| Kubean v0.7.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
-| Kubean v0.6.6 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
-| Kubean v0.5.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
-| Kubean v0.4.5 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
-| Kubean v0.4.4 |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |        ✓        |
+| Kubean Version | Kubernetes Version Range | Kubernetes Default Version | kubespray SHA |
+| :-----: | :-----------: | :-----: | :-----: |
+| v0.25.2 | v1.30 ~ v1.32 | v1.31.6 | d0e9088 |
+| v0.24.2 | v1.30 ~ v1.32 | v1.31.6 | 4ad9f9b |
+| v0.23.9 | v1.30 ~ v1.32 | v1.31.6 | a4843ea |
+| v0.22.5 | v1.29 ~ v1.31 | v1.30.5 | d173f1d |
 
 To check the list of Kubernetes versions supported by Kubean, refer to the [Kubernetes versions list](./docs/zh/usage/support_k8s_version.md).
 
@@ -126,24 +108,23 @@ You can connect with us on the following channels:
 
 ## :thumbsup: Contributors
 
-<a href="https://github.com/kubean-io/kubean/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=kubean-io/kubean" />
-</a>
-
-## :mag_right: Others
-
-Copyright The Kubean Authors
-
-We are a [Cloud Native Computing Foundation sandbox project](https://www.cncf.io/).
-
-The Linux Foundation® (TLF) has registered trademarks and uses trademarks. For a list of TLF trademarks, see [Trademark Usage](https://www.linuxfoundation.org/legal/trademark-usage).
+<p align="center">
+  <a href="https://github.com/kubean-io/kubean/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=kubean-io/kubean" width="700" />
+  </a>
+</p>
 
 ---
 
 <div align="center">
-<p>
-<img src="https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg" width="300"/>
-<br/><br/>
-Kubean enriches the <a href="https://landscape.cncf.io/?selected=kubean">CNCF CLOUD NATIVE Landscape.</a>
-</p>
+  <p>
+    Copyright The Kubean Authors<br/>
+    We are a <a href="https://www.cncf.io/">Cloud Native Computing Foundation sandbox project</a>.<br/>
+    The Linux Foundation® (TLF) has registered trademarks and uses trademarks. <br/>
+    For a list of TLF trademarks, see <a href="https://www.linuxfoundation.org/legal/trademark-usage">Trademark Usage</a>.
+  <p>
+  <p>
+    <img src="https://landscape.cncf.io/images/cncf-landscape-horizontal-color.svg" width="180"/><br/>
+    Kubean enriches the <a href="https://landscape.cncf.io/?selected=kubean">CNCF CLOUD NATIVE Landscape.
+  </p>
 </div>
