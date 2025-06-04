@@ -1,6 +1,6 @@
 module github.com/kubean-io/kubean
 
-go 1.22.4
+go 1.24
 
 require (
 	github.com/go-logr/logr v1.4.3
