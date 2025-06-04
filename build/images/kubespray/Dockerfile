@@ -1,4 +1,4 @@
-FROM alpine:3.17 as spray-build
+FROM alpine:3.17 AS spray-build
 
 ARG SPRAY_REF=master
 

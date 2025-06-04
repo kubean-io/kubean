@@ -143,7 +143,7 @@ github.com/josharian/intern
 ## explicit; go 1.12
 github.com/json-iterator/go
 # github.com/kubean-io/kubean-api v0.0.0 => ./api
-## explicit; go 1.20
+## explicit; go 1.24
 github.com/kubean-io/kubean-api/apis
 github.com/kubean-io/kubean-api/apis/cluster/v1alpha1
 github.com/kubean-io/kubean-api/apis/clusteroperation/v1alpha1
