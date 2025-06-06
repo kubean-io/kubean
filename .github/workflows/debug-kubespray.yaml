@@ -1,0 +1,116 @@
+name: Debug Kubespray
+
+on:
+  workflow_dispatch:
+    inputs:
+      KUBESPRAY_SHA:
+        description: "Kubespray commit SHA to test"
+        default: master
+      KUBE_VERSION:
+        description: "Kubernetes version to deploy"
+        default: "1.31.6"
+  push:
+    branches:
+      - 'testing'
+
+jobs:
+  echo-inputs:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    name: Echo Workflow Dispatch Inputs
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Echo Workflow Dispatch Inputs
+        run: |
+          echo '${{ tojson(inputs) }}'
+
+  deploy-cluster:
+    name: Deploy Kubernetes Cluster
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Git clone kubean repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set kubespray version env
+        run: |
+          echo "SPRAY_VERSION=$(yq ".kubespray_version" version.yml)" >> ${GITHUB_ENV}
+          echo "KUBE_VERSION=$(yq ".kubernetes_version" version.yml)" >> ${GITHUB_ENV}
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.10'
+
+      - name: Checkout Kubespray
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: kubernetes-sigs/kubespray
+          ref: ${{ inputs.KUBESPRAY_SHA || env.SPRAY_VERSION }}
+          path: kubespray
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Kubespray
+        run: |
+          python -m venv kubespray-venv
+          source kubespray-venv/bin/activate
+          cd kubespray
+          pip install -r requirements.txt
+
+      - name: Configure inventory
+        run: |
+          cd kubespray/
+          cp -rfp inventory/sample inventory/mycluster
+
+          cat > inventory/mycluster/inventory.ini << EOF
+          [all]
+          localhost ansible_connection=local
+
+          [kube_control_plane]
+          localhost
+
+          [etcd]
+          localhost
+
+          [kube_node]
+          localhost
+
+          [k8s_cluster:children]
+          kube_control_plane
+          kube_node
+          EOF
+
+          cat << EOF > inventory/mycluster/group_vars/k8s_cluster/k8s-cluster.yml
+          unsafe_show_logs: true
+          kube_version: "${{ inputs.KUBE_VERSION || env.KUBE_VERSION }}"
+          container_manager: docker
+          kube_proxy_mode: iptables
+          enable_nodelocaldns: false
+          etcd_deployment_type: kubeadm
+          ntp_enabled: true
+          auto_renew_certificates: false
+          kube_cert_validity_period: 87600h
+          kube_ca_cert_validity_period: 175200h
+          EOF
+
+      - name: Deploy Kubernetes cluster
+        run: |
+          source kubespray-venv/bin/activate
+          cd kubespray/
+          ansible-playbook -i inventory/mycluster/inventory.ini cluster.yml -b -v \
+            -e '{"container_manager":"docker","docker_package_info":{"pkgs":[]}}'
+
+          mkdir -p $HOME/.kube
+          sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+          sudo chown "$(id -u)":"$(id -g)" $HOME/.kube/config
+          kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=300s
+
+          echo "Kubernetes cluster deployed successfully."
+
+          echo "Checking kubeadm-config.yaml for certificate validity periods..."
+          sudo cat /etc/kubernetes/kubeadm-config.yaml | grep ValidityPeriod
+
+          echo "Checking kubeadm-config.yaml for certificate renewal..."
+          sudo kubeadm certs check-expiration
