@@ -5,6 +5,7 @@ metadata:
   namespace: kubean-system
 data:
   group_vars.yml: |
+    kube_owner: root
     unsafe_show_logs: true
     registry_host:
     minio_address: 
