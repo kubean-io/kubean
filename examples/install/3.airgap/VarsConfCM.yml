@@ -8,6 +8,7 @@ metadata:
   namespace: kubean-system
 data:
   group_vars.yml: |
+    kube_owner: root
     kube_version: "1.31.6"
     
     registry_host: "<REGISTRY_HOST>:<REGISTRY_PORT>"
