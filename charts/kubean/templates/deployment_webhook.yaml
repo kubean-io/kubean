@@ -44,7 +44,7 @@ spec:
               containerPort: 10443
               protocol: TCP
           resources:
-            {{- toYaml .Values.kubeanOperator.resources | nindent 12 }}
+            {{- toYaml .Values.kubeanAdmission.resources | nindent 12 }}
       {{- with .Values.kubeanOperator.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
