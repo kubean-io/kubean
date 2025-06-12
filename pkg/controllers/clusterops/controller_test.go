@@ -2923,3 +2923,102 @@ func (MockManager) GetLogger() logr.Logger { return logr.Logger{} }
 func (MockManager) GetControllerOptions() v1alpha1.ControllerConfigurationSpec {
 	return v1alpha1.ControllerConfigurationSpec{}
 }
+
+func TestGetVaultSecret(t *testing.T) {
+	controller := Controller{
+		Client:    newFakeClient(),
+		ClientSet: clientsetfake.NewSimpleClientset(),
+	}
+	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
+
+	tests := []struct {
+		name  string
+		setup func()
+		want  *apis.SecretRef
+	}{
+		{
+			name: "No HostsConfRef",
+			setup: func() {
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{}
+			},
+			want: nil,
+		},
+		{
+			name: "ConfigMap Not Found",
+			setup: func() {
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{NameSpace: "default", Name: "nonexistent"}
+			},
+			want: nil,
+		},
+		{
+			name: "No Vault Annotation",
+			setup: func() {
+				cm := &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "hostsconf",
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), cm, metav1.CreateOptions{})
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{NameSpace: "default", Name: "hostsconf"}
+			},
+			want: nil,
+		},
+		{
+			name: "Vault Secret Not Found",
+			setup: func() {
+				cm := &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace:   "default",
+						Name:        "hostsconf",
+						Annotations: map[string]string{constants.AnnotationHostsConfVaultPasswordRef: "vault-secret"},
+					},
+				}
+				controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), cm, metav1.CreateOptions{})
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{NameSpace: "default", Name: "hostsconf"}
+			},
+			want: nil,
+		},
+		{
+			name: "Successful Retrieval",
+			setup: func() {
+				cm := &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace:   "default",
+						Name:        "hostsconf1",
+						Annotations: map[string]string{constants.AnnotationHostsConfVaultPasswordRef: "vault-secret"},
+					},
+					Data: map[string]string{
+						"vault-password": "vault-password",
+					},
+				}
+				_, err := controller.ClientSet.CoreV1().ConfigMaps("default").Create(context.Background(), cm, metav1.CreateOptions{})
+				if err != nil {
+					t.Fatalf("failed to create config map: %v", err)
+				}
+				secret := &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: "default",
+						Name:      "vault-secret",
+					},
+				}
+				_, err = controller.ClientSet.CoreV1().Secrets("default").Create(context.Background(), secret, metav1.CreateOptions{})
+				if err != nil {
+					t.Fatalf("failed to create secret: %v", err)
+				}
+				clusterOps.Spec.HostsConfRef = &apis.ConfigMapRef{NameSpace: "default", Name: "hostsconf1"}
+			},
+			want: &apis.SecretRef{NameSpace: "default", Name: "vault-secret"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.setup()
+			got := controller.getVaultSecret(clusterOps)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Fatalf("got %v, want %v", got, test.want)
+			}
+		})
+	}
+}

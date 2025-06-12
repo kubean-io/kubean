@@ -4,6 +4,11 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# prerequisite
+{{ range $prerequisiteCMD := .PrerequisitesCMDs }}
+{{- $prerequisiteCMD }}
+{{ end }}
+
 # preinstall
 {{ range $preCMD := .PreHookCMDs }}
 {{- $preCMD }}
