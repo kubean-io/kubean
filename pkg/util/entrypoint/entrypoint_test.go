@@ -207,7 +207,7 @@ func TestEntrypoint(t *testing.T) {
 
 	for _, item := range ad {
 		t.Run(item.Message, func(t *testing.T) {
-			ep := NewEntryPoint()
+			ep := NewEntryPoint(false)
 			// Prehook 命令处理
 			for _, prehook := range item.Input.PreHooks {
 				err = ep.PreHookRunPart(prehook.ActionType, prehook.Action, prehook.ExtraArgs, item.Input.IsPrivateKey, true)
@@ -250,7 +250,7 @@ func Test_SprayRunPart(t *testing.T) {
 		{
 			name: "right builtin action",
 			args: func() bool {
-				ep := NewEntryPoint()
+				ep := NewEntryPoint(false)
 				return ep.SprayRunPart(PBAction, ResetPB, "-vvv", false, true) == nil
 			},
 			want: true,
@@ -258,7 +258,7 @@ func Test_SprayRunPart(t *testing.T) {
 		{
 			name: "right builtin action",
 			args: func() bool {
-				ep := NewEntryPoint()
+				ep := NewEntryPoint(false)
 				return ep.SprayRunPart(PBAction, ResetPB, "-vvv", false, true) == nil
 			},
 			want: true,
@@ -266,7 +266,7 @@ func Test_SprayRunPart(t *testing.T) {
 		{
 			name: "wrong builtin action",
 			args: func() bool {
-				ep := NewEntryPoint()
+				ep := NewEntryPoint(false)
 				return ep.SprayRunPart(PBAction, "abc.yml", "-vvv", false, true) == nil
 			},
 			want: false,
@@ -274,7 +274,7 @@ func Test_SprayRunPart(t *testing.T) {
 		{
 			name: "shell action",
 			args: func() bool {
-				ep := NewEntryPoint()
+				ep := NewEntryPoint(false)
 				return ep.SprayRunPart(SHAction, "sleep 10", "", false, true) == nil
 			},
 			want: true,
@@ -282,7 +282,7 @@ func Test_SprayRunPart(t *testing.T) {
 		{
 			name: "other wrong action",
 			args: func() bool {
-				ep := NewEntryPoint()
+				ep := NewEntryPoint(false)
 				return ep.SprayRunPart("OtherAction", "sleep 10", "", false, true) == nil
 			},
 			want: false,
@@ -395,6 +395,29 @@ func TestEntryPoint_buildPlaybookCmd(t *testing.T) {
 				t.Errorf("buildPlaybookCmd() got = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestEntryPoint_buildPlaybookCmd_VaultInventory(t *testing.T) {
+	// This test validates that when isVaultEncryped is set to true, the inventory path
+	// in the generated ansible-playbook command is switched to /dev/fd/200.
+	// It also confirms that the rest of the command is rendered as expected when
+	// executing the built-in reset.yml playbook without using a private key.
+
+	// Create a new EntryPoint with vault encryption enabled.
+	ep := NewEntryPoint(true)
+
+	// Build the playbook command.
+	cmd, err := ep.buildPlaybookCmd(ResetPB, "", false, true)
+	if err != nil {
+		t.Fatalf("buildPlaybookCmd() error = %v", err)
+	}
+
+	// Expect that the inventory path is /dev/fd/200 instead of /conf/hosts.yml.
+	expected := "ansible-playbook -i /dev/fd/200 -b --become-user root -e \"@/conf/group_vars.yml\" -e \"reset_confirmation=yes\" /kubespray/reset.yml"
+
+	if cmd != expected {
+		t.Errorf("buildPlaybookCmd() got = %v, want %v", cmd, expected)
 	}
 }
 
@@ -511,7 +534,7 @@ func TestEntryPoint_Render(t *testing.T) {
 				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
 			},
 			wantErr: false,
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\n\n\n# postinstall\n\n",
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# prerequisite\n\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\n\n\n# postinstall\n\n",
 		},
 		{
 			name: "test SprayCMD not empty case",
@@ -519,7 +542,7 @@ func TestEntryPoint_Render(t *testing.T) {
 				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
 				SprayCMD:    "echo $TEST",
 			},
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\n\n",
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# prerequisite\n\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\n\n",
 			wantErr: false,
 		},
 		{
@@ -530,7 +553,7 @@ func TestEntryPoint_Render(t *testing.T) {
 				PostHookCMDs: []string{"cmd4"},
 			},
 			wantErr: false,
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\ncmd4\n\n",
+			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# prerequisite\n\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\ncmd4\n\n",
 		},
 	}
 	for _, tt := range tests {
@@ -551,4 +574,44 @@ func TestEntryPoint_Render(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEntryPoint_PrerequisiteRunPart(t *testing.T) {
+	tests := []struct {
+		name            string
+		isVaultEncryped bool
+		wantCmds        []string
+	}{
+		{
+			name:            "Vault encrypted",
+			isVaultEncryped: true,
+			wantCmds:        []string{inventoryDecryptScript},
+		},
+		{
+			name:            "Vault not encrypted",
+			isVaultEncryped: false,
+			wantCmds:        []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ep := NewEntryPoint(tt.isVaultEncryped)
+			if !equalStringSlices(ep.PrerequisitesCMDs, tt.wantCmds) {
+				t.Errorf("PrerequisitesCMDs = %v, want %v", ep.PrerequisitesCMDs, tt.wantCmds)
+			}
+		})
+	}
+}
+
+func equalStringSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
