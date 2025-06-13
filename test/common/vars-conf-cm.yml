@@ -6,6 +6,7 @@ metadata:
 data:
   group_vars.yml: |
     # k8s-cluster
+    kube_owner: root
     unsafe_show_logs: true
     kube_version: "1.31.6"
     container_manager: containerd

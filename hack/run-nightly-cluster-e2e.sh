@@ -146,12 +146,12 @@ func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 
 # set vars-conf-cm.yml
-sed -i "s/1.31.6/1.30.7/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/1.31.6/1.31.0/"  "${dest_config_path}"/vars-conf-cm.yml
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
 
 
-## prepare cluster upgrade job yml --> upgrade from v1.30.7 to v1.31.2
+## prepare cluster upgrade job yml --> upgrade from v1.31.0 to v1.31.2
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-y/
 func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME2="cluster1-upgrade-y"

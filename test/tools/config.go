@@ -32,7 +32,7 @@ const (
 )
 
 const (
-	OriginK8Version             = "v1.30.7"
+	OriginK8Version             = "v1.31.0"
 	UpgradeK8Version_Y          = "v1.31.2"
 	UpgradeK8Version_Z          = "v1.31.6"
 	NginxAlpha                  = "release-ci.daocloud.io/kubean/nginx:alpine"
