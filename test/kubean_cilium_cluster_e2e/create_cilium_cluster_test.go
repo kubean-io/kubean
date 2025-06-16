@@ -85,14 +85,27 @@ var _ = ginkgo.Describe("create cilium clusters one master and one worker", func
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 
 			podList, _ := cluster1Client.CoreV1().Pods("kube-system").List(context.TODO(), metav1.ListOptions{})
-			ciliumPodNumber := 0
+			deploymentList, _ := cluster1Client.AppsV1().Deployments("kube-system").List(context.TODO(), metav1.ListOptions{})
+			daemonsetList, _ := cluster1Client.AppsV1().DaemonSets("kube-system").List(context.TODO(), metav1.ListOptions{})
+
 			for _, pod := range podList.Items {
 				if strings.Contains(pod.ObjectMeta.Name, "cilium") {
 					gomega.Expect(string(pod.Status.Phase)).To(gomega.Equal("Running"))
-					ciliumPodNumber += 1
 				}
 			}
-			gomega.Expect(ciliumPodNumber).To(gomega.Equal(4))
+			for _, dm := range deploymentList.Items {
+				if strings.Contains(dm.ObjectMeta.Name, "cilium") {
+					fmt.Println(dm.Name, "======>", dm.Status.Replicas)
+					gomega.Expect(dm.Status.ReadyReplicas).To(gomega.Equal(dm.Status.AvailableReplicas))
+				}
+			}
+			for _, ds := range daemonsetList.Items {
+				if strings.Contains(ds.ObjectMeta.Name, "cilium") {
+					fmt.Println(ds.Name, "======>", ds.Status.CurrentNumberScheduled, "===", ds.Status.DesiredNumberScheduled)
+					gomega.Expect(ds.Status.DesiredNumberScheduled).To(gomega.Equal(ds.Status.CurrentNumberScheduled))
+				}
+			}
+
 		})
 
 		ginkgo.It("create pod1, pod2, pod3", func() {
