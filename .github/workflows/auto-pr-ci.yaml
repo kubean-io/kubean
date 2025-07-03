@@ -59,9 +59,9 @@ jobs:
           args: --timeout=10m
 
       - name: ansible-lint
-        uses: ansible/ansible-lint-action@v6
+        uses: ansible/ansible-lint@v25.6.1
         with:
-          path: "playbooks/"
+          working_directory: "playbooks/"
 
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@0.31.0

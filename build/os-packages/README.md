@@ -7,7 +7,8 @@
 | [RedHat 8](https://www.redhat.com/en)                                    | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [RedHat 9](https://www.redhat.com/en)                                    | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Rocky 9](https://rockylinux.org/news/rocky-linux-9-0-ga-release)        | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
-| [Kylin V10](https://www.kylinos.cn/)                                     | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
+| [Kylin V10 SP2](https://www.kylinos.cn/)                                 | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
+| [Kylin V10 SP3](https://www.kylinos.cn/)                                 | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [OpenEuler 22.03](https://www.openeuler.org/)                            | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Oracle Linux 8](https://yum.oracle.com/oracle-linux-isos.html)          | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Oracle Linux 9](https://yum.oracle.com/oracle-linux-isos.html)          | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
