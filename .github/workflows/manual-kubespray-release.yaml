@@ -29,7 +29,7 @@ jobs:
         INPUTS_SPRAY_BRANCH=${{ inputs.branch }}
         INPUTS_COMMIT_SHA1=${{ inputs.commit_SHA1 }}
 
-        SPRAY_BRANCH_SHA1=`git ls-remote -h https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_BRANCH} | awk '{print $1}'`
+        SPRAY_BRANCH_SHA1=`git ls-remote -h https://github.com/kubernetes-sigs/kubespray.git refs/heads/${INPUTS_SPRAY_BRANCH} | awk '{print $1}'`
         if [[ -z "${SPRAY_BRANCH_SHA1}" ]]; then
           echo "The specified branch '${INPUTS_SPRAY_BRANCH}' is nonexistent!" && exit 1
         fi
