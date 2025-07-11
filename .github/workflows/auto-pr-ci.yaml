@@ -60,8 +60,6 @@ jobs:
 
       - name: ansible-lint
         uses: ansible/ansible-lint@v25.6.1
-        with:
-          working_directory: "playbooks/"
 
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@0.32.0
