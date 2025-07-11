@@ -2,28 +2,18 @@
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
 metadata:
-  name: "manifest-2.27-ecd5b73"
+  name: "manifest-2.27-45140b5"
   labels:
     kubean.io/sprayRelease: "2.27"
   annotations:
-    kubean.io/sprayTimestamp: "1739956107"
+    kubean.io/sprayTimestamp: "1751032833"
     kubean.io/sprayRelease: "2.27"
-    kubean.io/sprayCommit: "ecd5b73"
+    kubean.io/sprayCommit: "45140b5"
     helm.sh/resource-policy: keep
 spec:
-  kubesprayVersion: "ecd5b73c5ea250834aa56781ed0d5a5ada32ec6d"
+  kubesprayVersion: "45140b558266014296ddc6075b0518662a4d4cbe"
   kubeanVersion: ""
   docker:
-    - os: redhat-7
-      defaultVersion: "26.1"
-      versionRange:
-        - "18.09"
-        - "19.03"
-        - "20.10"
-        - "23.0"
-        - "24.0"
-        - "26.0"
-        - "26.1"
     - os: redhat
       defaultVersion: "26.1"
       versionRange:
@@ -75,8 +65,11 @@ spec:
       defaultVersion: "v1.12.21"
       versionRange: []
     - name: runc
-      defaultVersion: "v1.2.3"
+      defaultVersion: "v1.2.6"
       versionRange:
+        - "v1.2.6"
+        - "v1.2.5"
+        - "v1.2.4"
         - "v1.2.3"
         - "v1.2.2"
         - "v1.2.1"
@@ -90,13 +83,23 @@ spec:
         - "v1.1.9"
         - "v1.1.8"
     - name: kube
-      defaultVersion: "v1.31.4"
+      defaultVersion: "v1.31.9"
       versionRange:
+        - "v1.31.9"
+        - "v1.31.8"
+        - "v1.31.7"
+        - "v1.31.6"
+        - "v1.31.5"
         - "v1.31.4"
         - "v1.31.3"
         - "v1.31.2"
         - "v1.31.1"
         - "v1.31.0"
+        - "v1.30.13"
+        - "v1.30.12"
+        - "v1.30.11"
+        - "v1.30.10"
+        - "v1.30.9"
         - "v1.30.8"
         - "v1.30.7"
         - "v1.30.6"
@@ -106,6 +109,9 @@ spec:
         - "v1.30.2"
         - "v1.30.1"
         - "v1.30.0"
+        - "v1.29.15"
+        - "v1.29.14"
+        - "v1.29.13"
         - "v1.29.12"
         - "v1.29.11"
         - "v1.29.10"
@@ -120,8 +126,9 @@ spec:
         - "v1.29.1"
         - "v1.29.0"
     - name: cni
-      defaultVersion: "v1.4.0"
+      defaultVersion: "v1.4.1"
       versionRange:
+        - "v1.4.1"
         - "v1.4.0"
         - "v1.3.0"
         - "v1.2.0"
@@ -130,10 +137,15 @@ spec:
         - "v1.0.1"
         - "v1.0.0"
     - name: calico
-      defaultVersion: "v3.29.1"
+      defaultVersion: "v3.29.4"
       versionRange:
+        - "v3.29.4"
+        - "v3.29.3"
+        - "v3.29.2"
         - "v3.29.1"
         - "v3.29.0"
+        - "v3.28.4"
+        - "v3.28.3"
         - "v3.28.2"
         - "v3.28.1"
         - "v3.28.0"
@@ -143,9 +155,19 @@ spec:
         - "v3.27.2"
         - "v3.27.1"
         - "v3.27.0"
+        - "v3.26.5"
+        - "v3.26.4"
+        - "v3.26.3"
+        - "v3.26.2"
+        - "v3.26.1"
+        - "v3.26.0"
+        - "v3.25.2"
     - name: containerd
-      defaultVersion: "1.7.24"
+      defaultVersion: "1.7.27"
       versionRange:
+        - "1.7.27"
+        - "1.7.26"
+        - "1.7.25"
         - "1.7.24"
         - "1.7.23"
         - "1.7.22"
@@ -171,6 +193,8 @@ spec:
         - "1.7.2"
         - "1.7.1"
         - "1.7.0"
+        - "1.6.38"
+        - "1.6.37"
         - "1.6.36"
         - "1.6.35"
         - "1.6.34"
