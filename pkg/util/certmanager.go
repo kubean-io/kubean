@@ -84,7 +84,7 @@ func (m *certManager) GenerateSelfSignedCerts() (*bytes.Buffer, *bytes.Buffer, e
 			Organization: m.Organizations,
 		},
 		NotBefore:    time.Now(),
-		NotAfter:     time.Now().AddDate(1, 0, 0),
+		NotAfter:     time.Now().Add(m.EffectiveTime),
 		SubjectKeyId: []byte{1, 2, 3, 4, 6},
 		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		KeyUsage:     x509.KeyUsageDigitalSignature,

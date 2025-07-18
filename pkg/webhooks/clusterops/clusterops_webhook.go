@@ -42,7 +42,7 @@ var (
 	// #nosec
 	certFile          = "tls.crt"
 	Organization      = "kubean.io"
-	DefaultEffectTime = 10 * 365 * 24 * time.Hour
+	DefaultEffectTime = 50 * 365 * 24 * time.Hour
 	// #nosec
 	CAStoreSecret = "webhook-http-ca-secret"
 
