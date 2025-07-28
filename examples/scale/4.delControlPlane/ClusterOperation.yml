@@ -1,13 +1,14 @@
-# Copyright 2023 Authors of kubean-io
+# Copyright 2025 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
 
 ---
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
 metadata:
-  name: cluster-mini-uninstall-ops
+  name: cluster-mini-acn-ops
 spec:
   cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.26.4
   actionType: playbook
-  action: reset.yml
+  action: remove-node.yml
+  extraArgs: -e node=node2,node3 -e reset_nodes=false -e allow_ungraceful_removal=true

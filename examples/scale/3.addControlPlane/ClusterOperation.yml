@@ -1,22 +1,22 @@
-# Copyright 2023 Authors of kubean-io
+# Copyright 2025 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
 
+---
 apiVersion: kubean.io/v1alpha1
 kind: ClusterOperation
 metadata:
-  name: cluster1-online-install-ops
+  name: cluster-mini-acn-ops
 spec:
-  cluster: cluster1-online
+  cluster: cluster-mini
   image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.26.4
   actionType: playbook
   action: cluster.yml
-  preHook:
-    - actionType: playbook
-      action: ping.yml
-    - actionType: playbook
-      action: disable-firewalld.yml
+  extraArgs: >-
+    --limit=etcd,kube_control_plane
+    -e ignore_assert_errors=true
   postHook:
     - actionType: playbook
-      action: kubeconfig.yml
-    - actionType: playbook
-      action: cluster-info.yml
+      action: upgrade-cluster.yml
+      extraArgs: >-
+        --limit=etcd,kube_control_plane
+        -e ignore_assert_errors=true
