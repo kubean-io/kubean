@@ -100,7 +100,7 @@ metadata:
 name: cluster-mini-install-ops
 spec:
 cluster: cluster-mini
-image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2 # kubean image version
+image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.26.4 # kubean image version
 actionType: playbook
 action: cluster.yml
 preHook:

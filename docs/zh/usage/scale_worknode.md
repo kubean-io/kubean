@@ -189,7 +189,7 @@ metadata:
   name: cluster-mini-awn-ops
 spec:
   cluster: cluster-mini
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.26.4
   actionType: playbook
   action: scale.yml
   extraArgs: --limit=node2
@@ -211,7 +211,7 @@ metadata:
   name: cluster-mini-awn-ops
 spec:
   cluster: cluster-mini
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.26.4
   actionType: playbook
   action: scale.yml
   extraArgs: --limit=node2
@@ -245,7 +245,7 @@ metadata:
   name: cluster-mini-dwn-ops
 spec:
   cluster: cluster-mini
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.4.9
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:<TAG> # Please replace <TAG> with the specified version, such as v0.26.4
   actionType: playbook
   action: remove-node.yml
   extraArgs: -e node=node2
@@ -266,7 +266,7 @@ metadata:
   name: cluster-mini-dwn-ops
 spec:
   cluster: cluster-mini
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.26.4
   actionType: playbook
   action: remove-node.yml
   extraArgs: -e node=node2

@@ -109,7 +109,7 @@ metadata:
   name: cluster1-online-install-ops
 spec:
   cluster: cluster1-online
-  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.5.2 # kubean image version
+  image: ghcr.m.daocloud.io/kubean-io/spray-job:v0.26.4 # kubean image version
   actionType: playbook
   action: cluster.yml
   preHook:
