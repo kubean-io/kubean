@@ -58,6 +58,7 @@ nav:
   - usage/sshkey_deploy_cluster.md
   - usage/install_without_root.md
   - usage/scale_worknode.md
+  - usage/scale_controlplane.md
   - usage/upgrade.md
   - usage/uninstall.md
   - usage/airgap.md
