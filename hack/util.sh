@@ -108,7 +108,7 @@ function util::install_kind {
 	os_name=$(go env GOOS)
 	local arch_name
 	arch_name=$(go env GOARCH)
-	curl --retry 5 -sSLo ./kind -w "%{http_code}" "https://qiniu-download-public.daocloud.io/Kind/${kind_version}/kind-${os_name:-linux}-${arch_name:-amd64}" | grep '200' > /dev/null
+	curl --retry 5 -sSLo ./kind -w "%{http_code}" "https://qiniu-download-public-static.daocloud.io/Kind/${kind_version}/kind-${os_name:-linux}-${arch_name:-amd64}" | grep '200' > /dev/null
 	ret=$?
 	if [ ${ret} -eq 0 ]; then
     	chmod +x ./kind
@@ -117,7 +117,7 @@ function util::install_kind {
 
     	export PATH=$PATH:~/.local/bin
 	else
-    	echo "Failed to install kind, can not download the binary file at https://qiniu-download-public.daocloud.io/Kind/${kind_version}/kind-${os_name:-linux}-${arch_name:-amd64}"
+    	echo "Failed to install kind, can not download the binary file at https://qiniu-download-public-static.daocloud.io/Kind/${kind_version}/kind-${os_name:-linux}-${arch_name:-amd64}"
     	exit 1
 	fi
 }
