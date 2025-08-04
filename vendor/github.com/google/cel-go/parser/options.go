@@ -18,11 +18,16 @@ import "fmt"
 
 type options struct {
 	maxRecursionDepth                int
+	errorReportingLimit              int
 	errorRecoveryTokenLookaheadLimit int
 	errorRecoveryLimit               int
 	expressionSizeCodePointLimit     int
 	macros                           map[string]Macro
 	populateMacroCalls               bool
+	enableOptionalSyntax             bool
+	enableVariadicOperatorASTs       bool
+	enableIdentEscapeSyntax          bool
+	enableHiddenAccumulatorName      bool
 }
 
 // Option configures the behavior of the parser.
@@ -45,7 +50,7 @@ func MaxRecursionDepth(limit int) Option {
 // successfully resume. In some pathological cases, the parser can look through quite a large set of input which
 // in turn generates a lot of back-tracking and performance degredation.
 //
-// The limit must be > 1, and is recommended to be less than the default of 256.
+// The limit must be >= 1, and is recommended to be less than the default of 256.
 func ErrorRecoveryLookaheadTokenLimit(limit int) Option {
 	return func(opts *options) error {
 		if limit < 1 {
@@ -63,6 +68,19 @@ func ErrorRecoveryLimit(limit int) Option {
 			return fmt.Errorf("error recovery limit must be greater than or equal to -1: %d", limit)
 		}
 		opts.errorRecoveryLimit = limit
+		return nil
+	}
+}
+
+// ErrorReportingLimit limits the number of syntax error reports before terminating parsing.
+//
+// The limit must be at least 1. If unset, the limit will be 100.
+func ErrorReportingLimit(limit int) Option {
+	return func(opts *options) error {
+		if limit < 1 {
+			return fmt.Errorf("error reporting limit must be at least 1: %d", limit)
+		}
+		opts.errorReportingLimit = limit
 		return nil
 	}
 }
@@ -99,6 +117,47 @@ func Macros(macros ...Macro) Option {
 func PopulateMacroCalls(populateMacroCalls bool) Option {
 	return func(opts *options) error {
 		opts.populateMacroCalls = populateMacroCalls
+		return nil
+	}
+}
+
+// EnableOptionalSyntax enables syntax for optional field and index selection.
+func EnableOptionalSyntax(optionalSyntax bool) Option {
+	return func(opts *options) error {
+		opts.enableOptionalSyntax = optionalSyntax
+		return nil
+	}
+}
+
+// EnableIdentEscapeSyntax enables backtick (`) escaped field identifiers. This
+// supports extended types of characters in identifiers, e.g. foo.`baz-bar`.
+func EnableIdentEscapeSyntax(enableIdentEscapeSyntax bool) Option {
+	return func(opts *options) error {
+		opts.enableIdentEscapeSyntax = enableIdentEscapeSyntax
+		return nil
+	}
+}
+
+// EnableHiddenAccumulatorName uses an accumulator variable name that is not a
+// normally accessible identifier in source for comprehension macros. Compatibility notes:
+// with this option enabled, a parsed AST would be semantically the same as if disabled, but would
+// have different internal identifiers in any of the built-in comprehension sub-expressions. When
+// disabled, it is possible but almost certainly a logic error to access the accumulator variable.
+func EnableHiddenAccumulatorName(enabled bool) Option {
+	return func(opts *options) error {
+		opts.enableHiddenAccumulatorName = enabled
+		return nil
+	}
+}
+
+// EnableVariadicOperatorASTs enables a compact representation of chained like-kind commutative
+// operators. e.g. `a || b || c || d` -> `call(op='||', args=[a, b, c, d])`
+//
+// The benefit of enabling variadic operators ASTs is a more compact representation deeply nested
+// logic graphs.
+func EnableVariadicOperatorASTs(varArgASTs bool) Option {
+	return func(opts *options) error {
+		opts.enableVariadicOperatorASTs = varArgASTs
 		return nil
 	}
 }
