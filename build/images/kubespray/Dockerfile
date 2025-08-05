@@ -19,6 +19,14 @@ WORKDIR /kubespray
 # See: https://github.com/pypa/pip/issues/10219
 ENV LANG=C.UTF-8
 
+ARG FIX_ANSILBE9=0
+# Fix ansible to 9.13.0
+RUN \
+  if [ $FIX_ANSILBE9 != 0 ]; then \
+    sed -i 's/ansible==.*/ansible==9.13.0/' requirements.txt \
+    && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml; \
+  fi
+
 RUN /usr/bin/python3 -m pip install --no-cache-dir pip -U \
     && python3 -m pip install --no-cache-dir -r requirements.txt
 
