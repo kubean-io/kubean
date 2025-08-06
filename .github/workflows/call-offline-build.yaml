@@ -26,7 +26,7 @@ jobs:
         path: ./kubespray
 
     - name: Install yq tool
-      uses: mikefarah/yq@v4.46.1
+      uses: mikefarah/yq@v4.47.1
 
     - name: Generate Manifest & LocalArtifactSet manifests
       env:
