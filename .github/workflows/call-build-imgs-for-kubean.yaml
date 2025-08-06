@@ -31,10 +31,17 @@ jobs:
         - name: spray-job
           dockerfile: build/images/spray-job/Dockerfile
           tags: |
-            ghcr.io/${{ inputs.REPO }}/spray-job:${{ inputs.BUILD_IMG_TAG }}
+            ghcr.io/${{ inputs.REPO }}/spray-job:${{ inputs.BUILD_IMG_TAG }}-ansible10next
             ghcr.io/${{ inputs.REPO }}/spray-job:latest
           build-args: |
             SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}
+            REPO=${{ inputs.REPO }}
+        - name: spray-job-ansible9
+          dockerfile: build/images/spray-job/Dockerfile
+          tags: |
+            ghcr.io/${{ inputs.REPO }}/spray-job:${{ inputs.BUILD_IMG_TAG }}
+          build-args: |
+            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}-ansible9
             REPO=${{ inputs.REPO }}
         - name: kubean-operator
           dockerfile: build/images/kubean-operator/Dockerfile

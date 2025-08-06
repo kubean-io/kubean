@@ -107,3 +107,22 @@ jobs:
           ghcr.io/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: kubespray base image (Ansible 9) build
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      uses: docker/build-push-action@v6.18.0
+      with:
+        context: ./
+        file: build/images/kubespray/Dockerfile
+        build-args: |
+          FIX_ANSIBLE9=1
+          SPRAY_REF=${{ inputs.SPRAY_REF }}
+          DOCKERFILE_COMMIT=${{ needs.output-variable.outputs.dockerfile_commit }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        push: true
+        provenance: false
+        platforms: linux/amd64,linux/arm64
+        tags: |
+          ghcr.io/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}-ansible9
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
