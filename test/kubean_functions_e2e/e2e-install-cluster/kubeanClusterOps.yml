@@ -14,6 +14,8 @@ spec:
       action: ping.yml
     - actionType: playbook
       action: disable-firewalld.yml
+    - actionType: playbook
+      action: rh8-compat.yml
   postHook:
     - actionType: playbook
       action: kubeconfig.yml
