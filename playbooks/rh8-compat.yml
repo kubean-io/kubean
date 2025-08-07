@@ -1,0 +1,18 @@
+# Copyright 2025 Authors of kubean-io
+# SPDX-License-Identifier: Apache-2.0
+
+---
+- name: Compatible for rhel8 and derivations
+  hosts: k8s_cluster,etcd
+  become: true
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Use containerd static binary and skip kubeadm system verifycation
+      set_fact:
+        containerd_static_binary: true
+        kubeadm_ignore_preflight_errors: "{{ kubeadm_ignore_preflight_errors | default([]) + ['SystemVerification'] }}"
+        cacheable: true
+      when:
+        - container_manager == "containerd"
+        - ansible_os_family == "RedHat"
+        - ansible_distribution_major_version == "8"
