@@ -19,6 +19,8 @@ spec:
     - actionType: shell
       action: |-
         sed -i 's/maxUnavailable: 0/maxUnavailable: 1/' /kubespray/roles/kubernetes-apps/ansible/templates/coredns-deployment.yml.j2
+    - actionType: playbook
+      action: rh8-compat.yml
   postHook:
     - actionType: playbook
       action: kubeconfig.yml

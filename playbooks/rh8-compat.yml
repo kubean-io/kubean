@@ -6,6 +6,8 @@
   hosts: k8s_cluster,etcd
   become: true
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  vars:
+    container_manager: "containerd"
   tasks:
     - name: Use containerd static binary and skip kubeadm system verifycation
       set_fact:
