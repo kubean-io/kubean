@@ -52,16 +52,19 @@ unary
 
 member
     : primary                                                       # PrimaryExpr
-    | member op='.' id=IDENTIFIER (open='(' args=exprList? ')')?    # SelectOrCall
-    | member op='[' index=expr ']'                                  # Index
-    | member op='{' entries=fieldInitializerList? ','? '}'          # CreateMessage
+    | member op='.' (opt='?')? id=escapeIdent                       # Select
+    | member op='.' id=IDENTIFIER open='(' args=exprList? ')'       # MemberCall
+    | member op='[' (opt='?')? index=expr ']'                       # Index
     ;
 
 primary
-    : leadingDot='.'? id=IDENTIFIER (op='(' args=exprList? ')')?    # IdentOrGlobalCall
+    : leadingDot='.'? id=IDENTIFIER                                # Ident
+    | leadingDot='.'? id=IDENTIFIER (op='(' args=exprList? ')')     # GlobalCall
     | '(' e=expr ')'                                                # Nested
-    | op='[' elems=exprList? ','? ']'                               # CreateList
+    | op='[' elems=listInit? ','? ']'                               # CreateList
     | op='{' entries=mapInitializerList? ','? '}'                   # CreateStruct
+    | leadingDot='.'? ids+=IDENTIFIER (ops+='.' ids+=IDENTIFIER)*
+        op='{' entries=fieldInitializerList? ','? '}'               # CreateMessage
     | literal                                                       # ConstantLiteral
     ;
 
@@ -69,23 +72,40 @@ exprList
     : e+=expr (',' e+=expr)*
     ;
 
+listInit
+    : elems+=optExpr (',' elems+=optExpr)*
+    ;
+
 fieldInitializerList
-    : fields+=IDENTIFIER cols+=':' values+=expr (',' fields+=IDENTIFIER cols+=':' values+=expr)*
+    : fields+=optField cols+=':' values+=expr (',' fields+=optField cols+=':' values+=expr)*
+    ;
+
+optField
+    : (opt='?')? escapeIdent
     ;
 
 mapInitializerList
-    : keys+=expr cols+=':' values+=expr (',' keys+=expr cols+=':' values+=expr)*
+    : keys+=optExpr cols+=':' values+=expr (',' keys+=optExpr cols+=':' values+=expr)*
+    ;
+
+escapeIdent
+    : id=IDENTIFIER      # SimpleIdentifier
+    | id=ESC_IDENTIFIER  # EscapedIdentifier
+;
+
+optExpr
+    : (opt='?')? e=expr
     ;
 
 literal
     : sign=MINUS? tok=NUM_INT   # Int
-    | tok=NUM_UINT  # Uint
+    | tok=NUM_UINT              # Uint
     | sign=MINUS? tok=NUM_FLOAT # Double
-    | tok=STRING    # String
-    | tok=BYTES     # Bytes
-    | tok=CEL_TRUE   # BoolTrue
-    | tok=CEL_FALSE  # BoolFalse
-    | tok=NUL        # Null
+    | tok=STRING                # String
+    | tok=BYTES                 # Bytes
+    | tok=CEL_TRUE              # BoolTrue
+    | tok=CEL_FALSE             # BoolFalse
+    | tok=NUL                   # Null
     ;
 
 // Lexer Rules
@@ -184,3 +204,4 @@ STRING
 BYTES : ('b' | 'B') STRING;
 
 IDENTIFIER : (LETTER | '_') ( LETTER | DIGIT | '_')*;
+ESC_IDENTIFIER : '`' (LETTER | DIGIT | '_' | '.' | '-' | '/' | ' ')+ '`';

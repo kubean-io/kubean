@@ -25,7 +25,6 @@ import (
 
 // ParseMethod splits service and method from the input. It expects format
 // "/service/method".
-//
 func ParseMethod(methodName string) (service, method string, _ error) {
 	if !strings.HasPrefix(methodName, "/") {
 		return "", "", errors.New("invalid method name: should start with /")
@@ -40,7 +39,7 @@ func ParseMethod(methodName string) (service, method string, _ error) {
 }
 
 // baseContentType is the base content-type for gRPC.  This is a valid
-// content-type on it's own, but can also include a content-subtype such as
+// content-type on its own, but can also include a content-subtype such as
 // "proto" as a suffix after "+" or ";".  See
 // https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#requests
 // for more details.
