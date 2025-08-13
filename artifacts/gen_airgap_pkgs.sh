@@ -30,7 +30,7 @@ function patch_temp_list() {
     local containerd_download_url="$(grep 'containerd/containerd' "${temp_dir}/files.list")"
 
     # add containerd static binary
-    echo "$(echo "$containerd_donwload_url" | sed -r 's|containerd-([[:digit:]]\.)|containerd-static-\1|')" >> "${temp_dir}/files.list"
+    echo "$(echo "$containerd_download_url" | sed -r 's|containerd-([[:digit:]]\.)|containerd-static-\1|')" >> "${temp_dir}/files.list"
     # add containerd v1.7.x related files
     echo "https://github.com/containerd/nerdctl/releases/download/v1.7.7/nerdctl-1.7.7-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
     echo "https://github.com/containerd/containerd/releases/download/v1.7.23/containerd-1.7.23-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
