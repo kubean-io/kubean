@@ -12,3 +12,4 @@ docs/site/en/
 docs/site/zh/
 .dockerignore
 site/
+.ansible/

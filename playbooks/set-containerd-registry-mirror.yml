@@ -61,6 +61,6 @@
       systemd:
         name: containerd
         state: restarted
-        enabled: yes
-        daemon-reload: yes
-        masked: no
+        enabled: true
+        daemon-reload: true
+        masked: false

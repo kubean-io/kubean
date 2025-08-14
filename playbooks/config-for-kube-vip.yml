@@ -15,9 +15,9 @@
       - name: Check if booted with ostree
         ansible.builtin.stat:
           path: /run/ostree-booted
-          get_attributes: no
-          get_checksum: no
-          get_mime: no
+          get_attributes: false
+          get_checksum: false
+          get_mime: false
         register: ostree
 
       - name: Set is_fedora_coreos
@@ -25,7 +25,7 @@
           path: /etc/os-release
           line: "VARIANT_ID=coreos"
           state: present
-        check_mode: yes
+        check_mode: true
         register: os_variant_coreos
         changed_when: false
 
