@@ -34,7 +34,7 @@
       when:
         - check_connection
     - name: Store check_connection result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.ping_connection=\"{{ check_connection_result }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )  ; yq -i '.{{ inventory_hostname }}.ping_connection=\"{{ check_connection_result }}\"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }} "
       delegate_to: localhost
       when:
         - check_connection
@@ -48,24 +48,23 @@
     - name: Process fetch_os_type_result
       ignore_errors: true
       set_fact:
-        ## fetch_os_type_result: "{{ dict(_keys|zip(_vals)) | combine( { 'RAW_OUTPUT': os_release_cmd_result.stdout } ) }}" ## RAW_OUTPUT.value does not work well with `yq`.
-        fetch_os_type_result: "{{ dict(_keys|zip(_vals)) }}"
+        ## fetch_os_type_result: "{{ dict(_keys | zip(_vals)) | combine( { 'RAW_OUTPUT': os_release_cmd_result.stdout } ) }}" ## RAW_OUTPUT.value does not work well with `yq`.
+        fetch_os_type_result: "{{ dict(_keys | zip(_vals)) }}"
       vars:
         _arr: "{{ os_release_cmd_result.stdout.splitlines() | map('trim') | select() | list }}"
-        _keys: "{{ _arr | map('split', '=') | map('first') | map('replace', '\"' ,'') | map('trim') | list }}"
-        _vals: "{{ _arr | map('split', '=') | map('last') | map('replace', '\"' , '') | map('trim') | list }}"
+        _keys: "{{ _arr | map('split', '=') | map('first') | map('replace', '\"', '') | map('trim') | list }}"
+        _vals: "{{ _arr | map('split', '=') | map('last') | map('replace', '\"', '') | map('trim') | list }}"
       when:
         - fetch_os_type
     - name: Store fetch_os_type result to localhost
       shell: |-
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi );
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi );
         {%- for key, value in fetch_os_type_result.items() %}
-        yq -i '.{{inventory_hostname}}.os_type.{{ key }}="{{ value }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}};
+        yq -i '.{{ inventory_hostname }}.os_type.{{ key }}="{{ value }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }};
         {%- endfor %}
       delegate_to: localhost
       when:
         - fetch_os_type
-
 
     - name: Perform check_existing_k8s_service
       shell: bash -c "kubectl get namespace >/dev/null 2>&1 " || bash -c " ps -ef | grep kubelet | grep -v grep >/dev/null 2>&1 "
@@ -80,7 +79,7 @@
       when:
         - check_existing_k8s_service
     - name: Store check_existing_k8s_service result to localhost
-      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.existing_k8s_service=\"{{ check_existing_k8s_service_result }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
+      shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )  ; yq -i '.{{ inventory_hostname }}.existing_k8s_service=\"{{ check_existing_k8s_service_result }}\"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }} "
       delegate_to: localhost
       when:
         - check_existing_k8s_service
@@ -88,12 +87,12 @@
     - name: Perform check_existing_docker
       when: check_existing_docker
       block:
-        - name: Check existing dockerd  
+        - name: Check existing dockerd
           shell: "ps -eo comm= | grep -q dockerd"
           register: check_docker_cmd_result
           ignore_errors: true
         - name: Store result to localhost
-          shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )  ; yq -i '.{{inventory_hostname}}.existing_docker=\"{{ check_docker_cmd_result.rc == 0 }}\"' /tmp/kubean_data_temp_cache_{{inventory_hostname}} "
+          shell: " ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )  ; yq -i '.{{ inventory_hostname }}.existing_docker=\"{{ check_docker_cmd_result.rc == 0 }}\"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }} "
           delegate_to: localhost
 
     - name: Perform fetch time info
@@ -119,8 +118,8 @@
         - check_dual_stack_network
     - name: Store dual_stack_network result
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
-        yq -i '.{{inventory_hostname}}.dual_stack_network="{{ ip_cmd_info_result.stdout | split | length > 2 }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )
+        yq -i '.{{ inventory_hostname }}.dual_stack_network="{{ ip_cmd_info_result.stdout | split | length > 2 }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
       delegate_to: localhost
       ignore_errors: true
       when:
@@ -128,10 +127,10 @@
 
     - name: Store os_kernel_version result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
-        yq -i '.{{inventory_hostname}}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
-        yq -i '.{{inventory_hostname}}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
-        yq -i '.{{inventory_hostname}}.pkg_mgr="{{ ansible_pkg_mgr }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )
+        yq -i '.{{ inventory_hostname }}.os_kernel_version_output="{{ ansible_kernel }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
+        yq -i '.{{ inventory_hostname }}.os_kernel_version="{{ ansible_kernel.split('-')[0] }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
+        yq -i '.{{ inventory_hostname }}.pkg_mgr="{{ ansible_pkg_mgr }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
       ignore_errors: true
       delegate_to: localhost
       when:
@@ -139,23 +138,23 @@
 
     - name: Store os family result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
-        yq -i '.{{inventory_hostname}}.os_family="{{ ansible_os_family }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )
+        yq -i '.{{ inventory_hostname }}.os_family="{{ ansible_os_family }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
       ignore_errors: true
       delegate_to: localhost
 
     - name: Store instruction set architecture result to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
-        yq -i '.{{inventory_hostname}}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )
+        yq -i '.{{ inventory_hostname }}.architecture="{{ ansible_architecture }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
       ignore_errors: true
       delegate_to: localhost
 
     - name: Store node time info to localhost
       shell: |
-        ( if [ ! -f /tmp/kubean_data_temp_cache_{{inventory_hostname}} ]; then touch /tmp/kubean_data_temp_cache_{{inventory_hostname}} ; fi )
-        yq -i '.{{inventory_hostname}}.node_timestamp="{{ timestamp_result.stdout }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
-        yq -i '.{{inventory_hostname}}.timezone="{{ timezone_result.stdout.split(':')[1].strip() }}"' /tmp/kubean_data_temp_cache_{{inventory_hostname}}
+        ( if [ ! -f /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ]; then touch /tmp/kubean_data_temp_cache_{{ inventory_hostname }} ; fi )
+        yq -i '.{{ inventory_hostname }}.node_timestamp="{{ timestamp_result.stdout }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
+        yq -i '.{{ inventory_hostname }}.timezone="{{ timezone_result.stdout.split(':')[1].strip() }}"' /tmp/kubean_data_temp_cache_{{ inventory_hostname }}
       ignore_errors: true
       delegate_to: localhost
       when:
@@ -189,7 +188,7 @@
 
     - name: Set precheck result
       set_fact:
-        check_result: "{{yq_cmd.stdout | replace('\"True\"','true') | replace('\"False\"','false')}}"
+        check_result: "{{ yq_cmd.stdout | replace('\"True\"', 'true') | replace('\"False\"', 'false') }}"
 
     - name: Show precheck result
       debug: var=check_result

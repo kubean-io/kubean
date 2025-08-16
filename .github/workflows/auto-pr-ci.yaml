@@ -58,8 +58,16 @@ jobs:
           version: v2.1.0
           args: --timeout=10m
 
+      - name: install ansible requirements
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install ansible-core
+          ansible-galaxy collection install ansible.posix
+
       - name: ansible-lint
         uses: ansible/ansible-lint@v25.6.1
+        with:
+          args: "playbooks/"
 
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@0.32.0

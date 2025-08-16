@@ -1,6 +1,5 @@
 # Copyright 2023 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
-
 ---
 - name: Update hosts config
   hosts: k8s_cluster,etcd
@@ -14,6 +13,6 @@
     - name: 'Update {{ ip }} {{ host }} into /etc/hosts if necessary'
       ansible.builtin.lineinfile:
         dest: /etc/hosts
-        regexp: "^.* {{ host | trim |  replace('.','\\.') }}$"
+        regexp: "^.* {{ host | trim | replace('.', '\\.') }}$"
         line: '{{ ip }} {{ host }}'
       when: (ip | trim | length > 0) and (host | trim | length > 0)
