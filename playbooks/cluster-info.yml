@@ -16,7 +16,11 @@
       args:
         executable: /bin/bash
       register: clusterinfo
+      changed_when: false
       retries: 5
       delay: 30
       until: clusterinfo.rc == 0
-    - debug: var=clusterinfo.stdout_lines
+
+    - name: Display cluster info
+      ansible.builtin.debug:
+        var: clusterinfo.stdout_lines

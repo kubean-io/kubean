@@ -7,6 +7,7 @@
   tasks:
     - name: Check OS version
       command: cat /etc/os-release
+      changed_when: false
       register: os_release
       when:
         - ansible_distribution == "Kylin Linux Advanced Server"
@@ -14,6 +15,7 @@
 
     - name: Check Docker version
       command: docker --version
+      changed_when: false
       register: docker_version
       when:
         - ansible_distribution == "Kylin Linux Advanced Server"
@@ -38,6 +40,7 @@
             if [ -f /etc/systemd/system/docker.service.d/docker-options.conf ]; then
               grep -oP "(?<=native.cgroupdriver=).*" /etc/systemd/system/docker.service.d/docker-options.conf | sed 's/\\$//'
             fi
+          changed_when: false
           register: current_cgroupdriver
           ignore_errors: true
 
@@ -54,6 +57,7 @@
 
     - name: Verify Docker cgroupDriver
       shell: docker info | grep "Cgroup Driver"
+      changed_when: false
       register: docker_info
       when:
         - ansible_distribution == "Kylin Linux Advanced Server"
@@ -73,7 +77,8 @@
         - docker_version.stdout | regex_search('Docker version 26\.1\.\d+')
   handlers:
     - name: Reload systemd daemon
-      command: systemctl daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
       listen: Restart docker
 
     - name: Restart Docker service
