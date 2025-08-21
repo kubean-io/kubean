@@ -44,6 +44,7 @@ const (
 	ConfigDockerCgroupDriverForKylinSP2 = "config-docker-cgroup-driver-for-kylinSP2.yml"
 	EnsureKubeResolvConfPB              = "ensure-kube-resolv-conf.yml"
 	Rh8Compat                           = "rh8-compat.yml"
+	StripKylinVersion                   = "strip-kylin-version.yml"
 )
 
 //go:embed entrypoint.sh.template
@@ -76,7 +77,7 @@ func NewActions() *Actions {
 		RemovePkgsPB, PreCheckPB, RenewCertsPB,
 		KubeVipConfigPB, ConfigInsecureRegistryPB, NfConntrackPB, MountXFSPquotaPB,
 		SetContainerdRegistryMirror, DisableKernelUnattendedUpgrade, ConfigDockerCgroupDriverForKylinSP2,
-		EnsureKubeResolvConfPB, Rh8Compat,
+		EnsureKubeResolvConfPB, Rh8Compat, StripKylinVersion,
 	}
 	actions.Playbooks.Dict = map[string]void{}
 	for _, pbItem := range actions.Playbooks.List {
