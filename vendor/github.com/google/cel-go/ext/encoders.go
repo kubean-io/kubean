@@ -16,7 +16,7 @@ package ext
 
 import (
 	"encoding/base64"
-	"reflect"
+	"math"
 
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/types"
@@ -26,35 +26,56 @@ import (
 // Encoders returns a cel.EnvOption to configure extended functions for string, byte, and object
 // encodings.
 //
-// Base64.Decode
+// # Base64.Decode
 //
 // Decodes base64-encoded string to bytes.
 //
 // This function will return an error if the string input is not base64-encoded.
 //
-//     base64.decode(<string>) -> <bytes>
+//	base64.decode(<string>) -> <bytes>
 //
 // Examples:
 //
-//     base64.decode('aGVsbG8=')  // return b'hello'
-//     base64.decode('aGVsbG8')   // error
+//	base64.decode('aGVsbG8=')  // return b'hello'
+//	base64.decode('aGVsbG8')   // return b'hello'
 //
-// Base64.Encode
+// # Base64.Encode
 //
 // Encodes bytes to a base64-encoded string.
 //
-//     base64.encode(<bytes>)  -> <string>
+//	base64.encode(<bytes>)  -> <string>
 //
 // Examples:
 //
-//     base64.encode(b'hello') // return b'aGVsbG8='
-func Encoders() cel.EnvOption {
-	return cel.Lib(encoderLib{})
+//	base64.encode(b'hello') // return b'aGVsbG8='
+func Encoders(options ...EncodersOption) cel.EnvOption {
+	l := &encoderLib{version: math.MaxUint32}
+	for _, o := range options {
+		l = o(l)
+	}
+	return cel.Lib(l)
 }
 
-type encoderLib struct{}
+// EncodersOption declares a functional operator for configuring encoder extensions.
+type EncodersOption func(*encoderLib) *encoderLib
 
-func (encoderLib) CompileOptions() []cel.EnvOption {
+// EncodersVersion sets the library version for encoder extensions.
+func EncodersVersion(version uint32) EncodersOption {
+	return func(lib *encoderLib) *encoderLib {
+		lib.version = version
+		return lib
+	}
+}
+
+type encoderLib struct {
+	version uint32
+}
+
+func (*encoderLib) LibraryName() string {
+	return "cel.lib.ext.encoders"
+}
+
+func (*encoderLib) CompileOptions() []cel.EnvOption {
 	return []cel.EnvOption{
 		cel.Function("base64.decode",
 			cel.Overload("base64_decode_string", []*cel.Type{cel.StringType}, cel.BytesType,
@@ -71,18 +92,21 @@ func (encoderLib) CompileOptions() []cel.EnvOption {
 	}
 }
 
-func (encoderLib) ProgramOptions() []cel.ProgramOption {
+func (*encoderLib) ProgramOptions() []cel.ProgramOption {
 	return []cel.ProgramOption{}
 }
 
 func base64DecodeString(str string) ([]byte, error) {
-	return base64.StdEncoding.DecodeString(str)
+	b, err := base64.StdEncoding.DecodeString(str)
+	if err == nil {
+		return b, nil
+	}
+	if _, tryAltEncoding := err.(base64.CorruptInputError); tryAltEncoding {
+		return base64.RawStdEncoding.DecodeString(str)
+	}
+	return nil, err
 }
 
 func base64EncodeBytes(bytes []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(bytes), nil
 }
-
-var (
-	bytesListType = reflect.TypeOf([]byte{})
-)
