@@ -17,4 +17,4 @@
       when:
         - container_manager == "containerd"
         - ansible_os_family == "RedHat"
-        - ansible_distribution_major_version == "8"
+        - ansible_distribution_major_version == "8" or (ansible_distribution == "Kylin Linux Advanced Server" and (ansible_distribution_major_version | regex_replace("^V", "")) == "10")
