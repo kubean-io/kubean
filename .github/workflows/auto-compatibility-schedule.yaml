@@ -23,7 +23,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
