@@ -7,6 +7,7 @@
   { "name": "rocky9", "dockerfile":"build/os-packages/Dockerfile.rocky9"},
   { "name": "kylin-v10sp2", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp2"},
   { "name": "kylin-v10sp3", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp3"},
+  { "name": "kylin-v112503", "dockerfile":"build/os-packages/Dockerfile.kylin-v112503"},
   { "name": "openeuler22.03", "dockerfile":"build/os-packages/Dockerfile.openeuler22.03"},
   { "name": "oracle8", "dockerfile":"build/os-packages/Dockerfile.oracle8"},
   { "name": "oracle9", "dockerfile":"build/os-packages/Dockerfile.oracle9"},
