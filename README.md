@@ -84,6 +84,8 @@ We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://k
 
 | Kubean Version | Kubernetes Version Range | Kubernetes Default Version | kubespray SHA |
 | :-----: | :-----------: | :-----: | :-----: |
+| v0.27.3 | v1.31 ~ v1.33 | v1.31.6 | 502ba66 |
+| v0.26.4 | v1.31 ~ v1.33 | v1.31.6 | 739e5e1 |
 | v0.25.2 | v1.30 ~ v1.32 | v1.31.6 | d0e9088 |
 | v0.24.2 | v1.30 ~ v1.32 | v1.31.6 | 4ad9f9b |
 | v0.23.9 | v1.30 ~ v1.32 | v1.31.6 | a4843ea |
