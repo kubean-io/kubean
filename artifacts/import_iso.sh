@@ -76,6 +76,16 @@ function iso::mk_server_path() {
             return
           fi
         fi
+        # release V11 2503/(Swan25)-aarch64-build20/20250715
+        elif grep -q "V11 2503" $path; then
+          if grep -q "aarch64" $path; then
+            echo "/kylin-iso/11/2503/os/aarch64"
+            return
+          else
+            echo "/kylin-iso/11/2503/os/x86_64"
+            return
+          fi
+        fi
       fi
       if [ "$(basename $path)" = ".treeinfo" ]; then
         local arch=$(sed -n '/^\[general\]/,$p' $path | sed -n 's/arch = //p' | head -1)

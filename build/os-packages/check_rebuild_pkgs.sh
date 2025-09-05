@@ -22,11 +22,15 @@ prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
 git diff --quiet "${prev_tag}" "${late_tag}" artifacts/import_ospkgs.sh || { echo "true"; exit; }
 
 if [[ "${OS_NAME}" == "kylin-v10sp2" ]]; then
-  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.sp2.repo || { echo "true"; exit; }
+  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.v10sp2.repo || { echo "true"; exit; }
 fi
 
 if [[ "${OS_NAME}" == "kylin-v10sp3" ]]; then
-  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.sp3.repo || { echo "true"; exit; }
+  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.v10sp3.repo || { echo "true"; exit; }
+fi
+
+if [[ "${OS_NAME}" == "kylin-v112503" ]]; then
+  git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.v112503.repo || { echo "true"; exit; }
 fi
 
 git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }

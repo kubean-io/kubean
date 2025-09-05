@@ -1,9 +1,9 @@
-FROM openeuler/openeuler:22.03-lts as os-kylin-v10sp2
+FROM openeuler/openeuler:22.03-lts AS os-kylin-v10sp2
 ARG OS_VERSION=10
 ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo"
 
 WORKDIR /kylin/${OS_VERSION}/sp2/os
-COPY build/os-packages/repos/kylin.sp2.repo /etc/yum.repos.d/
+COPY build/os-packages/repos/kylin.v10sp2.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
 RUN yq eval '.common[],.yum[],.kylin[]' packages.yml > packages.list
