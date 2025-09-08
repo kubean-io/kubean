@@ -75,7 +75,6 @@ function iso::mk_server_path() {
             echo "/kylin-iso/10/sp3/os/x86_64"
             return
           fi
-        fi
         # release V11 2503/(Swan25)-aarch64-build20/20250715
         elif grep -q "V11 2503" $path; then
           if grep -q "aarch64" $path; then
