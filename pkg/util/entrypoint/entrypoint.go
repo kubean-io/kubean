@@ -50,9 +50,6 @@ const (
 //go:embed entrypoint.sh.template
 var entrypointTemplate string
 
-//go:embed inventory_decrypt.sh
-var inventoryDecryptScript string
-
 type void struct{}
 
 var member void
@@ -95,20 +92,14 @@ func (argsError ArgsError) Error() string {
 }
 
 type EntryPoint struct {
-	PrerequisitesCMDs []string
-	PreHookCMDs       []string
-	SprayCMD          string
-	PostHookCMDs      []string
-	Actions           *Actions
-
-	isVaultEncryped bool
+	PreHookCMDs  []string
+	SprayCMD     string
+	PostHookCMDs []string
+	Actions      *Actions
 }
 
-func NewEntryPoint(isVaultEncryped bool) *EntryPoint {
-	ep := &EntryPoint{
-		isVaultEncryped: isVaultEncryped,
-	}
-	ep.PrerequisiteRunPart()
+func NewEntryPoint() *EntryPoint {
+	ep := &EntryPoint{}
 	ep.Actions = NewActions()
 	return ep
 }
@@ -119,11 +110,7 @@ func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey, b
 			return "", ArgsError{fmt.Sprintf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)}
 		}
 	}
-	inventory := "/conf/hosts.yml"
-	if ep.isVaultEncryped {
-		inventory = "/dev/fd/200"
-	}
-	playbookCmd := fmt.Sprintf("ansible-playbook -i %s -b --become-user root -e \"@/conf/group_vars.yml\"", inventory)
+	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
 	if isPrivateKey {
 		playbookCmd = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", playbookCmd)
 	}
@@ -158,12 +145,6 @@ func (ep *EntryPoint) hookRunPart(actionType, action, extraArgs string, isPrivat
 		return "", ArgsError{fmt.Sprintf("unknown action type, the currently supported ranges include: %s", ep.Actions.Types)}
 	}
 	return hookRunCmd, nil
-}
-
-func (ep *EntryPoint) PrerequisiteRunPart() {
-	if ep.isVaultEncryped {
-		ep.PrerequisitesCMDs = append(ep.PrerequisitesCMDs, inventoryDecryptScript)
-	}
 }
 
 func (ep *EntryPoint) PreHookRunPart(actionType, action, extraArgs string, isPrivateKey, builtinAction bool) error {

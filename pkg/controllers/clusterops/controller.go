@@ -480,27 +480,6 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 				},
 			})
 	}
-	if vaultRef := c.getVaultSecret(clusterOps); vaultRef != nil {
-		if len(job.Spec.Template.Spec.Containers) > 0 && job.Spec.Template.Spec.Containers[0].Name == SprayJobPodName {
-			job.Spec.Template.Spec.Containers[0].VolumeMounts = append(job.Spec.Template.Spec.Containers[0].VolumeMounts,
-				corev1.VolumeMount{
-					Name:      "vault-password",
-					MountPath: "/auth/vault-password",
-					SubPath:   "vault-password",
-					ReadOnly:  true,
-				})
-		}
-		job.Spec.Template.Spec.Volumes = append(job.Spec.Template.Spec.Volumes,
-			corev1.Volume{
-				Name: "vault-password",
-				VolumeSource: corev1.VolumeSource{
-					Secret: &corev1.SecretVolumeSource{
-						SecretName:  vaultRef.Name,
-						DefaultMode: &PrivatekeyMode,
-					},
-				},
-			})
-	}
 	if clusterOps.Spec.ActiveDeadlineSeconds != nil && *clusterOps.Spec.ActiveDeadlineSeconds > 0 {
 		job.Spec.ActiveDeadlineSeconds = clusterOps.Spec.ActiveDeadlineSeconds
 	}
@@ -638,7 +617,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
 	}
-	entryPointData := entrypoint.NewEntryPoint(c.getVaultSecret(clusterOps) != nil)
+	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	builtinActionSource := clusteroperationv1alpha1.BuiltinActionSource
 	for _, action := range clusterOps.Spec.PreHook {
@@ -798,9 +777,8 @@ func (c *Controller) CopyConfigMap(clusterOps *clusteroperationv1alpha1.ClusterO
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        newName,
-			Namespace:   namespace,
-			Annotations: oldConfigMap.Annotations,
+			Name:      newName,
+			Namespace: namespace,
 		},
 		Data: oldConfigMap.Data,
 	}
@@ -1009,26 +987,4 @@ func (c *Controller) CheckClusterDataRef(cluster *clusterv1alpha1.Cluster, clust
 		return fmt.Errorf("kubeanCluster %s hostsConfRef varsConfRef or sshAuthRef not in the same namespace", cluster.Name)
 	}
 	return nil
-}
-
-func (c *Controller) getVaultSecret(clusterOps *clusteroperationv1alpha1.ClusterOperation) *apis.SecretRef {
-	if clusterOps.Spec.HostsConfRef.IsEmpty() {
-		return nil
-	}
-	hostsConf, err := c.ClientSet.CoreV1().ConfigMaps(clusterOps.Spec.HostsConfRef.NameSpace).Get(context.Background(), clusterOps.Spec.HostsConfRef.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil
-	}
-	vaultRef, ok := hostsConf.Annotations[constants.AnnotationHostsConfVaultPasswordRef]
-	if !ok || vaultRef == "" {
-		return nil
-	}
-	if !c.CheckSecretExist(util.GetCurrentNSOrDefault(), vaultRef) {
-		klog.Warningf("vault password ref %s not found in namespace %s", vaultRef, util.GetCurrentNSOrDefault())
-		return nil
-	}
-	return &apis.SecretRef{
-		NameSpace: util.GetCurrentNSOrDefault(),
-		Name:      vaultRef,
-	}
 }
