@@ -50,6 +50,9 @@ const (
 //go:embed entrypoint.sh.template
 var entrypointTemplate string
 
+//go:embed inventory_decrypt.sh.template
+var inventoryDecryptTemplate string
+
 type void struct{}
 
 var member void
@@ -92,14 +95,16 @@ func (argsError ArgsError) Error() string {
 }
 
 type EntryPoint struct {
-	PreHookCMDs  []string
-	SprayCMD     string
-	PostHookCMDs []string
-	Actions      *Actions
+	PrerequisitesCMDs []string
+	PreHookCMDs       []string
+	SprayCMD          string
+	PostHookCMDs      []string
+	Actions           *Actions
 }
 
 func NewEntryPoint() *EntryPoint {
 	ep := &EntryPoint{}
+	ep.PrerequisitesCMDs = append(ep.PrerequisitesCMDs, inventoryDecryptTemplate)
 	ep.Actions = NewActions()
 	return ep
 }
@@ -110,7 +115,8 @@ func (ep *EntryPoint) buildPlaybookCmd(action, extraArgs string, isPrivateKey, b
 			return "", ArgsError{fmt.Sprintf("unknown playbook type, the currently supported ranges include: %s", ep.Actions.Playbooks.List)}
 		}
 	}
-	playbookCmd := "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\""
+
+	playbookCmd := "ansible-playbook -i /dev/fd/200 -b --become-user root -e \"@/conf/group_vars.yml\""
 	if isPrivateKey {
 		playbookCmd = fmt.Sprintf("%s --private-key /auth/ssh-privatekey", playbookCmd)
 	}

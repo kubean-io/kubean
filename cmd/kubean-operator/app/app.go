@@ -18,6 +18,7 @@ import (
 	"github.com/kubean-io/kubean/pkg/controllers/clusterops"
 	"github.com/kubean-io/kubean/pkg/controllers/infomanifest"
 	"github.com/kubean-io/kubean/pkg/controllers/offlineversion"
+	"github.com/kubean-io/kubean/pkg/crypto"
 	"github.com/kubean-io/kubean/pkg/util"
 	"github.com/kubean-io/kubean/pkg/version"
 
@@ -112,6 +113,12 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 	if err != nil {
 		return err
 	}
+
+	if crypto.InitConfiguration(ClientSet) != nil {
+		klog.ErrorS(err, "Failed to init crypto configuration")
+		return err
+	}
+
 	clusterClientSet, err := kubeanClusterClientSet.NewForConfig(resetConfig)
 	if err != nil {
 		return err

@@ -13,6 +13,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/kubean-io/kubean/pkg/crypto"
 	"github.com/kubean-io/kubean/pkg/util"
 	"github.com/kubean-io/kubean/pkg/util/entrypoint"
 
@@ -382,13 +383,25 @@ func (c *Controller) NewKubesprayJob(clusterOps *clusteroperationv1alpha1.Cluste
 					ServiceAccountName: serviceAccountName,
 					Containers: []corev1.Container{
 						{
-							Name:    SprayJobPodName,
-							Image:   c.ProcessKubeanOperationImage(clusterOps.Spec.Image, c.FetchGlobalManifestImageTag()),
-							Command: []string{"/bin/entrypoint.sh"},
+							Name:            SprayJobPodName,
+							Image:           c.ProcessKubeanOperationImage(clusterOps.Spec.Image, c.FetchGlobalManifestImageTag()),
+							ImagePullPolicy: corev1.PullIfNotPresent,
+							Command:         []string{"/bin/entrypoint.sh"},
 							Env: []corev1.EnvVar{
 								{
 									Name:  "CLUSTER_NAME",
 									Value: clusterOps.Spec.Cluster,
+								},
+								{
+									Name: "VAULT_PRIVATE_KEY",
+									ValueFrom: &corev1.EnvVarSource{
+										ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+											LocalObjectReference: corev1.LocalObjectReference{
+												Name: constants.KubeanConfigMapName,
+											},
+											Key: crypto.PrivateKey,
+										},
+									},
 								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
@@ -617,6 +630,7 @@ func (c *Controller) CreateEntryPointShellConfigMap(clusterOps *clusteroperation
 	if !clusterOps.Spec.EntrypointSHRef.IsEmpty() {
 		return false, nil
 	}
+
 	entryPointData := entrypoint.NewEntryPoint()
 	isPrivateKey := !clusterOps.Spec.SSHAuthRef.IsEmpty()
 	builtinActionSource := clusteroperationv1alpha1.BuiltinActionSource

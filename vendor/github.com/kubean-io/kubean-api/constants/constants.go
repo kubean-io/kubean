@@ -17,6 +17,7 @@ const (
 	KeySprayCommit  = "kubean.io/sprayCommit"
 
 	KubeanConfigMapName                  = "kubean-config"
+	KubeanPubKeyConfigMapName            = "kubean-pubkey"
 	DefaultClusterOperationsBackEndLimit = 30
 	MaxClusterOperationsBackEndLimit     = 200
 )

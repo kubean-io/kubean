@@ -4,7 +4,12 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# preinstall
+# prerequisite
+{{ range $prerequisiteCMD := .PrerequisitesCMDs }}
+{{- $prerequisiteCMD }}
+{{ end }}
+
+# pre operation
 {{ range $preCMD := .PreHookCMDs }}
 {{- $preCMD }}
 {{ end }}
@@ -12,7 +17,7 @@ set -o pipefail
 # run kubespray
 {{ .SprayCMD }}
 
-# postinstall
+# post operation
 {{ range $postCMD := .PostHookCMDs }}
 {{- $postCMD }}
 {{ end }}
