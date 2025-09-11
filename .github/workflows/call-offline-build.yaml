@@ -51,7 +51,7 @@ jobs:
         cat charts/kubean/templates/manifest.cr.yaml
 
     - name: Preparing the python environment
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: 3.11
 
