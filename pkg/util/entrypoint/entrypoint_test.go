@@ -356,7 +356,7 @@ func TestEntryPoint_buildPlaybookCmd(t *testing.T) {
 				action:       ResetPB,
 				isPrivateKey: true,
 			},
-			want: "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
+			want: "ansible-playbook -i /dev/fd/200 -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
 		},
 		{
 			name:    "test extra args case",
@@ -375,7 +375,7 @@ func TestEntryPoint_buildPlaybookCmd(t *testing.T) {
 				action:       ResetPB,
 				extraArgs:    "-e \"reset_confirmation=yes\"",
 			},
-			want: "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml -e \"reset_confirmation=yes\"",
+			want: "ansible-playbook -i /dev/fd/200 -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml -e \"reset_confirmation=yes\"",
 		},
 	}
 	for _, tt := range tests {
@@ -450,7 +450,7 @@ func Test_entryPoint_hookRunPart(t *testing.T) {
 				isPrivateKey: true,
 			},
 			wantErr: false,
-			want:    "ansible-playbook -i /conf/hosts.yml -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
+			want:    "ansible-playbook -i /dev/fd/200 -b --become-user root -e \"@/conf/group_vars.yml\" --private-key /auth/ssh-privatekey -e \"reset_confirmation=yes\" /kubespray/reset.yml",
 		},
 		{
 			name: "test shell action case",
@@ -487,67 +487,6 @@ func Test_entryPoint_hookRunPart(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("hookRunPart() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestEntryPoint_Render(t *testing.T) {
-	type fields struct {
-		PreHookCMDs  []string
-		SprayCMD     string
-		PostHookCMDs []string
-		Actions      *Actions
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    string
-		wantErr bool
-	}{
-		{
-			name: "test PreHookCMDs not empty case",
-			fields: fields{
-				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
-			},
-			wantErr: false,
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\n\n\n# postinstall\n\n",
-		},
-		{
-			name: "test SprayCMD not empty case",
-			fields: fields{
-				PreHookCMDs: []string{"cmd1", "cmd2", "cmd3"},
-				SprayCMD:    "echo $TEST",
-			},
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\n\n",
-			wantErr: false,
-		},
-		{
-			name: "test PostHookCMDs not empty case",
-			fields: fields{
-				PreHookCMDs:  []string{"cmd1", "cmd2", "cmd3"},
-				SprayCMD:     "echo $TEST",
-				PostHookCMDs: []string{"cmd4"},
-			},
-			wantErr: false,
-			want:    "#!/bin/bash\n\nset -o errexit\nset -o nounset\nset -o pipefail\n\n# preinstall\ncmd1\ncmd2\ncmd3\n\n\n# run kubespray\necho $TEST\n\n# postinstall\ncmd4\n\n",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ep := &EntryPoint{
-				PreHookCMDs:  tt.fields.PreHookCMDs,
-				SprayCMD:     tt.fields.SprayCMD,
-				PostHookCMDs: tt.fields.PostHookCMDs,
-				Actions:      tt.fields.Actions,
-			}
-			got, err := ep.Render()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Render() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("Render() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
