@@ -1,0 +1,31 @@
+HOSTS_FILE_RAW="/conf/hosts.yml"
+HOSTS_FILE="$HOSTS_FILE_RAW"
+if [ -n "$VAULT_PRIVATE_KEY" ]; then
+  VAULT_PRIVATE_KEY_FILE="$(mktemp)"
+  echo -n "$VAULT_PRIVATE_KEY" | base64 -d > $VAULT_PRIVATE_KEY_FILE
+  HOSTS_FILE="/conf/hosts0.yml"
+  cp $HOSTS_FILE_RAW $HOSTS_FILE
+  yq '.all.hosts | keys | join("\n")' $HOSTS_FILE | while read host; do
+    decryptable_fields=
+    if [[ "$(yq ".all.hosts.$host.ansible_password" $HOSTS_FILE)" == VAULT\;* ]]; then
+      decryptable_fields+="ansible_password "
+    fi
+    if [[ "$(yq ".all.hosts.$host.ansible_ssh_pass" $HOSTS_FILE)" == VAULT\;* ]]; then
+      decryptable_fields+="ansible_ssh_pass "
+    fi
+    if [[ "$(yq ".all.hosts.$host.ansible_become_password" $HOSTS_FILE)" == VAULT\;* ]]; then
+      decryptable_fields+="ansible_become_password "
+    fi
+    for field in $decryptable_fields; do
+      echo "Decrypting vault for $host"
+      decrypted_field=$(yq ".all.hosts.$host.$field" $HOSTS_FILE | sed 's#VAULT;##' | base64 -d | openssl pkeyutl -decrypt -inkey $VAULT_PRIVATE_KEY_FILE
+)
+      yq -i ".all.hosts.$host.$field tag = \"\"" $HOSTS_FILE
+      yq -i ".all.hosts.$host.$field = \"$decrypted_field\"" $HOSTS_FILE
+    done
+  done
+  exec 200< $HOSTS_FILE
+  rm -f $HOSTS_FILE
+else
+  exec 200< $HOSTS_FILE
+fi

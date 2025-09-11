@@ -9,3 +9,18 @@ metadata:
 data:
   CLUSTER_OPERATIONS_BACKEND_LIMIT: "{{ .Values.kubeanOperator.operationsBackendLimit }}"
   SPRAY_JOB_IMAGE_REGISTRY: "{{ .Values.sprayJob.image.registry }}"
+  {{- if .Values.kubeanOperator.crypto.skBase64 }}
+  sk: "{{ .Values.kubeanOperator.crypto.skBase64 }}"
+  {{- end }}
+---
+{{- if .Values.kubeanOperator.crypto.pkBase64 -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubean-pubkey
+  namespace: {{ include "kubean.namespace" . }}
+  labels:
+  {{- include "kubean.labels" . | nindent 4}}
+data:
+  pk: {{ .Values.kubeanOperator.crypto.pkBase64 }}
+{{- end -}}

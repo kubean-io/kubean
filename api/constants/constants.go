@@ -16,9 +16,8 @@ const (
 	KeySprayRelease = "kubean.io/sprayRelease"
 	KeySprayCommit  = "kubean.io/sprayCommit"
 
-	AnnotationHostsConfVaultPasswordRef = "kubean.io/vault-password-ref"
-
 	KubeanConfigMapName                  = "kubean-config"
+	KubeanPubKeyConfigMapName            = "kubean-pubkey"
 	DefaultClusterOperationsBackEndLimit = 30
 	MaxClusterOperationsBackEndLimit     = 200
 )

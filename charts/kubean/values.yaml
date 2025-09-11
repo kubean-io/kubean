@@ -91,6 +91,9 @@ kubeanOperator:
               values:
               - kubean
           topologyKey: kubernetes.io/hostname
+  crypto:
+    skBase64: null
+    pkBase64: null
 
 ## @section kubean admission parameters
 ## @param kubeanAdmission.replicaCount Number of kubean-admission replicas to deploy
