@@ -1,0 +1,3 @@
+---
+- name: Gather the facts
+  ansible.builtin.import_playbook: playbooks/facts.yml

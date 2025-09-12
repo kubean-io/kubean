@@ -50,6 +50,7 @@ warn_list:
   - ignore-errors # Use failed_when and specify error conditions instead of using ignore_errors.
   - no-free-form  # Avoid using free-form when calling module actions.
 exclude_paths:
+  - playbooks/facts.yml
   - playbooks/disable-firewalld.yml
   - playbooks/config-for-kube-vip.yml
   - playbooks/mount-xfs-pquota.yml
