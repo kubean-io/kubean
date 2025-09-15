@@ -108,7 +108,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-    - uses: actions/labeler@v5
+    - uses: actions/labeler@v6
     - uses: wzshiming/gh-ci-bot@v1
       env:
         LOGIN: ${{ github.event.pull_request.user.login }}
