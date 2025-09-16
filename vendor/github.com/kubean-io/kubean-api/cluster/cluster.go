@@ -9,6 +9,7 @@ import (
 type ConfigProperty struct {
 	ClusterOperationsBackEndLimit string `json:"CLUSTER_OPERATIONS_BACKEND_LIMIT"`
 	SprayJobImageRegistry         string `json:"SPRAY_JOB_IMAGE_REGISTRY"`
+	Sk                            string `json:"sk"`
 }
 
 func (config *ConfigProperty) GetClusterOperationsBackEndLimit() int {
