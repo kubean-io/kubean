@@ -63,7 +63,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v6
         with:
           go-version: 1.24.3
       - name: verify_kubespray_e2e_test
