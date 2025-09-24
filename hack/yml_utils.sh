@@ -14,9 +14,11 @@ function yamlUtil::prepare_CRDs() {
     case $GAP_TYPE in 
         "ONLINE")
             cp $PERRENT_DIR/examples/install/*mirror/* $crd_dir/
+            yq  eval '.spec.preHook += [{"actionType": "playbook", "action": "rh8-compat.yml"}]' -i $crd_dir/ClusterOperation.yml
             ;;
         "OFFLINE")
             cp $PERRENT_DIR/examples/install/*airgap/* $crd_dir/
+            yq  eval '.spec.preHook += [{"actionType": "playbook", "action": "rh8-compat.yml"}]' -i $crd_dir/ClusterOperation.yml
             ;;
         "*")
             echo "no such $GAP_TYPE, exit"
