@@ -534,3 +534,48 @@ function resource::check_iso_file_local_path(){
     echo "check ${item} ok"
   done
 }
+
+function resource::push_registry_by_arch(){
+  authUser="rootuser"
+  authPassword="rootpass123"
+
+  curl -LO http://10.6.170.11:8080/tools/yq
+  mv yq /usr/local/bin/yq &&  chmod +x /usr/local/bin/yq
+
+  curl -LO http://10.6.170.11:8080/tools/helm-v3.17.2
+  cp -f helm-v3.17.2 /usr/local/bin/helm &&  chmod +x /usr/local/bin/helm
+
+  helm repo add chartmuseum https://chartmuseum.github.io/charts --force-update
+  helm install chartmuseum chartmuseum/chartmuseum \
+                        --namespace kube-system \
+                        --set image.repository=ghcr.m.daocloud.io/helm/chartmuseum \
+                        --set image.tag=v0.13.1 \
+                        --set secret.name=chartmuseum-creds \
+                        --set secret.key=${authUser} \
+                        --set secret.password=${authPassword} \
+                        --set service.type=NodePort \
+                        --set service.nodePort=30081 \
+                        --set resources.requests.memory=200Mi \
+                        --set env.open.DISABLE_API=false \
+                        --set env.open.AUTH_ANONYMOUS_GET=true
+
+  registry_addr="127.0.0.1:30081"
+  KUBEAN_VERSION=${1}
+
+  LocalArtifactSetName="localartifactset.cr.yaml"
+  LocalArtifactSetURL="https://github.com/kubean-io/kubean/releases/download/${KUBEAN_VERSION}/${LocalArtifactSetName}"
+  curl -LO ${LocalArtifactSetURL}
+
+  CILIUM_VERSION=$(yq '.spec.items[] | select(.name == "cilium") | .versionRange[0]' ${LocalArtifactSetName})
+
+  helm repo add cilium https://helm.cilium.io/
+
+  helm pull cilium/cilium --version=${CILIUM_VERSION}
+
+  curl -u ${authUser}:${authPassword} --data-binary @cilium-${CILIUM_VERSION}.tgz ${registry_addr}/api/charts -ksS
+
+  rm -f cilium-${CILIUM_VERSION}.tgz
+  rm -f ${LocalArtifactSetName}
+
+  popd
+}
