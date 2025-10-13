@@ -33,13 +33,14 @@ function offline_pre::prepare_kubean_resource_svc(){
   resource::install_registry "${kubeconfig_file}" "amd64"
   resource::install_registry "${kubeconfig_file}" "arm64"
   resource::install_podman
+  resource::import_cilium_chart "${kubeconfig_file}" "${release_tag}"
   resource::import_files_minio_by_arch "${download_root_folder}"  "${release_tag}"  "amd64"  ${test_name}
   resource::import_files_minio_by_arch "${download_root_folder}"  "${release_tag}"  "arm64"  ${test_name}
   resource::push_registry_by_arch "${download_root_folder}"  "${release_tag}" "amd64"  ${test_name}
   resource::push_registry_by_arch "${download_root_folder}"  "${release_tag}" "arm64"  ${test_name}
   resource::import_os_package_minio "${download_root_folder}"  "${release_tag}" ${test_name}
   resource::import_iso_minio ${test_name}
-  resource::import_cilium_chart "${release_tag}"
+
 
   echo "Resource build end :) "
 }
