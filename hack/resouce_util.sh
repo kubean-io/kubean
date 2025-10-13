@@ -535,9 +535,11 @@ function resource::check_iso_file_local_path(){
   done
 }
 
-function resource::push_registry_by_arch(){
+function resource::import_cilium_chart(){
   authUser="rootuser"
   authPassword="rootpass123"
+
+  kubeconfig_file=${1}
 
   curl -LO http://10.6.170.11:8080/tools/yq
   mv yq /usr/local/bin/yq &&  chmod +x /usr/local/bin/yq
@@ -557,10 +559,13 @@ function resource::push_registry_by_arch(){
                         --set service.nodePort=30081 \
                         --set resources.requests.memory=200Mi \
                         --set env.open.DISABLE_API=false \
-                        --set env.open.AUTH_ANONYMOUS_GET=true
+                        --set env.open.AUTH_ANONYMOUS_GET=true\
+                        --kubeconfig=${kubeconfig_file}
 
-  registry_addr="127.0.0.1:30081"
-  KUBEAN_VERSION=${1}
+  sleep 60
+  KUBEAN_VERSION=${2}
+  registry_addr="172.30.41.63:8081"
+
 
   LocalArtifactSetName="localartifactset.cr.yaml"
   LocalArtifactSetURL="https://github.com/kubean-io/kubean/releases/download/${KUBEAN_VERSION}/${LocalArtifactSetName}"
@@ -577,5 +582,4 @@ function resource::push_registry_by_arch(){
   rm -f cilium-${CILIUM_VERSION}.tgz
   rm -f ${LocalArtifactSetName}
 
-  popd
 }
