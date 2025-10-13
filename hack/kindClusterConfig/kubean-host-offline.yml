@@ -13,3 +13,5 @@ nodes:
         hostPort: 31500
       - containerPort: 31501 # Registry Nodeport in kind, expose to host 31501
         hostPort: 31501
+      - containerPort: 30081
+        hostPort: 8081
