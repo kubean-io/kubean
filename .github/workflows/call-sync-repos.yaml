@@ -49,7 +49,7 @@ jobs:
 
     - name: Pushes charts to another repository
       id: push_directory
-      uses: cpina/github-action-push-to-another-repository@v1.7.2
+      uses: cpina/github-action-push-to-another-repository@v1.7.3
       env:
         SSH_DEPLOY_KEY: ${{ secrets.SYNC_CHART_PRIVATE_KEY }}
       with:
