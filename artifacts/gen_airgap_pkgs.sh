@@ -35,6 +35,15 @@ function patch_temp_list() {
     echo "https://github.com/containerd/nerdctl/releases/download/v1.7.7/nerdctl-1.7.7-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
     echo "https://github.com/containerd/containerd/releases/download/v1.7.23/containerd-1.7.23-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
 
+    # remove empty lines in images.list
+    sed -i '/^$/d' "${temp_dir}/images.list"
+    # add cilium operator-generic image if operator image exists
+    local cilium_operator_image
+    cilium_operator_image=$(grep 'quay.io/cilium/operator:' "${temp_dir}/images.list" || true)
+    if [[ -n "${cilium_operator_image}" ]]; then
+      echo "${cilium_operator_image}" | sed 's|/operator:|/operator-generic:|' >> "${temp_dir}/images.list"
+    fi
+
     # clean up unused images
     local remove_images="aws-alb|aws-ebs|cert-manager|netchecker|weave|sig-storage|external_storage|cinder-csi|kubernetesui"
     mv "${temp_dir}/images.list" "${temp_dir}/images.list.old"
