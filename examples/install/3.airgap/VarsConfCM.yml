@@ -9,7 +9,7 @@ metadata:
 data:
   group_vars.yml: |
     kube_owner: root
-    kube_version: "1.31.6"
+    kube_version: "1.32.9"
     
     registry_host: "<REGISTRY_HOST>:<REGISTRY_PORT>"
     minio_address: "http://<MINIO_API_HOST>:<MINIO_API_PORT>"
