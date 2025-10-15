@@ -8,7 +8,7 @@ data:
     # k8s-cluster
     kube_owner: root
     unsafe_show_logs: true
-    kube_version: "1.31.6"
+    kube_version: "1.32.9"
     container_manager: containerd
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico

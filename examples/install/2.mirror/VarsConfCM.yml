@@ -9,7 +9,7 @@ metadata:
 data:
   group_vars.yml: |
     kube_owner: root
-    kube_version: "1.31.6"
+    kube_version: "1.32.9"
     container_manager: containerd
     k8s_image_pull_policy: IfNotPresent
     kube_network_plugin: calico
