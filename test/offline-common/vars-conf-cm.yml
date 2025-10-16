@@ -71,4 +71,4 @@ data:
     docker_rh_repo_base_url: "{{ files_repo }}/centos/$releasever/os/$basearch"
     docker_rh_repo_gpgkey: ""
     
-    cilium_install_extra_flags: "--repository http://172.30.41.63:8081"
+    cilium_install_extra_flags: "--repository http://172.30.41.63:8081 --set image.useDigest=false --set envoy.image.useDigest=false --set operator.image.useDigest=false "

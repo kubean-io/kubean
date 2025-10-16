@@ -99,11 +99,11 @@ function util::vm_name_ip_init_offline_by_os(){
           vm_name1="gwt-kubean-offline-e2e-node1"
           vm_name2="gwt-kubean-offline-e2e-node2"
           ;;
-        "REDHAT8")
+        "UBUNTU2204")
             vm_ip_addr1="10.5.127.201"
             vm_ip_addr2="10.5.127.202"
-            vm_name1="gwt-kubean-offline-e2e-redhat8-node201"
-            vm_name2="gwt-kubean-offline-e2e-redhat8-node202"
+            vm_name1="gwt-kubean-offline-e2e-ubuntu2204-node201"
+            vm_name2="gwt-kubean-offline-e2e-ubuntu2204-node202"
             ;;
         "REDHAT7")
             vm_ip_addr1="10.5.127.203"

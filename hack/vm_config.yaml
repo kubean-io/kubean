@@ -33,10 +33,10 @@ Airgap:
         ip: 10.16.10.161
       - name: gwt-kubean-offline-e2e-node2
         ip: 10.16.10.162
-    REDHAT8:
-      - name: gwt-kubean-offline-e2e-redhat8-node201
+    UBUNTU2204:
+      - name: gwt-kubean-offline-e2e-ubuntu2204-node201
         ip: 10.5.127.201
-      - name: gwt-kubean-offline-e2e-redhat8-node202
+      - name: gwt-kubean-offline-e2e-ubuntu2204-node201
         ip: 10.5.127.202
     REDHAT7:
       - name: gwt-kubean-offline-e2e-redhat7-node203

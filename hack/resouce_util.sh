@@ -10,7 +10,7 @@ set -o pipefail
 #####################################
 source "${REPO_ROOT}"/hack/util.sh
 
-RELEASE_FILE_LIST_PARTNAME=( "files-amd64" "images-amd64" "files-arm64" "images-arm64" "os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-kylin-v10sp3" "os-pkgs-redhat8" "os-pkgs-redhat7" )
+RELEASE_FILE_LIST_PARTNAME=( "files-amd64" "images-amd64" "files-arm64" "images-arm64" "os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-kylin-v10sp3" "os-pkgs-redhat8" "os-pkgs-ubuntu2204" )
 KUBEAN_ARTIFACTS_USED_FILE_LIST_PARANAME=("files-amd64" "images-amd64" "os-pkgs-rocky8")
 BASE_URL="https://files.m.daocloud.io/github.com/kubean-io/kubean/releases/download"
 
@@ -403,7 +403,7 @@ function resource::import_os_package_minio(){
   if [[ ${test_type} =~ "artifact" ]];then
     os_list=("os-pkgs-rocky8" )
   else
-    os_list=("os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-redhat8" "os-pkgs-redhat7" )
+    os_list=("os-pkgs-rocky8" "os-pkgs-kylin-v10sp2" "os-pkgs-redhat8" "os-pkgs-ubuntu2204" )
   fi
   for os_name in "${os_list[@]}";do
     echo "Import os pkgs to minio: ${os_name}..."
@@ -456,7 +456,7 @@ function resource::import_iso_minio(){
   if [[ $# -gt 0 ]] && [[ $1 =~ "artifact" ]];then
     iso_list=("Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso" "Rocky-8.10-x86_64-dvd1.iso")
   else
-    iso_list=( "rhel-server-7.9-x86_64-dvd.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
+    iso_list=( "ubuntu-22.04.4-live-server-amd64.iso" "Rocky-8.10-x86_64-dvd1.iso" "rhel-8.4-x86_64-dvd.iso" "CentOS-7-x86_64-DVD-2207-02.iso" "Kylin-Server-10-SP2-aarch64-Release-Build09-20210524.iso")
   fi
   for iso in "${iso_list[@]}";do
     iso_image_file=${iso_file_dir}/${iso}

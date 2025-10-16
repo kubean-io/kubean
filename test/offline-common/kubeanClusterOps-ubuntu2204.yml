@@ -1,0 +1,29 @@
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: e2e-cluster1-install
+  labels:
+    clusterName: cluster1
+spec:
+  cluster: cluster1
+  image:
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+
+    - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e "{repo_list: ['deb [trusted=yes] {offline_minio_url}/ubuntu jammy main','deb [trusted=yes] {offline_minio_url}/ubuntu-iso jammy main restricted']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+
+
+
+  postHook:
+    - actionType: playbook
+      action: kubeconfig.yml
+    - actionType: playbook
+      action: cluster-info.yml
