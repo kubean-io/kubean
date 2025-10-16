@@ -42,7 +42,12 @@ function func_prepare_config_yaml_single_stack() {
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
     cp -f "${source_path}"/vars-conf-cm.yml  "${dest_path}"
     cp -f "${source_path}"/kubeanCluster.yml "${dest_path}"
-    cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+    if [[ "${os_name}" = "UBUNTU2204" ]]; then
+      cp -f "${source_path}"/kubeanClusterOps-ubuntu2204.yml  "${dest_path}"/kubeanClusterOps.yml
+    else
+      cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+    fi
+
     if [[ "${os_name}" = "ROCKY8" ]]; then
         minio_url="        -e \"{repo_list: ['{offline_minio_url}/kubean/rocky/\\\\\$releasever/os/\\\\\$basearch','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/BaseOS','{offline_minio_url}/kubean/rocky-iso/\\\\\$releasever/os/\\\\\$basearch/AppStream']}\""
         sed -i "s|.*repo_list.*|${minio_url}|" "${dest_path}"/kubeanClusterOps.yml
@@ -78,7 +83,7 @@ ginkgo -v -race -timeout=3h  --fail-fast ./${go_test_path}  -- --kubeconfig="${K
 
 ############## create cilium cluster ###################
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
-  export OS_NAME="REDHAT8"
+  export OS_NAME="UBUNTU2204"
 else
   export OS_NAME="ROCKY8-HK"
 fi
@@ -128,7 +133,7 @@ function network-e2e-step2(){
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
-  export OS_NAME="REDHAT8"
+  export OS_NAME="UBUNTU2204"
 else
   export OS_NAME="ROCKY8-HK"
 fi
@@ -158,7 +163,7 @@ function network-e2e-step3(){
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
-  export OS_NAME="REDHAT8"
+  export OS_NAME="UBUNTU2204"
 else
   export OS_NAME="ROCKY8-HK"
 fi
@@ -185,7 +190,7 @@ function network-e2e-step4(){
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
-  export OS_NAME="REDHAT8"
+  export OS_NAME="UBUNTU2204"
 else
   export OS_NAME="ROCKY8-HK"
 fi
@@ -214,7 +219,7 @@ function network-e2e-step5(){
 #### calico dual stack cluster need install on a Redhat8 os
 #### the vm  need add a ipv6 in snapshot
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
-  export OS_NAME="REDHAT8"
+  export OS_NAME="UBUNTU2204"
 else
   export OS_NAME="ROCKY8-HK"
 fi
