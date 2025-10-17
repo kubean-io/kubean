@@ -15,8 +15,9 @@ echo "ARCH: ${ARCH}"
 echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 
 function func_prepare_config_yaml_dual_stack() {
-    local source_path=$1
-    local dest_path=$2
+    local os_name=$1
+    local source_path=$2
+    local dest_path=$3
     rm -fr "${dest_path}"
     mkdir "${dest_path}"
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
@@ -147,7 +148,7 @@ dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-cal
 #### calico dual stuck: VXLAN_ALWAYS-VXLAN_ALWAYS ####
 
 util::power_on_2vms ${OS_NAME}
-func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_dual_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-vxlan-always-vxlan-always-"`date "+%H-%M-%S"`
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -175,7 +176,7 @@ fi
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: VXLAN_CrossSubnet-VXLAN_ALWAYS ####
 util::power_on_2vms ${OS_NAME}
-func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_dual_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-vxlan-cross-vxlan-always-"`date "+%H-%M-%S"`
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -202,7 +203,7 @@ fi
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: IPIP_ALWAYS-VXLAN_CrossSubnet ####
 util::power_on_2vms ${OS_NAME}
-func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_dual_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-ipip-always-vxlan-cross-"`date "+%H-%M-%S"`
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
@@ -231,7 +232,7 @@ fi
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
 #### calico dual stuck: IPIP_CrossSubnet-VXLAN_CrossSubnet ####
 util::power_on_2vms ${OS_NAME}
-func_prepare_config_yaml_dual_stack "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml_dual_stack "${OS_NAME}" "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 util::init_yum_repo_config_when_offline "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-ipip-cross-vxlan-cross-"`date "+%H-%M-%S"`
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
