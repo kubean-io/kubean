@@ -22,7 +22,11 @@ function func_prepare_config_yaml_dual_stack() {
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
     cp -f "${source_path}"/vars-conf-cm.yml  "${dest_path}"
     cp -f "${source_path}"/kubeanCluster.yml "${dest_path}"
-    cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+    if [[ "${os_name}" = "UBUNTU2204" ]]; then
+      cp -f "${source_path}"/kubeanClusterOps-ubuntu2204.yml  "${dest_path}"/kubeanClusterOps.yml
+    else
+      cp -f "${source_path}"/kubeanClusterOps.yml  "${dest_path}"
+    fi
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/access_ip/access_ip6/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" "${dest_path}"/hosts-conf-cm.yml
