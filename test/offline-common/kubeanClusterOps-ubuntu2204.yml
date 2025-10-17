@@ -16,7 +16,7 @@ spec:
     - actionType: playbook
       action: enable-repo.yml
       extraArgs: |
-        -e "{repo_list: ['deb [trusted=yes] {offline_minio_url}/ubuntu jammy main','deb [trusted=yes] {offline_minio_url}/ubuntu-iso jammy main restricted']}"
+        -e "{repo_list: ['deb [trusted=yes] {offline_minio_url}/kubean/ubuntu jammy main','deb [trusted=yes] {offline_minio_url}/kubean/ubuntu-iso jammy main restricted']}"
     - actionType: playbook
       action: disable-firewalld.yml
 
