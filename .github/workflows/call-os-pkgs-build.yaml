@@ -76,7 +76,7 @@ jobs:
         sha256sum os-pkgs-${{ matrix.name }}-${{ github.ref_name }}.tar.gz > sha256sum-os-pkg-${{ matrix.name }}-${{ github.ref_name }}.txt
 
     - name: Upload os-pkgs sha256sum file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: os-pkgs-sha256sum-${{ matrix.name }}-key
         retention-days: 1
