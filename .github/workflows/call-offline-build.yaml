@@ -96,7 +96,7 @@ jobs:
         ls -lh ${KUBEAN_TAG}/arm64/
 
     - name: Upload offline sha256sum file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: offline-sha256sum-key
         retention-days: 1
@@ -116,7 +116,7 @@ jobs:
           ${{ github.ref_name }}/*.sh
 
     - name: Upload InfoManifest CR
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: charts/kubean/templates/manifest.cr.yaml
         name: info-manifest-cr-file
