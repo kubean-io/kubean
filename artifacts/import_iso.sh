@@ -124,6 +124,12 @@ function iso::mk_server_path() {
             return
           fi
         fi
+        if [[ "$os" =~ "BigCloud" ]]; then
+          if [[ "${version}" == "21" ]]; then
+            echo "/bigcloud-iso/2110/os/$arch"
+            return
+          fi
+        fi
         if [[ "$os" =~ "Rocky Linux" ]]; then
           echo "/rocky-iso/$version/os/$arch"
           return

@@ -36,7 +36,7 @@ fi
 git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }
 
 # centos / kylinv / redhat / rocky / oracle / tencent / openEuler
-if [[ "${OS_NAME}" =~ ^(centos|kylin|redhat|rocky|oracle|tencent|openeuler).* ]]; then
+if [[ "${OS_NAME}" =~ ^(centos|kylin|redhat|rocky|oracle|tencent|openeuler|bigcloud).* ]]; then
   os_key="${OS_NAME/-v10sp*/}"
   late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')

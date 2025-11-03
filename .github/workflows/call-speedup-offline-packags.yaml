@@ -7,7 +7,7 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          file: [ files-amd64, images-amd64, files-arm64, images-arm64, os-pkgs-centos7, os-pkgs-kylin-v10sp2, os-pkgs-kylin-v10sp3, os-pkgs-kylin-v112503, os-pkgs-redhat8, os-pkgs-ubuntu2204 ]
+          file: [ files-amd64, images-amd64, files-arm64, images-arm64, os-pkgs-centos7, os-pkgs-kylin-v10sp2, os-pkgs-kylin-v10sp3, os-pkgs-kylin-v112503, os-pkgs-redhat8, os-pkgs-ubuntu2204, os-pkgs-bigcloud2110 ]
       permissions:
         packages: write
         contents: read
