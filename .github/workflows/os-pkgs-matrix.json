@@ -14,5 +14,6 @@
   { "name": "tencent31", "dockerfile":"build/os-packages/Dockerfile.tencent31"},
   { "name": "ubuntu2004", "dockerfile":"build/os-packages/Dockerfile.ubuntu2004"},
   { "name": "ubuntu2204", "dockerfile":"build/os-packages/Dockerfile.ubuntu2204"},
-  { "name": "ubuntu2404", "dockerfile":"build/os-packages/Dockerfile.ubuntu2404"}
+  { "name": "ubuntu2404", "dockerfile":"build/os-packages/Dockerfile.ubuntu2404"},
+  { "name": "bigcloud2110", "dockerfile":"build/os-packages/Dockerfile.bigcloud2110"}
 ]

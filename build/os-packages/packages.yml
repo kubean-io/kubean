@@ -115,3 +115,7 @@ tencentos31:
   - nss
   - socat
   - container-selinux
+
+bigcloud2110:
+  - socat
+  - container-selinux
