@@ -1,5 +1,5 @@
 FROM openeuler/openeuler:22.03-lts as bclinux2110
-ARG OS_VERSION=2210
+ARG OS_VERSION=2110
 ARG BUILD_TOOLS="dnf-utils dnf-plugins-core createrepo"
 
 WORKDIR /bigcloud/${OS_VERSION}/os
