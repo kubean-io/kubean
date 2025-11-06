@@ -6,7 +6,7 @@ WORKDIR /bigcloud/${OS_VERSION}/os
 COPY build/os-packages/repos/bigcloud.2110.repo /etc/yum.repos.d/
 COPY build/os-packages/packages.yml .
 COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
-RUN yq eval '.common[],.yum[],.bigcloud[]' packages.yml > packages.list
+RUN yq eval '.common[],.yum[],.bigcloud2110[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && rm -rf /etc/yum.repos.d/openEuler* \
