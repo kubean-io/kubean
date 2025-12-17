@@ -176,7 +176,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install yq tool
-      uses: mikefarah/yq@v4.48.2
+      uses: mikefarah/yq@v4.50.1
 
     - name: Generate Kubean manifest file
       env:
