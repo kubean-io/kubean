@@ -8,7 +8,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.1
     - id: set-matrix
       run: |
         echo "matrix=$(jq -c . < .github/workflows/os-pkgs-matrix.json)" >> $GITHUB_OUTPUT
