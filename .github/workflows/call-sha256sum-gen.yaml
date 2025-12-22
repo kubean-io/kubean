@@ -22,11 +22,11 @@ jobs:
         include: ${{ fromJSON(needs.matrix.outputs.matrix) }}
     steps:
     - name: Download os-pkgs sha256sum files
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: os-pkgs-sha256sum-${{ matrix.name }}-key
     - name: Download offline sha256sum file
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: offline-sha256sum-key
     - name: Integrate all sha256sum for os-pkgs
@@ -46,7 +46,7 @@ jobs:
     needs: os-pkgs-sha256sum
     steps:
     - name: Download offline sha256sum file
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: offline-sha256sum-key
     - name: Rename sha256sum
