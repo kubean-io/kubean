@@ -33,6 +33,7 @@ os_compability_e2e(){
     ping -c 5 ${vm_ip_addr2}
     rm -f ~/.ssh/known_hosts
     echo "==> scp sonobuoy bin to master: "
+    sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no /home/kubernetes_e2e_images_v1.32.9.tar root@$vm_ip_addr1:/home
     sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
     sshpass -p ${AMD_ROOT_PASSWORD} ssh root@$vm_ip_addr1 "chmod +x /usr/bin/sonobuoy"
 
