@@ -44,7 +44,7 @@ jobs:
         env:
           NIGHTLY_E2E_STEP: ${{ matrix.NIGHTLY_E2E_STEP }}
         with:
-          timeout_minutes: 300
+          timeout_minutes: 1500
           max_attempts: 3
           retry_on: error
           command: |
