@@ -33,7 +33,7 @@ jobs:
       run: |
         cat sha256sum-os-pkg-${{ matrix.name }}-${{ github.ref_name }}.txt >> sha256sum-offline-${{ github.ref_name }}.txt
     - name: Upload offline sha256sum file
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: offline-sha256sum-key
         overwrite: true
