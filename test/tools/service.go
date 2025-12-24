@@ -235,11 +235,17 @@ func SvcCurl(curIP string, curPort int32, checkString string, timeTotalSecond ti
 }
 
 func DoSonoBuoyCheckByPasswd(password, masterSSH string) {
+	loadcmd := []string{masterSSH, "nerdctl", "load", "-i", "/home/kubernetes_e2e_images_v1.32.9.tar"}
+	klog.Info("sonobuoy e2e images load cmd: ", loadcmd)
+	cmd := RemoteSSHCmdArrayByPasswd(password, loadcmd)
+	out, _ := NewDoCmd("sshpass", cmd...)
+	fmt.Println(out.String())
+
 	subCmd := []string{masterSSH, "sonobuoy", "run", "--sonobuoy-image", "docker.m.daocloud.io/sonobuoy/sonobuoy:v0.56.7", "--plugin-env", "e2e.E2E_FOCUS=pods",
 		"--plugin-env", "e2e.E2E_DRYRUN=true", "--wait"}
 	klog.Info("sonobuoy check cmd: ", subCmd)
-	cmd := RemoteSSHCmdArrayByPasswd(password, subCmd)
-	out, _ := NewDoCmd("sshpass", cmd...)
+	cmd = RemoteSSHCmdArrayByPasswd(password, subCmd)
+	out, _ = NewDoCmd("sshpass", cmd...)
 	fmt.Println(out.String())
 
 	sshcmd := RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "sonobuoy", "status"})
