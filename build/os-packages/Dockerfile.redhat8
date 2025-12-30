@@ -1,6 +1,6 @@
 FROM rockylinux:8 as os-redhat8
 ARG OS_VERSION=8
-ARG BUILD_TOOLS="yum-utils createrepo epel-release wget modulemd-tools findutils"
+ARG BUILD_TOOLS="yum-utils createrepo epel-release modulemd-tools findutils"
 
 WORKDIR /redhat/$OS_VERSION/os
 COPY build/os-packages/packages.yml .

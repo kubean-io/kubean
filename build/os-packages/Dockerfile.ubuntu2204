@@ -22,7 +22,7 @@ COPY --from=mikefarah/yq:4.45.3 /usr/bin/yq /usr/bin/yq
 RUN while read -r line; do \
       if [[ $line == docker-ce* ]]; then \
           version=$(echo $line | cut -d'=' -f2); \
-          line="$line docker-ce-cli=$version containerd.io=1.6.32-1"; \
+          line="$line docker-ce-cli=$version containerd.io=1.6.33-1"; \
       fi; \
       apt-get install --reinstall --print-uris $line | egrep "https|http" | awk -F "'" '{print $2}' >> urls.list; \
     done <<<"$(yq eval '.common[],.apt[],.ubuntu2204[]' ./${PACKAGES_PREFIX}/packages.yml | sort -u)" \
