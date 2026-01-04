@@ -62,6 +62,7 @@ chmod +x ./hack/run-sonobouy-e2e.sh
 chmod +x ./hack/run-os-compatibility-e2e.sh
 chmod +x ./hack/run-network-e2e.sh
 chmod +x ./hack/run-nightly-cluster-e2e.sh
+chmod +x ./hack/run-nightly-upgrade-e2e.sh
 chmod +x ./hack/kubean_compatibility_e2e.sh
 chmod +x ./hack/kubean_resource.sh
 chmod +x ./hack/autoversion.sh
