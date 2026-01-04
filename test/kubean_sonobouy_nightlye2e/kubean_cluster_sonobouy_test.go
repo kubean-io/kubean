@@ -29,7 +29,7 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 		var pod2Name = "nginx2"
 		var password = tools.VmPassword
 		testClusterName := tools.TestClusterName
-		nginxImage := "nginx:alpine"
+		nginxImage := "release-ci.daocloud.io/kubean/nginx:alpine"
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
