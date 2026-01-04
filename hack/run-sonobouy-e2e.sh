@@ -44,7 +44,10 @@ if [ "${NIGHTLY_E2E_STEP}" == "STEP3" ]; then
     echo "RUN SONOBOUY E2E STEP3......."
     ./hack/run-nightly-cluster-e2e.sh
 fi
-
+if [ "${NIGHTLY_E2E_STEP}" == "STEP4" ]; then
+    echo "RUN SONOBOUY E2E STEP4......."
+    ./hack/run-nightly-upgrade-e2e.sh
+fi
 if [[ "${NIGHTLY_E2E_STEP}" =~ "network" ]]; then
     echo "RUN SONOBOUY network E2E ......."
     ./hack/run-network-e2e.sh ${NIGHTLY_E2E_STEP}
