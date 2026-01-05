@@ -12,6 +12,8 @@ RUN yq eval '.common[],.yum[],.redhat9[]' packages.yml > packages.list
 
 RUN ARCH=$(uname -m) \
     && dnf install -y ${BUILD_TOOLS} \
+    && yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo \
+    && dnf makecache \
     && while read -r line; do dnf install -y --downloadonly --downloaddir=${ARCH} ${line}; done <<<"$(sort -u packages.list)" \
     && createrepo -d ${ARCH}
 
