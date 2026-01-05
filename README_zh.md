@@ -84,6 +84,7 @@ Kubean 是一个<a href="https://cncf.io/">云原生计算基金会(CNCF)全景�
 
 | Kubean Version | Kubernetes Version Range | Kubernetes Default Version | kubespray SHA |
 | :-----: | :-----------: | :-----: | :-----: |
+| v0.31.0 | v1.32 ~ v1.34 | v1.32.9 | b9e1e85 |
 | v0.30.2 | v1.32 ~ v1.34 | v1.32.9 | 5dce75d |
 | v0.29.1 | v1.31 ~ v1.33 | v1.32.9 | fbf957a |
 | v0.28.5 | v1.31 ~ v1.33 | v1.31.6 | 13c70d3 |
