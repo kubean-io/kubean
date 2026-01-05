@@ -26,7 +26,7 @@ var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 		var pod1Name = "nginx1"
 		var pod2Name = "nginx2"
 		var svc2Name = "nginxsvc1"
-		nginxImage := "nginx:alpine"
+		nginxImage := "release-ci.daocloud.io/kubean/nginx:alpine"
 		var password = tools.VmPassword
 		offlineFlag := tools.IsOffline
 		klog.Info("offlineFlag is: ", offlineFlag)

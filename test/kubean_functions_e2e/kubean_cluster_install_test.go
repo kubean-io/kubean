@@ -29,7 +29,7 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 		var svc1Name = "nginxsvc1"
 		var password = tools.VmPassword
 		clusterInstallYamlsPath := "e2e-install-cluster"
-		nginxImage := "nginx:alpine"
+		nginxImage := "release-ci.daocloud.io/kubean/nginx:alpine"
 		offlineFlag := tools.IsOffline
 		offlineConfigs = tools.InitOfflineConfig()
 		if strings.ToUpper(offlineFlag) == "TRUE" && strings.ToUpper(tools.Arch) == "ARM64" {
