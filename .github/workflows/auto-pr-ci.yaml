@@ -65,7 +65,7 @@ jobs:
           ansible-galaxy collection install ansible.posix
 
       - name: ansible-lint
-        uses: ansible/ansible-lint@v25.12.2
+        uses: ansible/ansible-lint@v26.1.0
         with:
           args: "playbooks/"
 
