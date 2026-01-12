@@ -48,7 +48,7 @@ redhat8:
 
 redhat9:
   - container-selinux
-  - containerd.io-1.6.33-3.1.el9
+  - containerd.io-1.6.32-3.1.el9
   - containerd.io-1.7.27-3.1.el9
   - docker-ce-3:27.5.1-1.el9
   - docker-ce-cli-1:27.5.1-1.el9
@@ -86,21 +86,21 @@ kylin:
 
 # https://download.docker.com/linux/ubuntu/
 ubuntu2004:
-  - containerd.io=1.6.33-1
+  - containerd.io=1.6.32-1
   - containerd.io=1.7.27-1
   - docker-ce=5:26.1.4-1~ubuntu.20.04~focal
   - docker-ce=5:27.5.1-1~ubuntu.20.04~focal
   - docker-ce=5:28.1.1-1~ubuntu.20.04~focal
 
 ubuntu2204:
-  - containerd.io=1.6.33-1
+  - containerd.io=1.6.32-1
   - containerd.io=1.7.27-1
   - docker-ce=5:26.1.4-1~ubuntu.22.04~jammy
   - docker-ce=5:27.5.1-1~ubuntu.22.04~jammy
   - docker-ce=5:28.3.3-1~ubuntu.22.04~jammy
 
 ubuntu2404:
-  - containerd.io=1.6.33-1
+  - containerd.io=1.6.32-1
   - containerd.io=1.7.27-1
   - docker-ce=5:26.1.4-1~ubuntu.24.04~noble
   - docker-ce=5:27.5.1-1~ubuntu.24.04~noble
