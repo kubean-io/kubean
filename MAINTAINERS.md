@@ -11,7 +11,7 @@ Please keep the below list sorted in ascending order.
 | Erik Jiang    | @ErikJiang  | DaoCloud    | <bo.jiang@daocloud.io>      |
 | Guangli Bao   | @tukwila    | DaoCloud    | <guangli.bao@daocloud.io>   |
 | Nathan Jiang  | @hangscer8  | Independent | <hangscer@hotmail.com>      |
-| Lihai Tu      | @0ekk       | DaoCloud    | <lihai.tu@daocloud.io>      |
+| Lihai Tu      | @0ekk       | Independent | <ekkotuz@gmail.com>         |
 | Michael Yao   | @windsonsea | DaoCloud    | <haifeng.yao@daocloud.io>   |
 | Xiao Zhang    | @wawa0210   | DaoCloud    | <xiao.zhang@daocloud.io>    |
 | Peter Pan     | @panpan0000 | DaoCloud    | <peter.pan@daocloud.io>     |
