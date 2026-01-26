@@ -575,6 +575,8 @@ function resource::import_cilium_chart(){
 
   helm repo add cilium https://helm.cilium.io/
 
+  helm repo update
+
   helm pull cilium/cilium --version=${CILIUM_VERSION}
 
   curl -u ${authUser}:${authPassword} --data-binary @cilium-${CILIUM_VERSION}.tgz ${registry_addr}/api/charts -ksS
