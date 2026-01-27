@@ -1,14 +1,14 @@
 name: 3. PR verify
 
 on:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    paths-ignore:
-      - docs/**
-      - examples/**
+#  pull_request_target:
+#    types:
+#      - opened
+#      - synchronize
+#      - reopened
+#    paths-ignore:
+#      - docs/**
+#      - examples/**
 
 env:
   VSPHERE_USER: ${{ secrets.VSPHERE_USER }}

@@ -1,10 +1,13 @@
 name: 7. Daily airgap mode test
 on:
-  workflow_dispatch:
-  schedule:
-    # every day 14:00(UTC) = 22:00（Beijing),
-    - cron: '0 20 * * *'
-
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths-ignore:
+      - docs/**
+      - examples/**
 jobs:
   git_ref:
     runs-on: [self-hosted, offline]
