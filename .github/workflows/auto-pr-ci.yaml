@@ -43,7 +43,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
@@ -85,7 +85,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
@@ -106,7 +106,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -121,7 +121,7 @@ jobs:
           echo "REPO: ${{ env.REPO }}"
           echo "KUBESPRAY_TAG: ${{ env.KUBESPRAY_TAG }}"
 
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
@@ -199,7 +199,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
