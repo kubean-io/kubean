@@ -65,4 +65,5 @@ jobs:
           KYLIN_VM_PASSWORD: ${{ secrets.KYLIN_VM_PASSWORD }}
         run: |
           echo "${KUBEAN_TAG}"
+          echo "${KYLIN_VM_PASSWORD}"
           bash hack/offline-e2e.sh  "${KUBEAN_TAG}" "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}"  "${{ runner.name }}"
