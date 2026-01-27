@@ -114,7 +114,7 @@ func setupManager(mgr controllerruntime.Manager, opt *Options, stopChan <-chan s
 		return err
 	}
 
-	if crypto.InitConfiguration(ClientSet) != nil {
+	if err := crypto.InitConfiguration(ClientSet); err != nil {
 		klog.ErrorS(err, "Failed to init crypto configuration")
 		return err
 	}

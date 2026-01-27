@@ -79,9 +79,9 @@ func CreateHTTPSCASecretWithLock(ctx context.Context, client kubernetes.Interfac
 	leaderelection.RunOrDie(ctx, leaderelection.LeaderElectionConfig{
 		Lock:            lock,
 		ReleaseOnCancel: true,
-		LeaseDuration:   time.Second * 60,
-		RenewDeadline:   time.Second * 30,
-		RetryPeriod:     time.Second * 20,
+		LeaseDuration:   time.Second * 30,
+		RenewDeadline:   time.Second * 15,
+		RetryPeriod:     time.Second * 5,
 		Callbacks: leaderelection.LeaderCallbacks{
 			OnStartedLeading: func(ctx context.Context) {
 				klog.Warningf("webhook create CA OnStartedLeading on %s", util.GetCurrentRunningPodName())
