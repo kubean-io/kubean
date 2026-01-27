@@ -199,6 +199,7 @@ func IsValidImageName(image string) bool {
 }
 
 func (c *Controller) Reconcile(ctx context.Context, req controllerruntime.Request) (controllerruntime.Result, error) {
+	klog.Infof("Reconciling ClusterOperation %s/%s", req.Namespace, req.Name)
 	clusterOps := &clusteroperationv1alpha1.ClusterOperation{}
 	if err := c.Client.Get(ctx, req.NamespacedName, clusterOps); err != nil {
 		if apierrors.IsNotFound(err) {
