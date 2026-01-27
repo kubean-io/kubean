@@ -130,6 +130,7 @@ function util::init_kylin_vm_template_map(){
 
 ### Use skopeo copy images, which used in golang case, to docker registry
 function util::scope_copy_test_images(){
+   set -x
    dest_registry_addr=${1}
    image_name=${2:-""}
    skopeo_cmd="skopeo copy --insecure-policy --quiet --src-tls-verify=false --dest-tls-verify=false  "

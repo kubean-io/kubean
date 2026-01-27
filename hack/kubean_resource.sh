@@ -7,6 +7,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+set -x
+
 
 #####################################
 function offline_pre::prepare_kubean_resource_svc(){
