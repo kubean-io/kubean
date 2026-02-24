@@ -18,6 +18,7 @@ jobs:
     uses: ./.github/workflows/build-push-for-e2e.yml
 
   auto-kubean-compatibility:
+    needs: [ build-push-for-e2e ]
     runs-on: [self-hosted, online]
     permissions:
       packages: write
