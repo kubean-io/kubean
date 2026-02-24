@@ -46,7 +46,12 @@ util::verify_go_version
 util::cmd_must_exist "helm"
 
 # install kind and kubectl
-kind_version=v0.19.0
+K8S_VER=$(echo "$KIND_VERSION" | sed -E 's/.*:v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+if [ "$(printf '%s\n' "1.29.0" "$K8S_VER" | sort -V | head -n1)" = "1.29.0" ]; then
+  kind_version=v0.22.0
+else
+  kind_version=v0.19.0
+fi
 util::install_kind $kind_version
 
 # get arch name and os name in bootstrap
