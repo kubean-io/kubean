@@ -413,6 +413,45 @@ function util::vm_name_ip_init_online_by_os(){
               ;;
      esac
   fi
+  if [ "${RUNNER_NAME}" == "kubean-online-ubuntu-runner1" ]; then
+      case ${OS_NAME} in
+          "ROCKY8")
+              vm_ip_addr1="172.30.41.71"
+              vm_ip_addr2="172.30.41.72"
+              vm_name1="gwt-kubean-e2e-node71"
+              vm_name2="gwt-kubean-e2e-node72"
+              ;;
+          "ROCKY8-3MASTER")
+              vm_ip_addr3="172.30.41.78"
+              vm_name3="gwt-kubean-e2e-hk-node78"
+              vipadd="172.30.41.128"
+              ;;
+          "KYLINV10")
+              vm_ip_addr1="10.6.178.83"
+              vm_ip_addr2="10.6.178.84"
+              vm_name1="gwt-kubean-e2e-node83"
+              vm_name2="gwt-kubean-e2e-node84"
+              ;;
+          "REDHAT8")
+              vm_ip_addr1="172.30.41.73"
+              vm_ip_addr2="172.30.41.74"
+              vm_name1="gwt-kubean-e2e-redhat8-node73"
+              vm_name2="gwt-kubean-e2e-redhat8-node74"
+              ;;
+          "REDHAT7")
+              vm_ip_addr1="172.30.41.75"
+              vm_ip_addr2="172.30.41.76"
+              vm_name1="gwt-kubean-e2e-redhat7-node75"
+              vm_name2="gwt-kubean-e2e-redhat7-node76"
+              ;;
+          "ROCKY8-HK")
+              vm_ip_addr1="172.30.41.77"
+              vm_ip_addr2="172.30.41.78"
+              vm_name1="gwt-kubean-e2e-hk-node77"
+              vm_name2="gwt-kubean-e2e-hk-node78"
+              ;;
+     esac
+  fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner2" ]; then
           case ${OS_NAME} in
               "ROCKY8")
