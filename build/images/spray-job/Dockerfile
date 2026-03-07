@@ -8,6 +8,6 @@ WORKDIR /kubespray
 COPY playbooks/ /kubespray/
 
 # Add extra python packages and collections needed for the playbooks
-RUN python3 -m pip install toml
+RUN python3 -m pip install toml --break-system-packages
 RUN ansible-galaxy collection install sivel.toiletwater
 RUN apk add --no-cache openssl
