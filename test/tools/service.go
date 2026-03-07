@@ -235,7 +235,7 @@ func SvcCurl(curIP string, curPort int32, checkString string, timeTotalSecond ti
 }
 
 func DoSonoBuoyCheckByPasswd(password, masterSSH string) {
-	loadcmd := []string{masterSSH, "nerdctl", "load", "-i", "/home/kubernetes_e2e_images_v1.32.9.tar"}
+	loadcmd := []string{masterSSH, "nerdctl", "load", "-i", "/home/kubernetes_e2e_images_v1.33.7.tar"}
 	klog.Info("sonobuoy e2e images load cmd: ", loadcmd)
 	cmd := RemoteSSHCmdArrayByPasswd(password, loadcmd)
 	out, _ := NewDoCmd("sshpass", cmd...)
