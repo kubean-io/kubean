@@ -16,7 +16,7 @@ echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 
 function prepare_sonobuoy() {
     echo "prepare sonobuoy..."
-    sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no /home/kubernetes_e2e_images_v1.32.9.tar root@$vm_ip_addr1:/home
+    sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no /home/kubernetes_e2e_images_v1.33.7.tar root@$vm_ip_addr1:/home
     sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no ${REPO_ROOT}/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 }
 

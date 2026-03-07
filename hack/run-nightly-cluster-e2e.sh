@@ -49,7 +49,7 @@ func_generate_rsa_key
 func_ssh_login_no_password ${vm_ip_addr1} ${AMD_ROOT_PASSWORD}
 func_ssh_login_no_password ${vm_ip_addr2} ${AMD_ROOT_PASSWORD}
 echo "==> scp sonobuoy bin to master: "
-sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no /home/kubernetes_e2e_images_v1.32.9.tar root@$vm_ip_addr1:/home
+sshpass -p ${AMD_ROOT_PASSWORD} scp -o StrictHostKeyChecking=no /home/kubernetes_e2e_images_v1.33.7.tar root@$vm_ip_addr1:/home
 sshpass -p "${AMD_ROOT_PASSWORD}" scp  -o StrictHostKeyChecking=no "${REPO_ROOT}"/test/tools/sonobuoy root@$vm_ip_addr1:/usr/bin/
 
 ## prepare kubean install job yml files
