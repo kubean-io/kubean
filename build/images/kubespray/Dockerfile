@@ -27,8 +27,8 @@ RUN \
     && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml; \
   fi
 
-RUN /usr/bin/python3 -m pip install --no-cache-dir pip -U \
-    && python3 -m pip install --no-cache-dir -r requirements.txt
+RUN /usr/bin/python3 -m pip install --no-cache-dir --break-system-packages pip -U \
+    && python3 -m pip install --no-cache-dir --break-system-packages -r requirements.txt
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
     && if [ -f 'roles/kubespray_defaults/vars/main/checksums.yml' ]; then \
