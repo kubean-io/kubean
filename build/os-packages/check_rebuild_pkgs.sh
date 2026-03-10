@@ -11,10 +11,14 @@ set -eo pipefail
 OS_NAME=${OS_NAME:-""}
 ORG_NAME=${ORG_NAME:-""}
 
-# Get Latest Git Tag
-late_tag=$(git tag --sort=committerdate -l | grep -o 'v.*' | tail -1)
-# Get Previous Git Tag (the one before the latest tag)
-prev_tag=$(git tag --sort=committerdate -l | grep -o 'v.*' | tail -2 | head -1)
+# Get latest and previous tags by semantic version (e.g. v0.33.0 > v0.32.4)
+late_tag=$(git tag --sort=-v:refname -l 'v*' | head -1)
+prev_tag=$(git tag --sort=-v:refname -l 'v*' | head -2 | tail -1)
+
+if [[ -z "${late_tag}" || -z "${prev_tag}" ]]; then
+  echo "true"
+  exit
+fi
 
 late_packages_yml=$(git show "${late_tag}":build/os-packages/packages.yml)
 prev_packages_yml=$(git show "${prev_tag}":build/os-packages/packages.yml)
