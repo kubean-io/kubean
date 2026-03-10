@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.24.3 AS build
+FROM --platform=$BUILDPLATFORM golang:1.24.13 AS build
 
 WORKDIR /kubean
 
