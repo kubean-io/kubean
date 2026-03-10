@@ -118,7 +118,7 @@ function require_arch() {
 
 function yq_install() {
   local yq_curr_ver=""
-  local yq_version="v4.31.1"
+  local yq_version="v4.52.4"
   local yq_binary_name="yq_linux_$(require_arch)"
   local yq_binary_url="https://files.m.daocloud.io/github.com/mikefarah/yq/releases/download/${yq_version}/${yq_binary_name}"
 
