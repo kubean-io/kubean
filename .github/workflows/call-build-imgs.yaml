@@ -28,6 +28,8 @@ jobs:
         run: |
           spray_version=$(yq ".kubespray_version" version.yml)
           kube_version=$(yq ".kubernetes_version" version.yml)
+          # Temporary hard-coded version to v1.35.2 to handle CVE-2025-68121
+          kube_version="v1.35.2"
           echo spray_version=${spray_version} >> $GITHUB_OUTPUT
           echo kube_version=${kube_version} >> $GITHUB_OUTPUT
           echo spray_short_sha=$(echo ${spray_version} | cut -c 1-7) >> $GITHUB_OUTPUT
