@@ -10,7 +10,7 @@ on:
         required: true
         type: string
       KUBE_VERSION:
-        required: true
+        required: false
         type: string
   workflow_dispatch:
     inputs:
