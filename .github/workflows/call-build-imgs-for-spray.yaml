@@ -95,7 +95,7 @@ jobs:
 
       - name: kubespray base image build
         if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/build-push-action@v6.19.2
+        uses: docker/build-push-action@v7.0.0
         with:
           context: ./
           file: build/images/kubespray/Dockerfile
@@ -114,7 +114,7 @@ jobs:
 
       - name: kubespray base image (Ansible 9) build
         if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/build-push-action@v6.19.2
+        uses: docker/build-push-action@v7.0.0
         with:
           context: ./
           file: build/images/kubespray/Dockerfile
