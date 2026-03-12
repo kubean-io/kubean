@@ -28,8 +28,8 @@ RUN \
   && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml; \
   fi
 
-RUN /usr/bin/python3 -m pip install --no-cache-dir --break-system-packages pip -U \
-  && python3 -m pip install --no-cache-dir --break-system-packages -r requirements.txt
+RUN python3 -m pip install --no-cache-dir --disable-pip-version-check --break-system-packages -U pip \
+  && python3 -m pip install --no-cache-dir --disable-pip-version-check --break-system-packages -r requirements.txt
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
   && if [ -z "$KUBE_VERSION" ]; then \
@@ -65,7 +65,7 @@ RUN pip3 cache purge \
   && bash -c "rm -rf /kubespray/{.git,docs}"
 
 COPY build/images/ansible_patchs/* /tmp/
-RUN ANSIBLE_CORE_VERSION=$( pip show -V ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
+RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
   && echo "ANSIBLE_CORE_VERSION: ${ANSIBLE_CORE_VERSION}" \
   && SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
   && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
