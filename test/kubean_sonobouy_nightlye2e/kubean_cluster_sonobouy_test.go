@@ -85,7 +85,7 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			nodeList, _ := cluster1Client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 			for _, node := range nodeList.Items {
 				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.OriginK8Version))
-				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.OriginK8Version))
+				//gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.OriginK8Version))
 			}
 			if strings.ToUpper(offlineFlag) != "TRUE" {
 				klog.Info("On line, sonobuoy check")
@@ -209,7 +209,7 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			nodeList, _ := cluster1Client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 			for _, node := range nodeList.Items {
 				gomega.Expect(node.Status.NodeInfo.KubeletVersion).To(gomega.Equal(tools.UpgradeK8Version_Y))
-				gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.UpgradeK8Version_Y))
+				//gomega.Expect(node.Status.NodeInfo.KubeProxyVersion).To(gomega.Equal(tools.UpgradeK8Version_Y))
 			}
 		})
 

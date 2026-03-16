@@ -128,6 +128,7 @@ sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_
 
 ##set kubean operator replicas to 3
 kubectl scale deployment kubean -n  ${new_kubean_namespace} --replicas=3 --kubeconfig="${KUBECONFIG_FILE}"
+kubectl rollout status deployment kubean -n ${new_kubean_namespace}  --timeout=30s  --kubeconfig="${KUBECONFIG_FILE}"
 
 ginkgo -v -race -timeout=3h  --fail-fast ./test/kubean_cilium_cluster_e2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \
