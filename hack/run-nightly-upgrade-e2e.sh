@@ -70,7 +70,7 @@ func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME3="cluster1-upgrade-z"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s/1.33.8/1.34.0/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/1.33.8/1.34.4/"  "${dest_config_path}"/vars-conf-cm.yml
 
 ginkgo -v -race -timeout=6h --fail-fast ./test/kubean_sonobouy_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
           --clusterOperationName="${CLUSTER_OPERATION_NAME1}"  --vmipaddr="${vm_ip_addr1}" --vmipaddr2="${vm_ip_addr2}" \

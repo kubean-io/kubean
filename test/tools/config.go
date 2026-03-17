@@ -34,7 +34,7 @@ const (
 const (
 	OriginK8Version             = "v1.33.0"
 	UpgradeK8Version_Y          = "v1.33.8"
-	UpgradeK8Version_Z          = "v1.34.0"
+	UpgradeK8Version_Z          = "v1.34.4"
 	NginxAlpha                  = "release-ci.daocloud.io/kubean/nginx:alpine"
 	E2eInstallClusterYamlFolder = "e2e-install-cluster"
 )
