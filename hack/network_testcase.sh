@@ -88,6 +88,7 @@ function kubean_cilium_cluster_e2e() {
     yq -i '.kube_service_addresses = "10.88.0.0/16"'  $groupVarYml
     yq -i '.kube_pods_subnet = "192.88.128.0/20"'  $groupVarYml
     yq -i '.kube_network_node_prefix = 24'  $groupVarYml
+    yq -i '.cilium_identity_allocation_mode = "crd"'  $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
     prepare_sonobuoy
