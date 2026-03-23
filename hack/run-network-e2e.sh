@@ -121,6 +121,7 @@ sed -i "s/kube_network_plugin: calico/kube_network_plugin: cilium/" "${dest_conf
 ##set  kube_service_addresses: 10.88.0.0/16    kube_pods_subnet: 192.88.128.0/20
 sed -i "s/10.96.0.0\/12/10.88.0.0\/16/" "${dest_config_path}"/vars-conf-cm.yml
 sed -i "s/192.168.128.0/192.88.128.0/" "${dest_config_path}"/vars-conf-cm.yml
+sed -i "$ a\    cilium_identity_allocation_mode: crd" "${dest_config_path}"/vars-conf-cm.yml
 ##Switch the namespace of configmap to new_kubean_namespace
 sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_config_path}"/hosts-conf-cm.yml
 sed -i "s/namespace: kubean-system/namespace: ${new_kubean_namespace}/" "${dest_config_path}"/vars-conf-cm.yml
