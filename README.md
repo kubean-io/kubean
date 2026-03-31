@@ -42,6 +42,10 @@ Kubean is a <a href="https://cncf.io/">Cloud Native Computing Foundation sandbox
 
 We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://killercoda.com), which is an online platform for interactive technique learning. You can try it in there.
 
+### Guided install with KubeStellar Console
+
+[KubeStellar Console](https://console.kubestellar.io) offers a [guided installation mission for Kubean](https://console.kubestellar.io/missions/install-kubean) with step-by-step instructions, pre-flight checks, validation, troubleshooting tips, and rollback support.
+
 ### Local install
 
 1. Ensure that you have a Kubernetes cluster running, on which Helm is installed
