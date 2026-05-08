@@ -51,7 +51,7 @@ func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 
 # set vars-conf-cm.yml
-sed -i "s/1.33.8/1.33.0/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/1.34.7/1.34.0/"  "${dest_config_path}"/vars-conf-cm.yml
 
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path}"/kubeanClusterOps.yml
 
@@ -62,7 +62,7 @@ func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME2="cluster1-upgrade-y"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME2}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s/1.33.8/1.33.8/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/1.34.7/1.34.7/"  "${dest_config_path}"/vars-conf-cm.yml
 
 ## prepare cluster upgrade job yml --> upgrade from v1.31.9 to v1.32.1
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-z/
@@ -70,7 +70,7 @@ func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
 CLUSTER_OPERATION_NAME3="cluster1-upgrade-z"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s/1.33.8/1.34.4/"  "${dest_config_path}"/vars-conf-cm.yml
+sed -i "s/1.34.7/1.35.0/"  "${dest_config_path}"/vars-conf-cm.yml
 yq -i eval '.data."group_vars.yml" = (.data."group_vars.yml" + "\nkubeadm_ignore_preflight_errors:\n  - CreateJob")' "${dest_config_path}"/vars-conf-cm.yml
 
 ginkgo -v -race -timeout=6h --fail-fast ./test/kubean_sonobouy_nightlye2e/  -- --kubeconfig="${KUBECONFIG_FILE}" \
