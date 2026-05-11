@@ -322,7 +322,7 @@ main() {
         echo "🥦🥦🥦run testcase: "$case
         case $case in
             "kubean_ipvs_cluster_e2e")
-            export OS_NAME="ROCKY8"
+            export OS_NAME="UBUNTU2204"
             prepare_case_vars
             kubean_ipvs_cluster_e2e
             ;;
@@ -337,7 +337,7 @@ main() {
             kubean_calico_dualstack_e2e
             ;;
             "kubean_calico_single_stack_e2e")
-            export OS_NAME="ROCKY8"
+            export OS_NAME="UBUNTU2204"
             prepare_case_vars
             kubean_calico_single_stack_e2e
             ;;
