@@ -47,10 +47,10 @@ Airgap:
 ### online vms config
 ONLINE:
   debug:
-    ROCKY8:
-      - name: gwt-kubean-e2e-node71
+    UBUNTU2204:
+      - name: kubean-ubuntu2204-4-172-30-41-71
         ip: 172.30.41.71
-      - name: gwt-kubean-e2e-node72
+      - name: kubean-ubuntu2204-4-172-30-41-72
         ip: 172.30.41.72
     REDHAT8:
       - name: gwt-kubean-e2e-redhat8-node73

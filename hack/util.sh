@@ -376,11 +376,11 @@ function util::vm_name_ip_init_online_by_os(){
     fi
   if [ "${RUNNER_NAME}" == "kubean-e2e-runner1" ]; then
       case ${OS_NAME} in
-          "ROCKY8")
+          "UBUNTU2204")
               vm_ip_addr1="172.30.41.71"
               vm_ip_addr2="172.30.41.72"
-              vm_name1="gwt-kubean-e2e-node71"
-              vm_name2="gwt-kubean-e2e-node72"
+              vm_name1="kubean-ubuntu2204-4-172-30-41-71"
+              vm_name2="kubean-ubuntu2204-4-172-30-41-72"
               ;;
           "ROCKY8-3MASTER")
               vm_ip_addr3="172.30.41.78" 
@@ -415,11 +415,11 @@ function util::vm_name_ip_init_online_by_os(){
   fi
   if [ "${RUNNER_NAME}" == "kubean-online-ubuntu-runner1" ]; then
       case ${OS_NAME} in
-          "ROCKY8")
+          "UBUNTU2204")
               vm_ip_addr1="172.30.41.71"
               vm_ip_addr2="172.30.41.72"
-              vm_name1="gwt-kubean-e2e-node71"
-              vm_name2="gwt-kubean-e2e-node72"
+              vm_name1="kubean-ubuntu2204-4-172-30-41-71"
+              vm_name2="kubean-ubuntu2204-4-172-30-41-72"
               ;;
           "ROCKY8-3MASTER")
               vm_ip_addr3="172.30.41.78"

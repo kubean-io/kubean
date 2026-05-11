@@ -73,7 +73,7 @@ function func_prepare_config_yaml_single_stack() {
 function network-e2e-step1() {
 ####################### create ipvs cluster ################
 echo "create ipvs cluster....."
-export OS_NAME="ROCKY8"
+export OS_NAME="UBUNTU2204"
 echo "OS_NAME: ${OS_NAME}"
 
 util::power_on_2vms ${OS_NAME}
@@ -262,7 +262,7 @@ util::restore_vsphere_vm_snapshot ${VSPHERE_HOST} ${VSPHERE_PASSWD} ${VSPHERE_US
 
 function network-e2e-step6(){
 ############## calico single stuck ##############
-export OS_NAME="ROCKY8"
+export OS_NAME="UBUNTU2204"
 ### CALICO: IPIP_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
 prepare_sonobuoy
@@ -285,7 +285,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 
 function network-e2e-step7(){
 ############## calico single stuck ##############
-export OS_NAME="ROCKY8"
+export OS_NAME="UBUNTU2204"
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: IPIP_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
@@ -308,7 +308,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 
 function network-e2e-step8(){
 ############## calico single stuck ##############
-export OS_NAME="ROCKY8"
+export OS_NAME="UBUNTU2204"
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: VXLAN_ALWAYS ###
 util::power_on_2vms ${OS_NAME}
@@ -330,7 +330,7 @@ ginkgo -v -race --fail-fast ./test/kubean_calico_single_stack_e2e/  -- --kubecon
 
 function network-e2e-step9(){
 ############## calico single stuck ##############
-export OS_NAME="ROCKY8"
+export OS_NAME="UBUNTU2204"
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_single_stack_e2e/e2e-install-calico-cluster
 ### CALICO: VXLAN_CrossSubnet ###
 util::power_on_2vms ${OS_NAME}
