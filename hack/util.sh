@@ -382,9 +382,9 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="kubean-ubuntu2204-4-172-30-41-71"
               vm_name2="kubean-ubuntu2204-4-172-30-41-72"
               ;;
-          "ROCKY8-3MASTER")
-              vm_ip_addr3="172.30.41.78" 
-              vm_name3="gwt-kubean-e2e-hk-node78"
+           "ROCKY8-3MASTER")
+              vm_ip_addr3="172.30.41.81"
+              vm_name3="kubean-ubuntu2204-4-172-30-41-81"
               vipadd="172.30.41.128"
               ;;
           "KYLINV10")
@@ -422,8 +422,8 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name2="kubean-ubuntu2204-4-172-30-41-72"
               ;;
           "ROCKY8-3MASTER")
-              vm_ip_addr3="172.30.41.78"
-              vm_name3="gwt-kubean-e2e-hk-node78"
+              vm_ip_addr3="172.30.41.81"
+              vm_name3="kubean-ubuntu2204-4-172-30-41-81"
               vipadd="172.30.41.128"
               ;;
           "KYLINV10")
@@ -686,3 +686,4 @@ function util::check_yq_intalled(){
              sudo mv yq_linux_amd64 /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
      fi
  }
+
