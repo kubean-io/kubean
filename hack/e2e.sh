@@ -7,7 +7,13 @@ set -o nounset
 set -o pipefail
 set -e
 
-# This script schedules e2e tests
+# Diagnostic: log runner environment info
+echo "=== KUBEAN E2E RUNNER DIAGNOSTIC ==="
+date
+echo "runner: $(hostname)"
+echo "user: $(whoami)"
+echo "=== END DIAGNOSTIC ==="
+
 # Parameters:
 #[TARGET_VERSION] apps ta ge images/helm-chart revision( image and helm versions should be the same)
 #[IMG_REGISTRY](optional) the image repository to be pulled from
