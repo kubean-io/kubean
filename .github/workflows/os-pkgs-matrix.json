@@ -1,19 +1,74 @@
 [
-  { "name": "centos7", "dockerfile":"build/os-packages/Dockerfile.centos7"},
-  { "name": "redhat7", "dockerfile":"build/os-packages/Dockerfile.redhat7"},
-  { "name": "redhat8", "dockerfile":"build/os-packages/Dockerfile.redhat8"},
-  { "name": "redhat9", "dockerfile":"build/os-packages/Dockerfile.redhat9"},
-  { "name": "rocky8", "dockerfile":"build/os-packages/Dockerfile.rocky8"},
-  { "name": "rocky9", "dockerfile":"build/os-packages/Dockerfile.rocky9"},
-  { "name": "kylin-v10sp2", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp2"},
-  { "name": "kylin-v10sp3", "dockerfile":"build/os-packages/Dockerfile.kylin-v10sp3"},
-  { "name": "kylin-v112503", "dockerfile":"build/os-packages/Dockerfile.kylin-v112503"},
-  { "name": "openeuler22.03", "dockerfile":"build/os-packages/Dockerfile.openeuler22.03"},
-  { "name": "oracle8", "dockerfile":"build/os-packages/Dockerfile.oracle8"},
-  { "name": "oracle9", "dockerfile":"build/os-packages/Dockerfile.oracle9"},
-  { "name": "tencent31", "dockerfile":"build/os-packages/Dockerfile.tencent31"},
-  { "name": "ubuntu2004", "dockerfile":"build/os-packages/Dockerfile.ubuntu2004"},
-  { "name": "ubuntu2204", "dockerfile":"build/os-packages/Dockerfile.ubuntu2204"},
-  { "name": "ubuntu2404", "dockerfile":"build/os-packages/Dockerfile.ubuntu2404"},
-  { "name": "bigcloud2110", "dockerfile":"build/os-packages/Dockerfile.bigcloud2110"}
+  {
+    "name": "centos7",
+    "dockerfile": "build/os-packages/Dockerfile.centos7"
+  },
+  {
+    "name": "redhat7",
+    "dockerfile": "build/os-packages/Dockerfile.redhat7"
+  },
+  {
+    "name": "redhat8",
+    "dockerfile": "build/os-packages/Dockerfile.redhat8"
+  },
+  {
+    "name": "redhat9",
+    "dockerfile": "build/os-packages/Dockerfile.redhat9"
+  },
+  {
+    "name": "redhat10",
+    "dockerfile": "build/os-packages/Dockerfile.redhat10"
+  },
+  {
+    "name": "rocky8",
+    "dockerfile": "build/os-packages/Dockerfile.rocky8"
+  },
+  {
+    "name": "rocky9",
+    "dockerfile": "build/os-packages/Dockerfile.rocky9"
+  },
+  {
+    "name": "kylin-v10sp2",
+    "dockerfile": "build/os-packages/Dockerfile.kylin-v10sp2"
+  },
+  {
+    "name": "kylin-v10sp3",
+    "dockerfile": "build/os-packages/Dockerfile.kylin-v10sp3"
+  },
+  {
+    "name": "kylin-v112503",
+    "dockerfile": "build/os-packages/Dockerfile.kylin-v112503"
+  },
+  {
+    "name": "openeuler22.03",
+    "dockerfile": "build/os-packages/Dockerfile.openeuler22.03"
+  },
+  {
+    "name": "oracle8",
+    "dockerfile": "build/os-packages/Dockerfile.oracle8"
+  },
+  {
+    "name": "oracle9",
+    "dockerfile": "build/os-packages/Dockerfile.oracle9"
+  },
+  {
+    "name": "tencent31",
+    "dockerfile": "build/os-packages/Dockerfile.tencent31"
+  },
+  {
+    "name": "ubuntu2004",
+    "dockerfile": "build/os-packages/Dockerfile.ubuntu2004"
+  },
+  {
+    "name": "ubuntu2204",
+    "dockerfile": "build/os-packages/Dockerfile.ubuntu2204"
+  },
+  {
+    "name": "ubuntu2404",
+    "dockerfile": "build/os-packages/Dockerfile.ubuntu2404"
+  },
+  {
+    "name": "bigcloud2110",
+    "dockerfile": "build/os-packages/Dockerfile.bigcloud2110"
+  }
 ]
