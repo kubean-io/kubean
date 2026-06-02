@@ -54,7 +54,7 @@ jobs:
         mv sha256sum-offline-${{ github.ref_name }}.txt sha256sum.txt
     - name: upload sha256sum file
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
