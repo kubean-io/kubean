@@ -120,7 +120,7 @@ jobs:
     if: github.event.schedule == '0 0 1 1 *'
     steps:
       - name: Install yq tool
-        uses: mikefarah/yq@v4.52.4
+        uses: mikefarah/yq@v4.53.3
       - name: Set env for this job
         run: |
           OS_TYPE="ROCKY8"
