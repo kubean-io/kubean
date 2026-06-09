@@ -405,11 +405,11 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-redhat7-node75"
               vm_name2="gwt-kubean-e2e-redhat7-node76"
               ;;
-          "ROCKY8-HK")
+          "ROCKY9-HK")
               vm_ip_addr1="172.30.41.77"
               vm_ip_addr2="172.30.41.78"
-              vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node78"
+              vm_name1="kubean-rocky9-172-30-41-77"
+              vm_name2="kubean-rocky9-172-30-41-78"
               ;;
      esac
   fi
@@ -444,11 +444,11 @@ function util::vm_name_ip_init_online_by_os(){
               vm_name1="gwt-kubean-e2e-redhat7-node75"
               vm_name2="gwt-kubean-e2e-redhat7-node76"
               ;;
-          "ROCKY8-HK")
+          "ROCKY9-HK")
               vm_ip_addr1="172.30.41.77"
               vm_ip_addr2="172.30.41.78"
-              vm_name1="gwt-kubean-e2e-hk-node77"
-              vm_name2="gwt-kubean-e2e-hk-node78"
+              vm_name1="kubean-rocky9-172-30-41-77"
+              vm_name2="kubean-rocky9-172-30-41-78"
               ;;
      esac
   fi
@@ -660,7 +660,7 @@ function util::set_config_path(){
 
 function util::debug_runner_vm_match(){
   echo "RUNNER_NAME: ${RUNNER_NAME}"
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
   echo "OS_NAME: ${OS_NAME}"
   util::power_on_2vms ${OS_NAME}
 
