@@ -327,12 +327,12 @@ main() {
             kubean_ipvs_cluster_e2e
             ;;
             "kubean_cilium_cluster_e2e")
-            export OS_NAME="ROCKY8-HK"
+            export OS_NAME="ROCKY9-HK"
             prepare_case_vars
             kubean_cilium_cluster_e2e
             ;;
             "kubean_calico_dualstack_e2e")
-            export OS_NAME="ROCKY8-HK"
+            export OS_NAME="ROCKY9-HK"
             prepare_case_vars
             kubean_calico_dualstack_e2e
             ;;

@@ -62,10 +62,10 @@ ONLINE:
         ip: 172.30.41.75
       - name: gwt-kubean-e2e-redhat7-node76
         ip: 172.30.41.76
-    ROCKY8-HK:
-      - name: gwt-kubean-e2e-hk-node77
+    ROCKY9-HK:
+      - name: kubean-rocky9-172-30-41-77
         ip: 172.30.41.77
-      - name: gwt-kubean-e2e-hk-node78
+      - name: kubean-rocky9-172-30-41-78
         ip: 172.30.41.78
   kubean-e2e-runner1:
     ROCKY8:

@@ -96,7 +96,7 @@ ginkgo -v -race -timeout=3h  --fail-fast ./${go_test_path}  -- --kubeconfig="${K
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="UBUNTU2204"
 else
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
 fi
 echo "create cilium cluster....."
 echo "OS_NAME: ${OS_NAME}"
@@ -148,7 +148,7 @@ function network-e2e-step2(){
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="UBUNTU2204"
 else
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
 fi
 
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
@@ -178,7 +178,7 @@ function network-e2e-step3(){
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="UBUNTU2204"
 else
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
 fi
 
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
@@ -205,7 +205,7 @@ function network-e2e-step4(){
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="UBUNTU2204"
 else
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
 fi
 
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
@@ -234,7 +234,7 @@ function network-e2e-step5(){
 if [[ "${OFFLINE_FLAG}" == "true" ]]; then
   export OS_NAME="UBUNTU2204"
 else
-  export OS_NAME="ROCKY8-HK"
+  export OS_NAME="ROCKY9-HK"
 fi
 
 dest_config_path="${REPO_ROOT}"/test/kubean_calico_dualstack_e2e/e2e-install-calico-dual-stack-cluster
