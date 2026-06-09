@@ -55,7 +55,7 @@ jobs:
       #          go-version: 1.25.0
 
       - name: e2e_schedule_sonobuoy
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         env:
           NIGHTLY_E2E_STEP: ${{ matrix.NIGHTLY_E2E_STEP }}
         with:
