@@ -63,6 +63,7 @@ CLUSTER_OPERATION_NAME2="cluster1-upgrade-y"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME2}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/1.35.5/1.35.0/"  "${dest_config_path}"/vars-conf-cm.yml
+yq -i eval '.data."group_vars.yml" = (.data."group_vars.yml" + "\nkubeadm_ignore_preflight_errors:\n  - CreateJob")' "${dest_config_path}"/vars-conf-cm.yml
 
 ## prepare cluster upgrade job yml --> upgrade from v1.35.0 to v1.35.5
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-z/
