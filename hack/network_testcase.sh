@@ -174,6 +174,7 @@ function kubean_calico_dualstack_e2e() {
     yq -i '.calico_vxlan_mode = "Never"' $groupVarYml
     yq -i '.calico_ipip_mode_ipv6 = "Never"'  $groupVarYml
     yq -i '.calico_network_backend = "bird"'  $groupVarYml
+    yq -i '.calico_ipv4pool_ipip = "Always"'  $groupVarYml
     yq -i '.calico_vxlan_mode_ipv6 = "CrossSubnet"'  $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
@@ -200,6 +201,7 @@ function kubean_calico_dualstack_e2e() {
     yq -i '.calico_vxlan_mode = "Never"' $groupVarYml
     yq -i '.calico_ipip_mode_ipv6 = "Never"'  $groupVarYml
     yq -i '.calico_network_backend = "bird"'  $groupVarYml
+    yq -i '.calico_ipv4pool_ipip = "CrossSubnet"'  $groupVarYml
     yq -i '.calico_vxlan_mode_ipv6 = "CrossSubnet"'  $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
@@ -230,6 +232,7 @@ function kubean_calico_single_stack_e2e() {
     yq -i '.calico_ipip_mode = "Always"' $groupVarYml
     yq -i '.calico_vxlan_mode = "Never"' $groupVarYml
     yq -i '.calico_network_backend = "bird"' $groupVarYml
+    yq -i '.calico_ipv4pool_ipip = "Always"' $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
     prepare_sonobuoy
@@ -255,6 +258,7 @@ function kubean_calico_single_stack_e2e() {
     yq -i '.calico_ipip_mode = "CrossSubnet"' $groupVarYml
     yq -i '.calico_vxlan_mode = "Never"' $groupVarYml
     yq -i '.calico_network_backend = "bird"' $groupVarYml
+    yq -i '.calico_ipv4pool_ipip = "CrossSubnet"' $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
     prepare_sonobuoy
