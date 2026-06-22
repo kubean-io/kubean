@@ -81,7 +81,7 @@ if [ "${E2E_TYPE}" == "KUBEAN-COMPATIBILITY" ]; then
         ./hack/local-up-kindcluster.sh "${TARGET_VERSION}" "${IMAGE_VERSION}" "${HELM_REPO}" "${IMG_REGISTRY}" "${KIND_VERSION}" "${CLUSTER_PREFIX}"-host
         ./hack/kubean_compatibility_e2e.sh
     done
-    k8s_list=( "v1.29.0" "v1.30.0" "v1.31.0" "v1.32.0" "v1.33.0" "v1.34.0" "v1.35.0")
+    k8s_list=( "v1.29.0" "v1.30.0" "v1.31.0" "v1.32.0" "v1.33.0" "v1.34.0" "v1.35.0" "v1.36.1")
     echo ${#k8s_list[@]}
     for k8s in "${k8s_list[@]}"; do
         echo "***************k8s version is: ${k8s} ***************"
