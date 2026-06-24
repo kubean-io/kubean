@@ -3,7 +3,6 @@ package kubeanOps_functions_nightlye2e
 import (
 	"context"
 	"fmt"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -29,9 +28,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		// step1 create the first ops
 		clusterOpsName := "e2e-cluster1-ops-1st"
 		tools.UpdateOpsYml(clusterOpsName, opsFile)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", clusterInstallYamlsPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
+		fmt.Println(tools.ApplyClusterYamlsInOrder(clusterInstallYamlsPath))
 		for {
 			clusterOps, _ := clusterOperationClientSet.KubeanV1alpha1().ClusterOperations().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			status := string(clusterOps.Status.Status)
@@ -49,9 +46,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		// step2 create the second ops
 		clusterOpsNameSecond := "e2e-cluster1-ops-second"
 		tools.UpdateOpsYml(clusterOpsNameSecond, opsFile)
-		cmd = exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", clusterInstallYamlsPath)
-		out, _ = tools.DoCmd(*cmd)
-		fmt.Println(out.String())
+		fmt.Println(tools.ApplyClusterYamlsInOrder(clusterInstallYamlsPath))
 		for {
 			clusterOpsSecond, _ := clusterOperationClientSet.KubeanV1alpha1().ClusterOperations().Get(context.Background(), clusterOpsNameSecond, metav1.GetOptions{})
 			statusSecond := string(clusterOpsSecond.Status.Status)
@@ -78,9 +73,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		for num := 1; num <= 5; num++ {
 			clusterOpsName := fmt.Sprintf("e2e-cluster1-ops-copies%d", num)
 			tools.UpdateOpsYml(clusterOpsName, opsFile)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", clusterInstallYamlsPath)
-			out, _ := tools.DoCmd(*cmd)
-			fmt.Println(out.String())
+			fmt.Println(tools.ApplyClusterYamlsInOrder(clusterInstallYamlsPath))
 			time.Sleep(10 * time.Second)
 		}
 		// step2 check cluster1 should exists 5 ops
@@ -93,9 +86,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 		time.Sleep(2 * time.Second)
 		clusterOpsName1 := "e2e-cluster1-ops-copies6"
 		tools.UpdateOpsYml(clusterOpsName1, opsFile)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", clusterInstallYamlsPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
+		fmt.Println(tools.ApplyClusterYamlsInOrder(clusterInstallYamlsPath))
 		// step4 check the oldest ops is removed
 		for {
 			_, err := clusterOperationClientSet.KubeanV1alpha1().ClusterOperations().Get(context.Background(), "e2e-cluster1-ops-copies1", metav1.GetOptions{})
@@ -122,9 +113,7 @@ var _ = ginkgo.Describe("kubean ops e2e test", func() {
 	opsFile = filepath.Join(basepath, "/e2e-install-cluster/kubeanClusterOps.yml")
 	tools.UpdateOpsYml(clusterOpsName, opsFile)
 	ginkgo.Context("precondition: when test HasModified, one kubean job should be in running status", func() {
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", clusterInstallYamlsPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println(out.String())
+		fmt.Println(tools.ApplyClusterYamlsInOrder(clusterInstallYamlsPath))
 		for {
 			clusterOps, _ := clusterOperationClientSet.KubeanV1alpha1().ClusterOperations().Get(context.Background(), clusterOpsName, metav1.GetOptions{})
 			status := string(clusterOps.Status.Status)

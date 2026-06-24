@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -342,9 +343,8 @@ func OperateClusterByYaml(clusterInstallYamlsPath, operatorName string, kindConf
 	installYamlPath := fmt.Sprint(GetKuBeanPath(), clusterInstallYamlsPath)
 	kindClient, err := kubernetes.NewForConfig(kindConfig)
 	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
-	cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", installYamlPath)
-	out, _ := DoCmd(*cmd)
-	klog.Info("create cluster result:", out.String())
+	out := ApplyClusterYamlsInOrder(installYamlPath)
+	klog.Info("create cluster result:", out)
 	time.Sleep(10 * time.Second)
 	kubeanNsName := KubeanNamespace
 	if len(args) > 0 {
@@ -368,4 +368,70 @@ func OperateClusterByYaml(clusterInstallYamlsPath, operatorName string, kindConf
 	jobPodName := pods.Items[0].Name
 	WaitKubeanJobPodToSuccess(kindClient, kubeanNsName, jobPodName, PodStatusSucceeded)
 
+}
+
+// ApplyClusterYamlsInOrder applies YAML files from the given directory ensuring all
+// non-ClusterOperation resources (Cluster, HostsConfCM, VarsConfCM, etc.) are applied
+// before any ClusterOperation. This prevents the kubean operator from copying a stale
+// VarsConfCM.
+//
+// Background: kubectl apply -f <dir> processes files alphabetically, so
+// ClusterOperation may be applied before VarsConfCM. The kubean operator reconciles
+// ClusterOperation immediately upon creation and copies VarsConfCM at that moment —
+// before VarsConfCM has been updated with test-specific configuration. Applying base
+// resources first ensures the operator always copies the fully-updated VarsConfCM.
+func ApplyClusterYamlsInOrder(installYamlPath string) string {
+	entries, err := os.ReadDir(installYamlPath)
+	gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(),
+		"failed to read yaml directory: "+installYamlPath)
+
+	var baseFiles, clusterOpFiles []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasSuffix(name, ".yml") && !strings.HasSuffix(name, ".yaml") {
+			continue
+		}
+		fullPath := filepath.Join(installYamlPath, name)
+		if isClusterOperationYaml(fullPath) {
+			clusterOpFiles = append(clusterOpFiles, fullPath)
+		} else {
+			baseFiles = append(baseFiles, fullPath)
+		}
+	}
+
+	var output strings.Builder
+
+	// Step 1: apply Cluster, HostsConfCM, VarsConfCM and any other base resources first.
+	if len(baseFiles) > 0 {
+		args := []string{"--kubeconfig=" + Kubeconfig, "apply"}
+		for _, f := range baseFiles {
+			args = append(args, "-f", f)
+		}
+		cmd := exec.Command("kubectl", args...)
+		out, _ := DoCmd(*cmd)
+		output.WriteString(out.String())
+	}
+
+	// Step 2: apply ClusterOperation last so the operator copies the already-updated VarsConfCM.
+	for _, f := range clusterOpFiles {
+		cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "apply", "-f", f)
+		out, _ := DoCmd(*cmd)
+		output.WriteString(out.String())
+	}
+
+	return output.String()
+}
+
+// isClusterOperationYaml returns true if the file contains a ClusterOperation resource.
+// Detection is based on file content rather than filename because the filename varies
+// (e.g. "ClusterOperation.yml", "kubeanClusterOps.yml").
+func isClusterOperationYaml(filePath string) bool {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return false
+	}
+	return strings.Contains(string(data), "kind: ClusterOperation")
 }

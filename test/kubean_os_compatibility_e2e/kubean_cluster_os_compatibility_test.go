@@ -52,9 +52,8 @@ var _ = ginkgo.Describe("e2e test compatibility 1 master + 1 worker", func() {
 
 			//Create cluster by apply yaml
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 
 			// wait kubean create-cluster pod to success.

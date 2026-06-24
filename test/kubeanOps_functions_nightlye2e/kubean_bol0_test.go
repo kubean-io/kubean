@@ -3,7 +3,6 @@ package kubeanOps_functions_nightlye2e
 import (
 	"context"
 	"fmt"
-	"os/exec"
 	"time"
 
 	"github.com/kubean-io/kubean/test/tools"
@@ -23,9 +22,8 @@ var _ = ginkgo.Describe("kubean ops e2e test backofflimit=0", func() {
 		kubeanClusterOpsName := "backofflimit0-clusterops-test"
 		clusterInstallYamlsPath := "backofflimit-clusterops"
 		installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-		cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-		out, _ := tools.DoCmd(*cmd)
-		fmt.Println("backofflimit=0 kubeanclusterops: ", out.String())
+		out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+		fmt.Println("backofflimit=0 kubeanclusterops: ", out)
 		time.Sleep(100 * time.Second)
 		kubeClient, err := kubernetes.NewForConfig(config)
 		gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
