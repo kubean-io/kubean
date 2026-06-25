@@ -96,7 +96,7 @@ jobs:
             echo ">>>> no existing tag matched: ${commit_short_sha}, will rebuild"
           fi
 
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
         if: ${{ steps.check.outputs.need_rebuild == 'true' }}
         with:
           fetch-depth: 0
