@@ -5,7 +5,6 @@ import (
 	"fmt"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/klog/v2"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -51,9 +50,8 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 
 			// Check if the job and related pods have been created
@@ -178,9 +176,8 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 			pods := &corev1.PodList{}
 			klog.Info("Wait job related pod to be created")
@@ -227,9 +224,8 @@ var _ = ginkgo.Describe("e2e test cluster 1 master + 1 worker sonobouy check", f
 			cluster1Client, err := kubernetes.NewForConfig(cluster1Config)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed new cluster1Client")
 
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 			pods := &corev1.PodList{}
 			klog.Info("Wait job related pod to be created")

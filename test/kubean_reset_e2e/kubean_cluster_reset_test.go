@@ -1,7 +1,6 @@
 package kubean_reset_e2e
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"k8s.io/klog/v2"
@@ -33,10 +32,8 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 
 			// Start reset cluster job
 			resetYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterResetYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", resetYamlPath)
-			ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd.String())
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("reset cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(resetYamlPath)
+			klog.Info("reset cluster result:", out)
 			time.Sleep(10 * time.Second)
 
 			// Fetch the job-related pod
@@ -110,23 +107,15 @@ var _ = ginkgo.Describe("e2e test cluster reset operation", func() {
 			cmd := tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostnamectl", "set-hostname", "hello-kubean"})
 			_, _ = tools.NewDoCmd("sshpass", cmd...)
 			// check hostname after deploy: hostname should be hello-kubean
-			var out, stderr bytes.Buffer
 			cmd = tools.RemoteSSHCmdArrayByPasswd(password, []string{masterSSH, "hostname"})
-			out, _ = tools.NewDoCmd("sshpass", cmd...)
+			out, _ := tools.NewDoCmd("sshpass", cmd...)
 			fmt.Println("Fetched node hostname is: ", out.String())
 			gomega.Expect(out.String()).Should(gomega.ContainSubstring("hello-kubean"))
 
 			//Create yaml for kuBean CR and related configuration
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd1 := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			ginkgo.GinkgoWriter.Printf("cmd: %s\n", cmd1.String())
-
-			cmd1.Stdout = &out
-			cmd1.Stderr = &stderr
-			if err := cmd1.Run(); err != nil {
-				ginkgo.GinkgoWriter.Printf("apply cmd error: %s\n", err.Error())
-				gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), stderr.String())
-			}
+			applyOut := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", applyOut)
 
 			// Fetch the job-related pod
 			time.Sleep(10 * time.Second)

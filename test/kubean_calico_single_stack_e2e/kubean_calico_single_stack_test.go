@@ -11,7 +11,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
-	"os/exec"
 	"strings"
 	"time"
 )
@@ -54,9 +53,8 @@ var _ = ginkgo.Describe("Calico single stack tunnel: IPIP_ALWAYS", func() {
 			kindClient, err := kubernetes.NewForConfig(kindConfig)
 			gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "failed new client set")
 
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 
 			// Check if the job and related pods have been created

@@ -51,9 +51,8 @@ var _ = ginkgo.Describe("e2e test cluster operation", func() {
 			// Create yaml for kuBean CR and related configuration
 			klog.Info("kubeanClusterOpsName is :", kubeanClusterOpsName)
 			installYamlPath := fmt.Sprint(tools.GetKuBeanPath(), clusterInstallYamlsPath)
-			cmd := exec.Command("kubectl", "--kubeconfig="+tools.Kubeconfig, "apply", "-f", installYamlPath)
-			out, _ := tools.DoCmd(*cmd)
-			klog.Info("create cluster result:", out.String())
+			out := tools.ApplyClusterYamlsInOrder(installYamlPath)
+			klog.Info("create cluster result:", out)
 			time.Sleep(10 * time.Second)
 
 			// Check if the job and related pods have been created
