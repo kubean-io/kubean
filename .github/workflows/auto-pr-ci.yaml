@@ -90,6 +90,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ needs.get_ref.outputs.ref }}
+          allow-unsafe-pr-checkout: true
 
       - uses: actions/setup-go@v6
         with:
