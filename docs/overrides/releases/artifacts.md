@@ -331,6 +331,34 @@
   
 </table>
 
+### ▶️ release-2.31
+> ⚓ kube_version range: [ 1.33.0 ~ 1.35.4 ]
+
+<table>
+  <thead>
+    <tr>
+      <th>Commit Date</th>
+      <th>Artifacts</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+      <tr>
+        <td rowspan=3> 📅 2026-06-05 16:16:06 </td>
+        <td rowspan=1>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.31-1863bfd.yml">manifest-2.31-1863bfd.yml</a></code>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.31-1863bfd</code> </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.31-1863bfd</code> </td>
+      </tr>
+  </tbody>
+  
+</table>
+
 ### ▶️ release-2.24
 > ⚓ kube_version range: [ v1.26.0 ~ v1.29.1 ]
 

@@ -2,16 +2,16 @@
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
 metadata:
-  name: "manifest-2.30-0e46cf4"
+  name: "manifest-2.31-1863bfd"
   labels:
-    kubean.io/sprayRelease: "2.30"
+    kubean.io/sprayRelease: "2.31"
   annotations:
-    kubean.io/sprayTimestamp: "1775545894"
-    kubean.io/sprayRelease: "2.30"
-    kubean.io/sprayCommit: "0e46cf4"
+    kubean.io/sprayTimestamp: "1780676166"
+    kubean.io/sprayRelease: "2.31"
+    kubean.io/sprayCommit: "1863bfd"
     helm.sh/resource-policy: keep
 spec:
-  kubesprayVersion: "0e46cf41086c5887eaf8318dcff7228ffb657f0d"
+  kubesprayVersion: "1863bfd3a77fafa1a8543ef975e5ea4b764972f3"
   kubeanVersion: ""
   docker:
     - os: redhat
@@ -86,17 +86,20 @@ spec:
         - "26.1"
   components:
     - name: cilium
-      defaultVersion: "1.18.6"
+      defaultVersion: "1.19.3"
       versionRange: []
     - name: flannel
-      defaultVersion: "0.27.3"
+      defaultVersion: "0.28.4"
       versionRange: []
     - name: kube_ovn
       defaultVersion: "1.12.21"
       versionRange: []
     - name: runc
-      defaultVersion: "1.3.5"
+      defaultVersion: "1.4.2"
       versionRange:
+        - "1.4.2"
+        - "1.4.1"
+        - "1.4.0"
         - "1.3.5"
         - "1.3.4"
         - "1.3.3"
@@ -122,8 +125,14 @@ spec:
         - "1.1.9"
         - "1.1.8"
     - name: kube
-      defaultVersion: "1.34.6"
+      defaultVersion: "1.35.4"
       versionRange:
+        - "1.35.4"
+        - "1.35.3"
+        - "1.35.2"
+        - "1.35.1"
+        - "1.35.0"
+        - "1.34.7"
         - "1.34.6"
         - "1.34.5"
         - "1.34.4"
@@ -131,6 +140,7 @@ spec:
         - "1.34.2"
         - "1.34.1"
         - "1.34.0"
+        - "1.33.11"
         - "1.33.10"
         - "1.33.9"
         - "1.33.8"
@@ -142,30 +152,23 @@ spec:
         - "1.33.2"
         - "1.33.1"
         - "1.33.0"
-        - "1.32.13"
-        - "1.32.12"
-        - "1.32.11"
-        - "1.32.10"
-        - "1.32.9"
-        - "1.32.8"
-        - "1.32.7"
-        - "1.32.6"
-        - "1.32.5"
-        - "1.32.4"
-        - "1.32.3"
-        - "1.32.2"
-        - "1.32.1"
-        - "1.32.0"
     - name: cni
-      defaultVersion: "1.8.0"
+      defaultVersion: "1.9.1"
       versionRange:
+        - "1.9.1"
         - "1.8.0"
         - "1.7.1"
         - "1.6.2"
         - "1.6.0"
     - name: calico
-      defaultVersion: "3.30.7"
+      defaultVersion: "3.31.5"
       versionRange:
+        - "3.31.5"
+        - "3.31.4"
+        - "3.31.3"
+        - "3.31.2"
+        - "3.31.1"
+        - "3.31.0"
         - "3.30.7"
         - "3.30.6"
         - "3.30.5"
@@ -182,18 +185,14 @@ spec:
         - "3.29.2"
         - "3.29.1"
         - "3.29.0"
-        - "3.28.5"
-        - "3.28.4"
-        - "3.28.3"
-        - "3.28.2"
-        - "3.28.1"
-        - "3.28.0"
     - name: containerd
-      defaultVersion: "2.2.2"
+      defaultVersion: "2.2.3"
       versionRange:
+        - "2.2.3"
         - "2.2.2"
         - "2.2.1"
         - "2.2.0"
+        - "2.1.7"
         - "2.1.6"
         - "2.1.5"
         - "2.1.4"
@@ -201,6 +200,7 @@ spec:
         - "2.1.2"
         - "2.1.1"
         - "2.1.0"
+        - "2.0.8"
         - "2.0.7"
         - "2.0.6"
         - "2.0.5"
@@ -209,6 +209,7 @@ spec:
         - "2.0.2"
         - "2.0.1"
         - "2.0.0"
+        - "1.7.31"
         - "1.7.30"
         - "1.7.29"
         - "1.7.28"
