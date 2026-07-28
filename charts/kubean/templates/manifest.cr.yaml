@@ -2,16 +2,16 @@
 apiVersion: kubean.io/v1alpha1
 kind: Manifest
 metadata:
-  name: "manifest-2.29-3f2daa1"
+  name: "manifest-2.30-0e46cf4"
   labels:
-    kubean.io/sprayRelease: "2.29"
+    kubean.io/sprayRelease: "2.30"
   annotations:
     kubean.io/sprayTimestamp: "1775545894"
-    kubean.io/sprayRelease: "2.29"
-    kubean.io/sprayCommit: "3f2daa1"
+    kubean.io/sprayRelease: "2.30"
+    kubean.io/sprayCommit: "0e46cf4"
     helm.sh/resource-policy: keep
 spec:
-  kubesprayVersion: "3f2daa1dddb3c4a0c8a2a1af065de8e1a1b9a80e"
+  kubesprayVersion: "0e46cf41086c5887eaf8318dcff7228ffb657f0d"
   kubeanVersion: ""
   docker:
     - os: redhat
@@ -86,7 +86,7 @@ spec:
         - "26.1"
   components:
     - name: cilium
-      defaultVersion: "1.18.5"
+      defaultVersion: "1.18.6"
       versionRange: []
     - name: flannel
       defaultVersion: "0.27.3"
@@ -122,8 +122,15 @@ spec:
         - "1.1.9"
         - "1.1.8"
     - name: kube
-      defaultVersion: "1.33.10"
+      defaultVersion: "1.34.6"
       versionRange:
+        - "1.34.6"
+        - "1.34.5"
+        - "1.34.4"
+        - "1.34.3"
+        - "1.34.2"
+        - "1.34.1"
+        - "1.34.0"
         - "1.33.10"
         - "1.33.9"
         - "1.33.8"
@@ -149,21 +156,6 @@ spec:
         - "1.32.2"
         - "1.32.1"
         - "1.32.0"
-        - "1.31.14"
-        - "1.31.13"
-        - "1.31.12"
-        - "1.31.11"
-        - "1.31.10"
-        - "1.31.9"
-        - "1.31.8"
-        - "1.31.7"
-        - "1.31.6"
-        - "1.31.5"
-        - "1.31.4"
-        - "1.31.3"
-        - "1.31.2"
-        - "1.31.1"
-        - "1.31.0"
     - name: cni
       defaultVersion: "1.8.0"
       versionRange:
@@ -171,11 +163,6 @@ spec:
         - "1.7.1"
         - "1.6.2"
         - "1.6.0"
-        - "1.5.1"
-        - "1.5.0"
-        - "1.4.1"
-        - "1.4.0"
-        - "1.3.0"
     - name: calico
       defaultVersion: "3.30.7"
       versionRange:
@@ -202,8 +189,11 @@ spec:
         - "3.28.1"
         - "3.28.0"
     - name: containerd
-      defaultVersion: "2.1.6"
+      defaultVersion: "2.2.2"
       versionRange:
+        - "2.2.2"
+        - "2.2.1"
+        - "2.2.0"
         - "2.1.6"
         - "2.1.5"
         - "2.1.4"
@@ -250,28 +240,3 @@ spec:
         - "1.7.2"
         - "1.7.1"
         - "1.7.0"
-        - "1.6.39"
-        - "1.6.38"
-        - "1.6.37"
-        - "1.6.36"
-        - "1.6.35"
-        - "1.6.34"
-        - "1.6.33"
-        - "1.6.32"
-        - "1.6.31"
-        - "1.6.30"
-        - "1.6.28"
-        - "1.6.27"
-        - "1.6.26"
-        - "1.6.25"
-        - "1.6.24"
-        - "1.6.23"
-        - "1.6.22"
-        - "1.6.21"
-        - "1.6.20"
-        - "1.6.19"
-        - "1.6.18"
-        - "1.6.17"
-        - "1.6.16"
-        - "1.6.15"
-        - "1.6.14"
