@@ -58,6 +58,49 @@
   
 </table>
 
+### ▶️ release-2.28
+> ⚓ kube_version range: [ 1.30.0 ~ 1.32.13 ]
+
+<table>
+  <thead>
+    <tr>
+      <th>Commit Date</th>
+      <th>Artifacts</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+      <tr>
+        <td rowspan=3> 📅 2026-04-07 07:11:34 </td>
+        <td rowspan=1>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.28-aca1113.yml">manifest-2.28-aca1113.yml</a></code>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.28-aca1113</code> </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.28-aca1113</code> </td>
+      </tr>
+  </tbody>
+  
+  <tbody>
+      <tr>
+        <td rowspan=3> 📅 2025-07-11 07:31:28 </td>
+        <td rowspan=1>
+           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.28-a59585b.yml">manifest-2.28-a59585b.yml</a></code>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.28-a59585b</code> </td>
+      </tr>
+      <tr>
+        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.28-a59585b</code> </td>
+      </tr>
+  </tbody>
+  
+</table>
+
 ### ▶️ release-2.23
 > ⚓ kube_version range: [ v1.25.0 ~ v1.27.10 ]
 
@@ -255,34 +298,6 @@
       </tr>
       <tr>
         <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.26-184b15f</code> </td>
-      </tr>
-  </tbody>
-  
-</table>
-
-### ▶️ release-2.28
-> ⚓ kube_version range: [ 1.30.0 ~ 1.32.6 ]
-
-<table>
-  <thead>
-    <tr>
-      <th>Commit Date</th>
-      <th>Artifacts</th>
-    </tr>
-  </thead>
-  
-  <tbody>
-      <tr>
-        <td rowspan=3> 📅 2025-07-11 07:31:28 </td>
-        <td rowspan=1>
-           📝 <code><a href="https://raw.githubusercontent.com/kubean-io/kubean-manifest/main/manifests/manifest-2.28-a59585b.yml">manifest-2.28-a59585b.yml</a></code>
-        </td>
-      </tr>
-      <tr>
-        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/spray-job:2.28-a59585b</code> </td>
-      </tr>
-      <tr>
-        <td rowspan=1> 📦 <code>ghcr.io/kubean-io/airgap-patch:2.28-a59585b</code> </td>
       </tr>
   </tbody>
   
