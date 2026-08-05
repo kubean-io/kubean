@@ -3,12 +3,12 @@ name: 3. PR verify
 on:
   pull_request_target:
     types:
-      - opened
-      - synchronize
-      - reopened
+    - opened
+    - synchronize
+    - reopened
     paths-ignore:
-      - docs/**
-      - examples/**
+    - docs/**
+    - examples/**
 
 env:
   VSPHERE_USER: ${{ secrets.VSPHERE_USER }}
@@ -31,10 +31,10 @@ jobs:
     outputs:
       ref: ${{ steps.result.outputs.ref }}
     steps:
-      - name: Get Ref
-        id: result
-        run: |
-          echo ref=${{ github.event.pull_request.head.sha }} >> $GITHUB_OUTPUT
+    - name: Get Ref
+      id: result
+      run: |
+        echo ref=${{ github.event.pull_request.head.sha }} >> $GITHUB_OUTPUT
 
   static-check:
     needs: get_ref
@@ -43,40 +43,41 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.get_ref.outputs.ref }}
+    - uses: actions/checkout@v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ needs.get_ref.outputs.ref }}
+        allow-unsafe-pr-checkout: true
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version: 1.25.0
+    - uses: actions/setup-go@v6
+      with:
+        go-version: 1.25.0
 
-      - name: static check
-        uses: golangci/golangci-lint-action@v9
-        with:
-          install-mode: goinstall
-          version: v2.11.4
-          args: --timeout=10m
+    - name: static check
+      uses: golangci/golangci-lint-action@v9
+      with:
+        install-mode: goinstall
+        version: v2.11.4
+        args: --timeout=10m
 
-      - name: install ansible requirements
-        run: |
-          python3 -m pip install --upgrade pip
-          pip install ansible-core
-          ansible-galaxy collection install ansible.posix
+    - name: install ansible requirements
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install ansible-core
+        ansible-galaxy collection install ansible.posix
 
-      - name: ansible-lint
-        uses: ansible/ansible-lint@v25.12.2
-        with:
-          args: "playbooks/"
+    - name: ansible-lint
+      uses: ansible/ansible-lint@v25.12.2
+      with:
+        args: "playbooks/"
 
-      - name: Run Trivy vulnerability scanner in fs mode
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          scanners: secret
-          trivy-config: .trivy.yml
+    - name: Run Trivy vulnerability scanner in fs mode
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        scan-type: "fs"
+        scan-ref: "."
+        scanners: secret
+        trivy-config: .trivy.yml
 
   unit-test:
     needs: [ static-check, get_ref ]
@@ -86,19 +87,19 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.get_ref.outputs.ref }}
-          allow-unsafe-pr-checkout: true
+    - uses: actions/checkout@v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ needs.get_ref.outputs.ref }}
+        allow-unsafe-pr-checkout: true
 
-      - uses: actions/setup-go@v6
-        with:
-          go-version: 1.25.0
+    - uses: actions/setup-go@v6
+      with:
+        go-version: 1.25.0
 
-      - name: unit test
-        run: |
-          make test
+    - name: unit test
+      run: |
+        make test
 
   build-push-for-e2e:
     needs: [ unit-test, get_ref ]
@@ -108,96 +109,90 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v7.0.0
+      with:
+        fetch-depth: 0
 
-      - name: Set env
-        run: |
-          ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
-          echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
-          echo "KUBESPRAY_TAG=$(awk '/kubespray_version/ {printf("%.7s",$2)}' version.yml)-ansible9" >> ${GITHUB_ENV}
+    - name: Set env
+      run: |
+        ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
+        echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
+        echo "KUBESPRAY_TAG=$(awk '/kubespray_version/ {printf("%.7s",$2)}' version.yml)-ansible9" >> ${GITHUB_ENV}
 
-      - name: Echo env
-        run: |
-          echo "REPO: ${{ env.REPO }}"
-          echo "KUBESPRAY_TAG: ${{ env.KUBESPRAY_TAG }}"
+    - name: Echo env
+      run: |
+        echo "REPO: ${{ env.REPO }}"
+        echo "KUBESPRAY_TAG: ${{ env.KUBESPRAY_TAG }}"
 
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.get_ref.outputs.ref }}
+    - uses: actions/checkout@v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ needs.get_ref.outputs.ref }}
+        allow-unsafe-pr-checkout: true
 
-      - name: Log in to registry
-        # This is where you will update the PAT to GITHUB_TOKEN
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $
-          --password-stdin
+    - name: Log in to registry
+      # This is where you will update the PAT to GITHUB_TOKEN
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
-      - name: kubean-operator Build image
-        run: docker build . --file ./build/images/$KUBEAN_OPERATOR_IMAGE_NAME/Dockerfile
-          --tag $KUBEAN_OPERATOR_IMAGE_NAME
+    - name: kubean-operator Build image
+      run: docker build . --file ./build/images/$KUBEAN_OPERATOR_IMAGE_NAME/Dockerfile --tag $KUBEAN_OPERATOR_IMAGE_NAME
 
-      - name: kubean-operator Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_OPERATOR_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $KUBEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - name: kubean-operator Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_OPERATOR_IMAGE_NAME
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag $KUBEAN_OPERATOR_IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
 
-      - name: kubean-admission Build image
-        run: docker build . --file
-          ./build/images/$KUBEAN_ADMISSION_IMAGE_NAME/Dockerfile --tag
-          $KUBEAN_ADMISSION_IMAGE_NAME
+    - name: kubean-admission Build image
+      run: docker build . --file ./build/images/$KUBEAN_ADMISSION_IMAGE_NAME/Dockerfile --tag $KUBEAN_ADMISSION_IMAGE_NAME
 
-      - name: kubean-admission Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_ADMISSION_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $KUBEAN_ADMISSION_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - name: kubean-admission Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ env.REPO }}/$KUBEAN_ADMISSION_IMAGE_NAME
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag $KUBEAN_ADMISSION_IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
 
-      - name: spray-job Build image
-        run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag
-          $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=${{ env.KUBESPRAY_TAG }}
+    - name: spray-job Build image
+      run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME  --build-arg SPRAY_TAG=${{ env.KUBESPRAY_TAG }}
 
-      - name: spray-job Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - name: spray-job Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
 
-      - name: airgap-patch Build image
-        run: docker build . --file ./build/images/$AIRGAP_PATCH_IMAGE_NAME/Dockerfile
-          --tag $AIRGAP_PATCH_IMAGE_NAME  --build-arg SPRAY_TAG=${{
-          env.KUBESPRAY_TAG }}
+    - name: airgap-patch Build image
+      run: docker build . --file ./build/images/$AIRGAP_PATCH_IMAGE_NAME/Dockerfile --tag $AIRGAP_PATCH_IMAGE_NAME  --build-arg SPRAY_TAG=${{ env.KUBESPRAY_TAG }}
 
-      - name: airgap-patch Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ env.REPO }}/$AIRGAP_PATCH_IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $AIRGAP_PATCH_IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+    - name: airgap-patch Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ env.REPO }}/$AIRGAP_PATCH_IMAGE_NAME
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e"
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag $AIRGAP_PATCH_IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
 
   e2e:
     needs: [ build-push-for-e2e, get_ref ]
@@ -208,23 +203,24 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v7.0.0
-        with:
-          fetch-depth: 0
-          ref: ${{ needs.get_ref.outputs.ref }}
-      - uses: actions/setup-go@v6
-        with:
-          go-version: 1.25.0
-      - name: e2e
-        run: |
-          CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
-          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1}'`
-          TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
-          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
-            HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
-          fi
-          echo ${{ runner.name }}
-          echo ${{ runner.os }}
-          echo ${{ runner.arch }}
-          echo ${{ github.workspace }}
-          bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "PR"
+    - uses: actions/checkout@v7.0.0
+      with:
+        fetch-depth: 0
+        ref: ${{ needs.get_ref.outputs.ref }}
+        allow-unsafe-pr-checkout: true
+    - uses: actions/setup-go@v6
+      with:
+        go-version: 1.25.0
+    - name: e2e
+      run: |
+        CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
+        HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1}'`
+        TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
+        if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+          HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
+        fi
+        echo ${{ runner.name }}
+        echo ${{ runner.os }}
+        echo ${{ runner.arch }}
+        echo ${{ github.workspace }}
+        bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "PR"
