@@ -1206,6 +1206,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.37.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    V0.37.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.36.0/" class="md-nav__link">
         
   
@@ -4884,7 +4907,7 @@ sslverify=0
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置</span>
 <span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">-e &quot;{repo_list: [&#39;http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch&#39;]}&quot;</span>
+<span class="w">        </span><span class="no">-e "{repo_list: ['http://10.20.30.40:9000/kubean/centos/\$releasever/os/\$basearch']}"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
 <span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
@@ -4912,7 +4935,7 @@ sslverify=0
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置</span>
 <span class="w">                               </span><span class="c1"># 注：ubuntu 是 os package 离线资源，ubuntu-iso 是 iso 安装包资源</span>
 <span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">-e &quot;{repo_list: [&#39;deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu/amd64 focal/&#39;, &#39;deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu-iso focal main restricted&#39;]}&quot;</span>
+<span class="w">        </span><span class="no">-e "{repo_list: ['deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu/amd64 focal/', 'deb [trusted=yes] http://MINIO_ADDR:9000/kubean/ubuntu-iso focal main restricted']}"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
 <span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
 <span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
@@ -4929,7 +4952,7 @@ sslverify=0
 <div class="highlight"><pre><span></span><code><span class="nn">---</span>
 <span class="c1">## 全局的离线配置</span>
 <span class="c1">### 配置私有容器镜像仓库服务的地址</span>
-<span class="nt">registry_host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">registry_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}"</span>
 
 <span class="c1">### 配置二进制文件服务的地址</span>
 <span class="nt">github_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://files.m.daocloud.io/github.com</span>
@@ -4938,20 +4961,20 @@ sslverify=0
 <span class="nt">get_helm_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://files.m.daocloud.io/get.helm.sh</span>
 
 <span class="c1">### 如果使用 CentOS / RedHat / AlmaLinux / Fedora, 需要配置 yum 源文件服务地址:</span>
-<span class="nt">yum_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">yum_repo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}"</span>
 
 <span class="c1">### 如果使用 Debian, 则配置:</span>
-<span class="nt">debian_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">debian_repo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}"</span>
 
 <span class="c1">### 如果使用 Ubuntu, 则配置:</span>
-<span class="nt">ubuntu_repo</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="nt">ubuntu_repo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">minio_address</span><span class="nv"> </span><span class="s">}}"</span>
 
 <span class="c1">### 如果 containerd 采用非安全 HTTP 免认证方式, 则需要配置:</span>
 <span class="nt">containerd_registries_mirrors</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}"</span>
 <span class="w">    </span><span class="nt">mirrors</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}&quot;</span>
-<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;pull&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;resolve&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="s">"http://{{</span><span class="nv"> </span><span class="s">registry_address</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"pull"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"resolve"</span><span class="p p-Indicator">]</span>
 <span class="w">        </span><span class="nt">skip_verify</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="c1">### 如果 docker 采用非安全 HTTP 免认证方式, 则需要配置:</span>

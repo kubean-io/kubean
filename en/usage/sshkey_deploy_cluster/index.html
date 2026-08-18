@@ -1083,6 +1083,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.37.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    V0.37.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.36.0/" class="md-nav__link">
         
   
@@ -4447,9 +4470,9 @@
 <ol>
 <li>
 <p>Generate a pair of public-private keys with <code>ssh-keygen</code> command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$HOME</span>/.ssh/id_rsa
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ssh-keygen<span class="w"> </span>-t<span class="w"> </span>rsa<span class="w"> </span>-b<span class="w"> </span><span class="m">4096</span><span class="w"> </span>-C<span class="w"> </span><span class="s2">"your_email@example.com"</span><span class="w"> </span>-f<span class="w"> </span><span class="nv">$HOME</span>/.ssh/id_rsa
 Generating<span class="w"> </span>public/private<span class="w"> </span>rsa<span class="w"> </span>key<span class="w"> </span>pair.
-Created<span class="w"> </span>directory<span class="w"> </span><span class="s1">&#39;/root/.ssh&#39;</span>.
+Created<span class="w"> </span>directory<span class="w"> </span><span class="s1">'/root/.ssh'</span>.
 Enter<span class="w"> </span>passphrase<span class="w"> </span><span class="o">(</span>empty<span class="w"> </span><span class="k">for</span><span class="w"> </span>no<span class="w"> </span>passphrase<span class="o">)</span>:
 Enter<span class="w"> </span>same<span class="w"> </span>passphrase<span class="w"> </span>again:
 Your<span class="w"> </span>identification<span class="w"> </span>has<span class="w"> </span>been<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>/root/.ssh/id_rsa.
@@ -4480,7 +4503,7 @@ $<span class="w"> </span>ls<span class="w"> </span>/root/.ssh/id_rsa*<span class
 $<span class="w"> </span><span class="nb">declare</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">IPS</span><span class="o">=(</span><span class="m">192</span>.168.10.11<span class="w"> </span><span class="m">192</span>.168.10.12<span class="o">)</span>
 
 <span class="c1"># traverse node IPs to distribute the public key (/root/.ssh/id_rsa.pub) with the presumptive account/password: root/kubean</span>
-$<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;kubean&quot;</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w">  </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+$<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="si">${</span><span class="nv">IPS</span><span class="p">[@]</span><span class="si">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sshpass<span class="w"> </span>-p<span class="w"> </span><span class="s2">"kubean"</span><span class="w"> </span>ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>/root/.ssh/id_rsa.pub<span class="w"> </span>-o<span class="w">  </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>no<span class="w"> </span>root@<span class="nv">$ip</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div>
 </li>
 </ol>
@@ -4488,7 +4511,7 @@ $<span class="w"> </span><span class="k">for</span><span class="w"> </span>ip<sp
 <p>Generate a Secret for the private key with the following command:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span><span class="se">\ </span><span class="w">                           </span><span class="c1"># specify namespace: kubean-system</span>
 <span class="w">    </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sample-ssh-auth<span class="w"> </span><span class="se">\ </span><span class="w">            </span><span class="c1"># specify the name of Secret: sample-ssh-auth</span>
-<span class="w">    </span>--type<span class="o">=</span><span class="s1">&#39;kubernetes.io/ssh-auth&#39;</span><span class="w"> </span><span class="se">\ </span><span class="w">                  </span><span class="c1"># specify the type of Secret: kubernetes.io/ssh-auth</span>
+<span class="w">    </span>--type<span class="o">=</span><span class="s1">'kubernetes.io/ssh-auth'</span><span class="w"> </span><span class="se">\ </span><span class="w">                  </span><span class="c1"># specify the type of Secret: kubernetes.io/ssh-auth</span>
 <span class="w">    </span>--from-file<span class="o">=</span>ssh-privatekey<span class="o">=</span>/root/.ssh/id_rsa<span class="w"> </span><span class="se">\ </span><span class="w">     </span><span class="c1"># specify the filepath of the ssh private key</span>
 <span class="w">    </span>--dry-run<span class="o">=</span>client<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>SSHAuthSec.yml<span class="w">           </span><span class="c1"># specify the target path of the new Secret YAML</span>
 </code></pre></div>

@@ -1056,6 +1056,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.37.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    V0.37.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.36.0/" class="md-nav__link">
         
   
@@ -4393,7 +4416,7 @@ be complicated and requires a lot of manual configuration modifications. We hope
 </li>
 <li>
 <p>builtin (default)</p>
-<div class="codehilite"><pre><span></span><code>Indicates the use of Kubean&#39;s built-in Ansible playbook or shell script in the manifest.
+<div class="codehilite"><pre><span></span><code>Indicates the use of Kubean's built-in Ansible playbook or shell script in the manifest.
 </code></pre></div>
 
 </li>
@@ -4424,13 +4447,13 @@ be complicated and requires a lot of manual configuration modifications. We hope
 <span class="w">    </span><span class="no">- hosts: k8s_cluster</span>
 <span class="w">      </span><span class="no">gather_facts: false</span>
 <span class="w">      </span><span class="no">become: yes</span>
-<span class="w">      </span><span class="no">any_errors_fatal: &quot;{{ any_errors_fatal | default(true) }}&quot;</span>
+<span class="w">      </span><span class="no">any_errors_fatal: "{{ any_errors_fatal | default(true) }}"</span>
 <span class="w">      </span><span class="no">tasks:</span>
 <span class="w">        </span><span class="no">- name: Print inventory hostname</span>
 <span class="w">          </span><span class="no">debug:</span>
-<span class="w">            </span><span class="no">msg: &quot;inventory_hostname is {{ inventory_hostname }}&quot;</span>
+<span class="w">            </span><span class="no">msg: "inventory_hostname is {{ inventory_hostname }}"</span>
 <span class="w">  </span><span class="nt">hello.sh</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">echo &quot;hello world!&quot;</span>
+<span class="w">    </span><span class="no">echo "hello world!"</span>
 <span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>

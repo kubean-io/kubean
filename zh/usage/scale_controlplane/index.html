@@ -1149,6 +1149,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.37.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    V0.37.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.36.0/" class="md-nav__link">
         
   
@@ -4822,7 +4845,7 @@
 </code></pre></div>
 <h4 id="4-kube-systemnginx-proxy">4. 重启 kube-system/nginx-proxy<a class="headerlink" href="#4-kube-systemnginx-proxy" title="Permanent link">&para;</a></h4>
 <p>如果控制平面和普通节点分离，需要在所有普通节点上重启 nginx-proxy pod，这个 pod 是 api server 的本地代理。Kubean 将更新它的静态配置，但是需要重新启动它才能重新加载。</p>
-<div class="highlight"><pre><span></span><code>crictl<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nginx-proxy<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>crictl<span class="w"> </span>stop
+<div class="highlight"><pre><span></span><code>crictl<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nginx-proxy<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'{print $1}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>crictl<span class="w"> </span>stop
 </code></pre></div>
 <p>至此，您已经完成了一个集群的控制平面节点扩容。</p>
 <h2 id="_3">缩容控制平面节点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
@@ -5032,7 +5055,7 @@
 
 <h4 id="5-kube-systemnginx-proxy">5. 重启 kube-system/nginx-proxy<a class="headerlink" href="#5-kube-systemnginx-proxy" title="Permanent link">&para;</a></h4>
 <p>如果控制平面和普通节点分离，需要在所有普通节点上重启 nginx-proxy pod，这个 pod 是 api server 的本地代理。Kubean 将更新它的静态配置，但是需要重新启动它才能重新加载。</p>
-<div class="highlight"><pre><span></span><code>crictl<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nginx-proxy<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>crictl<span class="w"> </span>stop
+<div class="highlight"><pre><span></span><code>crictl<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nginx-proxy<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'{print $1}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>crictl<span class="w"> </span>stop
 </code></pre></div>
 <p>此时，我们已将 node2, node3 控制平面节点从集群中移除，并且清理掉了有关 node2, node3 的主机信息，更新了集群配置，整个控制平面缩容操作就此结束。</p>
 <h2 id="_4">注意事项<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
