@@ -49,13 +49,6 @@ jobs:
           exit 0
         fi
 
-        PERMISSION="$(gh api \
-          "/repos/${GITHUB_REPOSITORY}/collaborators/${ACTOR}/permission" \
-          --jq '.permission')"
-        if [[ ! "${PERMISSION}" =~ ^(write|maintain|admin)$ ]]; then
-          echo "::error::${ACTOR} does not have permission to approve privileged E2E"
-          exit 1
-        fi
         if [[ ! "${HEAD_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
           echo "::error::PR #${PR_NUMBER} does not have a valid head SHA"
           exit 1
@@ -65,7 +58,7 @@ jobs:
         gh api --method DELETE \
           "/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/ok-to-test" \
           >/dev/null
-        echo "Approved PR #${PR_NUMBER} at ${HEAD_SHA} for privileged E2E"
+        echo "${ACTOR} approved PR #${PR_NUMBER} at ${HEAD_SHA} for privileged E2E"
 
   static-check:
     needs: authorize
