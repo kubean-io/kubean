@@ -1,5 +1,7 @@
 # :seedling: Kubean
 
+<!-- Temporary marker for validating the external fork E2E approval workflow. -->
+
 > [简体中文](./README_zh.md)
 
 <p align="center">
