@@ -35,6 +35,9 @@ function patch_temp_list() {
     echo "https://github.com/containerd/nerdctl/releases/download/v1.7.7/nerdctl-1.7.7-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
     echo "https://github.com/containerd/containerd/releases/download/v1.7.23/containerd-1.7.23-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
 
+    # remove unused Kata Containers artifacts
+    sed -i '\|github.com/kata-containers/kata-containers/releases/download/|d' "${temp_dir}/files.list"
+
     # remove empty lines in images.list
     sed -i '/^$/d' "${temp_dir}/images.list"
     # add cilium operator-generic image if operator image exists
