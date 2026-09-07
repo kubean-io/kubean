@@ -1,3 +1,19 @@
+/*
+Copyright The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package internal
 
 import (
@@ -8,6 +24,8 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	toolscache "k8s.io/client-go/tools/cache"
@@ -116,10 +134,18 @@ func (ks *Kind[object, request]) Start(ctx context.Context, queue workqueue.Type
 }
 
 func (ks *Kind[object, request]) String() string {
-	if !isNil(ks.Type) {
+	if isNil(ks.Type) {
+		return "kind source: unknown type"
+	}
+
+	switch v := any(ks.Type).(type) {
+	case *unstructured.Unstructured, *metav1.PartialObjectMetadata:
+		gvk := v.(client.Object).GetObjectKind().GroupVersionKind()
+		gv, kind := gvk.ToAPIVersionAndKind()
+		return fmt.Sprintf("kind source: %T[%s %s]", v, gv, kind)
+	default:
 		return fmt.Sprintf("kind source: %T", ks.Type)
 	}
-	return "kind source: unknown type"
 }
 
 // WaitForSync implements SyncingSource to allow controllers to wait with starting
@@ -133,12 +159,12 @@ func (ks *Kind[object, request]) WaitForSync(ctx context.Context) error {
 		if errors.Is(ctx.Err(), context.Canceled) {
 			return nil
 		}
-		return fmt.Errorf("timed out waiting for cache to be synced for Kind %T", ks.Type)
+		return fmt.Errorf("timed out waiting for cache to be synced for %s", ks.String())
 	}
 }
 
 func isNil(arg any) bool {
-	if v := reflect.ValueOf(arg); !v.IsValid() || ((v.Kind() == reflect.Ptr ||
+	if v := reflect.ValueOf(arg); !v.IsValid() || ((v.Kind() == reflect.Pointer ||
 		v.Kind() == reflect.Interface ||
 		v.Kind() == reflect.Slice ||
 		v.Kind() == reflect.Map ||
