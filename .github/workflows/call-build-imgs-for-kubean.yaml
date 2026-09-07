@@ -57,7 +57,7 @@ jobs:
           build-args: ""
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
       with:
         fetch-depth: 0
 
