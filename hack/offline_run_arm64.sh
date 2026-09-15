@@ -42,6 +42,8 @@ sed -i "s#registry_host:#registry_host: ${registry_addr_arm64}#"    ${REPO_ROOT}
 sed -i "s#minio_address:#minio_address: ${MINIO_URL}#"    ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
 sed -i "s#registry_host_key#${registry_addr_arm64}#g"    ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
 sed -i "s#{{ files_repo }}/centos#{{ files_repo }}/kylin#" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
+# Kubernetes 1.35 rejects cgroup v1 by default, while the Kylin V10 test VMs still use cgroup v1.
+sed -i "/kube_version:/a\    kubelet_fail_cgroup_v1: false" ${REPO_ROOT}/test/kubean_os_compatibility_e2e/e2e-install-cluster/vars-conf-cm.yml
 echo ${vm_name1}
 echo ${vm_name2}
 util::init_kylin_vm ${template_name1} ${vm_name1} ${ARM64_SERVER_IP} ${ARM64_SERVER_PASSWORD}
