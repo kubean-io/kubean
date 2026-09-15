@@ -11,21 +11,12 @@ shopt -s nocasematch
 function init_vars() {
     export CURRENT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd) # hack
     export PERRENT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && cd .. && pwd) # kubean
-    echo $GITHUB_JOB $OS_TYPE $ARCH $Network_TYPE $GAP_TYPE
+    echo $GITHUB_JOB $ARCH $GAP_TYPE
 }
 
 function execute_case() {
-    case $GITHUB_JOB in 
-        "centos_calico_airgap")
-            #todo
-            ;;
-        "centos_calico_online")
-            bash hack/e2e.sh $HELM_CHART_VERSION $CONTAINER_TAG $runner_name $VSPHERE_USER $VSPHERE_PASSWD $AMD_ROOT_PASSWORD $KYLIN_VM_PASSWORD "NIGHTLY"
-            ;;
-        "centos_cilium_online")
-            bash hack/offline-e2e.sh $HELM_CHART_VERSION $VSPHERE_USER $VSPHERE_PASSWD $AMD_ROOT_PASSWORD $KYLIN_VM_PASSWORD $runner_name
-            ;;
-        "centos_cilium_airgap")
+    case $GITHUB_JOB in
+        "network_e2e_online")
             # kubean_ipvs_cluster_e2e
             # kubean_cilium_cluster_e2e # skip this case cause' some other testcase is imbeded in this network case that cannot decouple code in test/
             # kubean_calico_dualstack_e2e # skip this case
@@ -36,28 +27,11 @@ function execute_case() {
             test_case_arr=($test_case_string)
             bash hack/network_testcase.sh ${test_case_arr[@]}
             ;;
-        "redhat_calico_online")
-            #todo
-            ;;
-        "redhat_calico_airgap")
-            #todo
-            ;;
-        "redhat_cilium_airgap")
-            #todo
-            ;;
-        "redhat_cilium_online")
-            #todo
-            ;;
-        "kylin_calico_online")
-            #todo
-            ;;
-        "kylin_calico_airgap")
-            #todo
-            ;;
         *)
-            echo "no such $GITHUB_JOB, exit"
+            echo "unsupported E2E job: $GITHUB_JOB"
+            exit 1
             ;;
-        esac
+    esac
 }
 
 function main() {
