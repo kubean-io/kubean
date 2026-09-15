@@ -6,7 +6,7 @@ require (
 	github.com/go-logr/logr v1.4.4
 	github.com/kubean-io/kubean-api v0.0.0
 	github.com/onsi/ginkgo/v2 v2.32.0
-	github.com/onsi/gomega v1.42.1
+	github.com/onsi/gomega v1.43.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	gopkg.in/yaml.v2 v2.4.0
