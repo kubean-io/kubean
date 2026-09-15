@@ -1,3 +1,19 @@
+/*
+Copyright The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package priorityqueue
 
 import (
@@ -6,11 +22,11 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/google/btree"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/utils/clock"
 	"k8s.io/utils/ptr"
+	"k8s.io/utils/third_party/forked/golang/btree"
 
 	"sigs.k8s.io/controller-runtime/pkg/internal/metrics"
 )
@@ -78,8 +94,8 @@ func New[T comparable](name string, o ...Opt[T]) PriorityQueue[T] {
 		log:                  opts.Log,
 		itemAddedToAddBuffer: make(chan struct{}, 1),
 		items:                map[T]*item[T]{},
-		ready:                btree.NewG(32, lessReady[T]),
-		waiting:              btree.NewG(32, lessWaiting[T]),
+		ready:                btree.New(32, lessReady[T]),
+		waiting:              btree.New(32, lessWaiting[T]),
 		metrics:              newQueueMetrics[T](opts.MetricProvider, name, clock.RealClock{}),
 		// readyItemOrWaiterAdded indicates that a ready item or
 		// waiter was added. It must be buffered, because
@@ -213,7 +229,7 @@ func (w *priorityqueue[T]) lockedAddWithOpts(o AddOpts, items ...T) {
 
 		var readyAt *time.Time
 		if after > 0 {
-			readyAt = ptr.To(w.now().Add(after))
+			readyAt = new(w.now().Add(after))
 			w.metrics.retry()
 		}
 		if _, ok := w.items[key]; !ok {
@@ -397,7 +413,16 @@ func (w *priorityqueue[T]) handleReadyItems() {
 				w.waiters--
 				delete(w.items, item.Key)
 				toDelete = append(toDelete, item)
-				w.get <- *item
+				// w.get is unbuffered, so this send blocks until a GetWithPriority
+				// consumer receives. A consumer that is parked in GetWithPriority can
+				// instead return via <-w.done once ShutDown closes it, leaving no one
+				// to receive here. Also watch w.done so the send does not block forever
+				// and deadlock the queue (the whole queue stalls because w.lock is held).
+				select {
+				case w.get <- *item:
+				case <-w.done:
+					return false
+				}
 
 				return w.waiters > 0
 			})
@@ -564,6 +589,6 @@ func (w *priorityqueue[T]) updateUnfinishedWorkLoop() {
 type bTree[T any] interface {
 	ReplaceOrInsert(item T) (T, bool)
 	Delete(item T) (T, bool)
-	Ascend(iterator btree.ItemIteratorG[T])
+	Ascend(iterator btree.ItemIterator[T])
 	Len() int
 }
