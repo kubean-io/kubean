@@ -26,34 +26,180 @@ import (
 func WaitKubeanJobPodToSuccess(kubeClient *kubernetes.Clientset, podNamespace, podName, expectedStatus string) {
 	klog.Info("---- Waiting kubean job-related pod ", podName, " success ----")
 	klog.Info("podName: ", podName)
-	gomega.Eventually(func() bool {
+	deadline := time.Now().Add(300 * time.Minute)
+	lastStatus := ""
+	var lastErr error
+	var lastPod *corev1.Pod
+
+	for {
 		pod, err := kubeClient.CoreV1().Pods(podNamespace).Get(context.Background(), podName, metav1.GetOptions{})
 		if err != nil {
 			klog.Info("Get kubean job-related pod error: ", err.Error())
-			return false
-		}
-		podStatus := string(pod.Status.Phase)
-		klog.Info("... podStatus is: ", podStatus)
-		if podStatus == PodStatusSucceeded {
-			return true
+			lastErr = err
 		} else {
-			if podStatus == PodStatusFailed {
-				cmd := exec.Command("kubectl", "--kubeconfig="+Kubeconfig, "logs", podName, "-n", "kubean-system")
-				out, _ := DoCmd(*cmd)
-				klog.Info("Get pod log When pod is Error:***")
-				klog.Info("pod log string length: ", len(out.String()))
-				if len(out.String()) > 10000 {
-					klog.Info(out.String()[(len(out.String()) - 10000):len(out.String())])
-				} else {
-					klog.Info(out.String())
-				}
-				gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
-			} else {
-				return false
+			lastErr = nil
+			lastPod = pod
+			lastStatus = string(pod.Status.Phase)
+			klog.Info("... podStatus is: ", lastStatus)
+			if lastStatus == expectedStatus {
+				return
+			}
+			if lastStatus == PodStatusFailed {
+				diagnostics := kubeanJobPodDiagnostics(context.Background(), kubeClient, pod, expectedStatus)
+				gomega.ExpectWithOffset(1, lastStatus).To(
+					gomega.Equal(expectedStatus),
+					diagnostics,
+				)
+				return
 			}
 		}
-		return false
-	}, 300*time.Minute, 1*time.Minute).Should(gomega.BeTrue())
+
+		if time.Now().After(deadline) {
+			message := fmt.Sprintf(
+				"timed out waiting for kubean job pod %s/%s to reach %s; last status: %q",
+				podNamespace,
+				podName,
+				expectedStatus,
+				lastStatus,
+			)
+			if lastErr != nil {
+				message += fmt.Sprintf("; last get error: %v", lastErr)
+			}
+			if lastPod != nil {
+				message += "\n" + kubeanJobPodDiagnostics(context.Background(), kubeClient, lastPod, expectedStatus)
+			}
+			gomega.ExpectWithOffset(1, lastStatus).To(gomega.Equal(expectedStatus), message)
+			return
+		}
+
+		time.Sleep(time.Minute)
+	}
+}
+
+func kubeanJobPodDiagnostics(ctx context.Context, kubeClient *kubernetes.Clientset, pod *corev1.Pod, expectedStatus string) string {
+	var diagnostics strings.Builder
+	fmt.Fprintf(
+		&diagnostics,
+		"kubean job pod %s/%s entered %s; expected %s\n",
+		pod.Namespace,
+		pod.Name,
+		pod.Status.Phase,
+		expectedStatus,
+	)
+
+	appendContainerStatuses(&diagnostics, "init container", pod.Status.InitContainerStatuses)
+	appendContainerStatuses(&diagnostics, "container", pod.Status.ContainerStatuses)
+
+	events, err := kubeClient.CoreV1().Events(pod.Namespace).List(ctx, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("involvedObject.uid=%s", pod.UID),
+	})
+	if err != nil {
+		fmt.Fprintf(&diagnostics, "failed to list pod events: %v\n", err)
+	} else if len(events.Items) > 0 {
+		diagnostics.WriteString("pod events:\n")
+		start := 0
+		if len(events.Items) > 20 {
+			start = len(events.Items) - 20
+		}
+		for _, event := range events.Items[start:] {
+			fmt.Fprintf(
+				&diagnostics,
+				"- %s %s (x%d): %s\n",
+				event.Type,
+				event.Reason,
+				event.Count,
+				event.Message,
+			)
+		}
+	}
+
+	appendContainerLogs(ctx, &diagnostics, kubeClient, pod)
+	return strings.TrimSpace(diagnostics.String())
+}
+
+func appendContainerStatuses(diagnostics *strings.Builder, label string, statuses []corev1.ContainerStatus) {
+	for _, status := range statuses {
+		switch {
+		case status.State.Terminated != nil:
+			terminated := status.State.Terminated
+			fmt.Fprintf(
+				diagnostics,
+				"%s %s terminated: reason=%s exitCode=%d signal=%d message=%q\n",
+				label,
+				status.Name,
+				terminated.Reason,
+				terminated.ExitCode,
+				terminated.Signal,
+				terminated.Message,
+			)
+		case status.State.Waiting != nil:
+			waiting := status.State.Waiting
+			fmt.Fprintf(
+				diagnostics,
+				"%s %s waiting: reason=%s message=%q\n",
+				label,
+				status.Name,
+				waiting.Reason,
+				waiting.Message,
+			)
+		case status.State.Running != nil:
+			fmt.Fprintf(diagnostics, "%s %s was still running\n", label, status.Name)
+		default:
+			fmt.Fprintf(diagnostics, "%s %s has no reported state\n", label, status.Name)
+		}
+	}
+}
+
+func appendContainerLogs(ctx context.Context, diagnostics *strings.Builder, kubeClient *kubernetes.Clientset, pod *corev1.Pod) {
+	const (
+		logTailLines = int64(300)
+		logMaxBytes  = 64 * 1024
+	)
+
+	statuses := append(
+		append([]corev1.ContainerStatus{}, pod.Status.InitContainerStatuses...),
+		pod.Status.ContainerStatuses...,
+	)
+	for _, status := range statuses {
+		tailLines := logTailLines
+		options := &corev1.PodLogOptions{
+			Container: status.Name,
+			TailLines: &tailLines,
+		}
+		logs, err := kubeClient.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, options).DoRaw(ctx)
+		if err != nil {
+			fmt.Fprintf(diagnostics, "failed to read logs for container %s: %v\n", status.Name, err)
+			continue
+		}
+		fmt.Fprintf(
+			diagnostics,
+			"last %d log lines for container %s:\n%s\n",
+			logTailLines,
+			status.Name,
+			boundedKubeanJobLog(string(logs), logMaxBytes),
+		)
+	}
+}
+
+func normalizeKubeanJobLog(logs string) string {
+	logs = strings.ReplaceAll(logs, `\n`, "\n")
+	logs = strings.ReplaceAll(logs, `\t`, "\t")
+	return strings.TrimSpace(logs)
+}
+
+func boundedKubeanJobLog(logs string, maxBytes int) string {
+	logs = normalizeKubeanJobLog(logs)
+	if len(logs) <= maxBytes {
+		return logs
+	}
+
+	half := maxBytes / 2
+	return fmt.Sprintf(
+		"%s\n... %d log bytes omitted ...\n%s",
+		logs[:half],
+		len(logs)-maxBytes,
+		logs[len(logs)-half:],
+	)
 }
 
 func SaveKubeConf(kindConfig *restclient.Config, clusterName, configToSavePath string) {
