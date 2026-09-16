@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -292,18 +293,7 @@ func WaitPodBeRunning(kubeClient *kubernetes.Clientset, namespace, podName strin
 }
 
 func NodePingPodByPasswd(password, sshNode, podIP string) {
-	pingCmd := "ping"
-	if strings.Contains(podIP, ":") {
-		osTypeCmd := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "cat ", "/etc/redhat-release"})
-		osTypeCmdOut, _ := NewDoCmd("sshpass", osTypeCmd...)
-		if strings.Contains(osTypeCmdOut.String(), "CentOS") {
-			pingCmd = "ping6"
-		}
-		if strings.Contains(osTypeCmdOut.String(), "Red Hat") && strings.Contains(osTypeCmdOut.String(), "7.") {
-			pingCmd = "ping6"
-		}
-	}
-
+	pingCmd := pingCommandForIP(podIP)
 	pingPodIpCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, pingCmd, "-c 1", podIP})
 	count := 3
 	for i := 0; i <= count; i++ {
@@ -318,6 +308,14 @@ func NodePingPodByPasswd(password, sshNode, podIP string) {
 			gomega.Expect(i == count).Should(gomega.BeFalse())
 		}
 	}
+}
+
+func pingCommandForIP(ip string) string {
+	parsedIP := net.ParseIP(ip)
+	if parsedIP != nil && parsedIP.To4() == nil {
+		return "ping6"
+	}
+	return "ping"
 }
 
 func PodPingPodByPasswd(password, node, podFromNs, podFromName, podToIP string) {
