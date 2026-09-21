@@ -24,12 +24,13 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	eventsv1 "k8s.io/api/events/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/events"
 	"k8s.io/client-go/tools/record"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/recorder"
 )
 
 // EventBroadcasterProducer makes an event broadcaster, returning
@@ -54,7 +55,7 @@ type Provider struct {
 	broadcasterOnce         sync.Once
 	broadcaster             events.EventBroadcaster
 	cancelSinkRecordingFunc context.CancelFunc
-	stopWatcherFunc         func()
+	stopLoggingFunc         func()
 	// Deprecated: will be removed in a future release. Use the broadcaster above instead.
 	deprecatedBroadcaster record.EventBroadcaster
 	stopBroadcaster       bool
@@ -83,7 +84,7 @@ func (p *Provider) Stop(shutdownCtx context.Context) {
 			p.lock.Lock()
 			broadcaster.Shutdown()
 			p.cancelSinkRecordingFunc()
-			p.stopWatcherFunc()
+			p.stopLoggingFunc()
 			deprecatedBroadcaster.Shutdown()
 			p.stopped = true
 			p.lock.Unlock()
@@ -118,23 +119,19 @@ func (p *Provider) getBroadcaster() (record.EventBroadcaster, events.EventBroadc
 
 		// init new broadcaster
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = log.IntoContext(ctx, p.logger)
 		p.cancelSinkRecordingFunc = cancel
 		if err := p.broadcaster.StartRecordingToSinkWithContext(ctx); err != nil {
 			p.logger.Error(err, "error starting recording for broadcaster")
 			return
 		}
 
-		stopWatcher, err := p.broadcaster.StartEventWatcher(func(event runtime.Object) {
-			e, isEvt := event.(*eventsv1.Event)
-			if isEvt {
-				p.logger.V(1).Info(e.Note, "type", e.Type, "object", e.Related, "action", e.Action, "reason", e.Reason)
-			}
-		})
+		stopLogging, err := p.broadcaster.StartLogging(p.logger.V(1))
 		if err != nil {
-			p.logger.Error(err, "error starting event watcher for broadcaster")
+			p.logger.Error(err, "error starting event logging for broadcaster")
 		}
 
-		p.stopWatcherFunc = stopWatcher
+		p.stopLoggingFunc = stopLogging
 	})
 
 	return p.deprecatedBroadcaster, p.broadcaster
@@ -165,8 +162,11 @@ func (p *Provider) GetEventRecorderFor(name string) record.EventRecorder {
 }
 
 // GetEventRecorder returns an event recorder that broadcasts to this provider's
-// broadcaster.  All events will be associated with a component of the given name.
-func (p *Provider) GetEventRecorder(name string) events.EventRecorder {
+// broadcaster. All events will be associated with the given reportingController
+// name. client-go appends "-" and the hostname to derive reportingInstance,
+// which must fit within the events.k8s.io/v1 128-character limit.
+// The returned recorder supports both Eventf and AnnotatedEventf.
+func (p *Provider) GetEventRecorder(name string) recorder.EventRecorder {
 	return &lazyRecorder{
 		prov: p,
 		name: name,
@@ -175,19 +175,24 @@ func (p *Provider) GetEventRecorder(name string) events.EventRecorder {
 
 // lazyRecorder is a recorder that doesn't actually instantiate any underlying
 // recorder until the first event is emitted.
+var _ recorder.EventRecorder = (*lazyRecorder)(nil)
+
 type lazyRecorder struct {
 	prov *Provider
 	name string
 
-	recOnce sync.Once
-	rec     events.EventRecorder
+	recOnce                sync.Once
+	eventRecorder          events.EventRecorder
+	annotatedEventRecorder events.AnnotatedEventRecorder
 }
 
 // ensureRecording ensures that a concrete recorder is populated for this recorder.
 func (l *lazyRecorder) ensureRecording() {
 	l.recOnce.Do(func() {
 		_, broadcaster := l.prov.getBroadcaster()
-		l.rec = broadcaster.NewRecorder(l.prov.scheme, l.name)
+		rec := broadcaster.NewRecorder(l.prov.scheme, l.name)
+		l.eventRecorder = rec
+		l.annotatedEventRecorder = rec.(events.AnnotatedEventRecorder)
 	})
 }
 
@@ -196,7 +201,17 @@ func (l *lazyRecorder) Eventf(regarding runtime.Object, related runtime.Object, 
 
 	l.prov.lock.RLock()
 	if !l.prov.stopped {
-		l.rec.Eventf(regarding, related, eventtype, reason, action, note, args...)
+		l.eventRecorder.Eventf(regarding, related, eventtype, reason, action, note, args...)
+	}
+	l.prov.lock.RUnlock()
+}
+
+func (l *lazyRecorder) AnnotatedEventf(regarding runtime.Object, related runtime.Object, annotations map[string]string, eventtype, reason, action, note string, args ...any) {
+	l.ensureRecording()
+
+	l.prov.lock.RLock()
+	if !l.prov.stopped {
+		l.annotatedEventRecorder.AnnotatedEventf(regarding, related, annotations, eventtype, reason, action, note, args...)
 	}
 	l.prov.lock.RUnlock()
 }
