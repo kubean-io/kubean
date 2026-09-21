@@ -73,7 +73,7 @@ jobs:
         ref: ${{ needs.authorize.outputs.ref }}
         allow-unsafe-pr-checkout: ${{ github.event_name == 'pull_request_target' }}
 
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version: 1.25.0
 
@@ -117,7 +117,7 @@ jobs:
         ref: ${{ needs.authorize.outputs.ref }}
         allow-unsafe-pr-checkout: ${{ github.event_name == 'pull_request_target' }}
 
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version: 1.25.0
 
@@ -243,7 +243,7 @@ jobs:
         persist-credentials: false
         ref: ${{ needs.authorize.outputs.ref }}
         allow-unsafe-pr-checkout: ${{ github.event_name == 'pull_request_target' }}
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version: 1.25.0
     - name: e2e
