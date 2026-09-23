@@ -153,11 +153,13 @@ jobs:
         ORGANIZATION_NAME=$(echo ${GITHUB_REPOSITORY}| awk -F "/" '{print $1}')
         echo "REPO=${ORGANIZATION_NAME,,}" >> ${GITHUB_ENV}
         echo "KUBESPRAY_TAG=$(awk '/kubespray_version/ {printf("%.7s",$2)}' version.yml)-ansible9" >> ${GITHUB_ENV}
+        echo "KUBESPRAY_TAG_ANSIBLE10NEXT=$(awk '/kubespray_version/ {printf("%.7s",$2)}' version.yml)" >> ${GITHUB_ENV}
 
     - name: Echo env
       run: |
         echo "REPO: ${{ env.REPO }}"
         echo "KUBESPRAY_TAG: ${{ env.KUBESPRAY_TAG }}"
+        echo "KUBESPRAY_TAG_ANSIBLE10NEXT: ${{ env.KUBESPRAY_TAG_ANSIBLE10NEXT }}"
 
     - name: Log in to registry
       # This is where you will update the PAT to GITHUB_TOKEN
@@ -206,6 +208,21 @@ jobs:
         echo IMAGE_ID=$IMAGE_ID
         echo VERSION=$VERSION
         docker tag $SPRAY_JOB_IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
+
+    - name: spray-job (ansible10next) Build image
+      run: docker build . --file ./build/images/$SPRAY_JOB_IMAGE_NAME/Dockerfile --tag $SPRAY_JOB_IMAGE_NAME-ansible10next  --build-arg SPRAY_TAG=${{ env.KUBESPRAY_TAG_ANSIBLE10NEXT }}
+
+    - name: spray-job (ansible10next) Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ env.REPO }}/$SPRAY_JOB_IMAGE_NAME
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION="$(git describe --tags --abbrev=8 --dirty)-e2e-ansible10next"
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag $SPRAY_JOB_IMAGE_NAME-ansible10next $IMAGE_ID:$VERSION
         docker push $IMAGE_ID:$VERSION
 
     - name: airgap-patch Build image

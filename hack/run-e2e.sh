@@ -68,7 +68,7 @@ cp "${REPO_ROOT}"/test/common/vars-conf-cm.yml  "${REPO_ROOT}"/test/kubean_reset
 sed -i "s/ip:/ip: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
 sed -i "s/ansible_host:/ansible_host: ${vm_ip_addr1}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
 sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/hosts-conf-cm.yml
-sed -i "s#image:#image: ${SPRAY_JOB}#" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
+sed -i "s#image:#image: ${SPRAY_JOB_ANSIBLE10NEXT}#" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/kubeanClusterOps.yml
 if [ -n "$KUBE_VERSION" ]; then
     sed -i "s/kube_version: .*/kube_version: ${KUBE_VERSION}/" "${REPO_ROOT}"/test/kubean_reset_e2e/e2e-reset-cluster/vars-conf-cm.yml
 fi
