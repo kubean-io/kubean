@@ -24,6 +24,8 @@ export KYLIN_VM_PASSWORD=${7}
 export E2E_TYPE=${8:-"PR"}
 export NIGHTLY_E2E_STEP=${9:-"ALL"}
 export SPRAY_JOB="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}"
+# reset.yml 依赖 mount_facts(ansible-core 2.18+)，ansible9 基座镜像跑不了，需用非固定版本的镜像
+export SPRAY_JOB_ANSIBLE10NEXT="ghcr.io/kubean-io/spray-job:${SPRAY_JOB_VERSION}-ansible10next"
 export HELM_REPO="https://kubean-io.github.io/kubean-helm-chart"
 export IMG_REGISTRY="ghcr.m.daocloud.io"
 export VSPHERE_HOST="10.64.56.11"
