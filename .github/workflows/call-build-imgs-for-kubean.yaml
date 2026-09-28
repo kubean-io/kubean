@@ -26,22 +26,22 @@ jobs:
             ghcr.io/${{ inputs.REPO }}/airgap-patch:${{ inputs.BUILD_IMG_TAG }}
             ghcr.io/${{ inputs.REPO }}/airgap-patch:latest
           build-args: |
-            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}
+            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}-modern
             REPO=${{ inputs.REPO }}
+        # 设了 outputs 的条目按 digest 推送，tag 由后续步骤读出 ansible-core 版本后统一补齐。
         - name: spray-job
+          outputs: type=image,name=ghcr.io/${{ inputs.REPO }}/spray-job,push-by-digest=true,name-canonical=true,push=true
           dockerfile: build/images/spray-job/Dockerfile
-          tags: |
-            ghcr.io/${{ inputs.REPO }}/spray-job:${{ inputs.BUILD_IMG_TAG }}-ansible10next
-            ghcr.io/${{ inputs.REPO }}/spray-job:latest
+          aliases: ${{ inputs.BUILD_IMG_TAG }}-modern latest
           build-args: |
-            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}
+            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}-modern
             REPO=${{ inputs.REPO }}
         - name: spray-job-ansible9
+          outputs: type=image,name=ghcr.io/${{ inputs.REPO }}/spray-job,push-by-digest=true,name-canonical=true,push=true
           dockerfile: build/images/spray-job/Dockerfile
-          tags: |
-            ghcr.io/${{ inputs.REPO }}/spray-job:${{ inputs.BUILD_IMG_TAG }}
+          aliases: ${{ inputs.BUILD_IMG_TAG }}
           build-args: |
-            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}-ansible9
+            SPRAY_TAG=${{ inputs.SPRAY_IMG_TAG }}
             REPO=${{ inputs.REPO }}
         - name: kubean-operator
           dockerfile: build/images/kubean-operator/Dockerfile
@@ -75,15 +75,29 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: ${{ matrix.name }} image build
+      id: build
       uses: docker/build-push-action@v7.3.0
       with:
         context: ./
         file: ${{ matrix.dockerfile }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        push: true
+        push: ${{ matrix.outputs == '' }}
         provenance: false
         platforms: linux/amd64,linux/arm64
         tags: ${{ matrix.tags }}
+        outputs: ${{ matrix.outputs }}
         build-args: ${{ matrix.build-args }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=${{ matrix.name }}
+        cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+
+    - name: Publish spray-job Ansible core tags
+      id: publish-spray-job-tags
+      if: matrix.outputs != ''
+      shell: bash
+      env:
+        IMAGE_REPO: ghcr.io/${{ inputs.REPO }}/spray-job
+        IMAGE_VERSION: ${{ inputs.BUILD_IMG_TAG }}
+        IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        IMAGE_ALIASES: ${{ matrix.aliases }}
+      # IMAGE_ALIASES 故意不加引号，按空白拆成多个别名参数。
+      run: hack/publish-image-tags.sh "$IMAGE_REPO" "$IMAGE_DIGEST" "$IMAGE_VERSION" $IMAGE_ALIASES

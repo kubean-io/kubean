@@ -37,121 +37,138 @@ jobs:
       dockerfile_commit: ${{ steps.output_variables.outputs.dockerfile_commit }}
 
     steps:
-      - name: output environment variable
-        id: output_variables
-        run: |
-          INPUTS_SPRAY_REF=${{ inputs.SPRAY_REF }}
-          echo ">>>> INPUTS_SPRAY_REF: ${INPUTS_SPRAY_REF}"
-          SPRAY_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_REF} | awk '{ print $1}'`
-          if [[ -z "${SPRAY_SHA}" ]];then
-            if (( ${#INPUTS_SPRAY_REF} != 40 ));then
-              echo "The sha length of the commit must be 40"
-              exit 1
-            fi
-            SPRAY_SHA=${INPUTS_SPRAY_REF}
+    - name: output environment variable
+      id: output_variables
+      run: |
+        INPUTS_SPRAY_REF=${{ inputs.SPRAY_REF }}
+        echo ">>>> INPUTS_SPRAY_REF: ${INPUTS_SPRAY_REF}"
+        SPRAY_SHA=`git ls-remote https://github.com/kubernetes-sigs/kubespray.git ${INPUTS_SPRAY_REF} | awk '{ print $1}'`
+        if [[ -z "${SPRAY_SHA}" ]];then
+          if (( ${#INPUTS_SPRAY_REF} != 40 ));then
+            echo "The sha length of the commit must be 40"
+            exit 1
           fi
-          echo ">>>> RESOLVED_SPRAY_SHA: ${SPRAY_SHA}"
-          echo image_tag_short_sha=$(echo ${SPRAY_SHA} | cut -c 1-7) >> $GITHUB_OUTPUT
-          echo ">>>> image_tag_short_sha: $(echo ${SPRAY_SHA} | cut -c 1-7)"
+          SPRAY_SHA=${INPUTS_SPRAY_REF}
+        fi
+        echo ">>>> RESOLVED_SPRAY_SHA: ${SPRAY_SHA}"
+        echo image_tag_short_sha=$(echo ${SPRAY_SHA} | cut -c 1-7) >> $GITHUB_OUTPUT
+        echo ">>>> image_tag_short_sha: $(echo ${SPRAY_SHA} | cut -c 1-7)"
 
-          dockerfile_commit=$(curl -L \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${GITHUB_REPOSITORY}/commits?path=build/images/kubespray/Dockerfile \
-            |jq '.[0].sha' | tr -d '"')
-          echo dockerfile_commit=${dockerfile_commit} >> $GITHUB_OUTPUT
-          echo ">>>> dockerfile_commit: ${dockerfile_commit}"
+        dockerfile_commit=$(curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${GITHUB_REPOSITORY}/commits?path=build/images/kubespray/Dockerfile \
+          |jq '.[0].sha' | tr -d '"')
+        echo dockerfile_commit=${dockerfile_commit} >> $GITHUB_OUTPUT
+        echo ">>>> dockerfile_commit: ${dockerfile_commit}"
 
   build-kubespray-image:
     needs: output-variable
     runs-on: ubuntu-latest
     steps:
-      - name: Checks if a image with the same tag exists
-        id: check
-        run: |
-          echo "need_rebuild=true" >>$GITHUB_OUTPUT
-          force_rebuild=${{ inputs.FORCE_REBUILD }}
-          if [[ "${force_rebuild}" == "true" ]]; then
-            echo ">>>> FORCE_REBUILD is enabled, will rebuild kubespray base image"
-            exit 0
+    - name: Checks if a image with the same tag exists
+      id: check
+      run: |
+        echo "need_rebuild=true" >>$GITHUB_OUTPUT
+        force_rebuild=${{ inputs.FORCE_REBUILD }}
+        if [[ "${force_rebuild}" == "true" ]]; then
+          echo ">>>> FORCE_REBUILD is enabled, will rebuild kubespray base image"
+          exit 0
+        fi
+        commit_short_sha=${{ needs.output-variable.outputs.image_tag_short_sha }}
+        echo ">>>> commit_short_sha: ${commit_short_sha}"
+        ghcr_token=$(curl https://ghcr.io/token\?scope\="repository:${{ inputs.REPO }}/kubespray:pull" | jq '.token' | tr -d '"')
+        skopeo list-tags --registry-token ${ghcr_token} docker://ghcr.io/${{ inputs.REPO }}/kubespray | jq -r '.Tags[]' > tags
+        echo ">>>> Existing tags sample (first 30):"
+        head -n 30 tags || true
+        # 每条线的别名与其 ansible-core tag 由同一条 imagetools 命令发布，别名齐全即代表该线已发布完整。
+        # 旧布局用 -ansible9 而没有 -modern，会在这里自然判定为需要重建，顺带完成语义迁移。
+        if grep -Fxq "${commit_short_sha}" tags &&
+           grep -Fxq "${commit_short_sha}-modern" tags; then
+          echo ">>>> found both line aliases for: ${commit_short_sha}"
+          late_img_dockerfile_commit=${{ needs.output-variable.outputs.dockerfile_commit }}
+          prev_img_dockerfile_commit=$(skopeo inspect docker://ghcr.io/${{ inputs.REPO }}/kubespray:${commit_short_sha} | jq '.Labels."io.kubean.dockerfile-commit"' | tr -d '"')
+          echo ">>>> late_img_dockerfile_commit: ${late_img_dockerfile_commit}"
+          echo ">>>> prev_img_dockerfile_commit: ${prev_img_dockerfile_commit}"
+          if [[ ${late_img_dockerfile_commit} == ${prev_img_dockerfile_commit} ]]; then
+            echo "The dockerfile of the image with the same tag has not changed, no need to rebuild"
+            echo "need_rebuild=false" >>$GITHUB_OUTPUT
           fi
-          commit_short_sha=${{ needs.output-variable.outputs.image_tag_short_sha }}
-          echo ">>>> commit_short_sha: ${commit_short_sha}"
-          ghcr_token=$(curl https://ghcr.io/token\?scope\="repository:${{ inputs.REPO }}/kubespray:pull" | jq '.token' | tr -d '"')
-          skopeo list-tags --registry-token ${ghcr_token} docker://ghcr.io/${{ inputs.REPO }}/kubespray | jq '.Tags' | tr -d '[",]' > tags
-          echo ">>>> Existing tags sample (first 30):"
-          head -n 30 tags || true
-          if grep -q ${commit_short_sha} tags; then
-            echo ">>>> matched existing tag with pattern: ${commit_short_sha}"
-            late_img_dockerfile_commit=${{ needs.output-variable.outputs.dockerfile_commit }}
-            prev_img_dockerfile_commit=$(skopeo inspect docker://ghcr.io/${{ inputs.REPO }}/kubespray:${commit_short_sha} | jq '.Labels."io.kubean.dockerfile-commit"' | tr -d '"')
-            echo ">>>> late_img_dockerfile_commit: ${late_img_dockerfile_commit}"
-            echo ">>>> prev_img_dockerfile_commit: ${prev_img_dockerfile_commit}"
-            if [[ ${late_img_dockerfile_commit} == ${prev_img_dockerfile_commit} ]]; then
-              echo "The dockerfile of the image with the same tag has not changed, no need to rebuild"
-              echo "need_rebuild=false" >>$GITHUB_OUTPUT
-            fi
-          else
-            echo ">>>> no existing tag matched: ${commit_short_sha}, will rebuild"
-          fi
+        else
+          echo ">>>> no existing tag matched: ${commit_short_sha}, will rebuild"
+        fi
 
-      - uses: actions/checkout@v7.0.1
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v7.0.1
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      with:
+        fetch-depth: 0
 
-      - name: Set up QEMU
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/setup-qemu-action@v4
+    - name: Set up QEMU
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      uses: docker/setup-qemu-action@v4
 
-      - name: Set up Docker Buildx
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/setup-buildx-action@v4.3.0
+    - name: Set up Docker Buildx
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      uses: docker/setup-buildx-action@v4.3.0
 
-      - name: Login to GitHub Container Registry
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Login to GitHub Container Registry
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      uses: docker/login-action@v4
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: kubespray base image build
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/build-push-action@v7.3.0
-        with:
-          context: ./
-          file: build/images/kubespray/Dockerfile
-          build-args: |
-            SPRAY_REF=${{ inputs.SPRAY_REF }}
-            KUBE_VERSION=${{ inputs.KUBE_VERSION }}
-            DOCKERFILE_COMMIT=${{ needs.output-variable.outputs.dockerfile_commit }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          push: true
-          provenance: false
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+    - name: kubespray base image build
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      id: build-modern
+      uses: docker/build-push-action@v7.3.0
+      with:
+        context: ./
+        file: build/images/kubespray/Dockerfile
+        build-args: |
+          SPRAY_REF=${{ inputs.SPRAY_REF }}
+          KUBE_VERSION=${{ inputs.KUBE_VERSION }}
+          DOCKERFILE_COMMIT=${{ needs.output-variable.outputs.dockerfile_commit }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        provenance: false
+        platforms: linux/amd64,linux/arm64
+        outputs: type=image,name=ghcr.io/${{ inputs.REPO }}/kubespray,push-by-digest=true,name-canonical=true,push=true
+        cache-from: type=gha,scope=kubespray-modern
+        cache-to: type=gha,mode=max,scope=kubespray-modern
 
-      - name: kubespray base image (Ansible 9) build
-        if: ${{ steps.check.outputs.need_rebuild == 'true' }}
-        uses: docker/build-push-action@v7.3.0
-        with:
-          context: ./
-          file: build/images/kubespray/Dockerfile
-          build-args: |
-            FIX_ANSIBLE9=1
-            SPRAY_REF=${{ inputs.SPRAY_REF }}
-            KUBE_VERSION=${{ inputs.KUBE_VERSION }}
-            DOCKERFILE_COMMIT=${{ needs.output-variable.outputs.dockerfile_commit }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          push: true
-          provenance: false
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/${{ inputs.REPO }}/kubespray:${{ needs.output-variable.outputs.image_tag_short_sha }}-ansible9
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+    - name: Publish kubespray modern tags
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      env:
+        IMAGE_REPO: ghcr.io/${{ inputs.REPO }}/kubespray
+        IMAGE_TAG: ${{ needs.output-variable.outputs.image_tag_short_sha }}
+        IMAGE_DIGEST: ${{ steps.build-modern.outputs.digest }}
+      run: hack/publish-image-tags.sh "$IMAGE_REPO" "$IMAGE_DIGEST" "$IMAGE_TAG" "$IMAGE_TAG-modern"
+
+    - name: kubespray base image (Ansible 9) build
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      id: build-ansible9
+      uses: docker/build-push-action@v7.3.0
+      with:
+        context: ./
+        file: build/images/kubespray/Dockerfile
+        build-args: |
+          FIX_ANSIBLE9=1
+          SPRAY_REF=${{ inputs.SPRAY_REF }}
+          KUBE_VERSION=${{ inputs.KUBE_VERSION }}
+          DOCKERFILE_COMMIT=${{ needs.output-variable.outputs.dockerfile_commit }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        provenance: false
+        platforms: linux/amd64,linux/arm64
+        outputs: type=image,name=ghcr.io/${{ inputs.REPO }}/kubespray,push-by-digest=true,name-canonical=true,push=true
+        cache-from: type=gha,scope=kubespray-ansible9
+        cache-to: type=gha,mode=max,scope=kubespray-ansible9
+
+    - name: Publish kubespray Ansible 9 tags
+      if: ${{ steps.check.outputs.need_rebuild == 'true' }}
+      env:
+        IMAGE_REPO: ghcr.io/${{ inputs.REPO }}/kubespray
+        IMAGE_TAG: ${{ needs.output-variable.outputs.image_tag_short_sha }}
+        IMAGE_DIGEST: ${{ steps.build-ansible9.outputs.digest }}
+      run: hack/publish-image-tags.sh "$IMAGE_REPO" "$IMAGE_DIGEST" "$IMAGE_TAG" "$IMAGE_TAG"

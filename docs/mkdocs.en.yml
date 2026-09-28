@@ -45,6 +45,7 @@ theme:
 nav:
 - Introduction: index.md
 - Quick Start:
+  - usage/python_compatibility.md
   - usage/helm_install_kubean.md
   - usage/all_in_one_install.md
   - usage/mirror_install.md

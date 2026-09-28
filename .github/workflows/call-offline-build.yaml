@@ -53,7 +53,7 @@ jobs:
     - name: Preparing the python environment
       uses: actions/setup-python@v6.3.0
       with:
-        python-version: 3.11
+        python-version: '3.12'
 
     - name: Install kubespray requirements
       run: |
