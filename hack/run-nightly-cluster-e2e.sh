@@ -126,7 +126,7 @@ cp ${REPO_ROOT}/test/common/kubeanClusterOps.yml ${dest_config_path}
 
 CLUSTER_OPERATION_NAME3="cluster1-remove-worker"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
-sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_config_path}"/kubeanClusterOps.yml
+sed -i "s#image:#image: ${SPRAY_JOB_ANSIBLE10NEXT}#" "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/action: cluster.yml/action: remove-node.yml\n  extraArgs: -e node=node2/"  ${dest_config_path}/kubeanClusterOps.yml
 sed -i '/remove-pkgs.yml/a\
     - actionType: playbook\
