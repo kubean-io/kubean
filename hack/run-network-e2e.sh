@@ -39,7 +39,7 @@ function func_prepare_config_yaml_dual_stack() {
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_path}/hosts-conf-cm.yml
     sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
     sed -i "$ a\    enable_dual_stack_networks: true" "${dest_config_path}"/vars-conf-cm.yml
-    sed -i "$ a\    kube_pods_subnet_ipv6: fd89:ee78:d8a6:8608::1:0000/112" "${dest_config_path}"/vars-conf-cm.yml
+    sed -i "$ a\    kube_pods_subnet_ipv6: fd89:ee78:d8a6:8608::1:0/112" "${dest_config_path}"/vars-conf-cm.yml
     sed -i "$ a\    kube_service_addresses_ipv6: fd89:ee78:d8a6:8608::1000/116" "${dest_config_path}"/vars-conf-cm.yml
 }
 

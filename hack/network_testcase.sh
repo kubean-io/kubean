@@ -122,7 +122,7 @@ function kubean_calico_dualstack_e2e() {
     yq -i '.calico_ipip_mode_ipv6 = "Never"'  $groupVarYml
     yq -i '.calico_vxlan_mode_ipv6 = "Always"'  $groupVarYml
     yq -i '.enable_dual_stack_networks = "true"'  $groupVarYml
-    yq -i '.kube_pods_subnet_ipv6 = "fd89:ee78:d8a6:8608::1:0000/112"'  $groupVarYml
+    yq -i '.kube_pods_subnet_ipv6 = "fd89:ee78:d8a6:8608::1:0/112"'  $groupVarYml
     yq -i '.kube_service_addresses_ipv6 = "fd89:ee78:d8a6:8608::1000/116"'  $groupVarYml
     #### End: write back group vars to VarsConfCM.yml
     yamlUtil::update_groupVars
