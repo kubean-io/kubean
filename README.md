@@ -38,6 +38,8 @@ Kubean is a <a href="https://cncf.io/">Cloud Native Computing Foundation sandbox
 
 ## :surfing_man: Quick start
 
+> **Check Python compatibility before deployment:** the two `spray-job` image variants have different requirements. See [Python versions and image selection](./docs/en/usage/python_compatibility.md), especially for RHEL 8 and Kylin V10.
+
 ### Killercoda tutorials
 
 We created a [scenario](https://killercoda.com/kubean) on [killercoda](https://killercoda.com), which is an online platform for interactive technique learning. You can try it in there.

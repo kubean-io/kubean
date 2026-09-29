@@ -65,8 +65,11 @@ RUN pip3 cache purge \
   && bash -c "rm -rf /kubespray/{.git,docs}"
 
 COPY build/images/ansible_patchs/* /tmp/
+# 版本落盘供 hack/ansible-core-version.sh 读取，避免为了拼 tag 去执行镜像内代码。
 RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
   && echo "ANSIBLE_CORE_VERSION: ${ANSIBLE_CORE_VERSION}" \
+  && mkdir -p /etc/kubean \
+  && echo "${ANSIBLE_CORE_VERSION}" > /etc/kubean/ansible-core-version \
   && SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
   && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
   && echo "PKG_MGR_PATH: ${PKG_MGR_PATH}" \

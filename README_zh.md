@@ -38,6 +38,8 @@ Kubean 是一个<a href="https://cncf.io/">云原生计算基金会(CNCF)全景�
 
 ## :surfing_man: 快速入门
 
+> **部署前请检查 Python 兼容性：** 两套 `spray-job` 镜像的要求不同。请先阅读 [Python 版本与镜像选择](./docs/zh/usage/python_compatibility.md)，尤其是 RHEL 8 和 Kylin V10 用户。
+
 ### Killercoda
 
 我们在 [killercoda](https://killercoda.com)（一个在线交互式技术学习平台）上创建了一个[项目](https://killercoda.com/kubean)，可以在上面进行试玩。

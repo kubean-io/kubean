@@ -69,9 +69,8 @@ jobs:
       SPRAY_REF: ${{ needs.check-inputs.outputs.spray_sha1 }}
       REPO: ${{ needs.check-inputs.outputs.image_repo }}
 
-
   build-sprayjob-image:
-    needs: [check-inputs, build-kubespray-image]
+    needs: [ check-inputs, build-kubespray-image ]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -95,12 +94,13 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: sprayjob image build
+      id: build
       uses: docker/build-push-action@v7.3.0
       with:
         context: ./
         file: build/images/spray-job/Dockerfile
         build-args: |
-          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}-modern
           REPO=${{ needs.check-inputs.outputs.image_repo }}
           SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1 }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
@@ -114,9 +114,16 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
+    - name: Publish sprayjob Ansible core tag
+      shell: bash
+      env:
+        IMAGE_REPO: ghcr.io/${{ needs.check-inputs.outputs.image_repo }}/spray-job
+        IMAGE_VERSION: ${{ needs.check-inputs.outputs.tag }}
+        IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+      run: hack/publish-image-tags.sh "$IMAGE_REPO" "$IMAGE_DIGEST" "$IMAGE_VERSION" "$IMAGE_VERSION-modern"
 
   build-airgap-patch-image:
-    needs: [check-inputs, build-kubespray-image]
+    needs: [ check-inputs, build-kubespray-image ]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -145,7 +152,7 @@ jobs:
         context: ./
         file: build/images/airgap-patch/Dockerfile
         build-args: |
-          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}
+          SPRAY_TAG=${{ needs.check-inputs.outputs.spray_sha1_short }}-modern
           REPO=${{ needs.check-inputs.outputs.image_repo }}
           SPRAY_COMMIT=${{ needs.check-inputs.outputs.spray_sha1 }}
           SPRAY_RELEASE=${{ needs.check-inputs.outputs.spray_release_num }}
@@ -189,7 +196,7 @@ jobs:
         echo "manifest cr output:"
         cat manifest/manifest-${{ needs.check-inputs.outputs.tag }}.yml
         rm -rf kubespray/
-    
+
     - name: Push Kubean manifest to another repository
       env:
         REPO_OWNER: ${{ github.repository_owner }}
@@ -220,7 +227,7 @@ jobs:
         target-branch: main
 
   show-artifacts:
-    needs: [check-inputs, build-kubespray-image, build-sprayjob-image, build-airgap-patch-image, gen-manifest]
+    needs: [ check-inputs, build-kubespray-image, build-sprayjob-image, build-airgap-patch-image, gen-manifest ]
     runs-on: ubuntu-latest
     steps:
     - name: output artifacts
