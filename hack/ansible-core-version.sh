@@ -19,7 +19,8 @@ trap cleanup EXIT
 
 # 版本由 requirements.txt 固定，与架构无关，读原生架构即可，无需 QEMU。
 # 只从容器文件系统取构建期落盘的版本，不执行镜像内任何代码。
-CONTAINER=$(docker create "${IMAGE_REF}")
+# scratch 镜像无 CMD/ENTRYPOINT，docker create 需显式指定一个 command 才能通过 daemon 校验。
+CONTAINER=$(docker create "${IMAGE_REF}" /bin/true)
 if ! docker cp "${CONTAINER}:${VERSION_FILE}" "${WORK_DIR}/version" >/dev/null 2>&1; then
   echo "${IMAGE_REF} has no ${VERSION_FILE}; rebuild it with the current kubespray Dockerfile" >&2
   exit 1
