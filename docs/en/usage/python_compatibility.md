@@ -24,19 +24,35 @@ Check the version actually shipped in an image: `docker run --rm --entrypoint an
 
 ## Default Python reference for common systems
 
-These machine observations and supplemental information were compiled on 2026-09-28. Patch versions and command aliases can vary with OS images, updates and configuration. Check the actual target interpreter; this is not a full OS certification matrix.
+The table below covers every offline OS package (`os-pkgs-*`) currently supported by kubean, compiled on 2026-10-08. Rows marked † are not machine-verified; they are the distro's official default or an inference from a closely related distro (e.g. an RHEL-compatible system), and should be confirmed on the actual target node before deployment. Unmarked rows are machine observations. Patch versions and command aliases can vary with OS images, updates and configuration. Check the actual target interpreter; this is not a full OS certification matrix.
 
-| System | `python` | `python3` | Does this Python 3 meet the core 2.21 range? |
-| --- | --- | --- | --- |
-| Ubuntu 22.04.4 LTS | Command not found | 3.10.12 | Yes |
-| Ubuntu 24.04 LTS | Command not found | 3.12.3 | Yes |
-| Rocky Linux 9.2 | 3.9.16 | 3.9.16 | Yes |
-| Kylin V10 (configured as SP3) | 2.7.18 | 3.7.9 | **No** |
-| Kylin V11 (Swan25) | Command not found | 3.11.6 | Yes |
-| RHEL 9.2 (Plow) | 3.9.16 | 3.9.16 | Yes |
-| RHEL 8 | Not recorded | 3.6.8 (supplemental default version) | **No** |
+| System | os-pkgs tag | `python` | `python3` | Meets core 2.16 target range<br>(2.7 or 3.6–3.12) | Meets core 2.21/modern image target range<br>(3.9–3.14) |
+| --- | --- | --- | --- | --- | --- |
+| BigCloud 21.10 † | `os-pkgs-bigcloud2110` | Not recorded | 3.6.8 † | Yes | **No** |
+| CentOS 7 | `os-pkgs-centos7` | 2.7.5 | Not installed by default (3.6.8 available) | Yes | **No** |
+| Kylin V10 SP2 † | `os-pkgs-kylin-v10sp2` | 2.7.18 † | 3.7.9 † | Yes | **No** |
+| Kylin V10 SP3 | `os-pkgs-kylin-v10sp3` | 2.7.18 | 3.7.9 | Yes | **No** |
+| Kylin V11 2503 (formerly Swan25) | `os-pkgs-kylin-v112503` | Command not found | 3.11.6 | Yes | Yes |
+| openEuler 22.03 LTS † | `os-pkgs-openeuler22.03` | Not recorded | 3.9.9 † | Yes | Yes |
+| Oracle Linux 8 † | `os-pkgs-oracle8` | Not installed | 3.6.8 † | Yes | **No** |
+| Oracle Linux 9 † | `os-pkgs-oracle9` | Not installed | 3.9.18 † | Yes | Yes |
+| RHEL 10 † | `os-pkgs-redhat10` | Not installed | 3.12.x † | Yes (right at the upper bound) | Yes |
+| RHEL 7 | `os-pkgs-redhat7` | 2.7.5 | Not installed by default (3.6.8 available) | Yes | **No** |
+| RHEL 8 | `os-pkgs-redhat8` | Not installed | 3.6.8 | Yes | **No** |
+| RHEL 9.2 (Plow) | `os-pkgs-redhat9` | 3.9.16 | 3.9.16 | Yes | Yes |
+| Rocky Linux 8 † | `os-pkgs-rocky8` | Not installed | 3.6.8 † | Yes | **No** |
+| Rocky Linux 9.2 | `os-pkgs-rocky9` | 3.9.16 | 3.9.16 | Yes | Yes |
+| TencentOS Server 3.1 † | `os-pkgs-tencent31` | Not recorded | 3.6.8 † | Yes | **No** |
+| Ubuntu 20.04 LTS | `os-pkgs-ubuntu2004` | Command not found | 3.8.10 | Yes | **No** |
+| Ubuntu 22.04.4 LTS | `os-pkgs-ubuntu2204` | Command not found | 3.10.12 | Yes | Yes |
+| Ubuntu 24.04 LTS | `os-pkgs-ubuntu2404` | Command not found | 3.12.3 | Yes | Yes |
 
-All Python 3 versions above fall within core 2.16's target-node range. A missing `python` command does not prevent Ansible use; the selected interpreter is what matters.
+**Quick summary**:
+
+- **Meets the modern image (`-modern` / core 2.21) requirement**, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.
+- **Only meets the legacy image (core 2.16) requirement** — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, TencentOS Server 3.1, Ubuntu 20.04.
+
+All Python versions above fall within core 2.16's target-node range. A missing `python` command does not prevent Ansible use; the selected interpreter is what matters.
 
 ## Choosing an image
 
