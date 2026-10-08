@@ -4536,62 +4536,171 @@
 </ul>
 <p>Check the version actually shipped in an image: <code>docker run --rm --entrypoint ansible &lt;image&gt; --version</code>.</p>
 <h2 id="default-python-reference-for-common-systems">Default Python reference for common systems<a class="headerlink" href="#default-python-reference-for-common-systems" title="Permanent link">&para;</a></h2>
-<p>These machine observations and supplemental information were compiled on 2026-09-28. Patch versions and command aliases can vary with OS images, updates and configuration. Check the actual target interpreter; this is not a full OS certification matrix.</p>
+<p>The table below covers every offline OS package (<code>os-pkgs-*</code>) currently supported by kubean, compiled on 2026-10-08. Rows marked † are not machine-verified; they are the distro's official default or an inference from a closely related distro (e.g. an RHEL-compatible system), and should be confirmed on the actual target node before deployment. Unmarked rows are machine observations. Patch versions and command aliases can vary with OS images, updates and configuration. Check the actual target interpreter; this is not a full OS certification matrix.</p>
 <table>
 <thead>
 <tr>
 <th>System</th>
+<th>os-pkgs tag</th>
 <th><code>python</code></th>
 <th><code>python3</code></th>
-<th>Does this Python 3 meet the core 2.21 range?</th>
+<th>Meets core 2.16 target range<br>(2.7 or 3.6–3.12)</th>
+<th>Meets core 2.21/modern image target range<br>(3.9–3.14)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>BigCloud 21.10 †</td>
+<td><code>os-pkgs-bigcloud2110</code></td>
+<td>Not recorded</td>
+<td>3.6.8 †</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>CentOS 7</td>
+<td><code>os-pkgs-centos7</code></td>
+<td>2.7.5</td>
+<td>Not installed by default (3.6.8 available)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Kylin V10 SP2 †</td>
+<td><code>os-pkgs-kylin-v10sp2</code></td>
+<td>2.7.18 †</td>
+<td>3.7.9 †</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Kylin V10 SP3</td>
+<td><code>os-pkgs-kylin-v10sp3</code></td>
+<td>2.7.18</td>
+<td>3.7.9</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Kylin V11 2503 (formerly Swan25)</td>
+<td><code>os-pkgs-kylin-v112503</code></td>
+<td>Command not found</td>
+<td>3.11.6</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>openEuler 22.03 LTS †</td>
+<td><code>os-pkgs-openeuler22.03</code></td>
+<td>Not recorded</td>
+<td>3.9.9 †</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Oracle Linux 8 †</td>
+<td><code>os-pkgs-oracle8</code></td>
+<td>Not installed</td>
+<td>3.6.8 †</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Oracle Linux 9 †</td>
+<td><code>os-pkgs-oracle9</code></td>
+<td>Not installed</td>
+<td>3.9.18 †</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>RHEL 10 †</td>
+<td><code>os-pkgs-redhat10</code></td>
+<td>Not installed</td>
+<td>3.12.x †</td>
+<td>Yes (right at the upper bound)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>RHEL 7</td>
+<td><code>os-pkgs-redhat7</code></td>
+<td>2.7.5</td>
+<td>Not installed by default (3.6.8 available)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>RHEL 8</td>
+<td><code>os-pkgs-redhat8</code></td>
+<td>Not installed</td>
+<td>3.6.8</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>RHEL 9.2 (Plow)</td>
+<td><code>os-pkgs-redhat9</code></td>
+<td>3.9.16</td>
+<td>3.9.16</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Rocky Linux 8 †</td>
+<td><code>os-pkgs-rocky8</code></td>
+<td>Not installed</td>
+<td>3.6.8 †</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Rocky Linux 9.2</td>
+<td><code>os-pkgs-rocky9</code></td>
+<td>3.9.16</td>
+<td>3.9.16</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>TencentOS Server 3.1 †</td>
+<td><code>os-pkgs-tencent31</code></td>
+<td>Not recorded</td>
+<td>3.6.8 †</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Ubuntu 20.04 LTS</td>
+<td><code>os-pkgs-ubuntu2004</code></td>
+<td>Command not found</td>
+<td>3.8.10</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
 <td>Ubuntu 22.04.4 LTS</td>
+<td><code>os-pkgs-ubuntu2204</code></td>
 <td>Command not found</td>
 <td>3.10.12</td>
+<td>Yes</td>
 <td>Yes</td>
 </tr>
 <tr>
 <td>Ubuntu 24.04 LTS</td>
+<td><code>os-pkgs-ubuntu2404</code></td>
 <td>Command not found</td>
 <td>3.12.3</td>
 <td>Yes</td>
-</tr>
-<tr>
-<td>Rocky Linux 9.2</td>
-<td>3.9.16</td>
-<td>3.9.16</td>
 <td>Yes</td>
-</tr>
-<tr>
-<td>Kylin V10 (configured as SP3)</td>
-<td>2.7.18</td>
-<td>3.7.9</td>
-<td><strong>No</strong></td>
-</tr>
-<tr>
-<td>Kylin V11 (Swan25)</td>
-<td>Command not found</td>
-<td>3.11.6</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>RHEL 9.2 (Plow)</td>
-<td>3.9.16</td>
-<td>3.9.16</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>RHEL 8</td>
-<td>Not recorded</td>
-<td>3.6.8 (supplemental default version)</td>
-<td><strong>No</strong></td>
 </tr>
 </tbody>
 </table>
-<p>All Python 3 versions above fall within core 2.16's target-node range. A missing <code>python</code> command does not prevent Ansible use; the selected interpreter is what matters.</p>
+<p><strong>Quick summary</strong>:</p>
+<ul>
+<li><strong>Meets the modern image (<code>-modern</code> / core 2.21) requirement</strong>, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.</li>
+<li><strong>Only meets the legacy image (core 2.16) requirement</strong> — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, TencentOS Server 3.1, Ubuntu 20.04.</li>
+</ul>
+<p>All Python versions above fall within core 2.16's target-node range. A missing <code>python</code> command does not prevent Ansible use; the selected interpreter is what matters.</p>
 <h2 id="choosing-an-image">Choosing an image<a class="headerlink" href="#choosing-an-image" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Targets already have Python 3.9–3.14: reuse that interpreter when evaluating the modern image. <strong>Python 3.12 is not mandatory.</strong></li>

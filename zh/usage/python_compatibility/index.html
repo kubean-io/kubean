@@ -4536,62 +4536,171 @@
 </ul>
 <p>自查镜像内实际版本：<code>docker run --rm --entrypoint ansible &lt;image&gt; --version</code>。</p>
 <h2 id="python_1">主要系统的默认 Python 参考<a class="headerlink" href="#python_1" title="Permanent link">&para;</a></h2>
-<p>以下为实机记录及补充信息，整理于 2026-09-28。补丁版本和命令别名可能随系统镜像、更新及配置变化，请以目标节点实际解释器为准；本表不是完整 OS 支持认证。</p>
+<p>以下覆盖 kubean 当前适配的全部离线系统软件包（<code>os-pkgs-*</code>），整理于 2026-10-08。标记 † 的行未经实机验证，为该发行版官方默认值或同源发行版（如 RHEL 兼容系统）的推断值，部署前建议在目标节点自查确认；未标记的为实机记录。补丁版本和命令别名可能随系统镜像、更新及配置变化，请以目标节点实际解释器为准；本表不是完整 OS 支持认证。</p>
 <table>
 <thead>
 <tr>
 <th>系统</th>
+<th>os-pkgs 标识</th>
 <th><code>python</code></th>
 <th><code>python3</code></th>
-<th>该 Python 3 是否满足 core 2.21 范围</th>
+<th>满足 core 2.16 目标范围<br>（2.7 或 3.6–3.12）</th>
+<th>满足 core 2.21/现代镜像目标范围<br>（3.9–3.14）</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>BigCloud 21.10 †</td>
+<td><code>os-pkgs-bigcloud2110</code></td>
+<td>未记录</td>
+<td>3.6.8 †</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>CentOS 7</td>
+<td><code>os-pkgs-centos7</code></td>
+<td>2.7.5</td>
+<td>未默认安装（可装 3.6.8）</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Kylin V10 SP2 †</td>
+<td><code>os-pkgs-kylin-v10sp2</code></td>
+<td>2.7.18 †</td>
+<td>3.7.9 †</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Kylin V10 SP3</td>
+<td><code>os-pkgs-kylin-v10sp3</code></td>
+<td>2.7.18</td>
+<td>3.7.9</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Kylin V11 2503（原 Swan25）</td>
+<td><code>os-pkgs-kylin-v112503</code></td>
+<td>未找到命令</td>
+<td>3.11.6</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>openEuler 22.03 LTS †</td>
+<td><code>os-pkgs-openeuler22.03</code></td>
+<td>未记录</td>
+<td>3.9.9 †</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Oracle Linux 8 †</td>
+<td><code>os-pkgs-oracle8</code></td>
+<td>未安装</td>
+<td>3.6.8 †</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Oracle Linux 9 †</td>
+<td><code>os-pkgs-oracle9</code></td>
+<td>未安装</td>
+<td>3.9.18 †</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>RHEL 10 †</td>
+<td><code>os-pkgs-redhat10</code></td>
+<td>未安装</td>
+<td>3.12.x †</td>
+<td>是（恰在上限）</td>
+<td>是</td>
+</tr>
+<tr>
+<td>RHEL 7</td>
+<td><code>os-pkgs-redhat7</code></td>
+<td>2.7.5</td>
+<td>未默认安装（可装 3.6.8）</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>RHEL 8</td>
+<td><code>os-pkgs-redhat8</code></td>
+<td>未安装</td>
+<td>3.6.8</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>RHEL 9.2（Plow）</td>
+<td><code>os-pkgs-redhat9</code></td>
+<td>3.9.16</td>
+<td>3.9.16</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>Rocky Linux 8 †</td>
+<td><code>os-pkgs-rocky8</code></td>
+<td>未安装</td>
+<td>3.6.8 †</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Rocky Linux 9.2</td>
+<td><code>os-pkgs-rocky9</code></td>
+<td>3.9.16</td>
+<td>3.9.16</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
+<td>TencentOS Server 3.1 †</td>
+<td><code>os-pkgs-tencent31</code></td>
+<td>未记录</td>
+<td>3.6.8 †</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>Ubuntu 20.04 LTS</td>
+<td><code>os-pkgs-ubuntu2004</code></td>
+<td>未找到命令</td>
+<td>3.8.10</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
 <td>Ubuntu 22.04.4 LTS</td>
+<td><code>os-pkgs-ubuntu2204</code></td>
 <td>未找到命令</td>
 <td>3.10.12</td>
+<td>是</td>
 <td>是</td>
 </tr>
 <tr>
 <td>Ubuntu 24.04 LTS</td>
+<td><code>os-pkgs-ubuntu2404</code></td>
 <td>未找到命令</td>
 <td>3.12.3</td>
 <td>是</td>
-</tr>
-<tr>
-<td>Rocky Linux 9.2</td>
-<td>3.9.16</td>
-<td>3.9.16</td>
 <td>是</td>
-</tr>
-<tr>
-<td>Kylin V10（配置为 SP3）</td>
-<td>2.7.18</td>
-<td>3.7.9</td>
-<td><strong>否</strong></td>
-</tr>
-<tr>
-<td>Kylin V11（Swan25）</td>
-<td>未找到命令</td>
-<td>3.11.6</td>
-<td>是</td>
-</tr>
-<tr>
-<td>RHEL 9.2（Plow）</td>
-<td>3.9.16</td>
-<td>3.9.16</td>
-<td>是</td>
-</tr>
-<tr>
-<td>RHEL 8</td>
-<td>未记录</td>
-<td>3.6.8（默认版本补充）</td>
-<td><strong>否</strong></td>
 </tr>
 </tbody>
 </table>
-<p>上述 Python 3 版本均在 core 2.16 的目标端支持范围内。<code>python</code> 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。</p>
+<p><strong>结论速查</strong>：</p>
+<ul>
+<li><strong>满足现代镜像（<code>-modern</code> / core 2.21）要求</strong>，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。</li>
+<li><strong>仅满足传统镜像（core 2.16）要求</strong>，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、TencentOS Server 3.1、Ubuntu 20.04。</li>
+</ul>
+<p>上述所有 Python 版本均在 core 2.16 的目标端支持范围内。<code>python</code> 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。</p>
 <h2 id="_2">如何选择<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>目标节点已有 Python 3.9–3.14：可复用该解释器评估现代镜像，<strong>不必强制安装 Python 3.12</strong>。</li>
