@@ -24,19 +24,35 @@
 
 ## 主要系统的默认 Python 参考
 
-以下为实机记录及补充信息，整理于 2026-09-28。补丁版本和命令别名可能随系统镜像、更新及配置变化，请以目标节点实际解释器为准；本表不是完整 OS 支持认证。
+以下覆盖 kubean 当前适配的全部离线系统软件包（`os-pkgs-*`），整理于 2026-10-08。标记 † 的行未经实机验证，为该发行版官方默认值或同源发行版（如 RHEL 兼容系统）的推断值，部署前建议在目标节点自查确认；未标记的为实机记录。补丁版本和命令别名可能随系统镜像、更新及配置变化，请以目标节点实际解释器为准；本表不是完整 OS 支持认证。
 
-| 系统 | `python` | `python3` | 该 Python 3 是否满足 core 2.21 范围 |
-| --- | --- | --- | --- |
-| Ubuntu 22.04.4 LTS | 未找到命令 | 3.10.12 | 是 |
-| Ubuntu 24.04 LTS | 未找到命令 | 3.12.3 | 是 |
-| Rocky Linux 9.2 | 3.9.16 | 3.9.16 | 是 |
-| Kylin V10（配置为 SP3） | 2.7.18 | 3.7.9 | **否** |
-| Kylin V11（Swan25） | 未找到命令 | 3.11.6 | 是 |
-| RHEL 9.2（Plow） | 3.9.16 | 3.9.16 | 是 |
-| RHEL 8 | 未记录 | 3.6.8（默认版本补充） | **否** |
+| 系统 | os-pkgs 标识 | `python` | `python3` | 满足 core 2.16 目标范围<br>（2.7 或 3.6–3.12） | 满足 core 2.21/现代镜像目标范围<br>（3.9–3.14） |
+| --- | --- | --- | --- | --- | --- |
+| BigCloud 21.10 † | `os-pkgs-bigcloud2110` | 未记录 | 3.6.8 † | 是 | **否** |
+| CentOS 7 | `os-pkgs-centos7` | 2.7.5 | 未默认安装（可装 3.6.8） | 是 | **否** |
+| Kylin V10 SP2 † | `os-pkgs-kylin-v10sp2` | 2.7.18 † | 3.7.9 † | 是 | **否** |
+| Kylin V10 SP3 | `os-pkgs-kylin-v10sp3` | 2.7.18 | 3.7.9 | 是 | **否** |
+| Kylin V11 2503（原 Swan25） | `os-pkgs-kylin-v112503` | 未找到命令 | 3.11.6 | 是 | 是 |
+| openEuler 22.03 LTS † | `os-pkgs-openeuler22.03` | 未记录 | 3.9.9 † | 是 | 是 |
+| Oracle Linux 8 † | `os-pkgs-oracle8` | 未安装 | 3.6.8 † | 是 | **否** |
+| Oracle Linux 9 † | `os-pkgs-oracle9` | 未安装 | 3.9.18 † | 是 | 是 |
+| RHEL 10 † | `os-pkgs-redhat10` | 未安装 | 3.12.x † | 是（恰在上限） | 是 |
+| RHEL 7 | `os-pkgs-redhat7` | 2.7.5 | 未默认安装（可装 3.6.8） | 是 | **否** |
+| RHEL 8 | `os-pkgs-redhat8` | 未安装 | 3.6.8 | 是 | **否** |
+| RHEL 9.2（Plow） | `os-pkgs-redhat9` | 3.9.16 | 3.9.16 | 是 | 是 |
+| Rocky Linux 8 † | `os-pkgs-rocky8` | 未安装 | 3.6.8 † | 是 | **否** |
+| Rocky Linux 9.2 | `os-pkgs-rocky9` | 3.9.16 | 3.9.16 | 是 | 是 |
+| TencentOS Server 3.1 † | `os-pkgs-tencent31` | 未记录 | 3.6.8 † | 是 | **否** |
+| Ubuntu 20.04 LTS | `os-pkgs-ubuntu2004` | 未找到命令 | 3.8.10 | 是 | **否** |
+| Ubuntu 22.04.4 LTS | `os-pkgs-ubuntu2204` | 未找到命令 | 3.10.12 | 是 | 是 |
+| Ubuntu 24.04 LTS | `os-pkgs-ubuntu2404` | 未找到命令 | 3.12.3 | 是 | 是 |
 
-上述 Python 3 版本均在 core 2.16 的目标端支持范围内。`python` 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。
+**结论速查**：
+
+- **满足现代镜像（`-modern` / core 2.21）要求**，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。
+- **仅满足传统镜像（core 2.16）要求**，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、TencentOS Server 3.1、Ubuntu 20.04。
+
+上述所有 Python 版本均在 core 2.16 的目标端支持范围内。`python` 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。
 
 ## 如何选择
 
