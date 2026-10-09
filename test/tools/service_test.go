@@ -51,3 +51,23 @@ func TestBoundedKubeanJobLogPreservesBeginningAndEnd(t *testing.T) {
 		}
 	}
 }
+
+func TestPingCommandForIP(t *testing.T) {
+	tests := []struct {
+		name string
+		ip   string
+		want string
+	}{
+		{name: "IPv4", ip: "192.168.136.6", want: "ping"},
+		{name: "IPv6", ip: "fd89:ee78:d8a6:8608::1:6806", want: "ping6"},
+		{name: "invalid", ip: "not-an-ip", want: "ping"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := pingCommandForIP(tt.ip); got != tt.want {
+				t.Fatalf("pingCommandForIP(%q) = %q, want %q", tt.ip, got, tt.want)
+			}
+		})
+	}
+}
