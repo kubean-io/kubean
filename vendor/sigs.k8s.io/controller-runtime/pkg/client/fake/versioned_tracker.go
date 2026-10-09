@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"runtime/debug"
 	"strconv"
+	"sync/atomic"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -44,6 +45,12 @@ type versionedTracker struct {
 	scheme                        *runtime.Scheme
 	withStatusSubresource         sets.Set[schema.GroupVersionKind]
 	usesFieldManagedObjectTracker bool
+
+	resourceVersionCounter *atomic.Uint64
+}
+
+func (t versionedTracker) nextResourceVersion() string {
+	return strconv.FormatUint(t.resourceVersionCounter.Add(1), 10)
 }
 
 func (t versionedTracker) Add(obj runtime.Object) error {
@@ -66,14 +73,18 @@ func (t versionedTracker) Add(obj runtime.Object) error {
 			return fmt.Errorf("refusing to create obj %s with metadata.deletionTimestamp but no finalizers", accessor.GetName())
 		}
 		if accessor.GetResourceVersion() == "" {
-			// We use a "magic" value of 999 here because this field
-			// is parsed as uint and and 0 is already used in Update.
-			// As we can't go lower, go very high instead so this can
-			// be recognized
-			accessor.SetResourceVersion(trackerAddResourceVersion)
+			if t.resourceVersionCounter != nil {
+				accessor.SetResourceVersion(t.nextResourceVersion())
+			} else {
+				// We use a "magic" value of 999 here because this field
+				// is parsed as uint and and 0 is already used in Update.
+				// As we can't go lower, go very high instead so this can
+				// be recognized
+				accessor.SetResourceVersion(trackerAddResourceVersion)
+			}
 		}
 
-		obj, err = convertFromUnstructuredIfNecessary(t.scheme, obj)
+		obj, err = convertFromUnstructuredOrPartialObjectMetaIfNecessary(t.scheme, obj)
 		if err != nil {
 			return err
 		}
@@ -87,6 +98,18 @@ func (t versionedTracker) Add(obj runtime.Object) error {
 				return fmt.Errorf("invalid managedFields on %T: %w", obj, err)
 			}
 		}
+		// The trackers add panics when using PartialObjectMetadata without registering it to
+		// the scheme.
+		if _, isPartial := obj.(*metav1.PartialObjectMetadata); isPartial {
+			gvk, err := apiutil.GVKForObject(obj, t.scheme)
+			if err != nil {
+				return fmt.Errorf("failed to get gvk for %T: %w", obj, err)
+			}
+			if !t.scheme.Recognizes(gvk) {
+				t.scheme.AddKnownTypeWithName(gvk, obj)
+			}
+		}
+
 		if err := t.upstream.Add(obj); err != nil {
 			return err
 		}
@@ -110,8 +133,12 @@ func (t versionedTracker) Create(gvr schema.GroupVersionResource, obj runtime.Ob
 	if accessor.GetResourceVersion() != "" {
 		return apierrors.NewBadRequest("resourceVersion can not be set for Create requests")
 	}
-	accessor.SetResourceVersion("1")
-	obj, err = convertFromUnstructuredIfNecessary(t.scheme, obj)
+	if t.resourceVersionCounter != nil {
+		accessor.SetResourceVersion(t.nextResourceVersion())
+	} else {
+		accessor.SetResourceVersion("1")
+	}
+	obj, err = convertFromUnstructuredOrPartialObjectMetaIfNecessary(t.scheme, obj)
 	if err != nil {
 		return err
 	}
@@ -231,15 +258,17 @@ func (t versionedTracker) updateObject(
 	}
 
 	if t.withStatusSubresource.Has(gvk) {
-		if isStatus { // copy everything but status and metadata.ResourceVersion from original object
+		if isStatus { // copy everything but status, managedFields and metadata.ResourceVersion from original object
 			if err := copyStatusFrom(obj, oldObject); err != nil {
 				return nil, false, fmt.Errorf("failed to copy non-status field for object with status subresouce: %w", err)
 			}
 			passedRV := accessor.GetResourceVersion()
+			passedManagedFields := accessor.GetManagedFields()
 			if err := copyFrom(oldObject, obj); err != nil {
 				return nil, false, fmt.Errorf("failed to restore non-status fields: %w", err)
 			}
 			accessor.SetResourceVersion(passedRV)
+			accessor.SetManagedFields(passedManagedFields)
 		} else { // copy status from original object
 			if err := copyStatusFrom(oldObject, obj); err != nil {
 				return nil, false, fmt.Errorf("failed to copy the status for object with status subresource: %w", err)
@@ -265,13 +294,15 @@ func (t versionedTracker) updateObject(
 			// apiserver accepts such a patch, but it does so we just copy that behavior.
 			// Kubernetes apiserver behavior can be checked like this:
 			// `kubectl patch configmap foo --patch '{"metadata":{"annotations":{"foo":"bar"},"resourceVersion":null}}' -v=9`
-		case bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeClient).Patch")):
+		case bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeClient).Patch")),
+			bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeSubResourceClient).Patch")):
 			// We apply patches using a client-go reaction that ends up calling the trackers Update. As we can't change
-			// that reaction, we use the callstack to figure out if this originated from the "fakeClient.Patch" func.
+			// that reaction, we use the callstack to figure out if this originated from the "fake[SubResource]Client.Patch" func.
 			accessor.SetResourceVersion(oldAccessor.GetResourceVersion())
-		case bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeClient).Apply")):
+		case bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeClient).Apply")),
+			bytes.Contains(debug.Stack(), []byte("sigs.k8s.io/controller-runtime/pkg/client/fake.(*fakeSubResourceClient).Apply")):
 			// We apply patches using a client-go reaction that ends up calling the trackers Update. As we can't change
-			// that reaction, we use the callstack to figure out if this originated from the "fakeClient.Apply" func.
+			// that reaction, we use the callstack to figure out if this originated from the "fake[SubResource]Client.Apply" func.
 			accessor.SetResourceVersion(oldAccessor.GetResourceVersion())
 		}
 	}
@@ -282,12 +313,16 @@ func (t versionedTracker) updateObject(
 	if oldAccessor.GetResourceVersion() == "" {
 		oldAccessor.SetResourceVersion("0")
 	}
-	intResourceVersion, err := strconv.ParseUint(oldAccessor.GetResourceVersion(), 10, 64)
-	if err != nil {
-		return nil, false, fmt.Errorf("can not convert resourceVersion %q to int: %w", oldAccessor.GetResourceVersion(), err)
+	if t.resourceVersionCounter != nil {
+		accessor.SetResourceVersion(t.nextResourceVersion())
+	} else {
+		intResourceVersion, err := strconv.ParseUint(oldAccessor.GetResourceVersion(), 10, 64)
+		if err != nil {
+			return nil, false, fmt.Errorf("can not convert resourceVersion %q to int: %w", oldAccessor.GetResourceVersion(), err)
+		}
+		intResourceVersion++
+		accessor.SetResourceVersion(strconv.FormatUint(intResourceVersion, 10))
 	}
-	intResourceVersion++
-	accessor.SetResourceVersion(strconv.FormatUint(intResourceVersion, 10))
 
 	if !deleting && !deletionTimestampEqual(accessor, oldAccessor) {
 		return nil, false, fmt.Errorf("error: Unable to edit %s: metadata.deletionTimestamp field is immutable", accessor.GetName())
@@ -297,7 +332,7 @@ func (t versionedTracker) updateObject(
 		return nil, false, t.Delete(gvr, accessor.GetNamespace(), accessor.GetName(), metav1.DeleteOptions{DryRun: dryRun})
 	}
 
-	obj, err = convertFromUnstructuredIfNecessary(t.scheme, obj)
+	obj, err = convertFromUnstructuredOrPartialObjectMetaIfNecessary(t.scheme, obj)
 	return obj, false, err
 }
 
