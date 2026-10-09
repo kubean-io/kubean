@@ -178,6 +178,17 @@ gpgcheck=0
 sslverify=0
 ```
 
+若导入的是 SUSE Linux Micro ISO，源路径为 `sl-micro-iso`，repo 文件需放在 `/etc/zypp/repos.d/` 下：
+
+```config
+[kubean-iso-online]
+name=Kubean ISO Repo Online
+baseurl=${minio_address}/kubean/sl-micro-iso/$releasever/os/$basearch
+enabled=1
+autorefresh=1
+gpgcheck=0
+```
+
 - 需要将 `${minio_address}` 替换为 minio API Server 地址
 
 这一步也可以通过设置 ClusterOperation 文件中 enable-repo.yml 的 extraArgs 的值来实现，
@@ -300,6 +311,51 @@ spec:
       extraArgs: |
         -e undo=true
 ```
+
+SUSE Linux Micro 6.1 zypper repo 的配置示例：
+
+``` yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群前, 先执行 enable-repo 的 playbook, 为每个节点创建指定 url 的源配置
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/sl-micro/\$releasever/os/\$basearch']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 在部署集群后, 还原各节点 zypper repo 配置. (注：此步骤, 可视情况添加.)
+      extraArgs: |
+        -e undo=true
+```
+
+注意事项：
+
+- 传参格式与 yum 系一致。zypper 同样支持 `$releasever` 与 `$basearch` 变量，
+  在 SL Micro 6.1 上分别展开为 `6.1` 和 `x86_64`，正好对应离线包目录 `sl-micro/6.1/os/x86_64`。
+  其中 `$releasever` 取自 `/etc/products.d/baseproduct`。
+- `repo_list` 可同时传入多个源，例如 os-pkgs 离线包源与 [ISO 导入的源](#iso_1)并用：
+
+    ```
+    -e "{repo_list: ['{minio_url}/kubean/sl-micro/\$releasever/os/\$basearch',
+                     '{minio_url}/kubean/sl-micro-iso/\$releasever/os/\$basearch']}"
+    ```
+
+- SL Micro 需以 ISO / self-install 方式安装（btrfs + `transactional-update` 形态）才能安装软件包；
+  Elemental 镜像模式下根文件系统只读，`zypper install` 无法工作。
 
 ## 部署集群前的配置
 

@@ -12,6 +12,30 @@ apt:
 - iputils-ping
 - rsync
 
+# SUSE/zypper systems do not consume the 'common' list: sshpass is not shipped by
+# any SUSE repo, and it is only needed on the Ansible runner, not on cluster nodes.
+zypper:
+- bash-completion
+- chrony
+- conntrack-tools
+- curl
+- device-mapper
+- e2fsprogs
+- ebtables
+- iproute2
+- ipset
+- iptables
+- iputils
+- ipvsadm
+- libseccomp2
+- nftables
+- openssl
+- rsync
+- socat
+- tar
+- unzip
+- xfsprogs
+
 common:
 - sshpass
 - ipvsadm
@@ -131,3 +155,7 @@ tencentos31:
 bigcloud2110:
 - socat
 - container-selinux
+
+# SL Micro 6.1 ships Python 3.11, so the generic python3-cryptography name does not exist.
+sl_micro61:
+- python311-cryptography

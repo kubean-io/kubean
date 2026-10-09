@@ -1,0 +1,39 @@
+ARG OS_NAME=sl-micro
+
+# SUSE Linux Micro 6.1 is built from SLFO 1.1 and its own repos require SCC/SMT
+# registration. openSUSE Leap Micro 6.1 is the community build of the same SLFO 1.1
+# sources and ships byte-identical NVRs (e.g. glibc-2.38-slfo.1.1_10.1), so it is the
+# primary source; SLE-BCI 15-SP6 is a lower-priority fallback for the handful of
+# packages Leap Micro does not ship (ipset, ipvsadm, unzip).
+FROM opensuse/leap:15.6 AS os-sl-micro61
+ARG OS_NAME
+ARG OS_VERSION=6.1
+ARG BUILD_TOOLS="createrepo_c"
+ARG MICRO_REPO_BASE="https://download.opensuse.org/distribution/leap-micro/6.1/product/repo/openSUSE-Leap-Micro-6.1-"
+ARG BCI_REPO_BASE="https://updates.suse.com/SUSE/Products/SLE-BCI/15-SP6/"
+
+WORKDIR /$OS_NAME/$OS_VERSION/os
+COPY build/os-packages/packages.yml .
+COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.zypper[],.sl_micro61[]' packages.yml > packages.list
+
+# Resolving against a throw-away root forces zypper to compute the full dependency
+# closure instead of skipping whatever the build container already has installed.
+# The builder's own repos are disabled so the build only depends on the two repos
+# declared above.
+RUN ARCH=$(uname -m) \
+  && zypper --non-interactive modifyrepo --all --disable \
+  && zypper --non-interactive --gpg-auto-import-keys ar -f -p 150 "${BCI_REPO_BASE}${ARCH}/product/" bci \
+  && zypper --non-interactive --gpg-auto-import-keys install --no-recommends -y ${BUILD_TOOLS} \
+  && mkdir -p /pkgroot ${ARCH} \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ar -f -p 50 "${MICRO_REPO_BASE}${ARCH}/" micro61 \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ar -f -p 150 "${BCI_REPO_BASE}${ARCH}/product/" bci \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ref \
+  && zypper --root /pkgroot --pkg-cache-dir /pkgcache --non-interactive --gpg-auto-import-keys \
+  install --download-only -y $(sort -u packages.list | tr '\n' ' ') \
+  && find /pkgcache -name '*.rpm' -exec mv -n {} ${ARCH}/ \; \
+  && createrepo_c ${ARCH}
+
+FROM scratch
+ARG OS_NAME
+COPY --from=os-sl-micro61 /$OS_NAME /resources/$OS_NAME
