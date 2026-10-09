@@ -1,6 +1,5 @@
 # Copyright 2023 Authors of kubean-io
 # SPDX-License-Identifier: Apache-2.0
-
 ---
 - name: Enable additional package repo config in offline scenarios
   hosts: k8s_cluster,etcd
@@ -10,11 +9,11 @@
     repo_name: extension
     repo_list: []
     redhat_os_family_extensions:
-      - "Kylin Linux Advanced Server"
-      - "openEuler"
-      - "UnionTech"
-      - "UniontechOS"
-      - "TencentOS"
+    - "Kylin Linux Advanced Server"
+    - "openEuler"
+    - "UnionTech"
+    - "UniontechOS"
+    - "TencentOS"
 
     yum_repo_src_path: /etc/yum.repos.d
     yum_repo_bak_path: /etc/yum.repos.d.bak
@@ -24,165 +23,240 @@
     apt_repo_src_path: /etc/apt/sources.list.d
     apt_repo_bak_path: /etc/apt/sources.list.d.bak
 
+    zypper_repo_src_path: /etc/zypp/repos.d
+    zypper_repo_bak_path: /etc/zypp/repos.d.bak
+
   tasks:
 
-    # Install
-    - name: Set os_family fact for Kylin Linux Advanced Server
-      set_fact:
-        ansible_os_family: RedHat
-      when: ansible_distribution in redhat_os_family_extensions
+  # Install
+  - name: Set os_family fact for Kylin Linux Advanced Server
+    set_fact:
+      ansible_os_family: RedHat
+    when: ansible_distribution in redhat_os_family_extensions
 
-    ## yum repository config
-    - name: Checking if extension yum repo exists
-      stat:
-        path: "{{ yum_repo_src_path }}/{{ repo_name }}.repo"
-      register: file_data
-      when:
-        - ansible_os_family == "RedHat"
+  ## yum repository config
+  - name: Checking if extension yum repo exists
+    stat:
+      path: "{{ yum_repo_src_path }}/{{ repo_name }}.repo"
+    register: file_data
+    when:
+    - ansible_os_family == "RedHat"
 
-    - name: Backup original yum repo if extension repo not exist
-      shell: >-
-        mv {{ yum_repo_src_path }} {{ yum_repo_bak_path }} &&
-        mkdir -p {{ yum_repo_src_path }}
+  - name: Backup original yum repo if extension repo not exist
+    shell: >-
+      mv {{ yum_repo_src_path }} {{ yum_repo_bak_path }} && mkdir -p {{ yum_repo_src_path }}
+    when:
+    - ansible_os_family == "RedHat"
+    - not file_data.stat.exists and ( repo_list | length > 0 )
+    - not undo|default(false)|bool
+
+  - name: Enable extension yum repositories
+    ansible.builtin.yum_repository:
+      name: "{{ repo_name }}-{{ url_index }}"
+      description: "kubean {{ repo_name }} {{ url_index }}"
+      file: "{{ repo_name }}"
+      baseurl: "{{ url_item }}"
+      gpgcheck: false
+    loop: "{{ repo_list }}"
+    loop_control:
+      loop_var: url_item
+      index_var: url_index
+    when:
+    - ansible_os_family == "RedHat"
+    - not undo|default(false)|bool
+
+  - name: Make cache for new repo
+    shell: >-
+      yum clean all && yum makecache
+    when:
+    - ansible_os_family == "RedHat"
+    - not undo|default(false)|bool
+
+  ## apt repository config
+  - name: Checking if extension apt repo exists
+    stat:
+      path: "{{ apt_repo_src_path }}/{{ repo_name }}.list"
+    register: deb_repo_data
+    when:
+    - ansible_pkg_mgr == 'apt'
+
+  - name: Backup original apt repo if extension repo not exist
+    shell: |-
+      set -e
+      if [ -f "{{ apt_repo_src_file }}" ]; then
+        mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }}
+      fi
+      if [ -d "{{ apt_repo_src_path }}" ]; then
+        mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/
+      fi
+      mkdir -p {{ apt_repo_src_path }}/
+    when:
+    - ansible_pkg_mgr == 'apt'
+    - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+    - not undo|default(false)|bool
+
+  - name: Enable extension apt repositories
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+      filename: "{{ repo_name }}"
+      update_cache: false
+    with_items: "{{ repo_list }}"
+    register: repo_result
+    when:
+    - ansible_pkg_mgr == 'apt'
+    - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+    - not undo|default(false)|bool
+
+  - name: Update apt cache once
+    apt:
+      update_cache: true
+    register: apt_update_result
+    retries: 3
+    delay: 5
+    until: apt_update_result is success
+    when:
+    - ansible_pkg_mgr == 'apt'
+    - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
+    - not undo|default(false)|bool
+    - repo_result is changed
+
+  ## zypper repository config
+  - name: Checking if extension zypper repo exists
+    stat:
+      path: "{{ zypper_repo_src_path }}/{{ repo_name }}.repo"
+    register: zypper_repo_data
+    when:
+    - ansible_pkg_mgr == 'zypper'
+
+  - name: Backup original zypper repo if extension repo not exist
+    shell: >-
+      mv {{ zypper_repo_src_path }} {{ zypper_repo_bak_path }} && mkdir -p {{ zypper_repo_src_path }}
+    when:
+    - ansible_pkg_mgr == 'zypper'
+    - not zypper_repo_data.stat.exists and ( repo_list | length > 0 )
+    - not undo|default(false)|bool
+
+  - name: Enable extension zypper repositories
+    ansible.builtin.copy:
+      dest: "{{ zypper_repo_src_path }}/{{ repo_name }}.repo"
+        mode: "0644"
+        content: |
+          {% for url_item in repo_list %}
+          [{{ repo_name }}-{{ loop.index0 }}]
+          name=kubean {{ repo_name }} {{ loop.index0 }}
+          baseurl={{ url_item }}
+          enabled=1
+          autorefresh=1
+          gpgcheck=0
+          {% endfor %}
       when:
-        - ansible_os_family == "RedHat"
-        - not file_data.stat.exists and ( repo_list | length > 0 )
+        - ansible_pkg_mgr == 'zypper'
         - not undo|default(false)|bool
+        - repo_list | length > 0
 
-    - name: Enable extension yum repositories
-      ansible.builtin.yum_repository:
-        name: "{{ repo_name }}-{{ url_index }}"
-        description: "kubean {{ repo_name }} {{ url_index }}"
-        file: "{{ repo_name }}"
-        baseurl: "{{ url_item }}"
-        gpgcheck: false
-      loop: "{{ repo_list }}"
-      loop_control:
-        loop_var: url_item
-        index_var: url_index
-      when:
-        - ansible_os_family == "RedHat"
-        - not undo|default(false)|bool
+    - name: Make cache for new zypper repo
+    - ansible_pkg_mgr == 'zypper'
+    - not undo|default(false)|bool
+    - repo_list | length > 0
 
-    - name: Make cache for new repo
-      shell: >-
-        yum clean all && yum makecache
-      when:
-        - ansible_os_family == "RedHat"
-        - not undo|default(false)|bool
+  # Uninstall
 
-    ## apt repository config
-    - name: Checking if extension apt repo exists
-      stat:
-        path: "{{ apt_repo_src_path }}/{{ repo_name }}.list"
-      register: deb_repo_data
-      when:
-        - ansible_pkg_mgr == 'apt'
+  ## yum repository config
+  - name: Clean extension repo
+    shell: >
+      rm -rf {{ yum_repo_src_path }}/{{ repo_name }}.repo
+    args:
+      executable: /bin/bash
+    register: clean_repo_result
+    until: clean_repo_result.rc == 0
+    retries: 5
+    delay: 5
+    when:
+    - undo|default(false)|bool
+    - ansible_os_family == "RedHat"
+    - file_data.stat.exists
 
-    - name: Backup original apt repo if extension repo not exist
-      shell: |-
-        set -e
-        if [ -f "{{ apt_repo_src_file }}" ]; then
-          mv {{ apt_repo_src_file }} {{ apt_repo_bak_file }}
-        fi
-        if [ -d "{{ apt_repo_src_path }}" ]; then
-          mv {{ apt_repo_src_path }}/ {{ apt_repo_bak_path }}/
-        fi
-        mkdir -p {{ apt_repo_src_path }}/
-      when:
-        - ansible_pkg_mgr == 'apt'
-        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
-        - not undo|default(false)|bool
+  - name: Checking if yum repo backup path exists
+    stat:
+      path: "{{ yum_repo_bak_path }}"
+    register: repo_bak_path
+    when:
+    - undo|default(false)|bool
+    - ansible_os_family == "RedHat"
 
-    - name: Enable extension apt repositories
-      apt_repository:
-        repo: "{{ item }}"
-        state: present
-        filename: "{{ repo_name }}"
-        update_cache: false
-      with_items: "{{ repo_list }}"
-      register: repo_result
-      when:
-        - ansible_pkg_mgr == 'apt'
-        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
-        - not undo|default(false)|bool
+  - name: Restore the original yum repo configuration
+    shell: >
+      rm -rf {{ yum_repo_src_path }} && mv {{ yum_repo_bak_path }}/ {{ yum_repo_src_path }}/
+    args:
+      executable: /bin/bash
+    register: restore_repo_result
+    until: restore_repo_result.rc == 0
+    retries: 5
+    delay: 5
+    when:
+    - undo|default(false)|bool
+    - ansible_os_family == "RedHat"
+    - repo_bak_path.stat.exists
 
-    - name: Update apt cache once
-      apt:
-        update_cache: true
-      register: apt_update_result
-      retries: 3
-      delay: 5
-      until: apt_update_result is success
-      when:
-        - ansible_pkg_mgr == 'apt'
-        - not deb_repo_data.stat.exists and ( repo_list | length > 0 )
-        - not undo|default(false)|bool
-        - repo_result is changed
+  ## apt repository config
+  - name: Checking if backup apt repo exists
+    stat:
+      path: "{{ apt_repo_bak_file }}"
+    register: list_file
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'apt'
 
-    # Uninstall
+  - name: Checking if backup apt repo path exists
+    stat:
+      path: "{{ apt_repo_bak_path }}"
+    register: list_path
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'apt'
 
-    ## yum repository config
-    - name: Clean extension repo
-      shell: >
-        rm -rf {{ yum_repo_src_path }}/{{ repo_name }}.repo
-      args:
-        executable: /bin/bash
-      register: clean_repo_result
-      until: clean_repo_result.rc == 0
-      retries: 5
-      delay: 5
-      when:
-        - undo|default(false)|bool
-        - ansible_os_family == "RedHat"
-        - file_data.stat.exists
+  - name: Restore the original apt repo configuration
+    shell: >-
+      mv {{ apt_repo_bak_file }} {{ apt_repo_src_file }} && rm {{ apt_repo_src_path }}/ -rf && mv {{ apt_repo_bak_path }}/ {{ apt_repo_src_path }}/
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'apt'
+    - list_file.stat.exists and list_path.stat.exists
 
-    - name: Checking if yum repo backup path exists
-      stat:
-        path: "{{ yum_repo_bak_path }}"
-      register: repo_bak_path
-      when:
-        - undo|default(false)|bool
-        - ansible_os_family == "RedHat"
+  ## zypper repository config
+  - name: Clean extension zypper repo
+    shell: >
+      rm -rf {{ zypper_repo_src_path }}/{{ repo_name }}.repo
+    args:
+      executable: /bin/bash
+    register: clean_zypper_repo_result
+    until: clean_zypper_repo_result.rc == 0
+    retries: 5
+    delay: 5
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'zypper'
+    - zypper_repo_data.stat.exists
 
-    - name: Restore the original yum repo configuration
-      shell: >
-        rm -rf {{ yum_repo_src_path }} &&
-        mv {{ yum_repo_bak_path }}/ {{ yum_repo_src_path }}/
-      args:
-        executable: /bin/bash
-      register: restore_repo_result
-      until: restore_repo_result.rc == 0
-      retries: 5
-      delay: 5
-      when:
-        - undo|default(false)|bool
-        - ansible_os_family == "RedHat"
-        - repo_bak_path.stat.exists
+  - name: Checking if zypper repo backup path exists
+    stat:
+      path: "{{ zypper_repo_bak_path }}"
+    register: zypper_repo_bak_path_stat
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'zypper'
 
-    ## apt repository config
-    - name: Checking if backup apt repo exists
-      stat:
-        path: "{{ apt_repo_bak_file }}"
-      register: list_file
-      when:
-        - undo|default(false)|bool
-        - ansible_pkg_mgr == 'apt'
-
-    - name: Checking if backup apt repo path exists
-      stat:
-        path: "{{ apt_repo_bak_path }}"
-      register: list_path
-      when:
-        - undo|default(false)|bool
-        - ansible_pkg_mgr == 'apt'
-
-    - name: Restore the original apt repo configuration
-      shell: >-
-        mv {{ apt_repo_bak_file }} {{ apt_repo_src_file }} &&
-        rm {{ apt_repo_src_path }}/ -rf &&
-        mv {{ apt_repo_bak_path }}/ {{ apt_repo_src_path }}/
-      when:
-        - undo|default(false)|bool
-        - ansible_pkg_mgr == 'apt'
-        - list_file.stat.exists and list_path.stat.exists
+  - name: Restore the original zypper repo configuration
+    shell: >
+      rm -rf {{ zypper_repo_src_path }} && mv {{ zypper_repo_bak_path }}/ {{ zypper_repo_src_path }}/
+    args:
+      executable: /bin/bash
+    register: restore_zypper_repo_result
+    until: restore_zypper_repo_result.rc == 0
+    retries: 5
+    delay: 5
+    when:
+    - undo|default(false)|bool
+    - ansible_pkg_mgr == 'zypper'
+    - zypper_repo_bak_path_stat.stat.exists

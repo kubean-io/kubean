@@ -159,6 +159,17 @@ gpgcheck=0
 sslverify=0
 ```
 
+For a SUSE Linux Micro ISO the source path is `sl-micro-iso`, and the repo file belongs in `/etc/zypp/repos.d/`:
+
+```config
+[kubean-iso-online]
+name=Kubean ISO Repo Online
+baseurl=${minio_address}/kubean/sl-micro-iso/$releasever/os/$basearch
+enabled=1
+autorefresh=1
+gpgcheck=0
+```
+
 * It's required to replace `${minio_address}` with the minio API Server address
 
 ### Create extras software sources
@@ -228,6 +239,53 @@ spec:
       extraArgs: |
         -e undo=true
 ```
+
+Example for SUSE Linux Micro 6.1 (zypper repo):
+
+```yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # Before deploying the cluster, run the enable-repo playbook
+                               # to create a source configuration for each node with the specified url
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/sl-micro/\$releasever/os/\$basearch']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml  # After deploying the cluster, restore the zypper repo configuration for each node.
+                               # (Note: This step can be added as appropriate.)
+      extraArgs: |
+        -e undo=true
+```
+
+Notes:
+
+- The argument format is the same as for yum. zypper also expands `$releasever` and `$basearch`;
+  on SL Micro 6.1 they resolve to `6.1` and `x86_64`, matching the `sl-micro/6.1/os/x86_64` layout of
+  the offline packages. `$releasever` is read from `/etc/products.d/baseproduct`.
+- `repo_list` accepts several sources at once, e.g. the os-pkgs source together with an imported ISO source:
+
+    ```
+    -e "{repo_list: ['{minio_url}/kubean/sl-micro/\$releasever/os/\$basearch',
+                     '{minio_url}/kubean/sl-micro-iso/\$releasever/os/\$basearch']}"
+    ```
+
+- SL Micro must be installed from ISO / self-install (btrfs + `transactional-update`) for package
+  installation to work. In Elemental image mode the root filesystem is read-only and `zypper install` fails.
 
 ## Configure cluster before deployment
 

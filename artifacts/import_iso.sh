@@ -47,6 +47,33 @@ function iso::ensure_kubean_bucket() {
 
 function iso::mk_server_path() {
   local iso_mnt_path=$1 
+
+  # SUSE media carry no .treeinfo; they declare themselves in media.1/products,
+  # e.g. "/ SL-Micro 6.1-0" or "/ SUSE-openSUSE-Leap-Micro 6.1-1".
+  if [ -f "${iso_mnt_path}/media.1/products" ]; then
+    local suse_product suse_version suse_arch=""
+    suse_product=$(awk 'NR==1{print $2}' "${iso_mnt_path}/media.1/products")
+    suse_version=$(awk 'NR==1{print $3}' "${iso_mnt_path}/media.1/products" | cut -d- -f1)
+    for arch_name in x86_64 aarch64; do
+      if [ -d "${iso_mnt_path}/${arch_name}" ]; then
+        suse_arch=${arch_name}
+        break
+      fi
+    done
+    if [ -n "${suse_version}" ] && [ -n "${suse_arch}" ]; then
+      case "${suse_product}" in
+      *SL-Micro*)
+        echo "/sl-micro-iso/${suse_version}/os/${suse_arch}"
+        return
+        ;;
+      *Leap-Micro*)
+        echo "/leap-micro-iso/${suse_version}/os/${suse_arch}"
+        return
+        ;;
+      esac
+    fi
+  fi
+
   for path in $(find $iso_mnt_path); do
     if [ -L "$path" ]; then
       if echo "$path" | grep 'ubuntu' &>/dev/null; then
@@ -196,6 +223,16 @@ function iso::import_data() {
 
   if [ -d "${iso_mnt_path}/repodata" ]; then
     path_list+=("${iso_mnt_path}/repodata")
+  fi
+
+  # SUSE media store the rpms in top-level arch directories beside repodata,
+  # and the repodata hrefs are relative to that same root.
+  if [ -f "${iso_mnt_path}/media.1/products" ]; then
+    for arch_dir in x86_64 aarch64 noarch; do
+      if [ -d "${iso_mnt_path}/${arch_dir}" ]; then
+        path_list+=("${iso_mnt_path}/${arch_dir}")
+      fi
+    done
   fi
 
   if [ -d "${iso_mnt_path}/BaseOS" ]; then
