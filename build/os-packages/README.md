@@ -16,4 +16,5 @@
 | [Ubuntu 20.04](https://ubuntu.com/)                                      | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Ubuntu 22.04](https://ubuntu.com/)                                      | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Ubuntu 24.04](https://ubuntu.com/)                                      | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
+| [SLES 15 SP7](https://www.suse.com/products/server/) (experimental, built from the openSUSE Leap 15.6 sources) | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [UnionTech V20](https://www.chinauos.com/) (experimental)                | `amd64` | `containerd` | [Manual build using scripts](./others/uos_v20/) |

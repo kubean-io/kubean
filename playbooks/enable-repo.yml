@@ -24,6 +24,9 @@
     apt_repo_src_path: /etc/apt/sources.list.d
     apt_repo_bak_path: /etc/apt/sources.list.d.bak
 
+    zypper_repo_src_path: /etc/zypp/repos.d
+    zypper_repo_bak_path: /etc/zypp/repos.d.bak
+
   tasks:
 
     # Install
@@ -120,6 +123,49 @@
         - not undo|default(false)|bool
         - repo_result is changed
 
+    ## zypper repository config
+    - name: Checking if extension zypper repo exists
+      stat:
+        path: "{{ zypper_repo_src_path }}/{{ repo_name }}.repo"
+      register: zypper_repo_data
+      when:
+        - ansible_pkg_mgr == 'zypper'
+
+    - name: Backup original zypper repo if extension repo not exist
+      shell: >-
+        mv {{ zypper_repo_src_path }} {{ zypper_repo_bak_path }} &&
+        mkdir -p {{ zypper_repo_src_path }}
+      when:
+        - ansible_pkg_mgr == 'zypper'
+        - not zypper_repo_data.stat.exists and ( repo_list | length > 0 )
+        - not undo|default(false)|bool
+
+    - name: Enable extension zypper repositories
+      ansible.builtin.copy:
+        dest: "{{ zypper_repo_src_path }}/{{ repo_name }}.repo"
+        mode: "0644"
+        content: |
+          {% for url_item in repo_list %}
+          [{{ repo_name }}-{{ loop.index0 }}]
+          name=kubean {{ repo_name }} {{ loop.index0 }}
+          baseurl={{ url_item }}
+          enabled=1
+          autorefresh=1
+          gpgcheck=0
+          {% endfor %}
+      when:
+        - ansible_pkg_mgr == 'zypper'
+        - not undo|default(false)|bool
+        - repo_list | length > 0
+
+    - name: Make cache for new zypper repo
+      shell: >-
+        zypper --non-interactive --gpg-auto-import-keys refresh
+      when:
+        - ansible_pkg_mgr == 'zypper'
+        - not undo|default(false)|bool
+        - repo_list | length > 0
+
     # Uninstall
 
     ## yum repository config
@@ -186,3 +232,41 @@
         - undo|default(false)|bool
         - ansible_pkg_mgr == 'apt'
         - list_file.stat.exists and list_path.stat.exists
+
+    ## zypper repository config
+    - name: Clean extension zypper repo
+      shell: >
+        rm -rf {{ zypper_repo_src_path }}/{{ repo_name }}.repo
+      args:
+        executable: /bin/bash
+      register: clean_zypper_repo_result
+      until: clean_zypper_repo_result.rc == 0
+      retries: 5
+      delay: 5
+      when:
+        - undo|default(false)|bool
+        - ansible_pkg_mgr == 'zypper'
+        - zypper_repo_data.stat.exists
+
+    - name: Checking if zypper repo backup path exists
+      stat:
+        path: "{{ zypper_repo_bak_path }}"
+      register: zypper_repo_bak_path_stat
+      when:
+        - undo|default(false)|bool
+        - ansible_pkg_mgr == 'zypper'
+
+    - name: Restore the original zypper repo configuration
+      shell: >
+        rm -rf {{ zypper_repo_src_path }} &&
+        mv {{ zypper_repo_bak_path }}/ {{ zypper_repo_src_path }}/
+      args:
+        executable: /bin/bash
+      register: restore_zypper_repo_result
+      until: restore_zypper_repo_result.rc == 0
+      retries: 5
+      delay: 5
+      when:
+        - undo|default(false)|bool
+        - ansible_pkg_mgr == 'zypper'
+        - zypper_repo_bak_path_stat.stat.exists
