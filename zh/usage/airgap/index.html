@@ -4939,6 +4939,29 @@ sslverify=0
 <ul>
 <li>需要将 <code>${minio_address}</code> 替换为 minio API Server 地址</li>
 </ul>
+<p>若导入的是 SLES 15 SP7 Full ISO，源路径为 <code>sles-iso</code>，repo 文件需放在 <code>/etc/zypp/repos.d/</code> 下。
+Full SLE 介质中每个模块是独立的仓库目录，因此每个模块都需要单独的配置。导入脚本会复制
+<code>Product-SLES</code>、<code>Module-Basesystem</code>、<code>Module-Server-Applications</code> 和 <code>Module-Python3</code>，
+即 Kubespray 实际安装所需的部分：</p>
+<div class="highlight"><pre><span></span><code>[kubean-iso-online-basesystem]
+name=Kubean ISO Repo Online Basesystem
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Basesystem
+enabled=1
+autorefresh=1
+gpgcheck=0
+
+[kubean-iso-online-python3]
+name=Kubean ISO Repo Online Python3
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Python3
+enabled=1
+autorefresh=1
+gpgcheck=0
+</code></pre></div>
+<ul>
+<li>SLES 15 SP7 上 <code>$releasever</code> 解析为 <code>15.7</code>，取自 <code>/etc/products.d/baseproduct</code>。</li>
+<li><code>Module-Python3</code> 提供现代 <code>spray-job</code> 镜像所需的 <code>python311</code>，
+  详见 <a href="../python_compatibility/">Python 版本与镜像选择</a>。</li>
+</ul>
 <p>这一步也可以通过设置 ClusterOperation 文件中 enable-repo.yml 的 extraArgs 的值来实现，
 将 extraArgs 的值添加为 <code>'{minio_url}/kubean/centos-iso/$releasever/os/$basearch'</code> 这种格式，
 参阅 <a href="#3-clusteroperation-结合-playbook-创建源配置文件">ClusterOperation 结合 playbook 创建源配置文件</a>了解更多信息。</p>
@@ -5038,6 +5061,71 @@ sslverify=0
 <span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">-e undo=true</span>
 </code></pre></div>
+<p>SLES 15 SP7 zypper repo 的配置示例。每个模块是独立仓库，需分别列出：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-ops-01</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/kubean-io/spray-job:latest</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
+<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># 注：sles 是 os package 离线资源，sles-iso 是 iso 安装包资源</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e "{repo_list: ['http://10.20.30.40:9000/kubean/sles/\$releasever/os/\$basearch',</span>
+<span class="w">                         </span><span class="no">'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Basesystem',</span>
+<span class="w">                         </span><span class="no">'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Python3']}"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
+<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e undo=true</span>
+</code></pre></div>
+<p>SLES 15 SP7 补充说明：</p>
+<ul>
+<li><code>$releasever</code> 解析为 <code>15.7</code>，与两个源的目录布局一致。</li>
+<li>节点必须在 <code>ping.yml</code> 执行前已具备 Ansible 解释器，因此解释器无法由该 playbook 安装。
+  使用现代 <code>spray-job</code> 镜像时，需先安装 <code>python311</code> 并在 <code>hosts-conf</code> 中设置
+  <code>ansible_python_interpreter</code>，详见 <a href="../python_compatibility/">Python 版本与镜像选择</a>。</li>
+<li>
+<p>在锁定的 Kubespray 版本尚未识别 SLES 之前，可在 <code>vars-conf</code> 中补充该发行版。
+  该变量是整体覆盖，需保留原有条目：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">supported_os_distributions</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'RedHat'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'CentOS'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Fedora'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Ubuntu'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Debian'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Flatcar'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Suse'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'SLES'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'openSUSE</span><span class="nv"> </span><span class="s">Leap'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'openSUSE</span><span class="nv"> </span><span class="s">MicroOS'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'openSUSE</span><span class="nv"> </span><span class="s">Tumbleweed'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ClearLinux'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'OracleLinux'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'AlmaLinux'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Rocky'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Amazon'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'Kylin</span><span class="nv"> </span><span class="s">Linux</span><span class="nv"> </span><span class="s">Advanced</span><span class="nv"> </span><span class="s">Server'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'UnionTech'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'UniontechOS'</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'openEuler'</span>
+</code></pre></div>
+</li>
+<li>
+<p>SLE 15 不提供 <code>ntp</code> 软件包。若设置 <code>ntp_enabled: true</code>，需同时设置 <code>ntp_package: chrony</code>。</p>
+</li>
+</ul>
 <h2 id="_8">部署集群前的配置<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <p>离线设置需要参考 <a href="https://github.com/kubernetes-sigs/kubespray"><code>kubespray</code></a>
 位于 <code>kubespray/inventory/sample/group_vars/all/offline.yml</code> 的配置文件：</p>

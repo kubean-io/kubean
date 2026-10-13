@@ -429,6 +429,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choosing an image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sles-15-sp7" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLES 15 SP7
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4473,6 +4488,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choosing an image">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sles-15-sp7" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLES 15 SP7
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4662,6 +4692,14 @@
 <td>Yes</td>
 </tr>
 <tr>
+<td>SLES 15 SP7</td>
+<td><code>os-pkgs-sles15sp7</code></td>
+<td>Command not found</td>
+<td>3.6.15</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
 <td>TencentOS Server 3.1 †</td>
 <td><code>os-pkgs-tencent31</code></td>
 <td>Not recorded</td>
@@ -4698,15 +4736,53 @@
 <p><strong>Quick summary</strong>:</p>
 <ul>
 <li><strong>Meets the modern image (<code>-modern</code> / core 2.21) requirement</strong>, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.</li>
-<li><strong>Only meets the legacy image (core 2.16) requirement</strong> — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, TencentOS Server 3.1, Ubuntu 20.04.</li>
+<li><strong>Only meets the legacy image (core 2.16) requirement</strong> — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, SLES 15 SP7, TencentOS Server 3.1, Ubuntu 20.04.</li>
 </ul>
 <p>All Python versions above fall within core 2.16's target-node range. A missing <code>python</code> command does not prevent Ansible use; the selected interpreter is what matters.</p>
 <h2 id="choosing-an-image">Choosing an image<a class="headerlink" href="#choosing-an-image" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Targets already have Python 3.9–3.14: reuse that interpreter when evaluating the modern image. <strong>Python 3.12 is not mandatory.</strong></li>
-<li>RHEL 8 / the Kylin V10 installation above: prepare an additional supported Python before using the modern image, and set <code>ansible_python_interpreter</code> to its actual path. Keep the system Python.</li>
+<li>RHEL 8 / SLES 15 SP7 / Kylin V10 SP2/SP3 above: prepare an additional supported Python before using the modern image, and set <code>ansible_python_interpreter</code> to its actual path. Keep the system Python.</li>
 <li>Prepare the interpreter before Python-dependent prechecks and hooks. Offline installations also need OS- and architecture-matched packages with all dependencies; replacing the control image alone is insufficient.</li>
 </ul>
+<h3 id="sles-15-sp7">SLES 15 SP7<a class="headerlink" href="#sles-15-sp7" title="Permanent link">&para;</a></h3>
+<p>SLES 15 SP7 ships Python 3.6 as <code>/usr/bin/python3</code>, so the two image lines need
+different host configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Image line</th>
+<th>Interpreter used</th>
+<th><code>hosts-conf</code> entry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;version&gt;</code> (core 2.16)</td>
+<td>system <code>/usr/bin/python3</code> (3.6)</td>
+<td>not needed</td>
+</tr>
+<tr>
+<td><code>&lt;version&gt;-modern</code> (core 2.21)</td>
+<td><code>/usr/bin/python3.11</code></td>
+<td><code>ansible_python_interpreter: /usr/bin/python3.11</code></td>
+</tr>
+</tbody>
+</table>
+<p>For the modern image, install the interpreter before running any playbook, including
+<code>ping.yml</code>. <code>python311</code> comes from the Python 3 module, so the node must be registered
+with <code>SUSEConnect</code>, or the module must be available offline (the <code>Module-Python3</code>
+directory of the Full ISO, or the <code>sles</code> os-pkgs source):</p>
+<div class="highlight"><pre><span></span><code>zypper install python311
+</code></pre></div>
+<p>Then set the interpreter per host:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">all</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">node1</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/bin/python3.11</span>
+</code></pre></div>
+<p>The modern image is the recommended choice. Ansible 9 / core 2.16 is EOL and is not
+guaranteed to support every operation in newer Kubespray revisions.</p>
 <p>References: <a href="https://docs.ansible.com/projects/ansible-core/devel/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix">official Ansible support matrix</a>, <a href="https://github.com/kubernetes-sigs/kubespray/blob/b33bb4786450395df3c499faa2b7880d4130c693/requirements.txt">pinned Kubespray requirements</a>.</p>
 
 

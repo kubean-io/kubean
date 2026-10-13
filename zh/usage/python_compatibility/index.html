@@ -429,6 +429,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="如何选择">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sles-15-sp7" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLES 15 SP7
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4473,6 +4488,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="如何选择">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sles-15-sp7" class="md-nav__link">
+    <span class="md-ellipsis">
+      SLES 15 SP7
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -4662,6 +4692,14 @@
 <td>是</td>
 </tr>
 <tr>
+<td>SLES 15 SP7</td>
+<td><code>os-pkgs-sles15sp7</code></td>
+<td>未找到命令</td>
+<td>3.6.15</td>
+<td>是</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
 <td>TencentOS Server 3.1 †</td>
 <td><code>os-pkgs-tencent31</code></td>
 <td>未记录</td>
@@ -4698,15 +4736,50 @@
 <p><strong>结论速查</strong>：</p>
 <ul>
 <li><strong>满足现代镜像（<code>-modern</code> / core 2.21）要求</strong>，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。</li>
-<li><strong>仅满足传统镜像（core 2.16）要求</strong>，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、TencentOS Server 3.1、Ubuntu 20.04。</li>
+<li><strong>仅满足传统镜像（core 2.16）要求</strong>，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、SLES 15 SP7、TencentOS Server 3.1、Ubuntu 20.04。</li>
 </ul>
 <p>上述所有 Python 版本均在 core 2.16 的目标端支持范围内。<code>python</code> 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。</p>
 <h2 id="_2">如何选择<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>目标节点已有 Python 3.9–3.14：可复用该解释器评估现代镜像，<strong>不必强制安装 Python 3.12</strong>。</li>
-<li>RHEL 8 / 上表 Kylin V10：使用现代镜像前需额外准备受支持的 Python，并通过 <code>ansible_python_interpreter</code> 指定实际路径；保留系统 Python。</li>
+<li>RHEL 8 / SLES 15 SP7 / 上表 Kylin V10 SP2/SP3：使用现代镜像前需额外准备受支持的 Python，并通过 <code>ansible_python_interpreter</code> 指定实际路径；保留系统 Python。</li>
 <li>新 Python 必须在执行依赖 Python 的预检查及 hooks 前准备好。离线环境还需提供匹配系统和架构的软件包及完整依赖；不能只更换控制端镜像。</li>
 </ul>
+<h3 id="sles-15-sp7">SLES 15 SP7<a class="headerlink" href="#sles-15-sp7" title="Permanent link">&para;</a></h3>
+<p>SLES 15 SP7 的 <code>/usr/bin/python3</code> 是 Python 3.6，因此两条镜像线所需的主机配置不同。</p>
+<table>
+<thead>
+<tr>
+<th>镜像线</th>
+<th>实际使用的解释器</th>
+<th><code>hosts-conf</code> 配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;version&gt;</code>（core 2.16）</td>
+<td>系统自带 <code>/usr/bin/python3</code>（3.6）</td>
+<td>不需要</td>
+</tr>
+<tr>
+<td><code>&lt;version&gt;-modern</code>（core 2.21）</td>
+<td><code>/usr/bin/python3.11</code></td>
+<td><code>ansible_python_interpreter: /usr/bin/python3.11</code></td>
+</tr>
+</tbody>
+</table>
+<p>使用现代镜像时，需在执行任何 playbook（包括 <code>ping.yml</code>）之前先装好解释器。
+<code>python311</code> 来自 Python 3 模块，节点需先通过 <code>SUSEConnect</code> 注册，或以离线方式提供该模块
+（Full ISO 的 <code>Module-Python3</code> 目录，或 <code>sles</code> os-pkgs 源）：</p>
+<div class="highlight"><pre><span></span><code>zypper install python311
+</code></pre></div>
+<p>然后在对应主机上指定解释器：</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">all</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">node1</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/usr/bin/python3.11</span>
+</code></pre></div>
+<p>推荐使用现代镜像。Ansible 9 / core 2.16 已 EOL，不能保证兼容新 Kubespray 的所有操作。</p>
 <p>依据：<a href="https://docs.ansible.com/projects/ansible-core/devel/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix">Ansible 官方支持矩阵</a>、<a href="https://github.com/kubernetes-sigs/kubespray/blob/b33bb4786450395df3c499faa2b7880d4130c693/requirements.txt">当前锁定的 Kubespray requirements</a>。</p>
 
 
