@@ -123,7 +123,7 @@ jobs:
     - name: kubespray base image build
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
       id: build-modern
-      uses: docker/build-push-action@v7.3.0
+      uses: docker/build-push-action@v7.4.0
       with:
         context: ./
         file: build/images/kubespray/Dockerfile
@@ -149,7 +149,7 @@ jobs:
     - name: kubespray base image (Ansible 9) build
       if: ${{ steps.check.outputs.need_rebuild == 'true' }}
       id: build-ansible9
-      uses: docker/build-push-action@v7.3.0
+      uses: docker/build-push-action@v7.4.0
       with:
         context: ./
         file: build/images/kubespray/Dockerfile
