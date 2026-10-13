@@ -161,6 +161,31 @@ sslverify=0
 
 * It's required to replace `${minio_address}` with the minio API Server address
 
+For a SLES 15 SP7 Full ISO the source path is `sles-iso`, and the repo file belongs in
+`/etc/zypp/repos.d/`. Full SLE media keep each module in its own repository directory, so
+every module needs its own entry. The import copies `Product-SLES`, `Module-Basesystem`,
+`Module-Server-Applications` and `Module-Python3`, which is what Kubespray installs from:
+
+```config
+[kubean-iso-online-basesystem]
+name=Kubean ISO Repo Online Basesystem
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Basesystem
+enabled=1
+autorefresh=1
+gpgcheck=0
+
+[kubean-iso-online-python3]
+name=Kubean ISO Repo Online Python3
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Python3
+enabled=1
+autorefresh=1
+gpgcheck=0
+```
+
+* On SLES 15 SP7 `$releasever` resolves to `15.7`, read from `/etc/products.d/baseproduct`.
+* `Module-Python3` provides `python311`, which the modern `spray-job` image requires.
+  See [Python versions and image selection](./python_compatibility.md).
+
 ### Create extras software sources
 
 > Currently only supported on Centos distributions
@@ -228,6 +253,76 @@ spec:
       extraArgs: |
         -e undo=true
 ```
+
+Example for SLES 15 SP7 (zypper repo). Each module is a separate repository, so list
+them individually:
+
+```yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # sles is the os-pkgs source, sles-iso is the imported ISO source
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/sles/\$releasever/os/\$basearch',
+                         'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Basesystem',
+                         'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Python3']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e undo=true
+```
+
+Notes for SLES 15 SP7:
+
+- `$releasever` resolves to `15.7`, matching the layout of both sources.
+- The node must already have the Ansible interpreter before `ping.yml` runs, so the
+  interpreter cannot be installed by this playbook. With the modern `spray-job` image,
+  install `python311` first and set `ansible_python_interpreter` in `hosts-conf`.
+  See [Python versions and image selection](./python_compatibility.md).
+- Until the pinned Kubespray revision recognises SLES, add the distribution in `vars-conf`.
+  The variable replaces the whole list, so keep the existing entries:
+
+    ```yaml
+    supported_os_distributions:
+      - 'RedHat'
+      - 'CentOS'
+      - 'Fedora'
+      - 'Ubuntu'
+      - 'Debian'
+      - 'Flatcar'
+      - 'Suse'
+      - 'SLES'
+      - 'openSUSE Leap'
+      - 'openSUSE MicroOS'
+      - 'openSUSE Tumbleweed'
+      - 'ClearLinux'
+      - 'OracleLinux'
+      - 'AlmaLinux'
+      - 'Rocky'
+      - 'Amazon'
+      - 'Kylin Linux Advanced Server'
+      - 'UnionTech'
+      - 'UniontechOS'
+      - 'openEuler'
+    ```
+
+- SLE 15 does not ship the `ntp` package. If you set `ntp_enabled: true`, also set
+  `ntp_package: chrony`.
 
 ## Configure cluster before deployment
 

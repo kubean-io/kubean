@@ -42,6 +42,7 @@
 | RHEL 9.2（Plow） | `os-pkgs-redhat9` | 3.9.16 | 3.9.16 | 是 | 是 |
 | Rocky Linux 8 † | `os-pkgs-rocky8` | 未安装 | 3.6.8 † | 是 | **否** |
 | Rocky Linux 9.2 | `os-pkgs-rocky9` | 3.9.16 | 3.9.16 | 是 | 是 |
+| SLES 15 SP7 | `os-pkgs-sles15sp7` | 未找到命令 | 3.6.15 | 是 | **否** |
 | TencentOS Server 3.1 † | `os-pkgs-tencent31` | 未记录 | 3.6.8 † | 是 | **否** |
 | Ubuntu 20.04 LTS | `os-pkgs-ubuntu2004` | 未找到命令 | 3.8.10 | 是 | **否** |
 | Ubuntu 22.04.4 LTS | `os-pkgs-ubuntu2204` | 未找到命令 | 3.10.12 | 是 | 是 |
@@ -50,14 +51,42 @@
 **结论速查**：
 
 - **满足现代镜像（`-modern` / core 2.21）要求**，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。
-- **仅满足传统镜像（core 2.16）要求**，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、TencentOS Server 3.1、Ubuntu 20.04。
+- **仅满足传统镜像（core 2.16）要求**，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、SLES 15 SP7、TencentOS Server 3.1、Ubuntu 20.04。
 
 上述所有 Python 版本均在 core 2.16 的目标端支持范围内。`python` 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。
 
 ## 如何选择
 
 - 目标节点已有 Python 3.9–3.14：可复用该解释器评估现代镜像，**不必强制安装 Python 3.12**。
-- RHEL 8 / 上表 Kylin V10：使用现代镜像前需额外准备受支持的 Python，并通过 `ansible_python_interpreter` 指定实际路径；保留系统 Python。
+- RHEL 8 / SLES 15 SP7 / 上表 Kylin V10 SP2/SP3：使用现代镜像前需额外准备受支持的 Python，并通过 `ansible_python_interpreter` 指定实际路径；保留系统 Python。
 - 新 Python 必须在执行依赖 Python 的预检查及 hooks 前准备好。离线环境还需提供匹配系统和架构的软件包及完整依赖；不能只更换控制端镜像。
+
+### SLES 15 SP7
+
+SLES 15 SP7 的 `/usr/bin/python3` 是 Python 3.6，因此两条镜像线所需的主机配置不同。
+
+| 镜像线 | 实际使用的解释器 | `hosts-conf` 配置 |
+| --- | --- | --- |
+| `<version>`（core 2.16） | 系统自带 `/usr/bin/python3`（3.6） | 不需要 |
+| `<version>-modern`（core 2.21） | `/usr/bin/python3.11` | `ansible_python_interpreter: /usr/bin/python3.11` |
+
+使用现代镜像时，需在执行任何 playbook（包括 `ping.yml`）之前先装好解释器。
+`python311` 来自 Python 3 模块，节点需先通过 `SUSEConnect` 注册，或以离线方式提供该模块
+（Full ISO 的 `Module-Python3` 目录，或 `sles` os-pkgs 源）：
+
+```ShellSession
+zypper install python311
+```
+
+然后在对应主机上指定解释器：
+
+```yaml
+    all:
+      hosts:
+        node1:
+          ansible_python_interpreter: /usr/bin/python3.11
+```
+
+推荐使用现代镜像。Ansible 9 / core 2.16 已 EOL，不能保证兼容新 Kubespray 的所有操作。
 
 依据：[Ansible 官方支持矩阵](https://docs.ansible.com/projects/ansible-core/devel/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix)、[当前锁定的 Kubespray requirements](https://github.com/kubernetes-sigs/kubespray/blob/b33bb4786450395df3c499faa2b7880d4130c693/requirements.txt)。

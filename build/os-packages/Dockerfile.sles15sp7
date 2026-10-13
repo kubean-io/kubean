@@ -1,0 +1,36 @@
+ARG OS_NAME=sles
+
+# SLES 15 SP7 repositories require an SCC subscription, so they cannot be used in
+# a public build. openSUSE Leap 15.6 is the community counterpart of the SLE 15
+# codestream and uses the same 15xxxx release suffixes, so its packages install on
+# SLE 15 SP7. Use the ISO import path when exact SLE builds are required.
+FROM opensuse/leap:15.6 AS os-sles15sp7
+ARG OS_NAME
+ARG OS_VERSION=15.7
+ARG BUILD_TOOLS="createrepo_c"
+ARG LEAP_REPO_BASE="https://download.opensuse.org/distribution/leap/15.6/repo/oss/"
+ARG LEAP_UPDATE_BASE="https://download.opensuse.org/update/leap/15.6/oss/"
+ARG LEAP_SLE_UPDATE_BASE="https://download.opensuse.org/update/leap/15.6/sle/"
+
+WORKDIR /$OS_NAME/$OS_VERSION/os
+COPY build/os-packages/packages.yml .
+COPY --from=mikefarah/yq:4.30.8 /usr/bin/yq /usr/bin/yq
+RUN yq eval '.zypper[],.sles15sp7[]' packages.yml > packages.list
+
+# Resolving against a throw-away root forces zypper to compute the full dependency
+# closure instead of skipping whatever the build container already has installed.
+RUN ARCH=$(uname -m) \
+  && zypper --non-interactive --gpg-auto-import-keys install --no-recommends -y ${BUILD_TOOLS} \
+  && mkdir -p /pkgroot ${ARCH} \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ar -f "${LEAP_REPO_BASE}" leap156-oss \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ar -f "${LEAP_UPDATE_BASE}" leap156-update \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ar -f "${LEAP_SLE_UPDATE_BASE}" leap156-sle-update \
+  && zypper --root /pkgroot --non-interactive --gpg-auto-import-keys ref \
+  && zypper --root /pkgroot --pkg-cache-dir /pkgcache --non-interactive --gpg-auto-import-keys \
+  install --download-only -y $(sort -u packages.list | tr '\n' ' ') \
+  && find /pkgcache -name '*.rpm' -exec mv -n {} ${ARCH}/ \; \
+  && createrepo_c ${ARCH}
+
+FROM scratch
+ARG OS_NAME
+COPY --from=os-sles15sp7 /$OS_NAME /resources/$OS_NAME

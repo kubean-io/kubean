@@ -70,5 +70,9 @@
   {
     "name": "bigcloud2110",
     "dockerfile": "build/os-packages/Dockerfile.bigcloud2110"
+  },
+  {
+    "name": "sles15sp7",
+    "dockerfile": "build/os-packages/Dockerfile.sles15sp7"
   }
 ]

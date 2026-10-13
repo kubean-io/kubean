@@ -47,6 +47,27 @@ function iso::ensure_kubean_bucket() {
 
 function iso::mk_server_path() {
   local iso_mnt_path=$1 
+
+  # Full SLE media list every product and module in media.1/products, one per
+  # line, e.g. "/Product-SLES SLES15-SP7 15.7-0". Prefer it over .treeinfo, which
+  # reports "15 SP7" and so does not match zypper's $releasever (15.7, taken from
+  # /etc/products.d/baseproduct).
+  if [ -f "${iso_mnt_path}/media.1/products" ] &&
+     grep -q '^/Product-SLES ' "${iso_mnt_path}/media.1/products"; then
+    local sles_version sles_arch=""
+    sles_version=$(awk '$1=="/Product-SLES"{print $3}' "${iso_mnt_path}/media.1/products" | cut -d- -f1)
+    for arch_name in x86_64 aarch64; do
+      if [ -d "${iso_mnt_path}/Module-Basesystem/${arch_name}" ]; then
+        sles_arch=${arch_name}
+        break
+      fi
+    done
+    if [ -n "${sles_version}" ] && [ -n "${sles_arch}" ]; then
+      echo "/sles-iso/${sles_version}/os/${sles_arch}"
+      return
+    fi
+  fi
+
   for path in $(find $iso_mnt_path); do
     if [ -L "$path" ]; then
       if echo "$path" | grep 'ubuntu' &>/dev/null; then
@@ -196,6 +217,16 @@ function iso::import_data() {
 
   if [ -d "${iso_mnt_path}/repodata" ]; then
     path_list+=("${iso_mnt_path}/repodata")
+  fi
+
+  # Full SLE media keep every module in its own repository directory. Mirror
+  # only the ones Kubespray installs from, the whole medium is far larger.
+  if [[ "${minio_server_path}" == /sles-iso/* ]]; then
+    for repo_dir in Product-SLES Module-Basesystem Module-Server-Applications Module-Python3; do
+      if [ -d "${iso_mnt_path}/${repo_dir}" ]; then
+        path_list+=("${iso_mnt_path}/${repo_dir}")
+      fi
+    done
   fi
 
   if [ -d "${iso_mnt_path}/BaseOS" ]; then

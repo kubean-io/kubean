@@ -66,4 +66,18 @@ if [[ "${OS_NAME}" == "ubuntu"* ]]; then
   fi
 fi
 
+# sles15sp7 ; the yq query must stay in sync with Dockerfile.sles15sp7, which
+# deliberately skips .common[] because sshpass is not packaged for SUSE.
+if [[ "${OS_NAME}" == "sles"* ]]; then
+  late_digest=$(echo "${late_packages_yml}" | yq eval ".zypper[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  prev_digest=$(echo "${prev_packages_yml}" | yq eval ".zypper[],.${OS_NAME}[]" | sort | sha1sum | awk '{print $1}')
+  if [ "${late_digest}" == "${prev_digest}" ]; then
+    ret=0
+    wget -c https://github.com/${ORG_NAME}/kubean/releases/download/${prev_tag}/os-pkgs-${OS_NAME}-${prev_tag}.tar.gz -O os-pkgs-${OS_NAME}-${late_tag}.tar.gz || ret=$?
+    if [ ${ret} -eq 0 ]; then
+      echo "false" && exit
+    fi
+  fi
+fi
+
 echo "true"

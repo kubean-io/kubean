@@ -42,6 +42,7 @@ The table below covers every offline OS package (`os-pkgs-*`) currently supporte
 | RHEL 9.2 (Plow) | `os-pkgs-redhat9` | 3.9.16 | 3.9.16 | Yes | Yes |
 | Rocky Linux 8 † | `os-pkgs-rocky8` | Not installed | 3.6.8 † | Yes | **No** |
 | Rocky Linux 9.2 | `os-pkgs-rocky9` | 3.9.16 | 3.9.16 | Yes | Yes |
+| SLES 15 SP7 | `os-pkgs-sles15sp7` | Command not found | 3.6.15 | Yes | **No** |
 | TencentOS Server 3.1 † | `os-pkgs-tencent31` | Not recorded | 3.6.8 † | Yes | **No** |
 | Ubuntu 20.04 LTS | `os-pkgs-ubuntu2004` | Command not found | 3.8.10 | Yes | **No** |
 | Ubuntu 22.04.4 LTS | `os-pkgs-ubuntu2204` | Command not found | 3.10.12 | Yes | Yes |
@@ -50,14 +51,45 @@ The table below covers every offline OS package (`os-pkgs-*`) currently supporte
 **Quick summary**:
 
 - **Meets the modern image (`-modern` / core 2.21) requirement**, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.
-- **Only meets the legacy image (core 2.16) requirement** — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, TencentOS Server 3.1, Ubuntu 20.04.
+- **Only meets the legacy image (core 2.16) requirement** — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, SLES 15 SP7, TencentOS Server 3.1, Ubuntu 20.04.
 
 All Python versions above fall within core 2.16's target-node range. A missing `python` command does not prevent Ansible use; the selected interpreter is what matters.
 
 ## Choosing an image
 
 - Targets already have Python 3.9–3.14: reuse that interpreter when evaluating the modern image. **Python 3.12 is not mandatory.**
-- RHEL 8 / the Kylin V10 installation above: prepare an additional supported Python before using the modern image, and set `ansible_python_interpreter` to its actual path. Keep the system Python.
+- RHEL 8 / SLES 15 SP7 / Kylin V10 SP2/SP3 above: prepare an additional supported Python before using the modern image, and set `ansible_python_interpreter` to its actual path. Keep the system Python.
 - Prepare the interpreter before Python-dependent prechecks and hooks. Offline installations also need OS- and architecture-matched packages with all dependencies; replacing the control image alone is insufficient.
+
+### SLES 15 SP7
+
+SLES 15 SP7 ships Python 3.6 as `/usr/bin/python3`, so the two image lines need
+different host configuration.
+
+| Image line | Interpreter used | `hosts-conf` entry |
+| --- | --- | --- |
+| `<version>` (core 2.16) | system `/usr/bin/python3` (3.6) | not needed |
+| `<version>-modern` (core 2.21) | `/usr/bin/python3.11` | `ansible_python_interpreter: /usr/bin/python3.11` |
+
+For the modern image, install the interpreter before running any playbook, including
+`ping.yml`. `python311` comes from the Python 3 module, so the node must be registered
+with `SUSEConnect`, or the module must be available offline (the `Module-Python3`
+directory of the Full ISO, or the `sles` os-pkgs source):
+
+```ShellSession
+zypper install python311
+```
+
+Then set the interpreter per host:
+
+```yaml
+    all:
+      hosts:
+        node1:
+          ansible_python_interpreter: /usr/bin/python3.11
+```
+
+The modern image is the recommended choice. Ansible 9 / core 2.16 is EOL and is not
+guaranteed to support every operation in newer Kubespray revisions.
 
 References: [official Ansible support matrix](https://docs.ansible.com/projects/ansible-core/devel/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix), [pinned Kubespray requirements](https://github.com/kubernetes-sigs/kubespray/blob/b33bb4786450395df3c499faa2b7880d4130c693/requirements.txt).

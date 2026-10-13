@@ -180,6 +180,31 @@ sslverify=0
 
 - 需要将 `${minio_address}` 替换为 minio API Server 地址
 
+若导入的是 SLES 15 SP7 Full ISO，源路径为 `sles-iso`，repo 文件需放在 `/etc/zypp/repos.d/` 下。
+Full SLE 介质中每个模块是独立的仓库目录，因此每个模块都需要单独的配置。导入脚本会复制
+`Product-SLES`、`Module-Basesystem`、`Module-Server-Applications` 和 `Module-Python3`，
+即 Kubespray 实际安装所需的部分：
+
+```config
+[kubean-iso-online-basesystem]
+name=Kubean ISO Repo Online Basesystem
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Basesystem
+enabled=1
+autorefresh=1
+gpgcheck=0
+
+[kubean-iso-online-python3]
+name=Kubean ISO Repo Online Python3
+baseurl=${minio_address}/kubean/sles-iso/$releasever/os/$basearch/Module-Python3
+enabled=1
+autorefresh=1
+gpgcheck=0
+```
+
+- SLES 15 SP7 上 `$releasever` 解析为 `15.7`，取自 `/etc/products.d/baseproduct`。
+- `Module-Python3` 提供现代 `spray-job` 镜像所需的 `python311`，
+  详见 [Python 版本与镜像选择](./python_compatibility.md)。
+
 这一步也可以通过设置 ClusterOperation 文件中 enable-repo.yml 的 extraArgs 的值来实现，
 将 extraArgs 的值添加为 `'{minio_url}/kubean/centos-iso/$releasever/os/$basearch'` 这种格式，
 参阅 [ClusterOperation 结合 playbook 创建源配置文件](#3-clusteroperation-结合-playbook-创建源配置文件)了解更多信息。
@@ -300,6 +325,73 @@ spec:
       extraArgs: |
         -e undo=true
 ```
+
+SLES 15 SP7 zypper repo 的配置示例。每个模块是独立仓库，需分别列出：
+
+``` yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 注：sles 是 os package 离线资源，sles-iso 是 iso 安装包资源
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/sles/\$releasever/os/\$basearch',
+                         'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Basesystem',
+                         'http://10.20.30.40:9000/kubean/sles-iso/\$releasever/os/\$basearch/Module-Python3']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e undo=true
+```
+
+SLES 15 SP7 补充说明：
+
+- `$releasever` 解析为 `15.7`，与两个源的目录布局一致。
+- 节点必须在 `ping.yml` 执行前已具备 Ansible 解释器，因此解释器无法由该 playbook 安装。
+  使用现代 `spray-job` 镜像时，需先安装 `python311` 并在 `hosts-conf` 中设置
+  `ansible_python_interpreter`，详见 [Python 版本与镜像选择](./python_compatibility.md)。
+- 在锁定的 Kubespray 版本尚未识别 SLES 之前，可在 `vars-conf` 中补充该发行版。
+  该变量是整体覆盖，需保留原有条目：
+
+    ```yaml
+    supported_os_distributions:
+      - 'RedHat'
+      - 'CentOS'
+      - 'Fedora'
+      - 'Ubuntu'
+      - 'Debian'
+      - 'Flatcar'
+      - 'Suse'
+      - 'SLES'
+      - 'openSUSE Leap'
+      - 'openSUSE MicroOS'
+      - 'openSUSE Tumbleweed'
+      - 'ClearLinux'
+      - 'OracleLinux'
+      - 'AlmaLinux'
+      - 'Rocky'
+      - 'Amazon'
+      - 'Kylin Linux Advanced Server'
+      - 'UnionTech'
+      - 'UniontechOS'
+      - 'openEuler'
+    ```
+
+- SLE 15 不提供 `ntp` 软件包。若设置 `ntp_enabled: true`，需同时设置 `ntp_package: chrony`。
 
 ## 部署集群前的配置
 
