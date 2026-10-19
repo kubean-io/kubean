@@ -16,6 +16,7 @@ echo "IS_OFFLINE: ${OFFLINE_FLAG}"
 function func_prepare_config_yaml() {
     local source_path=$1
     local dest_path=$2
+    local spray_job_image=$3
     rm -fr "${dest_path}"
     mkdir "${dest_path}"
     cp -f "${source_path}"/hosts-conf-cm-2nodes.yml  "${dest_path}"/hosts-conf-cm.yml
@@ -25,7 +26,7 @@ function func_prepare_config_yaml() {
     sed -i "s/vm_ip_addr1/${vm_ip_addr1}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/vm_ip_addr2/${vm_ip_addr2}/" "${dest_path}"/hosts-conf-cm.yml
     sed -i "s/root_password/${AMD_ROOT_PASSWORD}/g" ${dest_path}/hosts-conf-cm.yml
-    sed -i "s#image:#image: ${SPRAY_JOB}#" "${dest_path}"/kubeanClusterOps.yml
+    sed -i "s#image:#image: ${spray_job_image}#" "${dest_path}"/kubeanClusterOps.yml
 }
 
 function func_generate_rsa_key(){
@@ -47,7 +48,7 @@ sshpass -p "${AMD_ROOT_PASSWORD}" scp  -o StrictHostKeyChecking=no "${REPO_ROOT}
 
 ## prepare kubean install job yml: kube_version: 1.35.5
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-install-cluster-sonobouy/
-func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}" "${SPRAY_JOB}"
 CLUSTER_OPERATION_NAME1="cluster1-install-"`date "+%H-%M-%S"`
 
 # set vars-conf-cm.yml
@@ -57,8 +58,9 @@ sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME1}/"  "${dest_config_path
 
 
 ## prepare cluster upgrade job yml --> upgrade from v1.35.5 to v1.36.0
+# Use modern Ansible for upgrades to preserve existing Calico IPPool field types.
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-y/
-func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}" "${SPRAY_JOB_MODERN}"
 CLUSTER_OPERATION_NAME2="cluster1-upgrade-y"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME2}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
@@ -67,7 +69,7 @@ yq -i eval '.data."group_vars.yml" = (.data."group_vars.yml" + "\nkubeadm_ignore
 
 ## prepare cluster upgrade job yml --> upgrade from v1.36.0 to v1.36.3
 dest_config_path="${REPO_ROOT}"/test/kubean_sonobouy_nightlye2e/e2e-upgrade-cluster-z/
-func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}"
+func_prepare_config_yaml "${SOURCE_CONFIG_PATH}"  "${dest_config_path}" "${SPRAY_JOB_MODERN}"
 CLUSTER_OPERATION_NAME3="cluster1-upgrade-z"
 sed -i "s/e2e-cluster1-install/${CLUSTER_OPERATION_NAME3}/"  "${dest_config_path}"/kubeanClusterOps.yml
 sed -i "s/cluster.yml/upgrade-cluster.yml/" "${dest_config_path}"/kubeanClusterOps.yml
