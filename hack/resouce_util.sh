@@ -203,10 +203,10 @@ kubectl apply -f ./pvc.yaml --kubeconfig=${kube_config}
 function resource::install_minio(){
   local kubeconfig_file=$1
   local kind_cluster_prefix=$2
-  local minio_version="5.0.9"
+  local minio_version="5.4.0"
   local minio_ns="minio-system"
   local minio_helm_src="daocloud-community/minio"
-  local minio_img_par="--set image.repository=quay.m.daocloud.io/minio/minio --set mcImage.repository=quay.m.daocloud.io/minio/mc --version=${minio_version}"
+  local minio_img_par="--set image.repository=m.daocloud.io/docker.io/pgsty/minio --set image.tag=RELEASE.2026-06-18T00-00-00Z --set mcImage.repository=m.daocloud.io/docker.io/pgsty/minio --set mcImage.tag=RELEASE.2026-06-18T00-00-00Z --version=${minio_version}"
   local helm_cmd="helm upgrade --install  --create-namespace --cleanup-on-fail --namespace ${minio_ns}"
   resource::create_ns  ${minio_ns} ${kubeconfig_file}
   resource::create_pvc "minio" "50Gi" ${kubeconfig_file} ${kind_cluster_prefix}
@@ -218,6 +218,7 @@ function resource::install_minio(){
           --set users[0].policy=consoleAdmin \
           --set securityContext.runAsUser=0,securityContext.runAsGroup=0 \
           --set mode=standalone \
+          --set deploymentUpdate.type=Recreate \
           --set service.type=NodePort \
           --set consoleService.type=NodePort \
           --set resources.requests.memory=200Mi \

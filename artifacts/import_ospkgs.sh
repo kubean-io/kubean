@@ -16,7 +16,7 @@ function add_mc_host_conf() {
     echo "need MINIO_USER and MINIO_PASS"
     exit 1
   fi
-  if ! mc config host add kubeaniominioserver "$MINIO_API_ADDR" "$MINIO_USER" "$MINIO_PASS"; then
+  if ! mc alias set kubeaniominioserver "$MINIO_API_ADDR" "$MINIO_USER" "$MINIO_PASS"; then
     echo "mc add $MINIO_API_ADDR server failed"
     exit 1
   fi
@@ -25,14 +25,14 @@ function add_mc_host_conf() {
 function ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
-    mc mb -p kubeaniominioserver/kubean
+    mc mb --ignore-existing kubeaniominioserver/kubean
     mc anonymous set download kubeaniominioserver/kubean
   fi
 }
 
 function remove_mc_host_conf() {
   echo "remove mc config"
-  flock $PARALLEL_LOCK mc config host remove kubeaniominioserver || true
+  flock $PARALLEL_LOCK mc alias remove kubeaniominioserver || true
 }
 
 function check_mc_cmd() {
