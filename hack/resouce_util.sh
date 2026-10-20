@@ -204,9 +204,12 @@ function resource::install_minio(){
   local kubeconfig_file=$1
   local kind_cluster_prefix=$2
   local minio_version="5.0.9"
+  local minio_img_repo="m.daocloud.io/docker.io/pgsty/minio"
+  local minio_img_tag="RELEASE.2026-08-04T00-00-00Z"
   local minio_ns="minio-system"
   local minio_helm_src="daocloud-community/minio"
-  local minio_img_par="--set image.repository=quay.m.daocloud.io/minio/minio --set mcImage.repository=quay.m.daocloud.io/minio/mc --version=${minio_version}"
+  # The server image also provides /usr/bin/mc for the chart's initialization jobs.
+  local minio_img_par="--set image.repository=${minio_img_repo} --set image.tag=${minio_img_tag} --set mcImage.repository=${minio_img_repo} --set mcImage.tag=${minio_img_tag} --version=${minio_version}"
   local helm_cmd="helm upgrade --install  --create-namespace --cleanup-on-fail --namespace ${minio_ns}"
   resource::create_ns  ${minio_ns} ${kubeconfig_file}
   resource::create_pvc "minio" "50Gi" ${kubeconfig_file} ${kind_cluster_prefix}
