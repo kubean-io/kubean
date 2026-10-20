@@ -10,7 +10,7 @@ set -o pipefail
 
 #https://www.dazhuanlan.com/erlv/topics/1058820
 set -x
-PATH2TEST=( ./pkg/...  ./cmd/... )
+PATH2TEST=( ./pkg/...  ./cmd/...  ./test/tools )
 tmpDir=$(mktemp -d)
 mergeF="${tmpDir}/merge.out"
 rm -f ${mergeF}

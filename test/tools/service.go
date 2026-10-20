@@ -17,6 +17,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -218,52 +219,66 @@ func SaveKubeConf(kindConfig *restclient.Config, clusterName, configToSavePath s
 	gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "failed to write localKubeConfigPath")
 }
 
+// WaitPodSInKubeSystemBeRunning waits for the current kube-system pods to be Running and Ready.
+// The timeout and optional polling interval are specified in seconds.
 func WaitPodSInKubeSystemBeRunning(kubeClient *kubernetes.Clientset, timeTotalSecond time.Duration, ops ...time.Duration) {
-	klog.Infof("---- Waiting Pods in %s to be Running ---", KubeSystemNamespace)
-	var timeInterval time.Duration = 60
+	klog.Infof("---- Waiting Pods in %s to be Running and Ready ---", KubeSystemNamespace)
+	timeInterval := 60 * time.Second
 	if len(ops) != 0 {
-		timeInterval = ops[0]
+		timeInterval = ops[0] * time.Second
 	}
 
-	//gomega.ExpectWithOffset(2, err).NotTo(gomega.HaveOccurred(), "Failed to get kube-system pods")
-	// get cluster pod list, and retry if failed
-	var podList *corev1.PodList
-	var err error
-	for i := 0; i < 10; i++ {
-		podList, err = kubeClient.CoreV1().Pods(KubeSystemNamespace).List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			klog.Info("Failed get podList: ", podList.Items)
-			time.Sleep(time.Duration(i+1) * time.Second)
-		} else {
-			break
+	err := waitKubeSystemPodsReady(context.Background(), kubeClient, timeTotalSecond*time.Second, timeInterval)
+	gomega.ExpectWithOffset(1, err).NotTo(gomega.HaveOccurred())
+}
+
+func waitKubeSystemPodsReady(ctx context.Context, kubeClient kubernetes.Interface, timeout, interval time.Duration) error {
+	var lastErr error
+	err := wait.PollUntilContextTimeout(ctx, interval, timeout, true, func(ctx context.Context) (bool, error) {
+		lastErr = kubeSystemPodsReady(ctx, kubeClient)
+		if lastErr != nil {
+			klog.Info("Waiting for kube-system pods: ", lastErr)
 		}
+		return lastErr == nil, nil
+	})
+	if err != nil {
+		return fmt.Errorf("waiting for Running and Ready pods in %s: %w; last observation: %v", KubeSystemNamespace, err, lastErr)
 	}
-	for _, podItem := range podList.Items {
-		klog.Info("Waiting ", podItem.Name, "to be Running...")
-		gomega.Eventually(func() bool {
-			//gomega.ExpectWithOffset(2, err1).NotTo(gomega.HaveOccurred(), "Failed get pod", pod.Name)
-			// get cluster pod name, and retry if failed
-			var pod *corev1.Pod
-			var err1 error
-			for i := 0; i < 10; i++ {
-				pod, err1 = kubeClient.CoreV1().Pods(KubeSystemNamespace).Get(context.Background(), podItem.Name, metav1.GetOptions{})
-				if err1 != nil {
-					klog.Info("Failed get pod: ", pod.Name)
-					time.Sleep(time.Duration(i+1) * time.Second)
-				} else {
-					break
-				}
-			}
-			podStatus := string(pod.Status.Phase)
-			if podStatus == PodStatusRunning {
-				return true
-			} else {
-				klog.Info("    Status is: ", podStatus)
-				//gomega.Expect(podStatus != PodStatusFailed).To(gomega.BeTrue())
-			}
-			return false
-		}, timeTotalSecond*time.Second, timeInterval*time.Second).Should(gomega.BeTrue())
+	return nil
+}
+
+func kubeSystemPodsReady(ctx context.Context, kubeClient kubernetes.Interface) error {
+	podList, err := kubeClient.CoreV1().Pods(KubeSystemNamespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return fmt.Errorf("list pods in %s: %w", KubeSystemNamespace, err)
 	}
+	if len(podList.Items) == 0 {
+		return fmt.Errorf("no pods found in %s", KubeSystemNamespace)
+	}
+
+	var diagnostics strings.Builder
+	for _, pod := range podList.Items {
+		ready := corev1.PodCondition{Status: corev1.ConditionUnknown}
+		for _, condition := range pod.Status.Conditions {
+			if condition.Type == corev1.PodReady {
+				ready = condition
+				break
+			}
+		}
+		if pod.DeletionTimestamp == nil && pod.Status.Phase == corev1.PodRunning && ready.Status == corev1.ConditionTrue {
+			continue
+		}
+
+		fmt.Fprintf(&diagnostics, "\n%s/%s (node=%q): phase=%s Ready=%s terminating=%t reason=%q message=%q\n",
+			pod.Namespace, pod.Name, pod.Spec.NodeName, pod.Status.Phase, ready.Status,
+			pod.DeletionTimestamp != nil, ready.Reason, ready.Message)
+		appendContainerStatuses(&diagnostics, "init container", pod.Status.InitContainerStatuses)
+		appendContainerStatuses(&diagnostics, "container", pod.Status.ContainerStatuses)
+	}
+	if diagnostics.Len() != 0 {
+		return fmt.Errorf("unhealthy pods in %s:%s", KubeSystemNamespace, diagnostics.String())
+	}
+	return nil
 }
 
 func GenerateClusterClient(localKubeConfigPath string) *kubernetes.Clientset {

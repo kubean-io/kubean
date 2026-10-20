@@ -80,6 +80,23 @@ Entry: var _ = ginkgo.Describe >> ginkgo.Describe >> ginkgo.Context >> ginkgo.It
 * gomega.Expect: result assertion, such as true or false, whether it is empty, whether it is equal.
 The above and more are to organize our tests for different use cases in different scenarios in a more orderly manner. You can read more ginkgo official documents and refer to excellent open source projects to learn.
 
+### Kube-system health checks
+
+`tools.WaitPodSInKubeSystemBeRunning` refreshes the kube-system Pod list on every
+poll so that removed Pods are not retained and replacement Pods are checked.
+The list must be non-empty, and every listed Pod must be Running, Ready, and not
+terminating. API errors and unhealthy Pods are retried within one total timeout,
+including time spent on API requests. Failures report the last API error or Pod
+readiness and container state. The timeout and optional polling interval arguments
+are expressed in seconds.
+
+Deterministic helper regressions use fake clients and virtual time, without a
+cluster. They are included in `make test` and can also be run separately:
+
+```sh
+go test -race ./test/tools
+```
+
 ## Environment cleanup After Testing
 ````
 hack/delete-cluster.sh
