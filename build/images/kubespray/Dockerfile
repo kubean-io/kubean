@@ -5,7 +5,8 @@ ARG KUBE_VERSION
 
 ARG TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apk add --update --no-cache python3 openssh curl sshpass rsync bash \
+# py3-packaging 必须显式安装：否则作为 py3-pip 的传递依赖，会在末尾 apk del py3-pip 时被级联删除
+RUN apk add --update --no-cache python3 openssh curl sshpass rsync bash py3-packaging \
   gcc musl-dev python3-dev libffi-dev py3-pip git patch
 
 RUN git clone https://github.com/kubernetes-sigs/kubespray.git /kubespray \
@@ -80,8 +81,9 @@ RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $
   elif [[ "${ANSIBLE_CORE_VERSION}" == "2.15" ]]; then  \
   echo "patch-2.15"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.15.patch; \
   fi \
-  && apk del --quiet py3-pip \
-  && rm -rf "${SITE_PKG_PATH}"/pip "${SITE_PKG_PATH}"/pip-*.dist-info
+  && apk del --quiet py3-pip patch \
+  && rm -rf "${SITE_PKG_PATH}"/pip "${SITE_PKG_PATH}"/pip-*.dist-info /tmp/pkg_mgr_*.patch \
+  && python3 -c 'import ansible, packaging, resolvelib, toml'
 
 FROM scratch
 
