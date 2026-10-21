@@ -28,8 +28,9 @@ RUN \
   && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml; \
   fi
 
+# toml 供 spray-job 的 sivel.toiletwater 使用；因运行期会移除 pip，必须在此一并装好。
 RUN python3 -m pip install --no-cache-dir --disable-pip-version-check --break-system-packages -U pip \
-  && python3 -m pip install --no-cache-dir --disable-pip-version-check --break-system-packages -r requirements.txt
+  && python3 -m pip install --no-cache-dir --disable-pip-version-check --break-system-packages -r requirements.txt toml
 
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
   && if [ -z "$KUBE_VERSION" ]; then \
@@ -66,6 +67,7 @@ RUN pip3 cache purge \
 
 COPY build/images/ansible_patchs/* /tmp/
 # 版本落盘供 hack/ansible-core-version.sh 读取，避免为了拼 tag 去执行镜像内代码。
+# 本层末尾移除 pip：运行期不装包，留着只会把 pip 自带的 vendored 依赖（certifi 等）暴露给安全扫描。
 RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
   && echo "ANSIBLE_CORE_VERSION: ${ANSIBLE_CORE_VERSION}" \
   && mkdir -p /etc/kubean \
@@ -77,7 +79,9 @@ RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $
   echo "patch-2.14"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.14.patch; \
   elif [[ "${ANSIBLE_CORE_VERSION}" == "2.15" ]]; then  \
   echo "patch-2.15"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.15.patch; \
-  fi
+  fi \
+  && apk del --quiet py3-pip \
+  && rm -rf "${SITE_PKG_PATH}"/pip "${SITE_PKG_PATH}"/pip-*.dist-info
 
 FROM scratch
 
