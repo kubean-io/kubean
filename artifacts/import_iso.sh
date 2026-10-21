@@ -16,7 +16,7 @@ function iso::add_mc_host_conf() {
     echo "need MINIO_USER and MINIO_PASS"
     exit 1
   fi
-  if ! mc config host add kubeaniominioserver "${minio_addr}" "${minio_user}" "${minio_pass}"; then
+  if ! mc alias set kubeaniominioserver "${minio_addr}" "${minio_user}" "${minio_pass}"; then
     echo "mc add ${minio_addr} server failed"
     exit 1
   fi
@@ -25,7 +25,7 @@ function iso::add_mc_host_conf() {
 function iso::del_mc_host_conf() {
   echo "remove mc config"
   local iso_parallel_lock=$1
-  flock ${iso_parallel_lock} mc config host remove kubeaniominioserver || true
+  flock ${iso_parallel_lock} mc alias remove kubeaniominioserver || true
 }
 
 function iso::check_mc_cmd() {
@@ -40,7 +40,7 @@ function iso::check_mc_cmd() {
 function iso::ensure_kubean_bucket() {
   if ! mc ls kubeaniominioserver/kubean >/dev/null 2>&1; then
     echo "create bucket 'kubean'"
-    mc mb -p kubeaniominioserver/kubean
+    mc mb --ignore-existing kubeaniominioserver/kubean
     mc anonymous set download kubeaniominioserver/kubean
   fi
 }

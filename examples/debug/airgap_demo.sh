@@ -71,7 +71,7 @@ EOF
 
 # install minio & registry
 function install_minio_and_registry() {
-  local minio_version="4.0.8"
+  local minio_version="5.4.0"
   local registry_version="2.1.0"
 
   helm repo add daocloud-community https://release.daocloud.io/chartrepo/community --force-update
@@ -88,13 +88,16 @@ function install_minio_and_registry() {
     --set users[0].policy='consoleAdmin' \
     --set securityContext.runAsUser=0,securityContext.runAsGroup=0 \
     --set mode=standalone \
+    --set deploymentUpdate.type=Recreate \
     --set replicas=1 \
     --set service.type=NodePort \
     --set consoleService.type=NodePort \
     --set resources.requests.memory=200Mi \
     --set persistence.existingClaim=pvc-minio \
-    --set image.repository=quay.m.daocloud.io/minio/minio \
-    --set mcImage.repository=quay.m.daocloud.io/minio/mc --version="${minio_version}" \
+    --set image.repository=m.daocloud.io/docker.io/pgsty/minio \
+    --set image.tag=RELEASE.2026-06-18T00-00-00Z \
+    --set mcImage.repository=m.daocloud.io/docker.io/pgsty/minio \
+    --set mcImage.tag=RELEASE.2026-06-18T00-00-00Z --version="${minio_version}" \
     minio daocloud-community/minio --wait
 
   helm upgrade --install  --create-namespace --cleanup-on-fail --namespace registry-system \
