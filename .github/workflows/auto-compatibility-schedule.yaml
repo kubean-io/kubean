@@ -18,8 +18,20 @@ jobs:
     uses: ./.github/workflows/build-push-for-e2e.yml
 
   auto-kubean-compatibility:
+    name: auto-kubean-compatibility (${{ matrix.kubernetes }})
     needs: [ build-push-for-e2e ]
     runs-on: [self-hosted, online]
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        kubernetes:
+          [
+            "v1.20.15", "v1.21.14", "v1.22.15", "v1.23.13",
+            "v1.24.7", "v1.25.3", "v1.26.0", "v1.27.1", "v1.28.0",
+            "v1.29.0", "v1.30.0", "v1.31.0", "v1.32.0",
+            "v1.33.0", "v1.34.0", "v1.35.0", "v1.36.1",
+          ]
     permissions:
       packages: write
       contents: read
@@ -33,15 +45,17 @@ jobs:
           go-version: 1.25.0
 
       - name: kubean_compatibility_schedule
+        env:
+          KUBEAN_K8S_VERSION: ${{ matrix.kubernetes }}
         run: |
           CONTAINER_TAG="$(git describe --tags --abbrev=8 --dirty)-e2e"
           HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1 }'`
           TAG_SECOND_PART=`echo ${CONTAINER_TAG}|awk  -F "-" '{print $2 }'`
-          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then 
+          if [[ ${TAG_SECOND_PART} =~ rc[0-9]+ ]];then
             HELM_CHART_VERSION=`echo ${CONTAINER_TAG}|awk -F "-" '{print $1"-"$2 }'`
           fi
           echo ${{ runner.name }}
           echo ${{ github.workspace }}
-          echo "${HELM_CHART_VERSION}" 
+          echo "${HELM_CHART_VERSION}"
           echo "${CONTAINER_TAG}"
           bash hack/e2e.sh "${HELM_CHART_VERSION}" "${CONTAINER_TAG}" ${{ runner.name }} "${VSPHERE_USER}" "${VSPHERE_PASSWD}" "${AMD_ROOT_PASSWORD}" "${KYLIN_VM_PASSWORD}" "KUBEAN-COMPATIBILITY"
