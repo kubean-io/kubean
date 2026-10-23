@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -307,32 +308,58 @@ func WaitPodBeRunning(kubeClient *kubernetes.Clientset, namespace, podName strin
 }
 
 func NodePingPodByPasswd(password, sshNode, podIP string) {
-	pingCmd := "ping"
-	if strings.Contains(podIP, ":") {
-		osTypeCmd := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, "cat ", "/etc/redhat-release"})
-		osTypeCmdOut, _ := NewDoCmd("sshpass", osTypeCmd...)
-		if strings.Contains(osTypeCmdOut.String(), "CentOS") {
-			pingCmd = "ping6"
-		}
-		if strings.Contains(osTypeCmdOut.String(), "Red Hat") && strings.Contains(osTypeCmdOut.String(), "7.") {
-			pingCmd = "ping6"
-		}
+	err := pingPodFromNode(sshNode, podIP, func(command string) ([]byte, error) {
+		args := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, command})
+		return exec.Command("sshpass", args...).CombinedOutput()
+	})
+	gomega.ExpectWithOffset(1, err).NotTo(gomega.HaveOccurred())
+}
+
+func pingPodFromNode(sshNode, podIP string, run func(string) ([]byte, error)) error {
+	command, err := nodePingCommand(podIP)
+	if err != nil {
+		return fmt.Errorf("ping pod IP %q from %s: %w", podIP, sshNode, err)
 	}
 
-	pingPodIpCmd1 := RemoteSSHCmdArrayByPasswd(password, []string{sshNode, pingCmd, "-c 1", podIP})
-	count := 3
-	for i := 0; i <= count; i++ {
-		pingNginx1IpCmd1Out, cmdError := NewDoCmdSoft("sshpass", pingPodIpCmd1...)
-		if cmdError == nil {
-			klog.Info(sshNode, "ping pod IP ", podIP, "result: ", pingNginx1IpCmd1Out.String())
-			gomega.Expect(pingNginx1IpCmd1Out.String()).Should(gomega.ContainSubstring("1 received"))
-			break
-		} else {
-			klog.Info("excute cmd error, retry...")
-			time.Sleep(5 * time.Second)
-			gomega.Expect(i == count).Should(gomega.BeFalse())
+	const maxAttempts = 4
+	for attempt := 1; ; attempt++ {
+		output, err := run(command)
+		if err == nil {
+			klog.Infof("%s ping pod IP %s result: %s", sshNode, podIP, output)
+			if !strings.Contains(string(output), "1 received") {
+				return fmt.Errorf("ping pod IP %s from %s did not report a received packet:\n%s", podIP, sshNode, output)
+			}
+			return nil
 		}
+
+		err = fmt.Errorf("ping pod IP %s from %s failed (attempt %d/%d): %w\n%s", podIP, sshNode, attempt, maxAttempts, err, output)
+		klog.Info(err)
+		if attempt == maxAttempts {
+			return err
+		}
+		time.Sleep(5 * time.Second)
 	}
+}
+
+func nodePingCommand(podIP string) (string, error) {
+	ip := net.ParseIP(podIP)
+	if ip == nil {
+		return "", fmt.Errorf("invalid pod IP address %q", podIP)
+	}
+	if ip.To4() != nil {
+		return "ping -c 1 " + ip.String(), nil
+	}
+
+	return fmt.Sprintf(`if command -v ping6 >/dev/null 2>&1; then
+  echo "using ping6 for IPv6" >&2
+  exec ping6 -c 1 %[1]s
+elif command -v ping >/dev/null 2>&1; then
+  echo "using ping -6 for IPv6" >&2
+  exec ping -6 -c 1 %[1]s
+else
+  echo "IPv6 ping requires ping6 or ping on the target node" >&2
+  exit 127
+fi`, ip.String()), nil
 }
 
 func PodPingPodByPasswd(password, node, podFromNs, podFromName, podToIP string) {
