@@ -20,6 +20,7 @@ COPY charts /kubean/charts
 ARG SKOPEO_VERSION="v1.18.0"
 ARG YQ_VERSION="v4.52.4"
 RUN ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" \
+    && apk upgrade --no-cache \
     && apk add --update --no-cache curl wget libc6-compat \
     && echo "install skopeo" \
     && wget -O /usr/bin/skopeo https://github.com/lework/skopeo-binary/releases/download/${SKOPEO_VERSION}/skopeo-linux-${ARCH} \
