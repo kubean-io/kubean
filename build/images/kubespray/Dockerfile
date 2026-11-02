@@ -6,7 +6,9 @@ ARG KUBE_VERSION
 ARG TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # py3-packaging 必须显式安装：否则作为 py3-pip 的传递依赖，会在末尾 apk del py3-pip 时被级联删除
-RUN apk add --update --no-cache python3 openssh curl sshpass rsync bash py3-packaging \
+# 先 apk upgrade：基础镜像 tag 可能滞后于仓库安全修复，确保系统包为当前分支最新版本
+RUN apk upgrade --no-cache \
+  && apk add --update --no-cache python3 openssh curl sshpass rsync bash py3-packaging \
   gcc musl-dev python3-dev libffi-dev py3-pip git patch
 
 RUN git clone https://github.com/kubernetes-sigs/kubespray.git /kubespray \
