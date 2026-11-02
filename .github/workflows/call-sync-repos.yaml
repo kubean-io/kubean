@@ -41,7 +41,12 @@ jobs:
       run: |
         pushd charts
         tar zcvf kubean.tar.gz kubean
-        helm plugin install https://github.com/chartmuseum/helm-push
+        # Helm v4 verifies plugins by default; git-sourced plugins can't be verified
+        PLUGIN_INSTALL_ARGS=""
+        if helm version --template '{{.Version}}' | grep -qE '^v([4-9]|[1-9][0-9])\.'; then
+          PLUGIN_INSTALL_ARGS="--verify=false"
+        fi
+        helm plugin install https://github.com/chartmuseum/helm-push ${PLUGIN_INSTALL_ARGS}
         helm repo add addon https://release.daocloud.io/chartrepo/addon
         helm cm-push kubean.tar.gz addon -a ${GITHUB_REF_NAME} -v ${GITHUB_REF_NAME} -u ${{ secrets.RELEASE_DAOCLOUD_USER }}  -p ${{ secrets.RELEASE_DAOCLOUD_PASSWORD }}
         rm -rf kubean.tar.gz
