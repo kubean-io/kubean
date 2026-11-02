@@ -5070,6 +5070,50 @@ them individually:</p>
   <code>ntp_package: chrony</code>.</p>
 </li>
 </ul>
+<p>Example for openEuler 24.03 LTS SP4 (yum repo). Hard-code <code>24.03</code> in the path instead of
+using <code>$releasever</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-ops-01</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/kubean-io/spray-job:latest</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
+<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># openeuler is the os-pkgs source, openeuler-iso is the imported ISO source</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e "{repo_list: ['http://10.20.30.40:9000/kubean/openeuler/24.03/os/\$basearch',</span>
+<span class="w">                         </span><span class="no">'http://10.20.30.40:9000/kubean/openeuler-iso/24.03/os/\$basearch']}"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
+<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e undo=true</span>
+</code></pre></div>
+<p>Notes for openEuler 24.03 LTS SP4:</p>
+<ul>
+<li><code>os-pkgs-openeuler24.03</code> is built from the 24.03 LTS SP4 repositories. ISO import drops the
+  SP number and shares the <code>24.03</code> directory with os-pkgs, so import the SP4 ISO to keep
+  dependency versions consistent.</li>
+<li>
+<p>If <code>stat -fc %T /sys/fs/cgroup</code> prints <code>tmpfs</code>, the node uses cgroup v1, which the Kubernetes
+  1.35 kubelet refuses by default. Add the following to <code>vars-conf</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kubelet_fail_cgroup_v1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="c1"># Add only if kubeadm preflight fails with SystemVerification</span>
+<span class="nt">kubeadm_ignore_preflight_errors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SystemVerification</span>
+</code></pre></div>
+</li>
+</ul>
 <h2 id="configure-cluster-before-deployment">Configure cluster before deployment<a class="headerlink" href="#configure-cluster-before-deployment" title="Permanent link">&para;</a></h2>
 <p>Offline settings need to be referred to <a href="https://github.com/kubernetes-sigs/kubespray"><code>kubespray</code></a>
 Located in <code>kubespray/inventory/sample/group_vars/all/offline.yml</code> configuration file:</p>

@@ -4674,6 +4674,14 @@
 <td>是</td>
 </tr>
 <tr>
+<td>openEuler 24.03 LTS SP4 †</td>
+<td><code>os-pkgs-openeuler24.03</code></td>
+<td>未记录</td>
+<td>3.11.6 †</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr>
 <td>Oracle Linux 8 †</td>
 <td><code>os-pkgs-oracle8</code></td>
 <td>未安装</td>
@@ -4781,7 +4789,7 @@
 </table>
 <p><strong>结论速查</strong>：</p>
 <ul>
-<li><strong>满足现代镜像（<code>-modern</code> / core 2.21）要求</strong>，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。</li>
+<li><strong>满足现代镜像（<code>-modern</code> / core 2.21）要求</strong>，目标节点可直接使用：Kylin V11 2503、openEuler 22.03/24.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。</li>
 <li><strong>仅满足传统镜像（core 2.16）要求</strong>，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、SLES 15 SP7、TencentOS Server 3.1、Ubuntu 20.04。</li>
 </ul>
 <p>上述所有 Python 版本均在 core 2.16 的目标端支持范围内。<code>python</code> 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。</p>

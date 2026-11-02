@@ -5172,6 +5172,48 @@ sslverify=0
 <p>SLE 15 不提供 <code>ntp</code> 软件包。若设置 <code>ntp_enabled: true</code>，需同时设置 <code>ntp_package: chrony</code>。</p>
 </li>
 </ul>
+<p>openEuler 24.03 LTS SP4 yum repo 的配置示例。路径中的版本需写死为 <code>24.03</code>，不要使用 <code>$releasever</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubean.io/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterOperation</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-ops-01</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sample</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghcr.io/kubean-io/spray-job:latest</span>
+<span class="w">  </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster.yml</span>
+<span class="w">  </span><span class="nt">preHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ping.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span><span class="w">  </span><span class="c1"># 注：openeuler 是 os package 离线资源，openeuler-iso 是 iso 安装包资源</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e "{repo_list: ['http://10.20.30.40:9000/kubean/openeuler/24.03/os/\$basearch',</span>
+<span class="w">                         </span><span class="no">'http://10.20.30.40:9000/kubean/openeuler-iso/24.03/os/\$basearch']}"</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">disable-firewalld.yml</span>
+<span class="w">  </span><span class="nt">postHook</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-info.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">actionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">playbook</span>
+<span class="w">      </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enable-repo.yml</span>
+<span class="w">      </span><span class="nt">extraArgs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">-e undo=true</span>
+</code></pre></div>
+<p>openEuler 24.03 LTS SP4 补充说明：</p>
+<ul>
+<li><code>os-pkgs-openeuler24.03</code> 基于 24.03 LTS SP4 源构建。导入 ISO 时 SP 号会被去掉，与 os-pkgs 同用 <code>24.03</code> 目录，
+  建议导入 SP4 ISO，避免依赖版本不一致。</li>
+<li>
+<p>若 <code>stat -fc %T /sys/fs/cgroup</code> 输出 <code>tmpfs</code>，说明节点使用 cgroup v1，Kubernetes 1.35 的 kubelet 默认拒绝启动，
+  需在 <code>vars-conf</code> 中补充：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kubelet_fail_cgroup_v1</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="c1"># kubeadm preflight 报 SystemVerification 错误时再添加</span>
+<span class="nt">kubeadm_ignore_preflight_errors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SystemVerification</span>
+</code></pre></div>
+</li>
+</ul>
 <h2 id="_8">部署集群前的配置<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
 <p>离线设置需要参考 <a href="https://github.com/kubernetes-sigs/kubespray"><code>kubespray</code></a>
 位于 <code>kubespray/inventory/sample/group_vars/all/offline.yml</code> 的配置文件：</p>

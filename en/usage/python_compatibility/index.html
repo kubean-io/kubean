@@ -4674,6 +4674,14 @@
 <td>Yes</td>
 </tr>
 <tr>
+<td>openEuler 24.03 LTS SP4 †</td>
+<td><code>os-pkgs-openeuler24.03</code></td>
+<td>Not recorded</td>
+<td>3.11.6 †</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
 <td>Oracle Linux 8 †</td>
 <td><code>os-pkgs-oracle8</code></td>
 <td>Not installed</td>
@@ -4781,7 +4789,7 @@
 </table>
 <p><strong>Quick summary</strong>:</p>
 <ul>
-<li><strong>Meets the modern image (<code>-modern</code> / core 2.21) requirement</strong>, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.</li>
+<li><strong>Meets the modern image (<code>-modern</code> / core 2.21) requirement</strong>, target node can use it directly: Kylin V11 2503, openEuler 22.03/24.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.</li>
 <li><strong>Only meets the legacy image (core 2.16) requirement</strong> — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, SLES 15 SP7, TencentOS Server 3.1, Ubuntu 20.04.</li>
 </ul>
 <p>All Python versions above fall within core 2.16's target-node range. A missing <code>python</code> command does not prevent Ansible use; the selected interpreter is what matters.</p>
