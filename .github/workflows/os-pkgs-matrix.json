@@ -44,6 +44,10 @@
     "dockerfile": "build/os-packages/Dockerfile.openeuler22.03"
   },
   {
+    "name": "openeuler24.03",
+    "dockerfile": "build/os-packages/Dockerfile.openeuler24.03"
+  },
+  {
     "name": "oracle8",
     "dockerfile": "build/os-packages/Dockerfile.oracle8"
   },

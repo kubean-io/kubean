@@ -34,6 +34,7 @@ The table below covers every offline OS package (`os-pkgs-*`) currently supporte
 | Kylin V10 SP3 | `os-pkgs-kylin-v10sp3` | 2.7.18 | 3.7.9 | Yes | **No** |
 | Kylin V11 2503 (formerly Swan25) | `os-pkgs-kylin-v112503` | Command not found | 3.11.6 | Yes | Yes |
 | openEuler 22.03 LTS † | `os-pkgs-openeuler22.03` | Not recorded | 3.9.9 † | Yes | Yes |
+| openEuler 24.03 LTS SP4 † | `os-pkgs-openeuler24.03` | Not recorded | 3.11.6 † | Yes | Yes |
 | Oracle Linux 8 † | `os-pkgs-oracle8` | Not installed | 3.6.8 † | Yes | **No** |
 | Oracle Linux 9 † | `os-pkgs-oracle9` | Not installed | 3.9.18 † | Yes | Yes |
 | RHEL 10 † | `os-pkgs-redhat10` | Not installed | 3.12.x † | Yes (right at the upper bound) | Yes |
@@ -50,7 +51,7 @@ The table below covers every offline OS package (`os-pkgs-*`) currently supporte
 
 **Quick summary**:
 
-- **Meets the modern image (`-modern` / core 2.21) requirement**, target node can use it directly: Kylin V11 2503, openEuler 22.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.
+- **Meets the modern image (`-modern` / core 2.21) requirement**, target node can use it directly: Kylin V11 2503, openEuler 22.03/24.03, Oracle Linux 9, RHEL 9/10, Rocky Linux 9, Ubuntu 22.04/24.04.
 - **Only meets the legacy image (core 2.16) requirement** — default Python is below 3.9. To evaluate the modern image, prepare a supported Python first as described in "Choosing an image": BigCloud 21.10, CentOS 7, Kylin V10 SP2/SP3, Oracle Linux 8, RHEL 7/8, Rocky Linux 8, SLES 15 SP7, TencentOS Server 3.1, Ubuntu 20.04.
 
 All Python versions above fall within core 2.16's target-node range. A missing `python` command does not prevent Ansible use; the selected interpreter is what matters.

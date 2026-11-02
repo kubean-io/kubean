@@ -34,6 +34,7 @@
 | Kylin V10 SP3 | `os-pkgs-kylin-v10sp3` | 2.7.18 | 3.7.9 | 是 | **否** |
 | Kylin V11 2503（原 Swan25） | `os-pkgs-kylin-v112503` | 未找到命令 | 3.11.6 | 是 | 是 |
 | openEuler 22.03 LTS † | `os-pkgs-openeuler22.03` | 未记录 | 3.9.9 † | 是 | 是 |
+| openEuler 24.03 LTS SP4 † | `os-pkgs-openeuler24.03` | 未记录 | 3.11.6 † | 是 | 是 |
 | Oracle Linux 8 † | `os-pkgs-oracle8` | 未安装 | 3.6.8 † | 是 | **否** |
 | Oracle Linux 9 † | `os-pkgs-oracle9` | 未安装 | 3.9.18 † | 是 | 是 |
 | RHEL 10 † | `os-pkgs-redhat10` | 未安装 | 3.12.x † | 是（恰在上限） | 是 |
@@ -50,7 +51,7 @@
 
 **结论速查**：
 
-- **满足现代镜像（`-modern` / core 2.21）要求**，目标节点可直接使用：Kylin V11 2503、openEuler 22.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。
+- **满足现代镜像（`-modern` / core 2.21）要求**，目标节点可直接使用：Kylin V11 2503、openEuler 22.03/24.03、Oracle Linux 9、RHEL 9/10、Rocky Linux 9、Ubuntu 22.04/24.04。
 - **仅满足传统镜像（core 2.16）要求**，默认 Python 版本低于 3.9，若要评估现代镜像需按「如何选择」一节额外准备受支持的 Python：BigCloud 21.10、CentOS 7、Kylin V10 SP2/SP3、Oracle Linux 8、RHEL 7/8、Rocky Linux 8、SLES 15 SP7、TencentOS Server 3.1、Ubuntu 20.04。
 
 上述所有 Python 版本均在 core 2.16 的目标端支持范围内。`python` 命令缺失不代表无法使用 Ansible；关键是实际选中的解释器。

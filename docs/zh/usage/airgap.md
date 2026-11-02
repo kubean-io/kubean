@@ -393,6 +393,51 @@ SLES 15 SP7 补充说明：
 
 - SLE 15 不提供 `ntp` 软件包。若设置 `ntp_enabled: true`，需同时设置 `ntp_package: chrony`。
 
+openEuler 24.03 LTS SP4 yum repo 的配置示例。路径中的版本需写死为 `24.03`，不要使用 `$releasever`：
+
+``` yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # 注：openeuler 是 os package 离线资源，openeuler-iso 是 iso 安装包资源
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/openeuler/24.03/os/\$basearch',
+                         'http://10.20.30.40:9000/kubean/openeuler-iso/24.03/os/\$basearch']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e undo=true
+```
+
+openEuler 24.03 LTS SP4 补充说明：
+
+- `os-pkgs-openeuler24.03` 基于 24.03 LTS SP4 源构建。导入 ISO 时 SP 号会被去掉，与 os-pkgs 同用 `24.03` 目录，
+  建议导入 SP4 ISO，避免依赖版本不一致。
+- 若 `stat -fc %T /sys/fs/cgroup` 输出 `tmpfs`，说明节点使用 cgroup v1，Kubernetes 1.35 的 kubelet 默认拒绝启动，
+  需在 `vars-conf` 中补充：
+
+    ```yaml
+    kubelet_fail_cgroup_v1: false
+    # kubeadm preflight 报 SystemVerification 错误时再添加
+    kubeadm_ignore_preflight_errors:
+      - SystemVerification
+    ```
+
 ## 部署集群前的配置
 
 离线设置需要参考 [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
