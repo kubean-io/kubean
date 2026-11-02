@@ -10,6 +10,7 @@
 | [Kylin V10 SP2](https://www.kylinos.cn/)                                 | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Kylin V10 SP3](https://www.kylinos.cn/)                                 | `amd64` / `arm64` | `docker` / `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [OpenEuler 22.03](https://www.openeuler.org/)                            | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
+| [OpenEuler 24.03 LTS SP4](https://www.openeuler.org/)                    | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Oracle Linux 8](https://yum.oracle.com/oracle-linux-isos.html)          | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Oracle Linux 9](https://yum.oracle.com/oracle-linux-isos.html)          | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |
 | [Tencentos 3.1](https://www.tencentcloud.com/document/product/213/40223) | `amd64` / `arm64` | `containerd` | [Automatic build on release](https://github.com/kubean-io/kubean/releases) |

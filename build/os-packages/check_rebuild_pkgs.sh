@@ -37,11 +37,21 @@ if [[ "${OS_NAME}" == "kylin-v112503" ]]; then
   git diff --quiet "${prev_tag}" "${late_tag}" build/os-packages/repos/kylin.v112503.repo || { echo "true"; exit; }
 fi
 
+if [[ "${OS_NAME}" == "openeuler"* ]]; then
+  git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/repos/openeuler_${OS_NAME#openeuler}.repo" || { echo "true"; exit; }
+fi
+
 git diff --quiet "${prev_tag}" "${late_tag}" "build/os-packages/Dockerfile.${OS_NAME}" || { echo "true"; exit; }
 
 # centos / kylinv / redhat / rocky / oracle / tencent / openEuler
 if [[ "${OS_NAME}" =~ ^(centos|kylin|redhat|rocky|oracle|tencent|openeuler|bigcloud).* ]]; then
-  os_key="${OS_NAME/-v10sp*/}"
+  # Must match the packages.yml key queried by Dockerfile.${OS_NAME}.
+  case "${OS_NAME}" in
+    kylin-*) os_key="kylin" ;;
+    openeuler*) os_key="openeuler" ;;
+    tencent31) os_key="tencentos31" ;;
+    *) os_key="${OS_NAME}" ;;
+  esac
   late_digest=$(echo "${late_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')
   prev_digest=$(echo "${prev_packages_yml}" | yq eval ".common[],.yum[],.${os_key}[]" | sort | sha1sum | awk '{print $1}')
   if [ "${late_digest}" == "${prev_digest}" ]; then

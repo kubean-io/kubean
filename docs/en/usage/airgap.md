@@ -324,6 +324,53 @@ Notes for SLES 15 SP7:
 - SLE 15 does not ship the `ntp` package. If you set `ntp_enabled: true`, also set
   `ntp_package: chrony`.
 
+Example for openEuler 24.03 LTS SP4 (yum repo). Hard-code `24.03` in the path instead of
+using `$releasever`:
+
+```yaml
+apiVersion: kubean.io/v1alpha1
+kind: ClusterOperation
+metadata:
+  name: cluster-ops-01
+spec:
+  cluster: sample
+  image: ghcr.io/kubean-io/spray-job:latest
+  actionType: playbook
+  action: cluster.yml
+  preHook:
+    - actionType: playbook
+      action: ping.yml
+    - actionType: playbook
+      action: enable-repo.yml  # openeuler is the os-pkgs source, openeuler-iso is the imported ISO source
+      extraArgs: |
+        -e "{repo_list: ['http://10.20.30.40:9000/kubean/openeuler/24.03/os/\$basearch',
+                         'http://10.20.30.40:9000/kubean/openeuler-iso/24.03/os/\$basearch']}"
+    - actionType: playbook
+      action: disable-firewalld.yml
+  postHook:
+    - actionType: playbook
+      action: cluster-info.yml
+    - actionType: playbook
+      action: enable-repo.yml
+      extraArgs: |
+        -e undo=true
+```
+
+Notes for openEuler 24.03 LTS SP4:
+
+- `os-pkgs-openeuler24.03` is built from the 24.03 LTS SP4 repositories. ISO import drops the
+  SP number and shares the `24.03` directory with os-pkgs, so import the SP4 ISO to keep
+  dependency versions consistent.
+- If `stat -fc %T /sys/fs/cgroup` prints `tmpfs`, the node uses cgroup v1, which the Kubernetes
+  1.35 kubelet refuses by default. Add the following to `vars-conf`:
+
+    ```yaml
+    kubelet_fail_cgroup_v1: false
+    # Add only if kubeadm preflight fails with SystemVerification
+    kubeadm_ignore_preflight_errors:
+      - SystemVerification
+    ```
+
 ## Configure cluster before deployment
 
 Offline settings need to be referred to [`kubespray`](https://github.com/kubernetes-sigs/kubespray)
