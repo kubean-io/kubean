@@ -7,7 +7,7 @@
     kube_config_dir: /etc/kubernetes
     upstream_dns_servers: []
   roles:
-  - kubespray-defaults
+  - kubespray_defaults
   tasks:
   - name: Ensure kube_resolv_conf exists
     when: kube_resolv_conf is defined and kube_resolv_conf != ""
