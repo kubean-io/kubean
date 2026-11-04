@@ -4913,7 +4913,7 @@
 
 <h4 id="3-scale1addworknode">3.应用 <code>scale/1.addWorkNode</code> 文件下所有的配置<a class="headerlink" href="#3-scale1addworknode" title="Permanent link">&para;</a></h4>
 <p>完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/1.addWorkNode/
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/1.addWorkNode/
 </code></pre></div>
 <p>至此，您已经使完成了一个集群的工作节点扩容。</p>
 <h2 id="_3">缩容工作节点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
@@ -4960,7 +4960,7 @@
 
 <h4 id="2-scale2delworknode-clusteroperation">2.应用 <code>scale/2.delWorkNode</code> 目录下的 ClusterOperation 缩容任务清单<a class="headerlink" href="#2-scale2delworknode-clusteroperation" title="Permanent link">&para;</a></h4>
 <p>完成上述步骤并保存 ClusterOperation.yml 文件后，执行如下命令：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/ClusterOperation.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/2.delWorkNode/ClusterOperation.yml
 </code></pre></div>
 <p>默认进入 kubean-system 命名空间，查看缩容任务执行状态：
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cluster-mini-dwn-ops
@@ -5060,7 +5060,7 @@
 </div>
 </div>
 <p>完成上述步骤并保存 HostsConfCM.yml 文件后，执行如下命令：</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/HostsConfCM.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/2.delWorkNode/HostsConfCM.yml
 </code></pre></div>
 <p>此时，我们已将 node2 工作节点从集群中移除，并且清理掉了有关 node2 的主机信息，整个缩容操作就此结束；</p>
 

@@ -4913,7 +4913,7 @@
 
 <h4 id="3apply-all-configurations-under-scale1addworknode-folder">3.Apply all configurations under <code>scale/1.addWorkNode</code> folder<a class="headerlink" href="#3apply-all-configurations-under-scale1addworknode-folder" title="Permanent link">&para;</a></h4>
 <p>After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/1.addWorkNode/
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/1.addWorkNode/
 </code></pre></div>
 <p>At this point, you have completed the scaling of a working node in a cluster.</p>
 <h2 id="shrink-working-nodes">Shrink Working Nodes<a class="headerlink" href="#shrink-working-nodes" title="Permanent link">&para;</a></h2>
@@ -4960,7 +4960,7 @@
 
 <h4 id="2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory">2.Apply the ClusterOperation scaling task list under the <code>scale/2.delWorkNode</code> directory<a class="headerlink" href="#2apply-the-clusteroperation-scaling-task-list-under-the-scale2delworknode-directory" title="Permanent link">&para;</a></h4>
 <p>After completing the above steps and saving the ClusterOperation.yml file, run the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/ClusterOperation.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/2.delWorkNode/ClusterOperation.yml
 </code></pre></div>
 <p>By default, enter the kubean-system namespace and check the execution status of the scaling task:
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>kubean-system<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cluster-mini-dwn-ops
@@ -5060,7 +5060,7 @@ To learn about the progress of the scaling task, you can view the logs of the po
 </div>
 </div>
 <p>After completing the above steps and saving the HostsConfCM.yml file, execute the following command:</p>
-<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/install/scale/2.delWorkNode/HostsConfCM.yml
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>examples/scale/2.delWorkNode/HostsConfCM.yml
 </code></pre></div>
 <p>At this point, we have removed the node2 worker node from the cluster and cleaned up all the host information related to node2. The entire scaling down operation is now complete.</p>
 
