@@ -76,7 +76,7 @@ jobs:
 
     - name: ${{ matrix.name }} image build
       id: build
-      uses: docker/build-push-action@v7.3.0
+      uses: docker/build-push-action@v7.4.0
       with:
         context: ./
         file: ${{ matrix.dockerfile }}
