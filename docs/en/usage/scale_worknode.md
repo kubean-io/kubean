@@ -223,7 +223,7 @@ spec:
 After completing the above steps and saving the HostsConfCM.yml and ClusterOperation.yml files, run the following command:
 
 ```bash
-$ kubectl apply -f examples/install/scale/1.addWorkNode/
+$ kubectl apply -f examples/scale/1.addWorkNode/
 ```
 
 At this point, you have completed the scaling of a working node in a cluster.
@@ -278,7 +278,7 @@ spec:
 After completing the above steps and saving the ClusterOperation.yml file, run the following command:
 
 ```bash
-$ kubectl apply -f examples/install/scale/2.delWorkNode/ClusterOperation.yml
+$ kubectl apply -f examples/scale/2.delWorkNode/ClusterOperation.yml
 ```
 
 By default, enter the kubean-system namespace and check the execution status of the scaling task:
@@ -385,7 +385,7 @@ Go to the path `kubean/examples/scale/2.delWorkNode/` and edit the prepared node
 After completing the above steps and saving the HostsConfCM.yml file, execute the following command:
 
 ```bash
-$ kubectl apply -f examples/install/scale/2.delWorkNode/HostsConfCM.yml
+$ kubectl apply -f examples/scale/2.delWorkNode/HostsConfCM.yml
 ```
 
 At this point, we have removed the node2 worker node from the cluster and cleaned up all the host information related to node2. The entire scaling down operation is now complete.

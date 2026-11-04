@@ -223,7 +223,7 @@ spec:
 完成上述步骤并保存 HostsConfCM.yml 和 ClusterOperation.yml 文件后，执行如下命令：
 
 ```bash
-$ kubectl apply -f examples/install/scale/1.addWorkNode/
+$ kubectl apply -f examples/scale/1.addWorkNode/
 ```
 
 至此，您已经使完成了一个集群的工作节点扩容。
@@ -279,7 +279,7 @@ spec:
 完成上述步骤并保存 ClusterOperation.yml 文件后，执行如下命令：
 
 ```bash
-$ kubectl apply -f examples/install/scale/2.delWorkNode/ClusterOperation.yml
+$ kubectl apply -f examples/scale/2.delWorkNode/ClusterOperation.yml
 ```
 
 默认进入 kubean-system 命名空间，查看缩容任务执行状态：
@@ -387,7 +387,7 @@ $ kubectl -n kubean-system get pod | grep cluster-mini-dwn-ops
 完成上述步骤并保存 HostsConfCM.yml 文件后，执行如下命令：
 
 ```bash
-$ kubectl apply -f examples/install/scale/2.delWorkNode/HostsConfCM.yml
+$ kubectl apply -f examples/scale/2.delWorkNode/HostsConfCM.yml
 ```
 
 此时，我们已将 node2 工作节点从集群中移除，并且清理掉了有关 node2 的主机信息，整个缩容操作就此结束；
