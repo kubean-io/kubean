@@ -46,10 +46,11 @@
         set_fact:
           resovlectl_nameservers: "{{ resovlectl_nameservers_result.stdout | split(' ') }}"
 
-    - name: Import specific task from kubernetes/preinstall role
+    # DNS configuration was extracted from kubernetes/preinstall into kubernetes/dns_config (kubespray#13603)
+    - name: Import DNS facts from kubernetes/dns_config role
       import_role:
-        name: kubernetes/preinstall
-        tasks_from: 0020-set_facts.yml
+        name: kubernetes/dns_config
+        tasks_from: set_facts.yml
       when: not kube_resolv_conf_stat.stat.exists
 
     - name: Write domain/search/nameserver/options to kube_resolv_conf
