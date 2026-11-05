@@ -32,7 +32,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	kerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/events"
 	"k8s.io/client-go/tools/leaderelection"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/client-go/tools/record"
@@ -46,6 +45,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/internal/httpserver"
 	intrec "sigs.k8s.io/controller-runtime/pkg/internal/recorder"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	"sigs.k8s.io/controller-runtime/pkg/recorder"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
@@ -264,7 +264,7 @@ func (cm *controllerManager) GetEventRecorderFor(name string) record.EventRecord
 	return cm.cluster.GetEventRecorderFor(name) //nolint:staticcheck
 }
 
-func (cm *controllerManager) GetEventRecorder(name string) events.EventRecorder {
+func (cm *controllerManager) GetEventRecorder(name string) recorder.EventRecorder {
 	return cm.cluster.GetEventRecorder(name)
 }
 
@@ -302,7 +302,7 @@ func (cm *controllerManager) GetControllerOptions() config.Controller {
 
 func (cm *controllerManager) addHealthProbeServer() error {
 	mux := http.NewServeMux()
-	srv := httpserver.New(mux)
+	srv := httpserver.New(cm.internalCtx, mux)
 
 	if cm.readyzHandler != nil {
 		mux.Handle(cm.readinessEndpointName, http.StripPrefix(cm.readinessEndpointName, cm.readyzHandler))
@@ -324,7 +324,7 @@ func (cm *controllerManager) addHealthProbeServer() error {
 
 func (cm *controllerManager) addPprofServer() error {
 	mux := http.NewServeMux()
-	srv := httpserver.New(mux)
+	srv := httpserver.New(cm.internalCtx, mux)
 
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
 	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
@@ -462,6 +462,10 @@ func (cm *controllerManager) Start(ctx context.Context) (err error) {
 		// Create a context that inherits all keys from the parent context
 		// but can be cancelled independently for leader election management
 		baseCtx := context.WithoutCancel(ctx)
+
+		// Inject the logger into the context for client-go contextual logging
+		baseCtx = logr.NewContext(baseCtx, cm.logger.WithName("leaderelection"))
+
 		leaderCtx, cancel := context.WithCancel(baseCtx)
 		cm.leaderElectionCancel = cancel
 		if leaderElector != nil {
