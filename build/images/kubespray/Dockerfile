@@ -25,10 +25,13 @@ ENV LANG=C.UTF-8
 
 ARG FIX_ANSIBLE9=0
 # Fix ansible to 9.13.0
+# ansible-core 2.16 renders a templated scalar var as a string, which turns an existing Calico IPPool's
+# blockSize into "26" and makes calicoctl reject it. Inline the override so the value stays an integer.
 RUN \
   if [ $FIX_ANSIBLE9 != 0 ]; then \
   sed -i 's/ansible==.*/ansible==9.13.0/' requirements.txt \
-  && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml; \
+  && sed -i 's/minimal_ansible_version: .*/minimal_ansible_version: 2.16.4/;s/maximal_ansible_version: .*/maximal_ansible_version: 2.17.0/' playbooks/ansible_version.yml \
+  && sed -i -E "s/_calico_blocksize(_ipv6)? if (_calico_pool(_ipv6)?_cmd) is success/{'spec': {'blockSize': (\2.stdout | from_json).spec.blockSize}} if \2 is success/" roles/network_plugin/calico/tasks/install.yml; \
   fi
 
 # toml 供 spray-job 的 sivel.toiletwater 使用；因运行期会移除 pip，必须在此一并装好。
