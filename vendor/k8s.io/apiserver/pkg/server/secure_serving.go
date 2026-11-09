@@ -71,6 +71,9 @@ func (s *SecureServingInfo) tlsConfig(stopCh <-chan struct{}) (*tls.Config, erro
 			}
 		}
 	}
+	if len(s.CurvePreferences) > 0 {
+		tlsConfig.CurvePreferences = s.CurvePreferences
+	}
 
 	if s.ClientCA != nil {
 		// Populate PeerCertificates in requests, but don't reject connections without certificates
@@ -171,6 +174,8 @@ func (s *SecureServingInfo) Serve(handler http.Handler, shutdownTimeout time.Dur
 		IdleTimeout:       90 * time.Second, // matches http.DefaultTransport keep-alive timeout
 		ReadHeaderTimeout: 32 * time.Second, // just shy of requestTimeoutUpperBound
 	}
+
+	setMaxHeaderValueCount(secureServer)
 
 	if !s.DisableHTTP2 {
 		// At least 99% of serialized resources in surveyed clusters were smaller than 256kb.
