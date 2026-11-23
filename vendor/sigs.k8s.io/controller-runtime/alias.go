@@ -49,7 +49,36 @@ type Manager = manager.Manager
 type Options = manager.Options
 
 // SchemeBuilder builds a new Scheme for mapping go types to Kubernetes GroupVersionKinds.
-type SchemeBuilder = scheme.Builder
+//
+// Deprecated: This helper is only useful in api packages, but api packages should be
+// easy to import and hence have minimal dependencies. Typically, these dependencies
+// include only the standard library, k8s.io/apimachinery and other api packages.
+//
+// Use the apimachinery builder instead:
+//
+//	import (
+//		metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+//		"k8s.io/apimachinery/pkg/runtime"
+//		"k8s.io/apimachinery/pkg/runtime/schema"
+//	)
+//
+//	const GroupName = ""
+//
+//	var (
+//		SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1"}
+//		SchemeBuilder 		 = runtime.NewSchemeBuilder(addKnownTypes)
+//		AddToScheme   		 = SchemeBuilder.AddToScheme
+//	)
+//
+//	func addKnownTypes(scheme *runtime.Scheme) error {
+//		scheme.AddKnownTypes(SchemeGroupVersion,
+//			&Pod{},
+//		)
+//
+//		metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
+//		return nil
+//	}
+type SchemeBuilder = scheme.Builder //nolint:staticcheck // this is the deprecation alias
 
 // GroupVersion contains the "group" and the "version", which uniquely identifies the API.
 type GroupVersion = schema.GroupVersion
@@ -78,7 +107,7 @@ var (
 	// If --kubeconfig is set, will use the kubeconfig file at that location.  Otherwise will assume running
 	// in cluster and use the cluster provided kubeconfig.
 	//
-	// The returned `*rest.Config` has client-side ratelimting disabled as we can rely on API priority and
+	// The returned `*rest.Config` has client-side rate limiting disabled as we can rely on API priority and
 	// fairness. Set its QPS to a value equal or bigger than 0 to re-enable it.
 	//
 	// Will log an error and exit if there is an error creating the rest.Config.
@@ -88,7 +117,7 @@ var (
 	// If --kubeconfig is set, will use the kubeconfig file at that location.  Otherwise will assume running
 	// in cluster and use the cluster provided kubeconfig.
 	//
-	// The returned `*rest.Config` has client-side ratelimting disabled as we can rely on API priority and
+	// The returned `*rest.Config` has client-side rate limiting disabled as we can rely on API priority and
 	// fairness. Set its QPS to a value equal or bigger than 0 to re-enable it.
 	//
 	// Config precedence
