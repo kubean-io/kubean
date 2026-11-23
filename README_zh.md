@@ -131,6 +131,10 @@ Kubean 是一个<a href="https://cncf.io/">云原生计算基金会(CNCF)全景�
   </a>
 </p>
 
+## :seedling: 项目起源
+
+由 DaoCloud 于 2022-07-18 创建；项目来源可查阅 [kubean-io/kubean](https://github.com/kubean-io/kubean) 的公开仓库历史。
+
 ---
 
 <div align="center">
