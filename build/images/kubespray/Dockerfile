@@ -71,21 +71,27 @@ RUN pip3 cache purge \
 COPY build/images/ansible_patchs/* /tmp/
 # 版本落盘供 hack/ansible-core-version.sh 读取，避免为了拼 tag 去执行镜像内代码。
 # 本层末尾移除 pip：运行期不装包，留着只会把 pip 自带的 vendored 依赖（certifi 等）暴露给安全扫描。
+# Backport ansible/ansible#87842 (Anolis / Alibaba Cloud Linux -> RedHat) until Kubespray adopts ansible-core 2.23+.
 RUN ANSIBLE_CORE_VERSION=$(pip show ansible-core | grep Version: | awk '{print $2}' | cut -d. -f1-2) \
   && echo "ANSIBLE_CORE_VERSION: ${ANSIBLE_CORE_VERSION}" \
   && mkdir -p /etc/kubean \
   && echo "${ANSIBLE_CORE_VERSION}" > /etc/kubean/ansible-core-version \
   && SITE_PKG_PATH=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])') \
   && PKG_MGR_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/pkg_mgr.py" \
+  && DISTRIBUTION_PATH="${SITE_PKG_PATH}/ansible/module_utils/facts/system/distribution.py" \
   && echo "PKG_MGR_PATH: ${PKG_MGR_PATH}" \
+  && echo "DISTRIBUTION_PATH: ${DISTRIBUTION_PATH}" \
   && if [[ "${ANSIBLE_CORE_VERSION}" == "2.14" ]]; then \
   echo "patch-2.14"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.14.patch; \
   elif [[ "${ANSIBLE_CORE_VERSION}" == "2.15" ]]; then  \
   echo "patch-2.15"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.15.patch; \
+  elif [[ "${ANSIBLE_CORE_VERSION}" == "2.16" ]]; then \
+  echo "patch-2.16"; patch ${PKG_MGR_PATH} /tmp/pkg_mgr_2.16.patch; \
   fi \
+  && python3 -B /tmp/patch_distribution.py "${DISTRIBUTION_PATH}" \
   && apk del --quiet py3-pip patch \
-  && rm -rf "${SITE_PKG_PATH}"/pip "${SITE_PKG_PATH}"/pip-*.dist-info /tmp/pkg_mgr_*.patch \
-  && python3 -c 'import ansible, packaging, resolvelib, toml'
+  && rm -rf "${SITE_PKG_PATH}"/pip "${SITE_PKG_PATH}"/pip-*.dist-info /tmp/pkg_mgr_*.patch /tmp/patch_distribution.py \
+  && python3 -B -c 'import ansible, packaging, resolvelib, toml; from ansible.module_utils.facts.system.distribution import Distribution; assert all(Distribution.OS_FAMILY.get(d) == "RedHat" for d in ("Anolis", "Anolis OS", "Alibaba Cloud Linux"))'
 
 FROM scratch
 
