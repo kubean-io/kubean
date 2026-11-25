@@ -357,6 +357,60 @@ func Test_CleanExcessClusterOps(t *testing.T) {
 	}
 }
 
+func Test_CleanExcessClusterOpsKeepsNewest(t *testing.T) {
+	const opsBackupNum = 5
+	controller := &Controller{
+		Client:              newFakeClient(),
+		ClientSet:           clientsetfake.NewClientset(),
+		KubeanClusterSet:    clusterv1alpha1fake.NewSimpleClientset(),
+		KubeanClusterOpsSet: clusteroperationv1alpha1fake.NewSimpleClientset(),
+	}
+	exampleCluster := &clusterv1alpha1.Cluster{
+		ObjectMeta: metav1.ObjectMeta{Name: "cluster-keep-newest"},
+	}
+	// Two eliminate-score groups, and enough operations that the second sort
+	// pass really reorders the slice rather than leaving it alone.
+	for i := 0; i < 14; i++ {
+		score := "0"
+		if i >= 7 {
+			score = "1"
+		}
+		clusterOperation := &clusteroperationv1alpha1.ClusterOperation{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterOperation",
+				APIVersion: "kubean.io/v1alpha1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:              fmt.Sprintf("ops-%02d", i),
+				Labels:            map[string]string{constants.KubeanClusterLabelKey: exampleCluster.Name},
+				Annotations:       map[string]string{EliminateScoreAnno: score},
+				CreationTimestamp: metav1.Unix(int64(i+1), 0),
+			},
+		}
+		if _, err := controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().Create(context.Background(), clusterOperation, metav1.CreateOptions{}); err != nil {
+			t.Fatalf("create %s: %v", clusterOperation.Name, err)
+		}
+	}
+	if _, err := controller.CleanExcessClusterOps(exampleCluster, opsBackupNum); err != nil {
+		t.Fatalf("CleanExcessClusterOps: %v", err)
+	}
+	// Score 0 holds ops-00 to ops-06, so the kept records are the newest five of
+	// that group. Anything else means an older operation outlived a newer one.
+	want := map[string]bool{"ops-02": true, "ops-03": true, "ops-04": true, "ops-05": true, "ops-06": true}
+	remaining, err := controller.KubeanClusterOpsSet.KubeanV1alpha1().ClusterOperations().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		t.Fatalf("list clusterOperations: %v", err)
+	}
+	if len(remaining.Items) != len(want) {
+		t.Fatalf("kept %d operations, want %d", len(remaining.Items), len(want))
+	}
+	for i := range remaining.Items {
+		if !want[remaining.Items[i].Name] {
+			t.Fatalf("kept %s, want only %v", remaining.Items[i].Name, want)
+		}
+	}
+}
+
 func Test_UpdateStatus(t *testing.T) {
 	controller := &Controller{
 		Client:              newFakeClient(),
