@@ -117,7 +117,9 @@ func (c *Controller) SortClusterOperationsByCreation(operations []clusteroperati
 	sort.Slice(operations, func(i, j int) bool {
 		return operations[i].CreationTimestamp.After(operations[j].CreationTimestamp.Time)
 	})
-	sort.Slice(operations, func(i, j int) bool {
+	// Stable, so operations sharing an eliminate score keep the creation order
+	// the first pass gave them.
+	sort.SliceStable(operations, func(i, j int) bool {
 		return c.GetEliminateScoreValue(operations[i]) < c.GetEliminateScoreValue(operations[j])
 	})
 }
