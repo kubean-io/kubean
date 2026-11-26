@@ -139,7 +139,7 @@ function image::pre_processing() {
   # Check if the podman version matches
   local podman_version='4.4.4'
   local current_podman_version=$(podman --version | awk '{print $3}')
-  if [ ${podman_version} != ${current_podman_version} -a $(echo -e "${current_podman_version}\n${podman_versoin}" | sort -rV | head -1) == "${podman_version}" ]; then
+  if [ ${podman_version} != ${current_podman_version} -a $(echo -e "${current_podman_version}\n${podman_version}" | sort -rV | head -1) == "${podman_version}" ]; then
     image::log_erro "Check podman version mismatch. [expected version: ${podman_version}]"
   fi
 
