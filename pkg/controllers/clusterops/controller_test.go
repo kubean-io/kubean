@@ -2710,6 +2710,34 @@ func Test_ProcessKubeanOperationImage(t *testing.T) {
 			},
 			want: "abc:latest",
 		},
+		{
+			name: "update image tag when the registry has a port",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("registry.local:5000/kubean-io/spray-job", "my_tag")
+			},
+			want: "registry.local:5000/kubean-io/spray-job:my_tag",
+		},
+		{
+			name: "update image tag with latest when the registry has a port",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("10.6.170.5:5000/kubean-io/spray-job", "")
+			},
+			want: "10.6.170.5:5000/kubean-io/spray-job:latest",
+		},
+		{
+			name: "nothing to update when the registry has a port and the image has a tag",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("registry.local:5000/kubean-io/spray-job:v1", "my_tag")
+			},
+			want: "registry.local:5000/kubean-io/spray-job:v1",
+		},
+		{
+			name: "nothing to update when the image has a digest",
+			args: func() string {
+				return controller.ProcessKubeanOperationImage("registry.local:5000/kubean-io/spray-job@sha256:0123456789abcdef", "my_tag")
+			},
+			want: "registry.local:5000/kubean-io/spray-job@sha256:0123456789abcdef",
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

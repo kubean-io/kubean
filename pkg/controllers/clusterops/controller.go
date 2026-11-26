@@ -343,13 +343,22 @@ func (c *Controller) UpdateOperationOwnReferenceForCluster(operation *clusterope
 }
 
 func (c *Controller) ProcessKubeanOperationImage(oldImage, globalManifestImageTag string) string {
-	if strings.Contains(oldImage, ":") { // kubespray-job:v1
+	if imageHasTagOrDigest(oldImage) { // kubespray-job:v1
 		return oldImage
 	}
 	if globalManifestImageTag == "" {
 		return fmt.Sprintf("%s:latest", oldImage)
 	}
 	return fmt.Sprintf("%s:%s", oldImage, globalManifestImageTag)
+}
+
+// imageHasTagOrDigest reports whether the image reference names a tag or a digest.
+// A colon before the last "/" belongs to the registry port, as in registry:5000/kubespray-job.
+func imageHasTagOrDigest(image string) bool {
+	if strings.Contains(image, "@") {
+		return true
+	}
+	return strings.LastIndex(image, ":") > strings.LastIndex(image, "/")
 }
 
 func (c *Controller) FetchGlobalManifestImageTag() string {
