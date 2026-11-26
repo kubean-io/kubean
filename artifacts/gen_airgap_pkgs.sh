@@ -11,6 +11,9 @@ KUBE_VERSION=${KUBE_VERSION:-""}
 
 CURRENT_DIR=$(pwd)
 ARCH=${ARCH:-"amd64"}
+# runc 1.5.x crashes on kernels without faccessat2 (< 5.8), see opencontainers/runc#5635.
+# Ship this version as well so users can set runc_version to it on such hosts.
+RUNC_FALLBACK_VERSION=${RUNC_FALLBACK_VERSION:-"1.4.3"}
 OFFLINE_PACKAGE_DIR=${CURRENT_DIR}/${KUBEAN_TAG}/${ARCH}
 OFFLINE_FILES_DIR=${OFFLINE_PACKAGE_DIR}/files
 OFFLINE_IMAGES_DIR=${OFFLINE_PACKAGE_DIR}/images
@@ -34,6 +37,13 @@ function patch_temp_list() {
     # add containerd v1.7.x related files
     echo "https://github.com/containerd/nerdctl/releases/download/v1.7.7/nerdctl-1.7.7-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
     echo "https://github.com/containerd/containerd/releases/download/v1.7.23/containerd-1.7.23-linux-${ARCH}.tar.gz" >> "${temp_dir}/files.list"
+
+    # add fallback runc for old kernels
+    local runc_download_url
+    runc_download_url="$(grep 'opencontainers/runc/releases/download/' "${temp_dir}/files.list" | head -n 1 || true)"
+    if [[ -n "${runc_download_url}" && "${runc_download_url}" != *"/v${RUNC_FALLBACK_VERSION}/"* ]]; then
+      echo "${runc_download_url}" | sed -E "s|/v[^/]+/runc\.|/v${RUNC_FALLBACK_VERSION}/runc.|" >> "${temp_dir}/files.list"
+    fi
 
     # remove unused Kata Containers artifacts
     sed -i '\|github.com/kata-containers/kata-containers/releases/download/|d' "${temp_dir}/files.list"
