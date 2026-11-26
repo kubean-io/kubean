@@ -12,7 +12,7 @@ This section will introduce how to upgrade the Kubernetes version of a cluster u
 ```
 </details>
 
-To demonstrate the process of upgrading a cluster version, we will use the example of [a single node cluster deployed using the all-in-one mode](./all-in-one-install.md).
+To demonstrate the process of upgrading a cluster version, we will use the example of [a single node cluster deployed using the all-in-one mode](./all_in_one_install.md).
 > Note: that before upgrading the cluster version, you must have completed the deployment of a cluster using kubean.
 
 #### 1. Add an upgrade task

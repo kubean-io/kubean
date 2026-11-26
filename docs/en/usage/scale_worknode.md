@@ -20,7 +20,7 @@ In the `kubean/example/scale` directory cloned to your local machine, there is a
 
 By observing the scaling configuration template in the `scale` file, it can be seen that scaling the cluster's worker nodes only requires executing two configuration files: `HostsConfCM.yml` and `ClusterOperation.yml`. You will need to replace the parameters such as the information of the new node with your actual parameters.
 
-[Using the example of a single-node cluster deployed in all-in-one mode](./all-in-one-install.md) let's demonstrate how to scale the cluster's worker nodes.
+[Using the example of a single-node cluster deployed in all-in-one mode](./all_in_one_install.md) let's demonstrate how to scale the cluster's worker nodes.
 > Note: Before scaling the cluster, you must have completed the deployment of a set of cluster using kubean.
 
 ## Scaling Worker Nodes

@@ -11,7 +11,7 @@ This section will show you how to use kubean to uninstall a cluster. In the `kub
 ```
 </details>
 
-In the following example, we will [use a single-node cluster deployed in all-in-one mode](./all-in-one-install.md) to demonstrate the cluster upgrade operation.
+In the following example, we will [use a single-node cluster deployed in all-in-one mode](./all_in_one_install.md) to demonstrate the cluster uninstall operation.
 > Note: Before performing a cluster uninstallation, you must have completed the deployment of a cluster using kubean.
 
 #### 1. Add an uninstallation task

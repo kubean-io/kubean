@@ -4,7 +4,7 @@
 
 1. 您已拥有一个标准 kubernetes 集群或云厂商提供的集群。
 2. 集群控制节点或云终端已将安装了 [kubectl 工具](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)。
-3. [kubean helm chart](helm-install-kubean.md) 已在您的集群上部署。
+3. [kubean helm chart](helm_install_kubean.md) 已在您的集群上部署。
 4. [kubean 项目](https://github.com/kubean-io/kubean)已经克隆至您本地，如果您还未克隆 kubean，可以执行执行如下命令进行克隆：
 
 ```bash
