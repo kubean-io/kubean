@@ -1,0 +1,22 @@
+--- pkg_mgr.py
++++ pkg_mgr.py
+@@ -98,7 +98,18 @@
+             or (collected_facts['ansible_distribution'] == 'Kylin Linux Advanced Server' and distro_major_ver < 10)
+             or (collected_facts['ansible_distribution'] == 'Amazon' and distro_major_ver < 2022)
+             or (collected_facts['ansible_distribution'] == 'TencentOS' and distro_major_ver < 3)
+-            or distro_major_ver < 8  # assume RHEL or a clone
++            or (collected_facts['ansible_distribution'] in ('Alibaba', 'Alibaba Cloud Linux') and distro_major_ver < 3)
++            or (
++                collected_facts['ansible_distribution'] not in (
++                    'Fedora',
++                    'Kylin Linux Advanced Server',
++                    'Amazon',
++                    'TencentOS',
++                    'Alibaba',
++                    'Alibaba Cloud Linux',
++                )
++                and distro_major_ver < 8  # assume RHEL or a clone
++            )
+         ) and any(pm for pm in PKG_MGRS if pm['name'] == 'yum' and os.path.exists(pm['path'])):
+             pkg_mgr_name = 'yum'
+ 
